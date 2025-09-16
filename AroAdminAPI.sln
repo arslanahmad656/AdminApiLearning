@@ -3,9 +3,45 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36408.4 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Application", "Application", "{A7E8652D-5871-482F-B1FA-98F262D57CC2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{849EFA24-E4B7-4F6F-ADEF-E24F30CA06CF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{055BFB8C-CC17-4E12-8C97-0D0AD7603F58}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Domain.Entities", "Aro.Domain.Entities\Aro.Domain.Entities.csproj", "{A3D37F27-A97C-484D-A82C-78E3EF51FF44}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SeedData", "SeedData", "{BF24EC04-3007-4E45-98CC-D18E017B2D60}"
+	ProjectSection(SolutionItems) = preProject
+		Permissions.json = Permissions.json
+		Roles.json = Roles.json
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Domain.Repository", "Aro.Domain.Repository\Aro.Domain.Repository.csproj", "{494D33C4-5692-48F5-AA3B-40F3F8942917}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A3D37F27-A97C-484D-A82C-78E3EF51FF44}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3D37F27-A97C-484D-A82C-78E3EF51FF44}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3D37F27-A97C-484D-A82C-78E3EF51FF44}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3D37F27-A97C-484D-A82C-78E3EF51FF44}.Release|Any CPU.Build.0 = Release|Any CPU
+		{494D33C4-5692-48F5-AA3B-40F3F8942917}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{494D33C4-5692-48F5-AA3B-40F3F8942917}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{494D33C4-5692-48F5-AA3B-40F3F8942917}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{494D33C4-5692-48F5-AA3B-40F3F8942917}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A3D37F27-A97C-484D-A82C-78E3EF51FF44} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{494D33C4-5692-48F5-AA3B-40F3F8942917} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B86AB3AF-0895-4FEF-8444-14F657F6FC4C}
