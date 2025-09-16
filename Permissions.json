@@ -1,0 +1,64 @@
+[
+  {
+    "Name": "users.create",
+    "Resource": "users",
+    "Action": "create"
+  },
+  {
+    "Name": "users.read",
+    "Resource": "users",
+    "Action": "read"
+  },
+  {
+    "Name": "users.update",
+    "Resource": "users",
+    "Action": "update"
+  },
+  {
+    "Name": "users.delete",
+    "Resource": "users",
+    "Action": "delete"
+  },
+
+  {
+    "Name": "reservations.create",
+    "Resource": "reservations",
+    "Action": "create"
+  },
+  {
+    "Name": "reservations.read",
+    "Resource": "reservations",
+    "Action": "read"
+  },
+  {
+    "Name": "reservations.update",
+    "Resource": "reservations",
+    "Action": "update"
+  },
+  {
+    "Name": "reservations.delete",
+    "Resource": "reservations",
+    "Action": "delete"
+  },
+
+  {
+    "Name": "properties.create",
+    "Resource": "properties",
+    "Action": "create"
+  },
+  {
+    "Name": "properties.read",
+    "Resource": "properties",
+    "Action": "read"
+  },
+  {
+    "Name": "properties.update",
+    "Resource": "properties",
+    "Action": "update"
+  },
+  {
+    "Name": "properties.delete",
+    "Resource": "properties",
+    "Action": "delete"
+  }
+]
