@@ -84,6 +84,8 @@ public class Seeder
                 }
             }
         }
+
+        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
     }
 }
 

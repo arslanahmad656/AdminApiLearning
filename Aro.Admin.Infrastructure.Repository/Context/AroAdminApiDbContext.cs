@@ -5,8 +5,18 @@ using System.Diagnostics;
 
 namespace Aro.Admin.Infrastructure.Repository.Context;
 
-public class AroAdminApiDbContext(DbContextOptions<AroAdminApiDbContext> options) : DbContext(options)
+public class AroAdminApiDbContext : DbContext
 {
+    public AroAdminApiDbContext()
+    {
+        
+    }
+
+    public AroAdminApiDbContext(DbContextOptions<AroAdminApiDbContext> options) : base(options)
+    {
+        
+    }
+
     public DbSet<AuditTrail> AuditTrails { get; set; }
 
     public DbSet<IdempotencyRecord> IdempotencyRecords { get; set; }
@@ -25,14 +35,12 @@ public class AroAdminApiDbContext(DbContextOptions<AroAdminApiDbContext> options
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        //if (!Debugger.IsAttached)
-        //{
-        //    Debugger.Launch();
-        //}
+        if (!Debugger.IsAttached)
+        {
+            Debugger.Launch();
+        }
 
-        // set table names
-
-        // apply configurations
+        modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
 
         base.OnModelCreating(modelBuilder);
     }

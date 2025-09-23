@@ -8,15 +8,17 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.9" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Aro.Admin.Domain.Entities\Aro.Admin.Domain.Entities.csproj" />
     <ProjectReference Include="..\Aro.Admin.Domain.Repository\Aro.Admin.Domain.Repository.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Context\Configurations\" />
+    <ProjectReference Include="..\Aro.Admin.Domain.Shared\Aro.Admin.Domain.Shared.csproj" />
   </ItemGroup>
 
 </Project>
