@@ -1,0 +1,19 @@
+Define EF Core entities & DB migrations for Users/Roles/Permissions/Audit/Settings/Idempotency.
+
+Implement role & permission seeding on startup.
+
+Implement PasswordHasher (or wire up ASP.NET Identity).
+
+Implement InitController.CreateFirstAdmin with transaction + audit + idempotency support.
+
+Implement UserService & endpoints (Create/Update) that accept role assignments and call AuditService.
+
+Implement Permission check layer (AuthorizationRequirement/Handler) and register policies.
+
+Implement Idempotency middleware/service and IdempotencyRecords table.
+
+Implement Audit query endpoint & RBAC-protect it.
+
+Write unit & integration tests (including concurrency test on first-admin).
+
+Review security hardening (token revocation strategy if using JWT, rate limits).

@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Seed\DTOs\" />
+    <Folder Include="Seed\Events\" />
+    <Folder Include="Seed\Queries\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MediatR" Version="13.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Aro.Admin.Application.Services\Aro.Admin.Application.Services.csproj" />
+    <ProjectReference Include="..\Aro.Application.Services\Aro.Admin.Application.Services.csproj" />
+  </ItemGroup>
+
+</Project>

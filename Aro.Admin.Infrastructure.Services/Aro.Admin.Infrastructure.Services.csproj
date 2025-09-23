@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Aro.Admin.Application.Services\Aro.Admin.Application.Services.csproj" />
+    <ProjectReference Include="..\Aro.Admin.Domain.Repository\Aro.Admin.Domain.Repository.csproj" />
+    <ProjectReference Include="..\Aro.Admin.Domain.Shared\Aro.Admin.Domain.Shared.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,6 @@
+@Aro.Admin.Presentation.Entry_HostAddress = http://localhost:5248
+
+GET {{Aro.Admin.Presentation.Entry_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
