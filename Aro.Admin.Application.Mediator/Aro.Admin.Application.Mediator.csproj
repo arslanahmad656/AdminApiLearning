@@ -17,8 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aro.Admin.Application.Services\Aro.Admin.Application.Services.csproj" />
-    <ProjectReference Include="..\Aro.Application.Services\Aro.Admin.Application.Services.csproj" />
+    <ProjectReference Include="..\Aro.Admin.Infrastructure.Services\Aro.Admin.Infrastructure.Services.csproj" />
   </ItemGroup>
 
 </Project>

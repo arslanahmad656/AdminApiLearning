@@ -59,7 +59,8 @@ public class Seeder
                 {
                     Id = Guid.NewGuid(),
                     Name = roleModel.Name,
-                    Description = roleModel.Description
+                    Description = roleModel.Description,
+                    IsBuiltin = true
                 };
 
                 await repository.RoleRepository.Create(role, cancellationToken);
