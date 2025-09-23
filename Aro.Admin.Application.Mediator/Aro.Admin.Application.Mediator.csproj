@@ -8,7 +8,6 @@
 
   <ItemGroup>
     <Folder Include="Seed\DTOs\" />
-    <Folder Include="Seed\Events\" />
     <Folder Include="Seed\Queries\" />
   </ItemGroup>
 
@@ -17,7 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aro.Admin.Infrastructure.Services\Aro.Admin.Infrastructure.Services.csproj" />
+    <ProjectReference Include="..\Aro.Admin.Application.Services\Aro.Admin.Application.Services.csproj" />
   </ItemGroup>
 
 </Project>

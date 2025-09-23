@@ -6,5 +6,5 @@ namespace Aro.Admin.Infrastructure.Repository.Repositories;
 
 public class AuditTrailRepository(AroAdminApiDbContext dbContext) : RepositoryBase<AuditTrail>(dbContext), IAuditTrailRepository
 {
-    // Implement IAuditTrailRepository members here
+    public Task Create(AuditTrail trail, CancellationToken cancellationToken = default) => Add(trail, cancellationToken);
 }

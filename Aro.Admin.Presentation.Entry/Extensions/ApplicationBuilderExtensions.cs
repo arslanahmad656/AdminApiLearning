@@ -1,4 +1,5 @@
-﻿using Aro.Admin.Application.Mediator.Seed.Commands;
+﻿using Aro.Admin.Application.Mediator.Migration.Commands;
+using Aro.Admin.Application.Mediator.Seed.Commands;
 using Aro.Admin.Infrastructure.Repository.Context;
 using Aro.Admin.Presentation.Entry.ServiceInstallers;
 using MediatR;
@@ -34,8 +35,13 @@ public static class ApplicationBuilderExtensions
 
     public static async Task MigrateDatabase(this IApplicationBuilder app)
     {
+        //using var scope = app.ApplicationServices.CreateScope();
+        //var dbContext = scope.ServiceProvider.GetRequiredService<AroAdminApiDbContext>();
+        //await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+
         using var scope = app.ApplicationServices.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<AroAdminApiDbContext>();
-        await dbContext.Database.MigrateAsync().ConfigureAwait(false);
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+        await mediator.Send(new MigrateDatabaseCommand()).ConfigureAwait(false);
     }
 }
