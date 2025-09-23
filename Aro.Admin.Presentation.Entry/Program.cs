@@ -1,3 +1,5 @@
+using Aro.Admin.Presentation.Entry.Extensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,6 +10,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+await app.SeedDatabase(Path.Combine(@"AppData\PemissionSeed.json")).ConfigureAwait(false);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

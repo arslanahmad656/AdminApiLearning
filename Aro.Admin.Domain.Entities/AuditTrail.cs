@@ -12,4 +12,5 @@ public class AuditTrail : IEntity
     public string After { get; set; }
     public string IpAddress { get; set; }
     public DateTime Timestamp { get; set; }
+    public User Actor { get; set; }
 }
