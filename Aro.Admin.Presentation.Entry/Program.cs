@@ -2,15 +2,11 @@ using Aro.Admin.Presentation.Entry.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.InstallServices();
 
 var app = builder.Build();
 
+await app.MigrateDatabase().ConfigureAwait(false);
 await app.SeedDatabase(Path.Combine(@"AppData\PemissionSeed.json")).ConfigureAwait(false);
 
 // Configure the HTTP request pipeline.
