@@ -1,5 +1,6 @@
 ﻿
 using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Infrastructure.Repository.Context;
 using Aro.Admin.Infrastructure.Repository.Repositories;
@@ -27,5 +28,7 @@ internal class DatabaseServicesInstaller : IServiceInstaller
 
         // Add dataservices here
         builder.Services.AddScoped<ISeeder, Seeder>();
+        builder.Services.AddScoped<IAuditService, AuditService>();
+        builder.Services.AddScoped<IMigrationService, MigrationService>();
     }
 }

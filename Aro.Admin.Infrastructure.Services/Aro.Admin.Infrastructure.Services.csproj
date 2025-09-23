@@ -7,9 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Aro.Admin.Application.Services\Aro.Admin.Application.Services.csproj" />
-    <ProjectReference Include="..\Aro.Admin.Domain.Repository\Aro.Admin.Domain.Repository.csproj" />
-    <ProjectReference Include="..\Aro.Admin.Domain.Shared\Aro.Admin.Domain.Shared.csproj" />
+    <ProjectReference Include="..\Aro.Admin.Infrastructure.Repository\Aro.Admin.Infrastructure.Repository.csproj" />
   </ItemGroup>
 
 </Project>

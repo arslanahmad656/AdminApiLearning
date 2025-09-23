@@ -23,11 +23,11 @@ public class AuditTrailConfiguration : IEntityTypeConfiguration<AuditTrail>
             .HasMaxLength(128);
 
         builder.Property(a => a.EntityType)
-            .IsRequired()
+            .IsRequired(false)
             .HasMaxLength(128);
 
         builder.Property(a => a.EntityId)
-            .IsRequired()
+            .IsRequired(false)
             .HasMaxLength(128);
 
         builder.Property(a => a.Before)
