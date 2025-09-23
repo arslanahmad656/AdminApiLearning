@@ -1,0 +1,146 @@
+public class SeedData
+{
+    public List<PermissionSeed> Permissions { get; set; } = new();
+    public List<RoleSeed> Roles { get; set; } = new();
+}
+
+public class PermissionSeed
+{
+    public string Name { get; set; } = default!;
+    public string Resource { get; set; } = default!;
+    public string Action { get; set; } = default!;
+}
+
+public class RoleSeed
+{
+    public string Name { get; set; } = default!;
+    public string Description { get; set; } = default!;
+    public bool IsBuiltin { get; set; }
+    public List<string> Permissions { get; set; } = new();
+}
+
+
+
+
+
+
+
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
+
+public class RolePermissionSeeder
+{
+    private readonly AppDbContext _db;
+    private readonly ILogger<RolePermissionSeeder> _logger;
+
+    public RolePermissionSeeder(AppDbContext db, ILogger<RolePermissionSeeder> logger)
+    {
+        _db = db;
+        _logger = logger;
+    }
+
+    public async Task SeedAsync(string jsonFilePath)
+    {
+        if (!File.Exists(jsonFilePath))
+        {
+            _logger.LogError("Seed file not found at {Path}", jsonFilePath);
+            return;
+        }
+
+        var json = await File.ReadAllTextAsync(jsonFilePath);
+        var seed = JsonSerializer.Deserialize<SeedData>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        });
+
+        if (seed == null)
+        {
+            _logger.LogError("Failed to parse seed file {Path}", jsonFilePath);
+            return;
+        }
+
+        // 1. Permissions
+        var existingPermissions = await _db.Permissions.ToDictionaryAsync(p => p.Name);
+        foreach (var permSeed in seed.Permissions)
+        {
+            if (!existingPermissions.ContainsKey(permSeed.Name))
+            {
+                var perm = new Permission
+                {
+                    Id = Guid.NewGuid(),
+                    Name = permSeed.Name,
+                    Resource = permSeed.Resource,
+                    Action = permSeed.Action
+                };
+                _db.Permissions.Add(perm);
+                _logger.LogInformation("Added permission {Perm}", perm.Name);
+            }
+        }
+
+        await _db.SaveChangesAsync();
+
+        // Refresh
+        existingPermissions = await _db.Permissions.ToDictionaryAsync(p => p.Name);
+
+        // 2. Roles
+        var existingRoles = await _db.Roles.ToDictionaryAsync(r => r.Name);
+        foreach (var roleSeed in seed.Roles)
+        {
+            if (!existingRoles.ContainsKey(roleSeed.Name))
+            {
+                var role = new Role
+                {
+                    Id = Guid.NewGuid(),
+                    Name = roleSeed.Name,
+                    Description = roleSeed.Description,
+                    IsBuiltin = roleSeed.IsBuiltin
+                };
+                _db.Roles.Add(role);
+                _logger.LogInformation("Added role {Role}", role.Name);
+            }
+        }
+
+        await _db.SaveChangesAsync();
+
+        // Refresh
+        existingRoles = await _db.Roles.ToDictionaryAsync(r => r.Name);
+
+        // 3. RolePermissions
+        var existingRolePerms = await _db.RolePermissions
+            .Select(rp => new { rp.RoleId, rp.PermissionId })
+            .ToListAsync();
+
+        foreach (var roleSeed in seed.Roles)
+        {
+            var role = existingRoles[roleSeed.Name];
+            List<Permission> assignedPerms;
+
+            if (roleSeed.Permissions.Contains("*"))
+            {
+                assignedPerms = existingPermissions.Values.ToList();
+            }
+            else
+            {
+                assignedPerms = roleSeed.Permissions
+                    .Where(p => existingPermissions.ContainsKey(p))
+                    .Select(p => existingPermissions[p])
+                    .ToList();
+            }
+
+            foreach (var perm in assignedPerms)
+            {
+                if (!existingRolePerms.Any(x => x.RoleId == role.Id && x.PermissionId == perm.Id))
+                {
+                    _db.RolePermissions.Add(new RolePermission
+                    {
+                        RoleId = role.Id,
+                        PermissionId = perm.Id
+                    });
+                    _logger.LogInformation("Assigned {Perm} to {Role}", perm.Name, role.Name);
+                }
+            }
+        }
+
+        await _db.SaveChangesAsync();
+    }
+}
