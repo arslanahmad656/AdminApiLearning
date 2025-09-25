@@ -1,4 +1,6 @@
-﻿using Aro.Admin.Domain.Entities;
+﻿using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
+using Aro.Admin.Domain.Entities;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Aro.Admin.Infrastructure.Services;
 
@@ -64,6 +66,14 @@ public partial class AuditService
         var entity = GenerateAuditTrialEntity(action, when.Value, ipAddress ?? string.Empty, actorId, actorName, entityType, entityId, stateBefore, stateAfter);
 
         return entity;
+    }
+
+    private AuditTrail GenerateTrailForUserCreated(string action, Guid userId, UserCreatedLog log)
+    {
+        var state = serializer.Serialize(log);
+        var trail = GenerateAuditTrialEntityWithCommonParams(action: action, entityType: auditEntityTypes.User, entityId: userId.ToString(), stateAfter: state);
+
+        return trail;
     }
 
     (string? UserId, string? Username, string? IPAddress, DateTime When) GetCommonParameters()

@@ -9,14 +9,19 @@
   <ItemGroup>
     <Folder Include="Seed\DTOs\" />
     <Folder Include="Seed\Queries\" />
+    <Folder Include="SystemSettings\Queries\" />
+    <Folder Include="User\Queries\" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="MediatR" Version="13.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Aro.Admin.Application.Services\Aro.Admin.Application.Services.csproj" />
+    <ProjectReference Include="..\Aro.Admin.Application.Shared\Aro.Admin.Application.Shared.csproj" />
+    <ProjectReference Include="..\Aro.Admin.Domain.Shared\Aro.Admin.Domain.Shared.csproj" />
   </ItemGroup>
 
 </Project>
