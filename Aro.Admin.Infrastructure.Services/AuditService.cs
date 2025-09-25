@@ -1,5 +1,6 @@
 ﻿using Aro.Admin.Application.Services;
 using Aro.Admin.Application.Services.DataServices;
+using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared.Audit;
 
@@ -10,7 +11,9 @@ public partial class AuditService
     IEntityIdGenerator idGenerator, 
     IRequestInterpretorService requestInterpretor,
     AuditActions auditActions,
-    IRepositoryManager repository
+    AuditEntityTypes auditEntityTypes,
+    IRepositoryManager repository,
+    ISerializer serializer
 ) : IAuditService
 {
     public async Task LogApplicationSeeded(CancellationToken cancellationToken = default)
@@ -29,6 +32,24 @@ public partial class AuditService
         (
             action: auditActions.MigrationsApplied
         );
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task LogSystemInitialized(SystemInitializedLog log, CancellationToken cancellationToken = default)
+    {
+        var entity = GenerateAuditTrialEntityWithCommonParams
+        (
+            action: auditActions.SystemInitialized,
+            stateAfter: serializer.Serialize(log)
+        );
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task LogUserCreated(UserCreatedLog log, CancellationToken cancellationToken = default)
+    {
+        var entity = GenerateTrailForUserCreated(auditActions.UserCreated, log.Id, log);
 
         await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
     }

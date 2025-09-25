@@ -14,4 +14,6 @@ public class RoleRepository(AroAdminApiDbContext dbContext) : RepositoryBase<Rol
     public Task<Role?> GetByName(string roleName, CancellationToken cancellationToken = default)
         => FindByCondition(r => r.Name == roleName)
             .SingleOrDefaultAsync(cancellationToken);
+
+    public IQueryable<Role> GetByNames(IEnumerable<string> roleNames) => FindByCondition(filter: r => roleNames.Contains(r.Name));
 }

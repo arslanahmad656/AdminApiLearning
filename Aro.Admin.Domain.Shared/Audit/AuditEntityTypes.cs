@@ -2,4 +2,6 @@
 
 public class AuditEntityTypes
 {
+    public readonly string User = "User";
+    public readonly string Role = "Role";
 }

@@ -1,5 +1,14 @@
-﻿namespace Aro.Admin.Domain.Repository;
+﻿using Aro.Admin.Domain.Entities;
+
+namespace Aro.Admin.Domain.Repository;
 
 public interface IUserRoleRepository
 {
+    Task<bool> Exists(Guid userId, Guid roleId, CancellationToken cancellationToken = default);
+
+    IQueryable<UserRole> GetByUserIds(IEnumerable<Guid> userIds);
+    
+    IQueryable<UserRole> GetByRoleIds(IEnumerable<Guid> roleIds);
+
+    Task Create(UserRole userRole, CancellationToken cancellationToken = default);
 }

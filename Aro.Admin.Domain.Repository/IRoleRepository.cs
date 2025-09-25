@@ -4,9 +4,11 @@ namespace Aro.Admin.Domain.Repository;
 
 public interface IRoleRepository
 {
-    public Task<Role?> GetByName(string roleName, CancellationToken cancellationToken = default);
+    Task<Role?> GetByName(string roleName, CancellationToken cancellationToken = default);
 
-    public IQueryable<Role> GetAll();
+    IQueryable<Role> GetByNames(IEnumerable<string> roleNames);
 
-    public Task Create(Role role, CancellationToken cancellationToken = default);
+    IQueryable<Role> GetAll();
+
+    Task Create(Role role, CancellationToken cancellationToken = default);
 }

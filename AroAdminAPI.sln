@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Domain.Shared", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Presentation.Api", "Aro.Admin.Presentation.Api\Aro.Admin.Presentation.Api.csproj", "{23B8FB21-CAF5-4618-B43C-5BB4A3539FD5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Application.Shared", "Aro.Admin.Application.Shared\Aro.Admin.Application.Shared.csproj", "{99634C81-7A5D-40A6-8A2F-DAE615E76705}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -76,6 +78,10 @@ Global
 		{23B8FB21-CAF5-4618-B43C-5BB4A3539FD5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{23B8FB21-CAF5-4618-B43C-5BB4A3539FD5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{23B8FB21-CAF5-4618-B43C-5BB4A3539FD5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99634C81-7A5D-40A6-8A2F-DAE615E76705}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99634C81-7A5D-40A6-8A2F-DAE615E76705}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99634C81-7A5D-40A6-8A2F-DAE615E76705}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99634C81-7A5D-40A6-8A2F-DAE615E76705}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -90,6 +96,7 @@ Global
 		{6A712BDA-24D4-4CFF-8C15-8D4B08A9F7EB} = {849EFA24-E4B7-4F6F-ADEF-E24F30CA06CF}
 		{557F215C-259C-4AF0-A8E3-3EAE3B3BC751} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{23B8FB21-CAF5-4618-B43C-5BB4A3539FD5} = {055BFB8C-CC17-4E12-8C97-0D0AD7603F58}
+		{99634C81-7A5D-40A6-8A2F-DAE615E76705} = {A7E8652D-5871-482F-B1FA-98F262D57CC2}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B86AB3AF-0895-4FEF-8444-14F657F6FC4C}
