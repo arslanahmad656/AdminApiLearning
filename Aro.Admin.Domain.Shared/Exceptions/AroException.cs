@@ -25,7 +25,7 @@ public class AroException : Exception
         ErrorCode = errorCode;
     }
 
-    public AroException(string errorCode, string message, Exception innerException)
+    public AroException(string errorCode, string message, Exception? innerException)
         : base(message, innerException)
     {
         ErrorCode = errorCode;
