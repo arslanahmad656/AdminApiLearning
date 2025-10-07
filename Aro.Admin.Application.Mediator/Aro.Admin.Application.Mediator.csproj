@@ -10,6 +10,7 @@
     <Folder Include="Seed\DTOs\" />
     <Folder Include="Seed\Queries\" />
     <Folder Include="SystemSettings\Queries\" />
+    <Folder Include="UserRole\Queries\" />
     <Folder Include="User\Queries\" />
   </ItemGroup>
 

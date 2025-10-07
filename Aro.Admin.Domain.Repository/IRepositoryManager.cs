@@ -1,6 +1,6 @@
 ﻿namespace Aro.Admin.Domain.Repository;
 
-public interface IRepositoryManager
+public interface IRepositoryManager // also acts as a Unit of Work
 {
     IAuditTrailRepository AuditTrailRepository { get; }
 

@@ -8,8 +8,8 @@ using MediatorDtos = Aro.Admin.Application.Mediator.User.DTOs;
 namespace Aro.Admin.Presentation.Api.Controllers;
 
 [ApiController]
-[Route("api/users")]
-public class UsersController(IMediator mediator, IMapper mapper) : ControllerBase
+[Route("api/user")]
+public class UserController(IMediator mediator, IMapper mapper) : ControllerBase
 {
     [HttpPost("create")]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserModel model, CancellationToken cancellationToken)

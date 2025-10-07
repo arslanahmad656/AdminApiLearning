@@ -2,7 +2,10 @@
 
 public interface IAuthorizationService
 {
-    Task<bool> UserHasPermissionAsync(Guid userId, string permissionCode, CancellationToken cancellationToken);
-    Task EnsureUserHasPermissionAsync(Guid userId, string permissionCode, CancellationToken cancellationToken);
+    Task<bool> UserHasPermission(Guid userId, string permissionCode, CancellationToken cancellationToken);
+    
+    Task EnsureUserHasPermission(Guid userId, string permissionCode, CancellationToken cancellationToken);
+
+    Task EnsureCurrentUserPermissions(IEnumerable<string> permissions, CancellationToken cancellationToken = default);
 }
 

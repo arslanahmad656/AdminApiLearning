@@ -16,4 +16,4 @@ Implement Audit query endpoint & RBAC-protect it.
 
 Write unit & integration tests (including concurrency test on first-admin).
 
-Review security hardening (token revocation strategy if using JWT, rate limits).
+Review security hardening (token revocation strategy if using JWT, rate limits, DDoS protection etc.).

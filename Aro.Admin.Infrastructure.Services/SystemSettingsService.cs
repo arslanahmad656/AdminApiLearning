@@ -1,16 +1,19 @@
-﻿using Aro.Admin.Application.Services.DataServices;
+﻿using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class SystemSettingsService(IRepositoryManager repository, SharedKeys sharedKeys) : ISystemSettingsService
+public class SystemSettingsService(IRepositoryManager repository, SharedKeys sharedKeys, IAuthorizationService authorizationService, PermissionCodes permissionCodes) : ISystemSettingsService
 {
     private readonly ISystemSettingsRepository settingsRepo = repository.SystemSettingsRepository;
     private readonly IUserRepository userRepository = repository.UserRepository;
     
     public async Task<bool> IsSystemInitialized(CancellationToken cancellationToken = default)
     {
+        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.InitializeSystem, permissionCodes.CreateUser], cancellationToken);
+
         var setting = await settingsRepo.GetValue(sharedKeys.IS_SYSTEM_INITIALIZED, cancellationToken).ConfigureAwait(false);
 
         if (setting?.Value == true.ToString())
@@ -27,6 +30,8 @@ public class SystemSettingsService(IRepositoryManager repository, SharedKeys sha
 
     public async Task SetSystemStateToInitialized(CancellationToken cancellationToken = default)
     {
+        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.InitializeSystem], cancellationToken);
+
         var setting = await settingsRepo.GetValue(sharedKeys.IS_SYSTEM_INITIALIZED, cancellationToken).ConfigureAwait(false)
             ?? new() { Key = sharedKeys.IS_SYSTEM_INITIALIZED };
 

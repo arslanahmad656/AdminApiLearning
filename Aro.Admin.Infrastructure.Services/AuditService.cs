@@ -41,7 +41,8 @@ public partial class AuditService
         var entity = GenerateAuditTrialEntityWithCommonParams
         (
             action: auditActions.SystemInitialized,
-            stateAfter: serializer.Serialize(log)
+            //stateAfter: serializer.Serialize(log)
+            data: serializer.Serialize(log)
         );
 
         await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
@@ -50,6 +51,20 @@ public partial class AuditService
     public async Task LogUserCreated(UserCreatedLog log, CancellationToken cancellationToken = default)
     {
         var entity = GenerateTrailForUserCreated(auditActions.UserCreated, log.Id, log);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task LogRolesAssigned(RolesAssignedLog log, CancellationToken cancellationToken = default)
+    {
+        var entity = GenerateTrialForRolesAssigned(auditActions.RolesAssignedToUsers, log);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task LogRolesRevoked(RolesRevokedLog log, CancellationToken cancellationToken = default)
+    {
+        var entity = GenerateTrialForRolesRevoked(auditActions.RolesRevokedFromUsers, log);
 
         await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
     }

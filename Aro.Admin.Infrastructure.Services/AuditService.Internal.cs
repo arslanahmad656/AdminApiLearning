@@ -1,6 +1,5 @@
 ﻿using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
 using Aro.Admin.Domain.Entities;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Aro.Admin.Infrastructure.Services;
 
@@ -15,8 +14,9 @@ public partial class AuditService
         string? actorName = null,
         string? entityType = null,
         string? entityId = null,
-        string? stateBefore = null,
-        string? stateAfter = null
+        //string? stateBefore = null,
+        //string? stateAfter = null
+        string? data = null
     )
     {
         var entity = new AuditTrail
@@ -25,8 +25,9 @@ public partial class AuditService
             ActorName = actorName,
             EntityId = entityId,
             ActorUserId = actorId,
-            After = stateAfter,
-            Before = stateBefore,
+            //After = stateAfter,
+            //Before = stateBefore,
+            Data = data,
             EntityType = entityType,
             IpAddress = ipAddress,
             Timestamp = when,
@@ -45,8 +46,9 @@ public partial class AuditService
         string? actorName = null,
         string? entityType = null,
         string? entityId = null,
-        string? stateBefore = null,
-        string? stateAfter = null
+        //string? stateBefore = null,
+        //string? stateAfter = null
+        string? data = null
     )
     {
         var commonParams = GetCommonParameters();
@@ -63,17 +65,9 @@ public partial class AuditService
             }
         }
 
-        var entity = GenerateAuditTrialEntity(action, when.Value, ipAddress ?? string.Empty, actorId, actorName, entityType, entityId, stateBefore, stateAfter);
+        var entity = GenerateAuditTrialEntity(action, when.Value, ipAddress ?? string.Empty, actorId, actorName, entityType, entityId, /*stateBefore, stateAfter*/ data);
 
         return entity;
-    }
-
-    private AuditTrail GenerateTrailForUserCreated(string action, Guid userId, UserCreatedLog log)
-    {
-        var state = serializer.Serialize(log);
-        var trail = GenerateAuditTrialEntityWithCommonParams(action: action, entityType: auditEntityTypes.User, entityId: userId.ToString(), stateAfter: state);
-
-        return trail;
     }
 
     (string? UserId, string? Username, string? IPAddress, DateTime When) GetCommonParameters()
@@ -91,5 +85,29 @@ public partial class AuditService
         await repository.AuditTrailRepository.Create(trial, cancellationToken).ConfigureAwait(false);
 
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+    }
+
+    private AuditTrail GenerateTrailForUserCreated(string action, Guid userId, UserCreatedLog log)
+    {
+        var data = serializer.Serialize(log);
+        var trail = GenerateAuditTrialEntityWithCommonParams(action: action, entityType: auditEntityTypes.User, entityId: userId.ToString(), /*stateAfter: state*/ data: data);
+
+        return trail;
+    }
+
+    private AuditTrail GenerateTrialForRolesAssigned(string action, RolesAssignedLog log)
+    {
+        var data = serializer.Serialize(log);
+        var trial = GenerateAuditTrialEntityWithCommonParams(action: action, entityType: auditEntityTypes.User, /*stateAfter: state*/ data: data);
+
+        return trial;
+    }
+
+    private AuditTrail GenerateTrialForRolesRevoked(string action, RolesRevokedLog log)
+    {
+        var data = serializer.Serialize(log);
+        var trial = GenerateAuditTrialEntityWithCommonParams(action: action, entityType: auditEntityTypes.User, data: data);
+
+        return trial;
     }
 }

@@ -11,7 +11,8 @@ public class ErrorCodes
     public readonly string SYSTEM_INITIALIZATION_ERROR = nameof(SYSTEM_INITIALIZATION_ERROR);
     #endregion
 
-    #region [ROLES PERMISSIONS]
+    #region [AUTH]
     public readonly string USER_DOES_NOT_HAVE_PERMISSION = nameof(USER_DOES_NOT_HAVE_PERMISSION);
+    public readonly string USER_NOT_AUTHENTICATED = nameof(USER_NOT_AUTHENTICATED);
     #endregion
 }
