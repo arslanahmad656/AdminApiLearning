@@ -30,11 +30,15 @@ public class AuditTrailConfiguration : IEntityTypeConfiguration<AuditTrail>
             .IsRequired(false)
             .HasMaxLength(128);
 
-        builder.Property(a => a.Before)
-            .HasColumnType("nvarchar(max)")
-            .IsRequired(false);
+        //builder.Property(a => a.Before)
+        //    .HasColumnType("nvarchar(max)")
+        //    .IsRequired(false);
 
-        builder.Property(a => a.After)
+        //builder.Property(a => a.After)
+        //    .HasColumnType("nvarchar(max)")
+        //    .IsRequired(false);
+
+        builder.Property(a => a.Data)
             .HasColumnType("nvarchar(max)")
             .IsRequired(false);
 
