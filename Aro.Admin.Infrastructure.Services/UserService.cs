@@ -4,17 +4,20 @@ using Aro.Admin.Application.Services.DTOs.ServiceParameters;
 using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
+using Aro.Admin.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class UserService(IRepositoryManager repository, IPasswordHasher passwordHasher, IEntityIdGenerator idGenerator, IRoleService roleService) : IUserService
+public class UserService(IRepositoryManager repository, IPasswordHasher passwordHasher, IEntityIdGenerator idGenerator, IAuthorizationService authorizationService, PermissionCodes permissionCodes) : IUserService
 {
     private readonly IUserRepository userRepository = repository.UserRepository;
     private readonly IRoleRepository roleRepository = repository.RoleRepository;
 
     public async Task<CreateUserResponse> CreateUser(CreateUserDto user, CancellationToken cancellationToken = default)
     {
+        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.CreateUser], cancellationToken);
+
         var now = DateTime.Now;
         var userEntity = new User
         {

@@ -17,6 +17,8 @@ public abstract class RepositoryBase<T>(AroAdminApiDbContext dbContext)
 
     public void Delete(T entity) => set.Remove(entity);
 
+    public void DeleteRange(IEnumerable<T> entities) => set.RemoveRange(entities);
+
     public IQueryable<T> FindByCondition
     (
         Expression<Func<T, bool>>? filter = null, 

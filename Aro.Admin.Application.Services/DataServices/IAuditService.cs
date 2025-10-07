@@ -11,4 +11,8 @@ public interface IAuditService
     Task LogSystemInitialized(SystemInitializedLog log, CancellationToken cancellationToken = default);
 
     Task LogUserCreated(UserCreatedLog log, CancellationToken cancellationToken = default);
+
+    Task LogRolesAssigned(RolesAssignedLog log, CancellationToken cancellationToken = default);
+
+    Task LogRolesRevoked(RolesRevokedLog log, CancellationToken cancellationToken = default);
 }

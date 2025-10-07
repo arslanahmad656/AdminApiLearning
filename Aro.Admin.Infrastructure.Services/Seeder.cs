@@ -1,6 +1,7 @@
 ﻿using Aro.Admin.Application.Services;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
+using Aro.Admin.Domain.Shared;
 using Aro.Admin.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,12 +11,16 @@ public class Seeder
 (
     IRepositoryManager repository,
     ISerializer serializer,
-    ErrorCodes errorCodes
+    ErrorCodes errorCodes,
+    IAuthorizationService authorizationService,
+    PermissionCodes permissionCodes
 )
 : ISeeder
 {
     public async Task Seed(string jsonFile, CancellationToken cancellationToken = default)
     {
+        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.SeedApplication], cancellationToken).ConfigureAwait(false);
+
         if (!File.Exists(jsonFile))
             throw new FileNotFoundException(errorCodes.FILE_NOT_FOUND_ERROR, $"Seed file not found: {jsonFile}");
 

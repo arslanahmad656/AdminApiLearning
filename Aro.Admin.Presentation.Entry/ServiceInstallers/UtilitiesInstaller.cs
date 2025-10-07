@@ -20,5 +20,6 @@ internal class UtilitiesInstaller : IServiceInstaller
         builder.Services.AddSingleton<AuditActions>();
         builder.Services.AddSingleton<AuditEntityTypes>();
         builder.Services.AddSingleton<SharedKeys>();
+        builder.Services.AddSingleton<PermissionCodes>();
     }
 }

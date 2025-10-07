@@ -18,4 +18,9 @@ public class UserRoleRepository(AroAdminApiDbContext dbContext) : RepositoryBase
 
     public IQueryable<UserRole> GetByUserIds(IEnumerable<Guid> userIds)
         => FindByCondition(filter: ur => userIds.Contains(ur.UserId));
+
+    public IQueryable<UserRole> GetByUserRoles(IEnumerable<Guid> userIds, IEnumerable<Guid> roleIds)
+        => FindByCondition(filter: ur => userIds.Contains(ur.UserId) && roleIds.Contains(ur.RoleId));
+
+    public void Remove(IEnumerable<UserRole> userRoles) => base.DeleteRange(userRoles);
 }

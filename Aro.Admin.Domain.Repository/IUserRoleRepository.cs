@@ -10,5 +10,9 @@ public interface IUserRoleRepository
     
     IQueryable<UserRole> GetByRoleIds(IEnumerable<Guid> roleIds);
 
+    IQueryable<UserRole> GetByUserRoles(IEnumerable<Guid> userIds, IEnumerable<Guid> roleIds);
+
     Task Create(UserRole userRole, CancellationToken cancellationToken = default);
+
+    void Remove(IEnumerable<UserRole> userRoles);
 }
