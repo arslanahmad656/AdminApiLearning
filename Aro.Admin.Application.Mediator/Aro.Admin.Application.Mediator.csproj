@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Authentication\Queries\" />
     <Folder Include="Role\Commands\" />
     <Folder Include="Role\Notifications\" />
     <Folder Include="Seed\DTOs\" />

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class UserService(IRepositoryManager repository, IPasswordHasher passwordHasher, IEntityIdGenerator idGenerator, IAuthorizationService authorizationService, PermissionCodes permissionCodes, IMapper mapper) : IUserService
+public partial class UserService(IRepositoryManager repository, IPasswordHasher passwordHasher, IEntityIdGenerator idGenerator, IAuthorizationService authorizationService, PermissionCodes permissionCodes, IMapper mapper) : IUserService
 {
     private readonly IUserRepository userRepository = repository.UserRepository;
     private readonly IRoleRepository roleRepository = repository.RoleRepository;
@@ -41,23 +41,24 @@ public class UserService(IRepositoryManager repository, IPasswordHasher password
         return new(userEntity.Id, userEntity.Email, assignableRoles); 
     }
 
-    public async Task<GetUserResponse> GetUserById(Guid userId, bool includeRoles, CancellationToken cancellationToken = default)
+    public async Task<GetUserResponse> GetUserById(Guid userId, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default)
     {
         string[] requiredPermissions = includeRoles ? [permissionCodes.GetUser, permissionCodes.GetUserRoles] : [permissionCodes.GetUser];
         await authorizationService.EnsureCurrentUserPermissions(requiredPermissions, cancellationToken);
 
         var query = userRepository.GetById(userId);
-        if (includeRoles)
-        {
-            query = query
-                .Include(u => u.UserRoles)
-                .ThenInclude(ur => ur.Role);
-        }
+        var response = await GetUserFromQueryable(query, userId.ToString(), includeRoles, includePasswordHash, cancellationToken).ConfigureAwait(false);
 
-        var userEntity = await query.SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false)
-            ?? throw new UserNotFoundException(userId);
+        return response;
+    }
 
-        var response = mapper.Map<GetUserResponse>(userEntity);
+    public async Task<GetUserResponse> GetUserByEmail(string email, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default)
+    {
+        string[] requiredPermissions = includeRoles ? [permissionCodes.GetUser, permissionCodes.GetUserRoles] : [permissionCodes.GetUser];
+        await authorizationService.EnsureCurrentUserPermissions(requiredPermissions, cancellationToken);
+
+        var query = userRepository.GetByEmail(email);
+        var response = await GetUserFromQueryable(query, email, includeRoles, includePasswordHash, cancellationToken).ConfigureAwait(false);
 
         return response;
     }

@@ -7,5 +7,7 @@ public interface IUserService
 {
     Task<CreateUserResponse> CreateUser(CreateUserDto user, CancellationToken cancellationToken = default);
 
-    Task<GetUserResponse> GetUserById(Guid userId, bool includeRoles, CancellationToken cancellationToken = default);
+    Task<GetUserResponse> GetUserById(Guid userId, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default);
+
+    Task<GetUserResponse> GetUserByEmail(string email, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default);
 }

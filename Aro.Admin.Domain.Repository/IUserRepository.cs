@@ -6,6 +6,8 @@ public interface IUserRepository
 {
     IQueryable<User> GetById(Guid id);
 
+    IQueryable<User> GetByEmail(string email);
+
     Task<bool> UsersExist(CancellationToken cancellationToken = default);
 
     Task Create(User user, CancellationToken cancellationToken = default);

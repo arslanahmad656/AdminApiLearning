@@ -14,7 +14,8 @@ public partial class AuditService
     AuditActions auditActions,
     EntityTypes auditEntityTypes,
     IRepositoryManager repository,
-    ISerializer serializer
+    ISerializer serializer,
+    IDateFormatter dateFormatter
 ) : IAuditService
 {
     public async Task LogApplicationSeeded(CancellationToken cancellationToken = default)
@@ -66,6 +67,20 @@ public partial class AuditService
     public async Task LogRolesRevoked(RolesRevokedLog log, CancellationToken cancellationToken = default)
     {
         var entity = GenerateTrialForRolesRevoked(auditActions.RolesRevokedFromUsers, log);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task LogAuthenticationSuccessful(AuthenticationSuccessfulLog log, CancellationToken cancellationToken = default)
+    {
+        var entity = GenerateTrialForAuthenticationSuccesful(log);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task LogAuthenticationFailed(AuthenticationFailedLog log, CancellationToken cancellationToken = default)
+    {
+        var entity = GenerateTrialForAuthenticationFailed(log);
 
         await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
     }
