@@ -110,4 +110,25 @@ public partial class AuditService
 
         return trial;
     }
+
+    private AuditTrail GenerateTrialForAuthenticationSuccesful(AuthenticationSuccessfulLog log)
+    {
+        var trail = GenerateAuditTrialEntityWithCommonParams(action: auditActions.AuthenticationSuccessful, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(new
+        {
+            Email = log.Email,
+            Expiry = dateFormatter.Format(log.Expiry)
+        }));
+
+        return trail;
+    }
+
+    private AuditTrail GenerateTrialForAuthenticationFailed(AuthenticationFailedLog log)
+    {
+        var trail = GenerateAuditTrialEntityWithCommonParams(action: auditActions.AuthenticationFailed, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(new
+        {
+            Email = log.Email
+        }));
+
+        return trail;
+    }
 }

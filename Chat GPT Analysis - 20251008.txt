@@ -1,0 +1,206 @@
+﻿Functional requirements (explicit)
+
+System-admin creation rules
+
+First System Admin account may only be created during system initialization (first boot) or by an existing System Admin.
+
+Secure password handling
+
+Passwords must be stored securely (hashed + salted) and the account model must be 2FA-ready.
+
+Default roles at initialization
+
+System must create these default roles on initialization: System Admin, Client Admin, Property Manager, Reservation Agent, Viewer (customizable).
+
+Role definitions + permission matrix
+
+Every role must include a permissions matrix (CRUD actions per resource).
+
+Admin role assignment
+
+Admins must be able to assign one or more roles when creating or editing users.
+
+Audit trail for user & role actions
+
+All role changes and user actions must be recorded in an audit trail.
+
+RBAC enforcement across APIs
+
+All relevant endpoints must enforce role-based access control according to the permissions matrix.
+
+API conforms to platform standards
+
+APIs must follow established standards for authentication, idempotency, and error contracts.
+
+Integration points / dependencies
+
+Backend must integrate with the Authentication module (login, token handling) and an Audit logging framework.
+
+Database schema availability
+
+Database schema must exist for Users, Roles, Permissions, and Audit Trail (and related mappings).
+
+Functional requirements (derived / implied — “think deeply”)
+
+Prevention of losing admin access
+
+Prevent demoting/deleting the last System Admin (or require a replacement) to avoid lockout.
+
+Role management endpoints
+
+Endpoints to create, read, update, delete, and list roles and role permissions (subject to RBAC).
+
+User management endpoints
+
+Endpoints to create, read, update, delete, list users; include role assignment, enable/disable, and view user status.
+
+Scoped role assignment checks
+
+Admins may only assign roles they are permitted to assign (no privilege escalation via role assignment).
+
+Token/session effects for user/role changes
+
+Role changes, user disables or deletions must cause existing sessions/tokens to be invalidated or otherwise treated consistently.
+
+Password reset & account recovery flows
+
+Secure “forgot password” and reset token flows, plus account lockout and unlock workflows (to support secure password handling).
+
+2FA lifecycle support (2FA-ready)
+
+User model and endpoints to enable/disable 2FA, store 2FA metadata, and handle validation states (without prescribing mechanism).
+
+Audit trail details & queryability
+
+Audits must capture actor id, timestamp, action, target id, before/after values, source IP/user agent, and correlation id; must be queryable and exportable.
+
+Initialization seeding atomicity
+
+Initialization must atomically seed default roles and base permission matrix (no partially seeded state).
+
+Input validation & standardized error responses
+
+All user/role APIs must validate inputs and return a standardized error contract.
+
+Idempotency for create operations
+
+Create endpoints (especially for user/admin creation) must support idempotent behavior to avoid duplicate resources.
+
+Concurrency & transaction safety
+
+Concurrent user/role changes must be transactional/consistent (no race conditions allowing duplicate admin creation or inconsistent permissions).
+
+Pagination, filtering, sorting for listing endpoints
+
+User and role listing endpoints must support pagination, filtering and sorting.
+
+Audit log retention & archival controls (initial policy)
+
+Define retention/archival policy for audit data and ability to export or archive.
+
+Admin activity notification / alerting (optional but implied)
+
+Flag or notify suspicious admin actions (failed attempts at creating admin, mass role changes).
+
+Non-functional requirements
+Security & privacy
+
+Strong authentication & authorization posture (least privilege).
+
+Passwords and sensitive tokens must never be stored/returned in plaintext.
+
+Audit logs must be tamper-evident/read-only (operational control).
+
+Protect against brute force (rate limiting / lockout for login endpoints).
+
+Data privacy & minimal exposure (PII minimization in API responses and logs).
+
+Secrets management for any 2FA or token secrets (no leakage in logs).
+
+Reliability & consistency
+
+Atomic operations for user/role changes and audit writes (no partial state).
+
+Prevent administrative lockout (high availability of admin capabilities).
+
+Fault tolerance: system must fail predictably and log failures for ops.
+
+Performance & scalability
+
+User management operations should scale with number of users and roles; listing endpoints must remain performant with pagination.
+
+Audit trail writing must be performant and must not block critical user flows (but must be reliable).
+
+Maintainability & extensibility
+
+Permission matrix must be extensible to add new resources/actions without breaking existing APIs.
+
+Clear API versioning and stable contracts for client compatibility.
+
+Good test coverage (unit + integration) for all security-critical flows (init admin creation, RBAC enforcement, audit logging).
+
+Documentation (OpenAPI/Swagger) for user/role management and RBAC model.
+
+Observability & operations
+
+Comprehensive logs, metrics, and traces for authentication attempts, role changes, admin operations, and audit writes.
+
+Monitoring and alerting for suspicious or high-impact admin activity.
+
+Support for audit export and secure archival.
+
+Compliance & governance
+
+Retention policies for audit logs and user data; ability to comply with legal/regulatory requests.
+
+Record of who created the system/first admin and when (for compliance).
+
+Data model / schema items (required)
+
+Users (id, username/email, passwordHash, passwordSalt, 2FA metadata/flag, status, createdAt, updatedAt, etc.)
+
+Roles (id, name, description, customizable flag)
+
+Permissions (id, resource, action [CRUD or fine-grained])
+
+RolePermissions (roleId ⇄ permissionId mapping)
+
+UserRoles (userId ⇄ roleId mapping)
+
+AuditTrail (actorId, action, targetId, targetType, timestamp, details {before/after}, ip, userAgent, correlationId)
+
+Sessions / Token store or revocation list (for invalidation on role change)
+
+PasswordResetTokens / LoginAttempts (for lockout and recovery flows)
+
+Critical constraints & edge cases (must be enforced)
+
+Only allow first admin creation during initialization OR by an existing System Admin.
+
+Disallow demotion or deletion of the last System Admin without promoting another.
+
+Prevent non-admin users from assigning high-privilege roles.
+
+Ensure role permission updates take effect immediately and are enforced for all subsequent API calls.
+
+Ensure audit entries are written for every role/user mutation and cannot be silently skipped if the audit system is down (or failures must be visible/handled).
+
+Ensure idempotency for create admin/user endpoints to avoid duplicates on retries.
+
+Acceptance / verification checkpoints (derived from criteria)
+
+First admin can be created only at initialization or by existing admin.
+
+Default roles exist after initialization.
+
+Role permission matrix is present and enforced.
+
+Admins can assign roles during create/edit operations.
+
+All role changes and user actions appear in the audit trail with required fields.
+
+Passwords are stored securely and accounts are 2FA-ready (flag/metadata present).
+
+API conforms to platform standards: auth, idempotency behavior, and standardized error contracts.
+
+Attempting to remove the last System Admin is rejected.

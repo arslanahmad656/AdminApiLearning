@@ -15,4 +15,8 @@ public interface IAuditService
     Task LogRolesAssigned(RolesAssignedLog log, CancellationToken cancellationToken = default);
 
     Task LogRolesRevoked(RolesRevokedLog log, CancellationToken cancellationToken = default);
+
+    Task LogAuthenticationSuccessful(AuthenticationSuccessfulLog log, CancellationToken cancellationToken = default);
+
+    Task LogAuthenticationFailed(AuthenticationFailedLog log, CancellationToken cancellationToken = default);
 }

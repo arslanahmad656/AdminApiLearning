@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notes", "Notes", "{03C93E4E-96C6-4AA8-B8B8-38764AB691AC}"
 	ProjectSection(SolutionItems) = preProject
 		Roadmap.txt = Roadmap.txt
+		Chat GPT Analysis - 20251008.txt = Chat GPT Analysis - 20251008.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Application.Mediator", "Aro.Admin.Application.Mediator\Aro.Admin.Application.Mediator.csproj", "{E3D03199-25F3-C8D1-4AA4-AD546D6583EA}"

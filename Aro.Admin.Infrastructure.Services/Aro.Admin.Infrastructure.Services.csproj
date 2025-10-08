@@ -10,10 +10,12 @@
     <PackageReference Include="AutoMapper" Version="15.0.1" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Aro.Admin.Application.Services\Aro.Admin.Application.Services.csproj" />
+    <ProjectReference Include="..\Aro.Admin.Application.Shared\Aro.Admin.Application.Shared.csproj" />
     <ProjectReference Include="..\Aro.Admin.Infrastructure.Repository\Aro.Admin.Infrastructure.Repository.csproj" />
   </ItemGroup>
 
