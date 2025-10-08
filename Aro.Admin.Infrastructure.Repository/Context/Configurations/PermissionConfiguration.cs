@@ -19,14 +19,6 @@ public class PermissionConfiguration : IEntityTypeConfiguration<Permission>
         builder.HasIndex(p => p.Name)
             .IsUnique();
 
-        builder.Property(p => p.Resource)
-            .IsRequired()
-            .HasMaxLength(64);
-
-        builder.Property(p => p.Action)
-            .IsRequired()
-            .HasMaxLength(64);
-
         builder.HasMany(p => p.RolePermissions)
             .WithOne(rp => rp.Permission)
             .HasForeignKey(rp => rp.PermissionId)
