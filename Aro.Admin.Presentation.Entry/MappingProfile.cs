@@ -23,6 +23,7 @@ public class MappingProfile : Profile
         CreateMap<ServiceResponses.CreateUserResponse, Application.Mediator.User.DTOs.CreateUserResponse>();
         CreateMap<ServiceResponses.CreateUserResponse, InitializeSystemResponse>();
         CreateMap<BootstrapUser, ServiceParameters.CreateUserDto>();
+        CreateMap<InitializeApplicationModel, BootstrapUser>();
         CreateMap<Role, ServiceResponses.GetRoleRespose>();
         CreateMap<Role, ServiceResponses.GetUserRolesResponse>()
             .ForCtorParam(nameof(ServiceResponses.GetUserRolesResponse.RoleName), opt => opt.MapFrom(r => r.Name))
