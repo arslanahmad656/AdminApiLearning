@@ -1,5 +1,6 @@
 ﻿using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 using Aro.Admin.Domain.Entities;
+using Aro.Admin.Domain.Shared;
 using Aro.Admin.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,7 +10,7 @@ public partial class UserService
 {
     public async Task<GetUserResponse> GetUserFromQueryable(IQueryable<User> query, string identifier, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default)
     {
-        string[] requiredPermissions = includeRoles ? [permissionCodes.GetUser, permissionCodes.GetUserRoles] : [permissionCodes.GetUser];
+        string[] requiredPermissions = includeRoles ? [PermissionCodes.GetUser, PermissionCodes.GetUserRoles] : [PermissionCodes.GetUser];
         await authorizationService.EnsureCurrentUserPermissions(requiredPermissions, cancellationToken);
 
         //var query = userRepository.GetByEmail(email);

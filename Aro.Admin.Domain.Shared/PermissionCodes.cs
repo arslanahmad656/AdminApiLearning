@@ -4,13 +4,13 @@ public class PermissionCodes
 {
     #region [Users]
     public const string CreateUser = "user.create";
-    public const string GetUser = "user.get";
+    public const string GetUser = "user.read";
     #endregion
 
     #region [UserRoles]
     public const string AssignUserRole = "userrole.assign";
     public const string RevokeUserRole = "userrole.revoke";
-    public const string GetUserRoles = "userrole.get";
+    public const string GetUserRoles = "userrole.read";
     public const string TestUserRole = "userrole.test";
     #endregion
 
@@ -18,6 +18,7 @@ public class PermissionCodes
     public const string MigrateDabase = "database.migrate";
     public const string SeedApplication = "application.seed";
     public const string InitializeSystem = "application.initialize";
+    public const string GetSystemSettings = "applicationsettings.read";
     #endregion
 }
 
