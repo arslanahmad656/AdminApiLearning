@@ -12,14 +12,13 @@ public class Seeder
     IRepositoryManager repository,
     ISerializer serializer,
     ErrorCodes errorCodes,
-    IAuthorizationService authorizationService,
-    PermissionCodes permissionCodes
+    IAuthorizationService authorizationService
 )
 : ISeeder
 {
     public async Task Seed(string jsonFile, CancellationToken cancellationToken = default)
     {
-        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.SeedApplication], cancellationToken).ConfigureAwait(false);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.SeedApplication], cancellationToken).ConfigureAwait(false);
 
         if (!File.Exists(jsonFile))
             throw new FileNotFoundException(errorCodes.FILE_NOT_FOUND_ERROR, $"Seed file not found: {jsonFile}");

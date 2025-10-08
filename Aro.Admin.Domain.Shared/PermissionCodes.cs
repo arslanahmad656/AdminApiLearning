@@ -3,20 +3,25 @@
 public class PermissionCodes
 {
     #region [Users]
-    public readonly string CreateUser = "user.create";
-    public readonly string GetUser = "user.get";
+    public const string CreateUser = "user.create";
+    public const string GetUser = "user.get";
     #endregion
 
     #region [UserRoles]
-    public readonly string AssignUserRole = "userrole.assign";
-    public readonly string RevokeUserRole = "userrole.revoke";
-    public readonly string GetUserRoles = "userrole.get";
-    public readonly string TestUserRole = "userrole.test";
+    public const string AssignUserRole = "userrole.assign";
+    public const string RevokeUserRole = "userrole.revoke";
+    public const string GetUserRoles = "userrole.get";
+    public const string TestUserRole = "userrole.test";
     #endregion
 
     #region [Miscs]
-    public readonly string MigrateDabase = "database.migrate";
-    public readonly string SeedApplication = "application.seed";
-    public readonly string InitializeSystem = "application.initialize";
+    public const string MigrateDabase = "database.migrate";
+    public const string SeedApplication = "application.seed";
+    public const string InitializeSystem = "application.initialize";
     #endregion
 }
+
+
+/// REMARKS
+/// Normally, I am against using the static fields (consts are also static) because those are GC roots and hence are never collected.
+/// However, I am making an exception here since I have to use these fields as the arguments to the PermissionAttribute and attributes expect only consts or literals.
