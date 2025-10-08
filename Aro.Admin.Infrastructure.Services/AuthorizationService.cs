@@ -1,6 +1,5 @@
 ﻿using Aro.Admin.Application.Services;
 using Aro.Admin.Domain.Repository;
-using Aro.Admin.Domain.Shared;
 using Aro.Admin.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +28,33 @@ public class AuthorizationService(IRepositoryManager repository, ICurrentUserSer
         return exists;
     }
 
+    // TODO: This method suffers from N + 1 query problem. Fix this.
+    public async Task<bool> CurrentUserHasPermissions(IEnumerable<string> permissions, CancellationToken cancellationToken = default)
+    {
+        if (!currentUserService.IsAuthenticated())
+        {
+            return false;
+        }
+
+        var currentUserId = currentUserService.GetCurrentUserId();
+        if (!currentUserId.HasValue)
+        {
+            return false;
+        }
+
+        foreach (var permission in permissions)
+        {
+            var hasPermission = await UserHasPermission(currentUserId.Value, permission, cancellationToken).ConfigureAwait(false);
+            if (!hasPermission)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    // TODO: This method suffers from N + 1 query problem. Fix this.
     public async Task EnsureCurrentUserPermissions(IEnumerable<string> permissions, CancellationToken cancellationToken = default)
     {
         if (!currentUserService.IsAuthenticated())

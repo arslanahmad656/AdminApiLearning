@@ -9,14 +9,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthorizationService authorizationService, PermissionCodes permissionCodes) : IRoleService
+public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthorizationService authorizationService) : IRoleService
 {
     private readonly IUserRoleRepository userRoleRepository = repository.UserRoleRepository;
     private readonly IRoleRepository roleRepository = repository.RoleRepository;
 
     public async Task AssignRolesToUsers(IEnumerable<Guid> userIds, IEnumerable<Guid> roleIds, CancellationToken cancellationToken = default)
     {
-        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.AssignUserRole], cancellationToken).ConfigureAwait(false);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.AssignUserRole], cancellationToken).ConfigureAwait(false);
 
         var userRolesToAdd = new List<UserRole>();
 
@@ -39,7 +39,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
 
     public async Task AssignRolesToUsers(IEnumerable<Guid> userIds, IEnumerable<string> roleNames, CancellationToken cancellationToken = default)
     {
-        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.AssignUserRole], cancellationToken).ConfigureAwait(false);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.AssignUserRole], cancellationToken).ConfigureAwait(false);
 
         var rolesToAdd = await GetByNames(roleNames, cancellationToken).ConfigureAwait(false);
         var roleIds = rolesToAdd.Select(r => r.Id);
@@ -49,7 +49,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
 
     public async Task<List<GetRoleRespose>> GetByNames(IEnumerable<string> names, CancellationToken cancellationToken = default)
     {
-        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.GetUserRoles], cancellationToken).ConfigureAwait(false);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetUserRoles], cancellationToken).ConfigureAwait(false);
         var roleEntities = await roleRepository
             .GetByNames(names)
             .ToListAsync(cancellationToken);
@@ -61,7 +61,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
 
     public async Task<List<GetRoleRespose>> GetByIds(IEnumerable<Guid> ids, CancellationToken cancellationToken = default)
     {
-        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.GetUserRoles], cancellationToken).ConfigureAwait(false);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetUserRoles], cancellationToken).ConfigureAwait(false);
         var roleEntities = await roleRepository
             .GetAll()
             .Where(r => ids.Contains(r.Id))
@@ -74,7 +74,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
 
     public async Task RevokeRolesFromUsers(IEnumerable<Guid> userIds, IEnumerable<Guid> roleIds, CancellationToken cancellationToken = default)
     {
-        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.AssignUserRole], cancellationToken).ConfigureAwait(false);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.RevokeUserRole], cancellationToken).ConfigureAwait(false);
 
         var userRoles = await userRoleRepository
             .GetByUserRoles(userIds, roleIds)
@@ -89,7 +89,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
 
     public async Task<bool> UserHasRole(Guid userId, string roleName, CancellationToken cancellationToken = default)
     {
-        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.TestUserRole], cancellationToken).ConfigureAwait(false);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.TestUserRole], cancellationToken).ConfigureAwait(false);
         var hasRole = await userRoleRepository
             .GetByUserIds([userId])
             .Include(ur => ur.Role)
@@ -102,7 +102,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
 
     public async Task<bool> UserHasRole(Guid userId, Guid roleId, CancellationToken cancellationToken = default)
     {
-        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.TestUserRole], cancellationToken).ConfigureAwait(false);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.TestUserRole], cancellationToken).ConfigureAwait(false);
         var hasRole = await userRoleRepository
             .Exists(userId, roleId, cancellationToken)
             .ConfigureAwait(false);
@@ -112,7 +112,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
 
     public async Task<List<GetUserRolesResponse>> GetUserRoles(Guid userId, CancellationToken cancellationToken = default)
     {
-        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.GetUserRoles], cancellationToken).ConfigureAwait(false);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetUserRoles], cancellationToken).ConfigureAwait(false);
         var roleEntities = await userRoleRepository
             .GetByUserIds([userId])
             .Include(ur => ur.Role)

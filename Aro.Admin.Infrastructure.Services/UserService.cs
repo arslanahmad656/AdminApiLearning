@@ -11,14 +11,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class UserService(IRepositoryManager repository, IPasswordHasher passwordHasher, IEntityIdGenerator idGenerator, IAuthorizationService authorizationService, PermissionCodes permissionCodes, IMapper mapper) : IUserService
+public partial class UserService(IRepositoryManager repository, IPasswordHasher passwordHasher, IEntityIdGenerator idGenerator, IAuthorizationService authorizationService, IMapper mapper) : IUserService
 {
     private readonly IUserRepository userRepository = repository.UserRepository;
     private readonly IRoleRepository roleRepository = repository.RoleRepository;
 
     public async Task<CreateUserResponse> CreateUser(CreateUserDto user, CancellationToken cancellationToken = default)
     {
-        await authorizationService.EnsureCurrentUserPermissions([permissionCodes.CreateUser], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateUser], cancellationToken);
 
         var now = DateTime.Now;
         var userEntity = new User
@@ -43,7 +43,7 @@ public partial class UserService(IRepositoryManager repository, IPasswordHasher 
 
     public async Task<GetUserResponse> GetUserById(Guid userId, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default)
     {
-        string[] requiredPermissions = includeRoles ? [permissionCodes.GetUser, permissionCodes.GetUserRoles] : [permissionCodes.GetUser];
+        string[] requiredPermissions = includeRoles ? [PermissionCodes.GetUser, PermissionCodes.GetUserRoles] : [PermissionCodes.GetUser];
         await authorizationService.EnsureCurrentUserPermissions(requiredPermissions, cancellationToken);
 
         var query = userRepository.GetById(userId);
@@ -54,7 +54,7 @@ public partial class UserService(IRepositoryManager repository, IPasswordHasher 
 
     public async Task<GetUserResponse> GetUserByEmail(string email, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default)
     {
-        string[] requiredPermissions = includeRoles ? [permissionCodes.GetUser, permissionCodes.GetUserRoles] : [permissionCodes.GetUser];
+        string[] requiredPermissions = includeRoles ? [PermissionCodes.GetUser, PermissionCodes.GetUserRoles] : [PermissionCodes.GetUser];
         await authorizationService.EnsureCurrentUserPermissions(requiredPermissions, cancellationToken);
 
         var query = userRepository.GetByEmail(email);
