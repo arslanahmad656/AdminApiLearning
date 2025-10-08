@@ -1,12 +1,13 @@
 ﻿using Aro.Admin.Application.Mediator.SystemSettings.DTOs;
 using Aro.Admin.Application.Mediator.User.DTOs;
 using Aro.Admin.Application.Mediator.UserRole.DTOs;
-using Aro.Admin.Application.Services.DTOs.ServiceParameters;
-using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
-using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Presentation.Api.DTOs;
 using AutoMapper;
+using AuditParameters = Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
+using ServiceResponses = Aro.Admin.Application.Services.DTOs.ServiceResponses;
+using ServiceParameters = Aro.Admin.Application.Services.DTOs.ServiceParameters;
+using Aro.Admin.Application.Mediator.Shared.DTOs;
 
 namespace Aro.Admin.Presentation.Entry;
 
@@ -14,21 +15,25 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<User, UserCreatedLog>()
-            .ForCtorParam(nameof(UserCreatedLog.AssignedRoles), opt => opt.MapFrom(u => u.UserRoles.Select(r => r.RoleId).ToList()));
-        CreateMap<CreateUserRequest, CreateUserDto>();
-        CreateMap<Application.Services.DTOs.ServiceResponses.CreateUserResponse, Application.Mediator.User.DTOs.CreateUserResponse>();
-        CreateMap<Application.Services.DTOs.ServiceResponses.CreateUserResponse, InitializeSystemResponse>();
-        CreateMap<BootstrapUser, CreateUserDto>();
-        CreateMap<Role, GetRoleRespose>();
-        CreateMap<Role, GetUserRolesResponse>()
-            .ForCtorParam(nameof(GetUserRolesResponse.RoleName), opt => opt.MapFrom(r => r.Name))
-            .ForCtorParam(nameof(GetUserRolesResponse.RoleId), opt => opt.MapFrom(r => r.Id));
-        CreateMap<InitializeSystemResponse, SystemInitializedLog>();
+        CreateMap<User, AuditParameters.UserCreatedLog>()
+            .ForCtorParam(nameof(AuditParameters.UserCreatedLog.AssignedRoles), opt => opt.MapFrom(u => u.UserRoles.Select(r => r.RoleId).ToList()));
+        CreateMap<CreateUserRequest, ServiceParameters.CreateUserDto>();
+        CreateMap<ServiceResponses.CreateUserResponse, Application.Mediator.User.DTOs.CreateUserResponse>();
+        CreateMap<ServiceResponses.CreateUserResponse, InitializeSystemResponse>();
+        CreateMap<BootstrapUser, ServiceParameters.CreateUserDto>();
+        CreateMap<Role, ServiceResponses.GetRoleRespose>();
+        CreateMap<Role, ServiceResponses.GetUserRolesResponse>()
+            .ForCtorParam(nameof(ServiceResponses.GetUserRolesResponse.RoleName), opt => opt.MapFrom(r => r.Name))
+            .ForCtorParam(nameof(ServiceResponses.GetUserRolesResponse.RoleId), opt => opt.MapFrom(r => r.Id));
+        CreateMap<InitializeSystemResponse, AuditParameters.SystemInitializedLog>();
 
-        CreateMap<AssignRolesByIdResponse, RolesAssignedLog>();
-        CreateMap<RevokeRolesByIdResponse, RolesRevokedLog>();
+        CreateMap<AssignRolesByIdResponse, AuditParameters.RolesAssignedLog>();
+        CreateMap<RevokeRolesByIdResponse, AuditParameters.RolesRevokedLog>();
         CreateMap<AssignRolesModel, AssignRolesByIdRequest>();
         CreateMap<RevokeRolesModel, RevokeRolesByIdRequest>();
+        CreateMap<ServiceResponses.GetRoleRespose, GetRoleResponse>();
+
+        CreateMap<User, ServiceResponses.GetUserResponse>()
+            .ForCtorParam(nameof(ServiceResponses.GetUserResponse.Roles), opt => opt.MapFrom(u => u.UserRoles.Select(r => r.Role ?? new Role()).ToList()));
     }
 }

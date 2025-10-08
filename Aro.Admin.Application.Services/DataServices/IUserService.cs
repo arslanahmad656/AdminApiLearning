@@ -6,4 +6,6 @@ namespace Aro.Admin.Application.Services.DataServices;
 public interface IUserService
 {
     Task<CreateUserResponse> CreateUser(CreateUserDto user, CancellationToken cancellationToken = default);
+
+    Task<GetUserResponse> GetUserById(Guid userId, bool includeRoles, CancellationToken cancellationToken = default);
 }

@@ -18,7 +18,7 @@ internal class UtilitiesInstaller : IServiceInstaller
         builder.Services.AddSingleton<IPasswordHasher, BCrypttPasswordHasher>();
         builder.Services.AddSingleton<ErrorCodes>();
         builder.Services.AddSingleton<AuditActions>();
-        builder.Services.AddSingleton<AuditEntityTypes>();
+        builder.Services.AddSingleton<EntityTypes>();
         builder.Services.AddSingleton<SharedKeys>();
         builder.Services.AddSingleton<PermissionCodes>();
     }

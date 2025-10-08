@@ -1,6 +1,6 @@
-﻿namespace Aro.Admin.Domain.Shared.Audit;
+﻿namespace Aro.Admin.Domain.Shared;
 
-public class AuditEntityTypes
+public class EntityTypes
 {
     public readonly string User = "User";
     public readonly string Role = "Role";

@@ -4,6 +4,7 @@ public class PermissionCodes
 {
     #region [Users]
     public readonly string CreateUser = "user.create";
+    public readonly string GetUser = "user.get";
     #endregion
 
     #region [UserRoles]
