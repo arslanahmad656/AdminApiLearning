@@ -45,9 +45,7 @@ public class Seeder
                 perm = new Permission
                 {
                     Id = Guid.NewGuid(),
-                    Name = permModel.Name,
-                    Resource = permModel.Resource,
-                    Action = permModel.Action
+                    Name = permModel.Name
                 };
 
                 await repository.PermissionRepository.Create(perm, cancellationToken);
@@ -97,8 +95,6 @@ public class Seeder
 file class PermissionSeedModel
 {
     public string Name { get; set; } = default!;
-    public string Resource { get; set; } = default!;
-    public string Action { get; set; } = default!;
     public string Description { get; set; } = default!;
 }
 

@@ -1,79 +1,57 @@
 {
   "Permissions": [
     {
-      "Name": "User.Create",
-      "Resource": "User",
-      "Action": "Create",
+      "Name": "user.create",
       "Description": "Can create users"
     },
     {
-      "Name": "User.Read",
-      "Resource": "User",
-      "Action": "Read",
+      "Name": "user.read",
       "Description": "Can view user details"
     },
     {
-      "Name": "User.Update",
-      "Resource": "User",
-      "Action": "Update",
+      "Name": "user.update",
       "Description": "Can update users"
     },
     {
-      "Name": "User.Delete",
-      "Resource": "User",
-      "Action": "Delete",
+      "Name": "user.delete",
       "Description": "Can delete users"
     },
 
     {
-      "Name": "Role.Read",
-      "Resource": "Role",
-      "Action": "Read",
+      "Name": "role.read",
       "Description": "Can view roles"
     },
     {
-      "Name": "Role.Assign",
-      "Resource": "Role",
-      "Action": "Assign",
+      "Name": "userrole.assign",
       "Description": "Can assign roles to users"
     },
-
     {
-      "Name": "Reservation.Create",
-      "Resource": "Reservation",
-      "Action": "Create",
-      "Description": "Can create reservations"
+      "Name": "userrole.revoke",
+      "Description": "Can remove roles from users"
     },
     {
-      "Name": "Reservation.Read",
-      "Resource": "Reservation",
-      "Action": "Read",
-      "Description": "Can view reservations"
+      "Name": "userrole.read",
+      "Description": "Can read user roles"
     },
     {
-      "Name": "Reservation.Update",
-      "Resource": "Reservation",
-      "Action": "Update",
-      "Description": "Can update reservations"
+      "Name": "userrole.test",
+      "Description": "Can check if a user has a role"
     },
     {
-      "Name": "Reservation.Delete",
-      "Resource": "Reservation",
-      "Action": "Delete",
-      "Description": "Can delete reservations"
-    },
-
-    {
-      "Name": "Property.Read",
-      "Resource": "Property",
-      "Action": "Read",
-      "Description": "Can view properties"
+      "Name": "database.migrate",
+      "Description": "Can perform database migrations"
     },
     {
-      "Name": "Property.Update",
-      "Resource": "Property",
-      "Action": "Update",
-      "Description": "Can manage property settings"
+      "Name": "application.seed",
+      "Description": "Can seed applications"
+    },
+    {
+      "Name": "application.initialize",
+      "Description": "Can initialize the application using the first-admin workflow"
+    },
+    {
+      "Name": "applicationsettings.read",
+      "Description": "Can read application settings"
     }
   ],
 
@@ -82,57 +60,43 @@
       "Name": "SystemAdmin",
       "Description": "Full system control, can manage users, roles, and properties.",
       "Permissions": [
-        "User.Create",
-        "User.Read",
-        "User.Update",
-        "User.Delete",
-        "Role.Read",
-        "Role.Assign",
-        "Reservation.Create",
-        "Reservation.Read",
-        "Reservation.Update",
-        "Reservation.Delete",
-        "Property.Read",
-        "Property.Update"
+        "user.create",
+        "user.read",
+        "user.update",
+        "user.delete",
+        "role.read",
+        "userrole.assign",
+        "userrole.revoke",
+        "userrole.read",
+        "userrole.test",
+        "database.migrate",
+        "application.seed",
+        "application.initialize",
+        "applicationsettings.read"
       ]
     },
     {
       "Name": "ClientAdmin",
       "Description": "Can manage users and reservations for their client organization.",
       "Permissions": [
-        "User.Create",
-        "User.Read",
-        "User.Update",
-        "Reservation.Create",
-        "Reservation.Read",
-        "Reservation.Update"
       ]
     },
     {
       "Name": "PropertyManager",
       "Description": "Can manage properties and view reservations.",
       "Permissions": [
-        "Property.Read",
-        "Property.Update",
-        "Reservation.Read"
       ]
     },
     {
       "Name": "ReservationAgent",
       "Description": "Can create and update reservations, but not delete them.",
       "Permissions": [
-        "Reservation.Create",
-        "Reservation.Read",
-        "Reservation.Update"
       ]
     },
     {
       "Name": "Viewer",
       "Description": "Read-only access across resources.",
       "Permissions": [
-        "User.Read",
-        "Reservation.Read",
-        "Property.Read"
       ]
     }
   ]
