@@ -1,5 +1,6 @@
 ﻿using Aro.Admin.Application.Mediator.UserRole.Commands;
 using Aro.Admin.Application.Mediator.UserRole.DTOs;
+using Aro.Admin.Application.Mediator.UserRole.Queries;
 using Aro.Admin.Presentation.Api.DTOs;
 using AutoMapper;
 using MediatR;
@@ -25,5 +26,21 @@ public class UserRoleController(IMediator mediator, IMapper mapper) : Controller
         var response = await mediator.Send(new RevokeRolesByIdCommand(mapper.Map<RevokeRolesByIdRequest>(model)), cancellationToken).ConfigureAwait(false);
 
         return Ok(response);
+    }
+
+    [HttpGet("userhasrole")]
+    public async Task<IActionResult> UserHasRole([FromQuery] Guid userId, [FromQuery] Guid roleId, CancellationToken cancellationToken = default)
+    {
+        var response = await mediator.Send(new UserHasRoleQuery(new(userId, roleId)), cancellationToken).ConfigureAwait(false);
+
+        return Ok(response);
+    }
+
+    [HttpGet("userroles/{userId:Guid}")]
+    public async Task<IActionResult> GetUserRoles(Guid userId, CancellationToken cancellationToken = default)
+    {
+        var roles = await mediator.Send(new GetUserRolesQuery(new(userId)), cancellationToken).ConfigureAwait(false);
+
+        return Ok(roles);
     }
 }

@@ -2,6 +2,7 @@
 using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
 using Aro.Admin.Domain.Repository;
+using Aro.Admin.Domain.Shared;
 using Aro.Admin.Domain.Shared.Audit;
 
 namespace Aro.Admin.Infrastructure.Services;
@@ -11,7 +12,7 @@ public partial class AuditService
     IEntityIdGenerator idGenerator, 
     IRequestInterpretorService requestInterpretor,
     AuditActions auditActions,
-    AuditEntityTypes auditEntityTypes,
+    EntityTypes auditEntityTypes,
     IRepositoryManager repository,
     ISerializer serializer
 ) : IAuditService

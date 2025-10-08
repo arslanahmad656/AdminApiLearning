@@ -15,4 +15,8 @@ public class ErrorCodes
     public readonly string USER_DOES_NOT_HAVE_PERMISSION = nameof(USER_DOES_NOT_HAVE_PERMISSION);
     public readonly string USER_NOT_AUTHENTICATED = nameof(USER_NOT_AUTHENTICATED);
     #endregion
+
+    #region [USERS]
+    public readonly string USER_NOT_FOUND = nameof(USER_NOT_FOUND);
+    #endregion
 }
