@@ -28,16 +28,33 @@ public partial class RefreshTokenService(JwtOptions jwtOptions, IRepositoryManag
         return Task.FromResult(token);
     }
 
-    public async Task<RefreshToken> GetActiveToken(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<UserRefreshToken> GetActiveToken(Guid userId, CancellationToken cancellationToken = default)
     {
         var query = refreshTokenRepo.GetActiveTokensByUserId(userId);
 
-        var tokenEntity = await query.OrderByDescending(rt => rt.CreatedAt)
+        var tokenEntity = await query
+            .OrderByDescending(rt => rt.CreatedAt)
             .FirstOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false)
             ?? throw new AroRefreshTokenNotFoundException(userId.ToString(), AroRefreshTokenNotFoundException.IdentifierType.User);
 
-        var token = mapper.Map<RefreshToken>(tokenEntity);
+        var token = mapper.Map<UserRefreshToken>(tokenEntity);
+
+        return token;
+    }
+    
+    public async Task<UserRefreshToken> GetActiveToken(string refreshToken, CancellationToken cancellationToken = default)
+    { 
+        var tokenHash = hasher.Hash(refreshToken);
+        var query = refreshTokenRepo.GetActiveTokenByTokenHash(tokenHash);
+
+        var tokenEntity = await query
+            .OrderByDescending(rt => rt.CreatedAt)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false)
+            ?? throw new AroRefreshTokenNotFoundException(tokenHash, AroRefreshTokenNotFoundException.IdentifierType.Token);
+
+        var token = mapper.Map<UserRefreshToken>(tokenEntity);
 
         return token;
     }
@@ -86,6 +103,15 @@ public partial class RefreshTokenService(JwtOptions jwtOptions, IRepositoryManag
         return true;
     }
 
+    public async Task<CompositeToken> RefreshToken(string refreshToken, CancellationToken cancellationToken = default)
+    {
+        var token = await GetActiveToken(refreshToken, cancellationToken).ConfigureAwait(false);
+
+        var compositeToken = await RefreshToken(token.UserId, refreshToken, cancellationToken).ConfigureAwait(false);
+
+        return compositeToken;
+    }
+
     public async Task<CompositeToken> RefreshToken(Guid userId, string refreshToken, CancellationToken cancellationToken = default)
     {
         var existingRefreshToken = await refreshTokenRepo
@@ -120,6 +146,6 @@ public partial class RefreshTokenService(JwtOptions jwtOptions, IRepositoryManag
 
         await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
 
-        return new(newRefreshEntity.Id, newAccessToken.Token, newRefreshToken.Token, newAccessToken.Expiry, newRefreshToken.ExpiresAt);
+        return new(existingRefreshToken.TokenHash, userId, newRefreshEntity.Id, newAccessToken.Token, newRefreshToken.Token, newAccessToken.Expiry, newRefreshToken.ExpiresAt);
     }
 }

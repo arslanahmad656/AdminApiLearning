@@ -38,7 +38,7 @@ public partial class AuthenticationService(IHasher haser, IUserService userServi
         await refreshTokenRepo.Create(refreshEntity, cancellationToken).ConfigureAwait(false);
         await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
 
-        var response = new CompositeToken(refreshEntity.Id, accessToken.Token, refreshToken.Token, accessToken.Expiry, refreshToken.ExpiresAt);
+        var response = new CompositeToken(string.Empty, user.Id, refreshEntity.Id, accessToken.Token, refreshToken.Token, accessToken.Expiry, refreshToken.ExpiresAt);
 
         return response;
     }

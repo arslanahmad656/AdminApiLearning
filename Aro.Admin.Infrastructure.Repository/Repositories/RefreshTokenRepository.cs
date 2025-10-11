@@ -12,5 +12,7 @@ internal class RefreshTokenRepository(AroAdminApiDbContext dbContext) : Reposito
     
     public IQueryable<RefreshToken> GetActiveTokenById(Guid tokenId) => FindByCondition(filter: rt => rt.Id == tokenId && rt.ExpiresAt > DateTime.UtcNow && rt.RevokedAt != null);
 
+    public IQueryable<RefreshToken> GetActiveTokenByTokenHash(string tokenHash) => FindByCondition(filter: rt => rt.TokenHash == tokenHash && rt.ExpiresAt > DateTime.UtcNow && rt.RevokedAt != null);
+
     public IQueryable<RefreshToken> GetActiveTokensByUserAndTokenHash(Guid userId, string tokenHash) => FindByCondition(filter: rt => rt.UserId == userId && rt.TokenHash == tokenHash && rt.ExpiresAt > DateTime.UtcNow && rt.RevokedAt != null);
 }

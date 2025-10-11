@@ -98,4 +98,11 @@ public partial class AuditService
 
         await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
     }
+
+    public async Task LogTokenRefreshedLog(TokenRefreshedLog log, CancellationToken cancellationToken = default)
+    {
+        var entity = GenerateTrailForTokenRefreshed(log);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+    }
 }

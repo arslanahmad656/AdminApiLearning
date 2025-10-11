@@ -26,6 +26,21 @@ public class AuthenticationController(IMediator mediator, IMapper mapper) : Cont
         });
     }
 
+    [HttpPost("refresh")]
+    [AllowAnonymous]
+    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenModel model, CancellationToken cancellationToken)
+    {
+        var token = await mediator.Send(new RefreshTokenCommand(mapper.Map<RefreshTokenRequest>(model)), cancellationToken).ConfigureAwait(false);
+
+        return Ok(new
+        {
+            token.AccessToken,
+            token.RefreshToken,
+            token.RefreshTokenExpiry,
+            token.AccessTokenExpiry
+        });
+    }
+
     [HttpPost("logout")]
     [Authorize]
     public async Task<IActionResult> Logout([FromBody] LogoutUserModel model, CancellationToken cancellationToken)

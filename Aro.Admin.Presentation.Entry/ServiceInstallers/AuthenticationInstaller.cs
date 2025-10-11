@@ -13,6 +13,9 @@ public class AuthenticationInstaller : IServiceInstaller
     public void Install(WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<ICurrentUserService, HttpContextBasedCurrentUserService>();
+        builder.Services.AddScoped<IAccessTokenService, JwtTokenService>();
+        builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()
             ?? throw new AroException(new ErrorCodes().CONFIGURATION_ERROR, $"Could not load the jwt options from the app settings. Make sure that JWT section is populated there.");
