@@ -23,4 +23,6 @@ public interface IAuditService
     Task LogUserSessionLoggedOutLog(UserSessionLoggedOutLog log, CancellationToken cancellationToken = default);
     
     Task LogUserSessionsLoggedOutLog(UserSessionsLoggedOutLog log, CancellationToken cancellationToken = default);
+
+    Task LogTokenRefreshedLog(TokenRefreshedLog log, CancellationToken cancellationToken = default);
 }

@@ -4,6 +4,7 @@ using Aro.Admin.Application.Mediator.SystemSettings.DTOs;
 using Aro.Admin.Application.Mediator.User.DTOs;
 using Aro.Admin.Application.Mediator.UserRole.DTOs;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
+using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Presentation.Api.DTOs;
 using AutoMapper;
@@ -46,9 +47,14 @@ public class MappingProfile : Profile
 
         CreateMap<Domain.Entities.RefreshToken, ServiceResponses.RefreshToken>()
             .ForCtorParam(nameof(ServiceResponses.RefreshToken.Token), opt => opt.MapFrom(rt => rt.TokenHash));
+        CreateMap<Domain.Entities.RefreshToken, ServiceResponses.UserRefreshToken>()
+            .ForCtorParam(nameof(ServiceResponses.RefreshToken.Token), opt => opt.MapFrom(rt => rt.TokenHash));
         CreateMap<UserLoggedOutNotificationData, UserSessionLoggedOutLog>();
         CreateMap<UserLoggedOutAllNotificationData, UserSessionsLoggedOutLog>();
         CreateMap<LogoutUserModel, LogoutUserRequest>();
         CreateMap<LogoutAllUserModel, LogoutUserAllRequest>();
+        CreateMap<CompositeToken, RefreshTokenResponse>();
+        CreateMap<TokenRefreshedNotificationData, TokenRefreshedLog>();
+        CreateMap<RefreshTokenModel, RefreshTokenRequest>();
     }
 }

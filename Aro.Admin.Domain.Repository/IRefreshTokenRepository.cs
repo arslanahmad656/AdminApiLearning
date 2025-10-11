@@ -12,5 +12,7 @@ public interface IRefreshTokenRepository
 
     IQueryable<RefreshToken> GetActiveTokenById(Guid tokenId);
 
+    IQueryable<RefreshToken> GetActiveTokenByTokenHash(string tokenHash);
+
     IQueryable<RefreshToken> GetActiveTokensByUserAndTokenHash(Guid userId, string tokenHash);
 }

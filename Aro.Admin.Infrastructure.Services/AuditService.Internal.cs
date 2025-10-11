@@ -135,4 +135,6 @@ public partial class AuditService
     private AuditTrail GenerateTrailForUserSessionLoggedOut(UserSessionLoggedOutLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.UserSessionLoggedOut, entityType: auditEntityTypes.RefreshToken, entityId: log.RefreshTokenHash, data: serializer.Serialize(log));
 
     private AuditTrail GenerateTrailForUserSessionsLoggedOut(UserSessionsLoggedOutLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.UserSessionLoggedOut, entityType: auditEntityTypes.RefreshToken, data: serializer.Serialize(log));
+
+    private AuditTrail GenerateTrailForTokenRefreshed(TokenRefreshedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.UserSessionLoggedOut, entityType: auditEntityTypes.RefreshToken, entityId: log.OldRefreshTokenHash, data: serializer.Serialize(log));
 }
