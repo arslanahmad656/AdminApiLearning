@@ -1,3 +1,3 @@
 ﻿namespace Aro.Admin.Application.Mediator.Authentication.DTOs;
 
-public record AuthenticateUserResponse(string Token, DateTime Expiry);
+public record AuthenticateUserResponse(Guid RefreshTokenId, string AccessToken, string RefreshToken, DateTime AccessTokenExpiry, DateTime RefreshTokenExpiry);

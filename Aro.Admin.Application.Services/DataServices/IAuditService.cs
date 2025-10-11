@@ -19,4 +19,8 @@ public interface IAuditService
     Task LogAuthenticationSuccessful(AuthenticationSuccessfulLog log, CancellationToken cancellationToken = default);
 
     Task LogAuthenticationFailed(AuthenticationFailedLog log, CancellationToken cancellationToken = default);
+
+    Task LogUserSessionLoggedOutLog(UserSessionLoggedOutLog log, CancellationToken cancellationToken = default);
+    
+    Task LogUserSessionsLoggedOutLog(UserSessionsLoggedOutLog log, CancellationToken cancellationToken = default);
 }

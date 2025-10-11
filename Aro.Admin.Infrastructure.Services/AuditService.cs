@@ -84,4 +84,18 @@ public partial class AuditService
 
         await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
     }
+
+    public async Task LogUserSessionLoggedOutLog(UserSessionLoggedOutLog log, CancellationToken cancellationToken = default)
+    {
+        var entity = GenerateTrailForUserSessionLoggedOut(log);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+    }
+
+    public async Task LogUserSessionsLoggedOutLog(UserSessionsLoggedOutLog log, CancellationToken cancellationToken = default)
+    {
+        var entity = GenerateTrailForUserSessionsLoggedOut(log);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+    }
 }

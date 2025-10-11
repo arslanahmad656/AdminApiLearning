@@ -120,6 +120,6 @@ public partial class RefreshTokenService(JwtOptions jwtOptions, IRepositoryManag
 
         await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
 
-        return new(newAccessToken.Token, newRefreshToken.Token, newAccessToken.Expiry);
+        return new(newRefreshEntity.Id, newAccessToken.Token, newRefreshToken.Token, newAccessToken.Expiry, newRefreshToken.ExpiresAt);
     }
 }
