@@ -1,6 +1,6 @@
 ﻿namespace Aro.Admin.Application.Services;
 
-public interface IEntityIdGenerator
+public interface IUniqueIdGenerator
 {
     Guid Generate();
 }
