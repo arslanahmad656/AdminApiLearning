@@ -24,9 +24,6 @@ internal class RefreshTokenConfiguration : IEntityTypeConfiguration<RefreshToken
         builder.Property(rt => rt.CreatedAt)
             .IsRequired();
 
-        builder.Property(rt => rt.Revoked)
-            .HasDefaultValue(false);
-
         builder.HasOne(rt => rt.User)
             .WithMany(u => u.RefreshTokens)
             .HasForeignKey(rt => rt.UserId)

@@ -4,5 +4,9 @@ namespace Aro.Admin.Application.Services;
 
 public interface IAuthenticationService
 {
-    Task<TokenResponse> Authenticate(string email, string password, CancellationToken cancellationToken = default);
+    Task<CompositeToken> Authenticate(string email, string password, CancellationToken cancellationToken = default);
+
+    Task<bool> Logout(Guid userId, string refreshToken, CancellationToken cancellationToken = default);
+
+    Task LogoutAll(Guid userId, CancellationToken cancellationToken = default);
 }

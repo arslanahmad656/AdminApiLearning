@@ -2,7 +2,7 @@
 using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 using Aro.Admin.Application.Shared.Options;
-using Microsoft.IdentityModel.JsonWebTokens;
+using Aro.Admin.Domain.Shared;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,9 +10,9 @@ using System.Text;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class JwtTokenService(IUserService userService, JwtOptions jwtOptions) : ITokenService
+public class JwtTokenService(IUserService userService, JwtOptions jwtOptions, SharedKeys sharedKeys) : IAccessTokenService
 {
-    public async Task<TokenResponse> GenerateToken(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<AccessTokenResponse> GenerateAccessToken(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await userService.GetUserById(userId, true, true, cancellationToken).ConfigureAwait(false);
 
@@ -21,7 +21,7 @@ public class JwtTokenService(IUserService userService, JwtOptions jwtOptions) : 
             new(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(ClaimTypes.Name, user.DisplayName),
             new(ClaimTypes.Email, user.Email),
-            new("active", user.IsActive.ToString())
+            new(sharedKeys.JWT_CLAIM_ACTIVE, user.IsActive.ToString())
         };
 
         claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Id.ToString())));

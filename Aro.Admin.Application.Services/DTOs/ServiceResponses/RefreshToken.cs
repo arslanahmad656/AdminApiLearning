@@ -1,3 +1,3 @@
 ﻿namespace Aro.Admin.Application.Services.DTOs.ServiceResponses;
 
-public record TokenResponse(string Token, DateTime Expiry);
+public record RefreshToken(string Token, DateTime ExpiresAt);
