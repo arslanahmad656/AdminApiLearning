@@ -2,7 +2,7 @@
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class GuidEntityIdGenerator : IEntityIdGenerator
+public class GuidGenerator : IUniqueIdGenerator
 {
     public Guid Generate() => Guid.NewGuid();
 }

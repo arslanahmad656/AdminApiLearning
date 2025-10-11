@@ -9,7 +9,7 @@ namespace Aro.Admin.Infrastructure.Services;
 
 public partial class AuditService
 (
-    IEntityIdGenerator idGenerator, 
+    IUniqueIdGenerator idGenerator, 
     IRequestInterpretorService requestInterpretor,
     AuditActions auditActions,
     EntityTypes auditEntityTypes,

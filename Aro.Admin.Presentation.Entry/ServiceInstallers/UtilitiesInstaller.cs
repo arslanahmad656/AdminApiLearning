@@ -14,7 +14,7 @@ internal class UtilitiesInstaller : IServiceInstaller
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IRequestInterpretorService, RequestInterpretorService>();
         builder.Services.AddSingleton<ISerializer, JsonSerializer>();
-        builder.Services.AddSingleton<IEntityIdGenerator, GuidEntityIdGenerator>();
+        builder.Services.AddSingleton<IUniqueIdGenerator, GuidGenerator>();
         builder.Services.AddSingleton<IPasswordHasher, BCrypttPasswordHasher>();
         builder.Services.AddSingleton<ErrorCodes>();
         builder.Services.AddSingleton<AuditActions>();
