@@ -126,9 +126,13 @@ public partial class AuditService
     {
         var trail = GenerateAuditTrialEntityWithCommonParams(action: auditActions.AuthenticationFailed, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(new
         {
-            Email = log.Email
+            log.Email
         }));
 
         return trail;
     }
+
+    private AuditTrail GenerateTrailForUserSessionLoggedOut(UserSessionLoggedOutLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.UserSessionLoggedOut, entityType: auditEntityTypes.RefreshToken, entityId: log.RefreshTokenHash, data: serializer.Serialize(log));
+
+    private AuditTrail GenerateTrailForUserSessionsLoggedOut(UserSessionsLoggedOutLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.UserSessionLoggedOut, entityType: auditEntityTypes.RefreshToken, data: serializer.Serialize(log));
 }

@@ -10,4 +10,5 @@ public class AuditActions
     public readonly string RolesRevokedFromUsers = "ROLES_REVOKED_FROM_USERS";
     public readonly string AuthenticationSuccessful = "AUTHENTICAITON_SUCCESS";
     public readonly string AuthenticationFailed = "AUTHENTICAITON_FAIL";
+    public readonly string UserSessionLoggedOut = "SESSION_LOGOUT";
 }

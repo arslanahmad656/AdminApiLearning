@@ -39,12 +39,16 @@ public class MappingProfile : Profile
         CreateMap<User, ServiceResponses.GetUserResponse>()
             .ForCtorParam(nameof(ServiceResponses.GetUserResponse.Roles), opt => opt.MapFrom(u => u.UserRoles.Select(r => r.Role ?? new Role()).ToList()));
 
-        CreateMap<AuthenticateUserResponse, ServiceResponses.AccessTokenResponse>();
+        CreateMap<AuthenticateUserResponse, ServiceResponses.CompositeToken>();
         CreateMap<ServiceResponses.AccessTokenResponse, SuccessfulAuthenticationData>();
         CreateMap<SuccessfulAuthenticationData, AuthenticationSuccessfulLog>();
         CreateMap<FailedAuthenticationData, AuthenticationFailedLog>();
 
         CreateMap<Domain.Entities.RefreshToken, ServiceResponses.RefreshToken>()
             .ForCtorParam(nameof(ServiceResponses.RefreshToken.Token), opt => opt.MapFrom(rt => rt.TokenHash));
+        CreateMap<UserLoggedOutNotificationData, UserSessionLoggedOutLog>();
+        CreateMap<UserLoggedOutAllNotificationData, UserSessionsLoggedOutLog>();
+        CreateMap<LogoutUserModel, LogoutUserRequest>();
+        CreateMap<LogoutAllUserModel, LogoutUserAllRequest>();
     }
 }

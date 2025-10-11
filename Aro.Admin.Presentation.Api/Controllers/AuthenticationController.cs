@@ -1,6 +1,8 @@
 ﻿using Aro.Admin.Application.Mediator.Authentication.Commands;
+using Aro.Admin.Application.Mediator.Authentication.DTOs;
 using Aro.Admin.Application.Services;
 using Aro.Admin.Presentation.Api.DTOs;
+using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +11,7 @@ namespace Aro.Admin.Presentation.Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthenticationController(IMediator mediator) : ControllerBase
+public class AuthenticationController(IMediator mediator, IMapper mapper) : ControllerBase
 {
     [HttpPost("authenticate")]
     [AllowAnonymous]
@@ -19,8 +21,26 @@ public class AuthenticationController(IMediator mediator) : ControllerBase
 
         return Ok(new
         {
-            response.Expiry,
-            AccessToken = response.Token
+            response.RefreshTokenExpiry,
+            response.AccessToken
         });
+    }
+
+    [HttpPost("logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout([FromBody] LogoutUserModel model, CancellationToken cancellationToken)
+    {
+        _ = await mediator.Send(new LogoutUserCommand(mapper.Map<LogoutUserRequest>(model)), cancellationToken).ConfigureAwait(false);
+
+        return NoContent();
+    }
+
+    [HttpPost("logoutall")]
+    [Authorize]
+    public async Task<IActionResult> LogoutAll([FromBody] LogoutUserAllCommand model, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new LogoutUserAllCommand(mapper.Map<LogoutUserAllRequest>(model)), cancellationToken).ConfigureAwait(false);
+
+        return NoContent();
     }
 }

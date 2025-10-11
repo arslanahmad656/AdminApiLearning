@@ -15,4 +15,8 @@
     <ProjectReference Include="..\Aro.Admin.Application.Mediator\Aro.Admin.Application.Mediator.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\LogoutUserModel\" />
+  </ItemGroup>
+
 </Project>
