@@ -5,7 +5,7 @@ using Aro.Admin.Domain.Shared.Exceptions;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class AuthenticationService(IPasswordHasher passwordHasher, IUserService userService, ITokenService tokenService, ErrorCodes errorCodes) : IAuthenticationService
+public partial class AuthenticationService(IHasher passwordHasher, IUserService userService, ITokenService tokenService, ErrorCodes errorCodes) : IAuthenticationService
 {
     public async Task<TokenResponse> Authenticate(string email, string password, CancellationToken cancellationToken = default)
     {

@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class UserService(IRepositoryManager repository, IPasswordHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, IMapper mapper) : IUserService
+public partial class UserService(IRepositoryManager repository, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, IMapper mapper) : IUserService
 {
     private readonly IUserRepository userRepository = repository.UserRepository;
     private readonly IRoleRepository roleRepository = repository.RoleRepository;
