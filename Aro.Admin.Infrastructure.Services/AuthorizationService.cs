@@ -12,7 +12,7 @@ public class AuthorizationService(IRepositoryManager repository, ICurrentUserSer
         var hasPermission = await UserHasPermission(userId, permissionCode, cancellationToken).ConfigureAwait(false);
         if (!hasPermission)
         {
-            throw new UserPermissionException(userId, permissionCode);
+            throw new AroUserPermissionException(userId, permissionCode);
         }
     }
 

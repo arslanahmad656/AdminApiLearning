@@ -18,5 +18,7 @@ public interface IRepositoryManager // also acts as a Unit of Work
 
     IUserRoleRepository UserRoleRepository { get; }
 
+    IRefreshTokenRepository RefreshTokenRepository { get; }
+
     Task SaveChanges(CancellationToken cancellationToken = default);
 }

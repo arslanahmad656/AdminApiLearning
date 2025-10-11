@@ -22,7 +22,7 @@ public partial class UserService
         }
 
         var userEntity = await query.SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false)
-            ?? throw new UserNotFoundException(identifier);
+            ?? throw new AroUserNotFoundException(identifier);
 
         var response = mapper.Map<GetUserResponse>(userEntity);
         if (!includePasswordHash)
