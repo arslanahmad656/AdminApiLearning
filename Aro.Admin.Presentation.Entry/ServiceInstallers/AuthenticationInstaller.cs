@@ -17,6 +17,7 @@ public class AuthenticationInstaller : IServiceInstaller
         builder.Services.AddScoped<IAccessTokenService, JwtTokenService>();
         builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         builder.Services.AddScoped<ITokenBlackListService, CacheBasedTokenBlackListService>();
+        builder.Services.AddScoped<IActiveAccessTokenService, CacheBasedActiveAccessTokensService>();
         builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
         var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>()
