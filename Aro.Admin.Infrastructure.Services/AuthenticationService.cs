@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class AuthenticationService(IHasher haser, IUserService userService, IAccessTokenService accessTokenService, IRefreshTokenService refreshTokenService, IRepositoryManager repositoryManager, IUniqueIdGenerator idGenerator, ErrorCodes errorCodes) : IAuthenticationService
+public partial class AuthenticationService(IHasher haser, IUserService userService, IAccessTokenService accessTokenService, IRefreshTokenService refreshTokenService, IRepositoryManager repositoryManager, IUniqueIdGenerator idGenerator, ITokenBlackListService tokenBlackListService, IActiveAccessTokenService activeAccessTokenService, ErrorCodes errorCodes) : IAuthenticationService
 {
     private readonly IRefreshTokenRepository refreshTokenRepo = repositoryManager.RefreshTokenRepository;
 
@@ -38,14 +38,16 @@ public partial class AuthenticationService(IHasher haser, IUserService userServi
         await refreshTokenRepo.Create(refreshEntity, cancellationToken).ConfigureAwait(false);
         await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
 
-        var response = new CompositeToken(string.Empty, user.Id, refreshEntity.Id, accessToken.Token, refreshToken.Token, accessToken.Expiry, refreshToken.ExpiresAt);
+        var response = new CompositeToken(string.Empty, user.Id, refreshEntity.Id, accessToken.Token, refreshToken.Token, accessToken.Expiry, refreshToken.ExpiresAt, accessToken.TokenIdentifier);
 
         return response;
     }
 
-    public async Task<bool> Logout(Guid userId, string refreshToken, CancellationToken cancellationToken = default)
+    public async Task<bool> Logout(Guid userId, string refreshToken, string accessTokenIdentifier, DateTime accessTokenExpiry, CancellationToken cancellationToken = default)
     {
         var result = await refreshTokenService.Revoke(userId, refreshToken, cancellationToken).ConfigureAwait(false);
+
+        await tokenBlackListService.BlackList(accessTokenIdentifier, accessTokenExpiry, cancellationToken).ConfigureAwait(false);
 
         return result;
     }
@@ -53,5 +55,11 @@ public partial class AuthenticationService(IHasher haser, IUserService userServi
     public async Task LogoutAll(Guid userId, CancellationToken cancellationToken = default)
     {
         await refreshTokenService.RevokeAll(userId, cancellationToken).ConfigureAwait(false);
+
+        var activeAccessTokens = await activeAccessTokenService.GetActiveTokens(userId, cancellationToken).ConfigureAwait(false);
+
+        activeAccessTokens.ForEach(async t => await tokenBlackListService.BlackList(t.TokenIdentifier, t.Expiry, cancellationToken).ConfigureAwait(false));
+
+        await activeAccessTokenService.RemoveAllTokens(userId, cancellationToken).ConfigureAwait(false);
     }
 }
