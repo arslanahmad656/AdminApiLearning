@@ -10,18 +10,20 @@ using System.Text;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class JwtTokenService(IUserService userService, JwtOptions jwtOptions, SharedKeys sharedKeys) : IAccessTokenService
+public class JwtTokenService(IUserService userService, IUniqueIdGenerator idGenerator, IActiveAccessTokenService activeAccessTokenService, JwtOptions jwtOptions, SharedKeys sharedKeys) : IAccessTokenService
 {
     public async Task<AccessTokenResponse> GenerateAccessToken(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await userService.GetUserById(userId, true, true, cancellationToken).ConfigureAwait(false);
 
+        var jti = idGenerator.Generate().ToString();
         var claims = new List<Claim>
         {
-            new(System.IdentityModel.Tokens.Jwt.JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(type: JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(ClaimTypes.Name, user.DisplayName),
             new(ClaimTypes.Email, user.Email),
-            new(sharedKeys.JWT_CLAIM_ACTIVE, user.IsActive.ToString())
+            new(sharedKeys.JWT_CLAIM_ACTIVE, user.IsActive.ToString()),
+            new(JwtRegisteredClaimNames.Jti, jti),
         };
 
         claims.AddRange(user.Roles.Select(role => new Claim(ClaimTypes.Role, role.Id.ToString())));
@@ -41,6 +43,8 @@ public class JwtTokenService(IUserService userService, JwtOptions jwtOptions, Sh
 
         var serializedToken = new JwtSecurityTokenHandler().WriteToken(token);
 
-        return new(serializedToken, expiry);
+        await activeAccessTokenService.RegisterToken(user.Id, jti, DateTime.Now.AddMinutes(jwtOptions.AccessTokenExpirationMinutes), cancellationToken).ConfigureAwait(false);
+
+        return new(serializedToken, expiry, jti);
     }
 }
