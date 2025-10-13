@@ -1,6 +1,7 @@
 ﻿using Aro.Admin.Application.Mediator.UserRole.Commands;
 using Aro.Admin.Application.Mediator.UserRole.DTOs;
 using Aro.Admin.Application.Mediator.UserRole.Queries;
+using Aro.Admin.Application.Services;
 using Aro.Admin.Domain.Shared;
 using Aro.Admin.Presentation.Api.DTOs;
 using Aro.Admin.Presentation.Api.Filters;
@@ -12,14 +13,18 @@ namespace Aro.Admin.Presentation.Api.Controllers;
 
 [ApiController]
 [Route("api/userrole")]
-public class UserRoleController(IMediator mediator, IMapper mapper) : ControllerBase
+public class UserRoleController(IMediator mediator, IMapper mapper, ILogManager<UserRoleController> logger) : ControllerBase
 {
     [HttpPost("assignrolesbyids")]
     [Permissions(PermissionCodes.AssignUserRole)]
     public async Task<IActionResult> AssignRolesToUsers([FromBody] AssignRolesModel model, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Starting AssignRolesToUsers operation for userIds: {UserIds}, roleIds: {RoleIds}", 
+            string.Join(", ", model.UserIds), string.Join(", ", model.RoleIds));
+        
         var response = await mediator.Send(new AssignRolesByIdCommand(mapper.Map<AssignRolesByIdRequest>(model)), cancellationToken).ConfigureAwait(false);
 
+        logger.LogDebug("Completed AssignRolesToUsers operation successfully");
         return Ok(response);
     }
 
@@ -27,8 +32,12 @@ public class UserRoleController(IMediator mediator, IMapper mapper) : Controller
     [Permissions(PermissionCodes.RevokeUserRole)]
     public async Task<IActionResult> RevokeRolesFromusers([FromBody] RevokeRolesModel model, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Starting RevokeRolesFromusers operation for userIds: {UserIds}, roleIds: {RoleIds}", 
+            string.Join(", ", model.UserIds), string.Join(", ", model.RoleIds));
+        
         var response = await mediator.Send(new RevokeRolesByIdCommand(mapper.Map<RevokeRolesByIdRequest>(model)), cancellationToken).ConfigureAwait(false);
 
+        logger.LogDebug("Completed RevokeRolesFromusers operation successfully");
         return Ok(response);
     }
 
@@ -36,8 +45,11 @@ public class UserRoleController(IMediator mediator, IMapper mapper) : Controller
     [Permissions(PermissionCodes.TestUserRole)]
     public async Task<IActionResult> UserHasRole([FromQuery] Guid userId, [FromQuery] Guid roleId, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Starting UserHasRole operation for userId: {UserId}, roleId: {RoleId}", userId, roleId);
+        
         var response = await mediator.Send(new UserHasRoleQuery(new(userId, roleId)), cancellationToken).ConfigureAwait(false);
 
+        logger.LogDebug("Completed UserHasRole operation with result: {HasRole}", response);
         return Ok(response);
     }
 
@@ -45,8 +57,11 @@ public class UserRoleController(IMediator mediator, IMapper mapper) : Controller
     [Permissions(PermissionCodes.GetUserRoles)]
     public async Task<IActionResult> GetUserRoles(Guid userId, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Starting GetUserRoles operation for userId: {UserId}", userId);
+        
         var roles = await mediator.Send(new GetUserRolesQuery(new(userId)), cancellationToken).ConfigureAwait(false);
 
+        logger.LogDebug("Completed GetUserRoles operation successfully");
         return Ok(roles);
     }
 }
