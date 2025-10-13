@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Migration.Handlers;
 
-public class DatabaseMigratedNotificationHandler(IAuditService auditService) : INotificationHandler<DatabaseMigratedNotification>
+public class AuditLogDatabaseMigratedNotificationHandler(IAuditService auditService) : INotificationHandler<DatabaseMigratedNotification>
 {
     public async Task Handle(DatabaseMigratedNotification notification, CancellationToken cancellationToken)
     {

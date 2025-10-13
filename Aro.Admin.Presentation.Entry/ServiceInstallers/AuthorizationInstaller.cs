@@ -10,6 +10,7 @@ public class AuthorizationInstaller : IServiceInstaller
     public void Install(WebApplicationBuilder builder)
     {
         builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
+        builder.Services.AddScoped<ISystemContext, SystemContext>();
         builder.Services.AddAuthorization();
     }
 }

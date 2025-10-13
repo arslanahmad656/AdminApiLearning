@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Seed.Handlers;
 
-public class ApplicationSeededNotificationHandler(IAuditService auditService) : INotificationHandler<ApplicationSeededNotification>
+public class AuditLogApplicationSeededNotificationHandler(IAuditService auditService) : INotificationHandler<ApplicationSeededNotification>
 {
     public async Task Handle(ApplicationSeededNotification notification, CancellationToken cancellationToken)
     {

@@ -5,12 +5,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class AuthorizationService(IRepositoryManager repository, ICurrentUserService currentUserService, ErrorCodes errorCodes, ILogManager<AuthorizationService> logger) : IAuthorizationService
+public partial class AuthorizationService(IRepositoryManager repository, ICurrentUserService currentUserService, ISystemContext systemContext, ErrorCodes errorCodes, ILogManager<AuthorizationService> logger) : IAuthorizationService
 {
     public async Task EnsureUserHasPermission(Guid userId, string permissionCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Starting {MethodName}", nameof(EnsureUserHasPermission));
-        
+
+        if (IsSystemContext())
+        {
+            return;
+        }
+
         var hasPermission = await UserHasPermission(userId, permissionCode, cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Permission check result for user: {UserId}, permission: {PermissionCode}, hasPermission: {HasPermission}", userId, permissionCode, hasPermission);
         
@@ -28,7 +33,12 @@ public class AuthorizationService(IRepositoryManager repository, ICurrentUserSer
     public async Task<bool> UserHasPermission(Guid userId, string permissionCode, CancellationToken cancellationToken)
     {
         logger.LogDebug("Starting {MethodName}", nameof(UserHasPermission));
-        
+
+        if (IsSystemContext())
+        {
+            return true;
+        }
+
         var exists = await repository.UserRepository
             .GetById(userId)
             .SelectMany(u => u.UserRoles)
@@ -46,7 +56,12 @@ public class AuthorizationService(IRepositoryManager repository, ICurrentUserSer
     public async Task<bool> CurrentUserHasPermissions(IEnumerable<string> permissions, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(CurrentUserHasPermissions));
-        
+
+        if (IsSystemContext())
+        {
+            return true;
+        }
+
         if (!currentUserService.IsAuthenticated())
         {
             logger.LogDebug("Current user is not authenticated");
@@ -83,7 +98,12 @@ public class AuthorizationService(IRepositoryManager repository, ICurrentUserSer
     public async Task EnsureCurrentUserPermissions(IEnumerable<string> permissions, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(EnsureCurrentUserPermissions));
-        
+
+        if (IsSystemContext())
+        {
+            return;
+        }
+
         if (!currentUserService.IsAuthenticated())
         {
             logger.LogWarn("Current user is not authenticated");
