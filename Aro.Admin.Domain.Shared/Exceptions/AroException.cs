@@ -3,7 +3,7 @@
 [Serializable]
 public class AroException : Exception
 {
-    public string? ErrorCode { get; }
+    public string ErrorCode { get; } = string.Empty;
 
     public AroException()
     {

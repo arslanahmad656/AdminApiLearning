@@ -12,7 +12,7 @@ public class RequestInterpretorService(IHttpContextAccessor httpContextAccessor,
         logger.LogDebug("Starting {MethodName}", nameof(ExtractUsername));
         
         var username = httpContext?.User?.Identity?.Name;
-        logger.LogDebug("Username extracted: {Username}", username);
+        logger.LogDebug("Username extracted: {Username}", username ?? string.Empty);
         
         logger.LogDebug("Completed {MethodName}", nameof(ExtractUsername));
         return username;
@@ -24,7 +24,7 @@ public class RequestInterpretorService(IHttpContextAccessor httpContextAccessor,
         
         // Check for forwarded headers first (useful when behind proxy/load balancer)
         var forwardedHeader = httpContext?.Request?.Headers?["X-Forwarded-For"].FirstOrDefault();
-        logger.LogDebug("X-Forwarded-For header: {ForwardedHeader}", forwardedHeader);
+        logger.LogDebug("X-Forwarded-For header: {ForwardedHeader}", forwardedHeader ?? string.Empty);
         
         if (!string.IsNullOrEmpty(forwardedHeader))
         {
@@ -38,7 +38,7 @@ public class RequestInterpretorService(IHttpContextAccessor httpContextAccessor,
 
         // Fallback to remote IP address
         var remoteIpAddress = httpContext?.Connection?.RemoteIpAddress?.ToString();
-        logger.LogDebug("IP address retrieved from connection: {IpAddress}", remoteIpAddress);
+        logger.LogDebug("IP address retrieved from connection: {IpAddress}", remoteIpAddress ?? string.Empty);
         
         logger.LogDebug("Completed {MethodName}", nameof(RetrieveIpAddress));
         return remoteIpAddress;

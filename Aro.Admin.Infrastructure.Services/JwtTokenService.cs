@@ -18,7 +18,7 @@ public class JwtTokenService(IUserService userService, IUniqueIdGenerator idGene
         
         logger.LogDebug("Retrieving user information for token generation: {UserId}", userId);
         var user = await userService.GetUserById(userId, true, true, cancellationToken).ConfigureAwait(false);
-        logger.LogDebug("User retrieved for token generation: {UserId}, email: {Email}, roleCount: {RoleCount}", userId, user.Email, user.Roles.Count);
+        logger.LogDebug("User retrieved for token generation: {UserId}, email: {Email}", userId, user.Email);
 
         var jti = idGenerator.Generate().ToString();
         logger.LogDebug("Generated JTI for token: {Jti}", jti);

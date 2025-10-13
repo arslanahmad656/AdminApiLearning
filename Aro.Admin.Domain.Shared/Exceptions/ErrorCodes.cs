@@ -6,6 +6,7 @@ public class ErrorCodes
     public readonly string DESERIALIZATION_ERROR = nameof(DESERIALIZATION_ERROR);
     public readonly string DATA_SEED_ERROR = nameof(DATA_SEED_ERROR);
     public readonly string CONFIGURATION_ERROR = nameof(CONFIGURATION_ERROR);
+    public readonly string UNKNOWN_ERROR = nameof(UNKNOWN_ERROR);
 
     #region [SYSTEM SETTINGS]
     public readonly string SYSTEM_ALREADY_INITIALIZED = nameof(SYSTEM_ALREADY_INITIALIZED);
