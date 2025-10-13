@@ -3,6 +3,7 @@ using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Shared;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -10,8 +11,10 @@ using System.Text;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class JwtTokenService(IUserService userService, IUniqueIdGenerator idGenerator, IActiveAccessTokenService activeAccessTokenService, JwtOptions jwtOptions, SharedKeys sharedKeys, ILogManager<JwtTokenService> logger) : IAccessTokenService
+public class JwtTokenService(IUserService userService, IUniqueIdGenerator idGenerator, IActiveAccessTokenService activeAccessTokenService, IOptions<JwtOptions> jwtOptions, SharedKeys sharedKeys, ILogManager<JwtTokenService> logger) : IAccessTokenService
 {
+    private readonly JwtOptions jwtOptions = jwtOptions.Value;
+
     public async Task<AccessTokenResponse> GenerateAccessToken(Guid userId, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(GenerateAccessToken));
