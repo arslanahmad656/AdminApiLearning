@@ -1,3 +1,8 @@
 ﻿namespace Aro.Admin.Application.Services.DTOs.ServiceResponses;
 
-public record RefreshToken(string Token, DateTime ExpiresAt);
+public record RefreshToken
+{
+    public string Token { get; init; } = string.Empty;
+    public DateTime ExpiresAt { get; init; }
+}
+

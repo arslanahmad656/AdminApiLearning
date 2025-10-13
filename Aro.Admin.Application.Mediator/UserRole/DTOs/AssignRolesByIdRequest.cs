@@ -1,4 +1,9 @@
 ﻿namespace Aro.Admin.Application.Mediator.UserRole.DTOs;
 
-public record AssignRolesByIdRequest(IEnumerable<Guid> UserIds, IEnumerable<Guid> RoleIds);
+public record AssignRolesByIdRequest
+{
+    public IEnumerable<Guid> UserIds { get; init; } = Array.Empty<Guid>();
+    public IEnumerable<Guid> RoleIds { get; init; } = Array.Empty<Guid>();
+}
+
 
