@@ -3,11 +3,14 @@ using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 using Aro.Admin.Application.Shared.Options;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class CacheBasedActiveAccessTokensService(IDistributedCache cache, ISerializer serializer, JwtOptions jwtOptions, ILogManager<CacheBasedActiveAccessTokensService> logger) : IActiveAccessTokenService
+public partial class CacheBasedActiveAccessTokensService(IDistributedCache cache, ISerializer serializer, IOptions<JwtOptions> jwtOptions, ILogManager<CacheBasedActiveAccessTokensService> logger) : IActiveAccessTokenService
 {
+    private readonly JwtOptions jwtOptions = jwtOptions.Value;
+
     public async Task RegisterToken(Guid userId, string tokenIdentifier, DateTime expiry, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(RegisterToken));

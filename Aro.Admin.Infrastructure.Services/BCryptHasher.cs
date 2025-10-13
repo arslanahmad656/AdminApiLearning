@@ -2,7 +2,7 @@
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class BCrypttPasswordHasher(ILogManager<BCrypttPasswordHasher> logger) : IHasher
+public class BCryptHasher(ILogManager<BCryptHasher> logger) : IHasher
 {
     public string Hash(string text)
     {

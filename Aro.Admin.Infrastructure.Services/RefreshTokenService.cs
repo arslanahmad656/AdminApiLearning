@@ -5,13 +5,15 @@ using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared.Exceptions;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 using RefreshToken = Aro.Admin.Application.Services.DTOs.ServiceResponses.RefreshToken;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class RefreshTokenService(JwtOptions jwtOptions, IRepositoryManager repositoryManager, IMapper mapper, IHasher hasher, IAccessTokenService accessTokenService, IUniqueIdGenerator idGenerator, ErrorCodes errorCodes, ILogManager<RefreshTokenService> logger) : IRefreshTokenService
+public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepositoryManager repositoryManager, IMapper mapper, IHasher hasher, IAccessTokenService accessTokenService, IUniqueIdGenerator idGenerator, ErrorCodes errorCodes, ILogManager<RefreshTokenService> logger) : IRefreshTokenService
 {
+    private readonly JwtOptions jwtOptions = jwtOptions.Value;
     private readonly IRefreshTokenRepository refreshTokenRepo = repositoryManager.RefreshTokenRepository;
 
     public Task<RefreshToken> GenerateRefreshToken(CancellationToken cancellationToken = default)
