@@ -13,9 +13,9 @@ public class HttpContextBasedCurrentUserService(IHttpContextAccessor contextAcce
     public Guid? GetCurrentUserId()
     {
         logger.LogDebug("Starting {MethodName}", nameof(GetCurrentUserId));
-        
-        var userId = Guid.TryParse(httpContext?.User?.Identity?.Name, out var parsedUserId) ? parsedUserId : null;
-        logger.LogDebug("Current user ID retrieved: {UserId}", userId);
+
+        Guid? userId = Guid.TryParse(httpContext?.User?.Identity?.Name, out var x) ? x : null;
+        logger.LogDebug("Current user ID retrieved: {UserId}", userId ?? default);
         
         logger.LogDebug("Completed {MethodName}", nameof(GetCurrentUserId));
         return userId;
@@ -30,13 +30,15 @@ public class HttpContextBasedCurrentUserService(IHttpContextAccessor contextAcce
 
         var jti = user.FindFirst(JwtRegisteredClaimNames.Jti);
         var expUnix = user.FindFirst(JwtRegisteredClaimNames.Exp);
-        logger.LogDebug("JWT claims extracted, jti: {Jti}, exp: {Exp}", jti?.Value, expUnix?.Value);
+        logger.LogDebug("JWT claims extracted, jti: {Jti}, exp: {Exp}", 
+            jti?.Value ?? throw new AroInvalidOperationException(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR, $"Could not find {JwtRegisteredClaimNames.Jti} value in the claims."), 
+            expUnix?.Value ?? throw new AroInvalidOperationException(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR, $"Could not find {JwtRegisteredClaimNames.Exp} value in the claims."));
 
-        var expSeconds = long.Parse(expUnix?.Value ?? throw new AroInvalidOperationException(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR, $"Could not find {JwtRegisteredClaimNames.Exp} value in the claims."));
+        var expSeconds = long.Parse(expUnix.Value);
         var expiry = DateTimeOffset.FromUnixTimeSeconds(expSeconds).UtcDateTime;
         logger.LogDebug("Token expiry calculated: {Expiry}", expiry);
 
-        var tokenInfo = new TokenInfo(jti?.Value ?? throw new AroInvalidOperationException(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR, $"Could not find {JwtRegisteredClaimNames.Jti} value in the claims."), expiry);
+        var tokenInfo = new TokenInfo(jti.Value, expiry);
         logger.LogDebug("Token info created successfully, jti: {Jti}, expiry: {Expiry}", tokenInfo.TokenIdentifier, tokenInfo.Expiry);
 
         logger.LogDebug("Completed {MethodName}", nameof(GetTokenInfo));

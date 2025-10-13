@@ -5,29 +5,32 @@ using System.Text.Json.Serialization;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class JsonSerializer(ILogManager<JsonSerializer> logger) : ISerializer
+public class JsonSerializer : ISerializer
 {
     private readonly JsonSerializerOptions defaultOptions;
     private readonly JsonSerializerOptions prettyOptions;
+    private readonly ILogManager<JsonSerializer> logger;
 
-    public JsonSerializer()
-    {
-        logger.LogDebug("Initializing JsonSerializer with options");
-        
+    public JsonSerializer(ILogManager<JsonSerializer> logger)
+    {   
         defaultOptions = new JsonSerializerOptions
         {
             PropertyNamingPolicy = null,
             ReferenceHandler = ReferenceHandler.IgnoreCycles,
             PropertyNameCaseInsensitive = true,
-            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
         };
 
         prettyOptions = new JsonSerializerOptions(defaultOptions)
         {
+            PropertyNamingPolicy = null,
+            ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            PropertyNameCaseInsensitive = true,
+            Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             WriteIndented = true
         };
         
-        logger.LogDebug("JsonSerializer initialized successfully");
+        this.logger = logger;
     }
 
     public string Serialize<T>(T obj, bool pretty = false)

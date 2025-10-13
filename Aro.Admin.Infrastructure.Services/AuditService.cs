@@ -153,7 +153,7 @@ public partial class AuditService
         
         var entity = GenerateTrailForUserSessionsLoggedOut(log);
 
-        logger.LogDebug("Generated audit entity for user sessions logged out with action: {Action}, sessionCount: {SessionCount}", auditActions.UserSessionLoggedOut, log.SessionCount);
+        logger.LogDebug("Generated audit entity for user sessions logged out with action: {Action}", auditActions.UserSessionLoggedOut);
         
         await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
         

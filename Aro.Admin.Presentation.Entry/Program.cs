@@ -6,6 +6,9 @@ builder.InstallServices();
 
 var app = builder.Build();
 
+app.UseGlobalExceptionHandler();
+app.UseRequestLogging();
+
 await app.MigrateDatabase().ConfigureAwait(false);
 await app.SeedDatabase(Path.Combine(@"AppData\PemissionSeed.json")).ConfigureAwait(false);
 

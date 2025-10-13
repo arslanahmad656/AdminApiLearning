@@ -18,7 +18,7 @@ public class SystemSettingsService(IRepositoryManager repository, SharedKeys sha
         logger.LogDebug("Authorization verified for system initialization check");
 
         var setting = await settingsRepo.GetValue(sharedKeys.IS_SYSTEM_INITIALIZED, cancellationToken).ConfigureAwait(false);
-        logger.LogDebug("Retrieved system initialization setting: {Value}", setting?.Value);
+        logger.LogDebug("Retrieved system initialization setting: {Value}", setting?.Value ?? string.Empty);
 
         if (setting?.Value == true.ToString())
         {
