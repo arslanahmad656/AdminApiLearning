@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class MigrationService(AroAdminApiDbContext context, IAuthorizationService authorizationService, ISystemSettingsService systemSettingsService, ILogManager<MigrationService> logger, ErrorCodes errorCodes) : IMigrationService
+public class MigrationService(AroAdminApiDbContext context, IAuthorizationService authorizationService, ILogManager<MigrationService> logger) : IMigrationService
 {
     public async Task Migrate(CancellationToken cancellationToken)
     {

@@ -8,6 +8,7 @@ using Aro.Admin.Presentation.Api.DTOs;
 using Aro.Admin.Presentation.Api.Filters;
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aro.Admin.Presentation.Api.Controllers;
@@ -41,7 +42,7 @@ public class ApplicationController(IMediator mediator, IMapper mapper, ILogManag
     }
 
     [HttpPost("initialize")]
-    [Permissions(PermissionCodes.InitializeSystem, PermissionCodes.CreateUser, PermissionCodes.AssignUserRole)]
+    [AllowAnonymous]
     public async Task<IActionResult> InitializeSystem([FromBody] InitializeApplicationModel model, CancellationToken cancellationToken)
     {
         logger.LogDebug("Starting InitializeSystem operation for email: {Email}, displayName: {DisplayName}", model.Email, model.DisplayName);

@@ -50,7 +50,18 @@ public partial class AuthenticationService(IHasher haser, IUserService userServi
         await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Refresh token entity saved to database for user: {UserId}", user.Id);
 
-        var response = new CompositeToken(string.Empty, user.Id, refreshEntity.Id, accessToken.Token, refreshToken.Token, accessToken.Expiry, refreshToken.ExpiresAt, accessToken.TokenIdentifier);
+        var response = new CompositeToken
+        {
+            OldRefreshTokenHash = string.Empty,
+            UserId = user.Id,
+            RefreshTokenId = refreshEntity.Id,
+            AccessToken = accessToken.Token,
+            RefreshToken = refreshToken.Token,
+            AccessTokenExpiry = accessToken.Expiry,
+            RefreshTokenExpiry = refreshToken.ExpiresAt,
+            AccessTokenIdentifier = accessToken.TokenIdentifier
+        };
+
         logger.LogInfo("Authentication successful for email: {Email}, userId: {UserId}", email, user.Id);
 
         logger.LogDebug("Completed {MethodName}", nameof(Authenticate));

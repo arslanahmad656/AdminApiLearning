@@ -19,5 +19,9 @@ public class InitializeApplicationModelValidator : AbstractValidator<InitializeA
         RuleFor(m => m.DisplayName)
             .NotEmpty()
             .NotNull();
+
+        RuleFor(m => m.BootstrapPassword)
+            .NotEmpty()
+            .NotNull();
     }
 }

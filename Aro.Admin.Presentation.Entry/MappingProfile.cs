@@ -19,7 +19,7 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         CreateMap<User, AuditParameters.UserCreatedLog>()
-            .ForCtorParam(nameof(AuditParameters.UserCreatedLog.AssignedRoles), opt => opt.MapFrom(u => u.UserRoles.Select(r => r.RoleId).ToList()));
+            .ForMember(nameof(AuditParameters.UserCreatedLog.AssignedRoles), opt => opt.MapFrom(u => u.UserRoles.Select(r => r.RoleId).ToList()));
         CreateMap<CreateUserRequest, ServiceParameters.CreateUserDto>();
         CreateMap<ServiceResponses.CreateUserResponse, Application.Mediator.User.DTOs.CreateUserResponse>();
         CreateMap<ServiceResponses.CreateUserResponse, InitializeSystemResponse>();
@@ -27,8 +27,8 @@ public class MappingProfile : Profile
         CreateMap<InitializeApplicationModel, BootstrapUser>();
         CreateMap<Role, ServiceResponses.GetRoleRespose>();
         CreateMap<Role, ServiceResponses.GetUserRolesResponse>()
-            .ForCtorParam(nameof(ServiceResponses.GetUserRolesResponse.RoleName), opt => opt.MapFrom(r => r.Name))
-            .ForCtorParam(nameof(ServiceResponses.GetUserRolesResponse.RoleId), opt => opt.MapFrom(r => r.Id));
+            .ForMember(nameof(ServiceResponses.GetUserRolesResponse.RoleName), opt => opt.MapFrom(r => r.Name))
+            .ForMember(nameof(ServiceResponses.GetUserRolesResponse.RoleId), opt => opt.MapFrom(r => r.Id));
         CreateMap<InitializeSystemResponse, AuditParameters.SystemInitializedLog>();
 
         CreateMap<AssignRolesByIdResponse, AuditParameters.RolesAssignedLog>();
@@ -38,7 +38,7 @@ public class MappingProfile : Profile
         CreateMap<ServiceResponses.GetRoleRespose, GetRoleResponse>();
 
         CreateMap<User, ServiceResponses.GetUserResponse>()
-            .ForCtorParam(nameof(ServiceResponses.GetUserResponse.Roles), opt => opt.MapFrom(u => u.UserRoles.Select(r => r.Role ?? new Role()).ToList()));
+            .ForMember(nameof(ServiceResponses.GetUserResponse.Roles), opt => opt.MapFrom(u => u.UserRoles.Select(r => r.Role ?? new Role()).ToList()));
 
         CreateMap<AuthenticateUserResponse, ServiceResponses.CompositeToken>();
         CreateMap<ServiceResponses.AccessTokenResponse, SuccessfulAuthenticationData>();
@@ -46,9 +46,9 @@ public class MappingProfile : Profile
         CreateMap<FailedAuthenticationData, AuthenticationFailedLog>();
 
         CreateMap<Domain.Entities.RefreshToken, ServiceResponses.RefreshToken>()
-            .ForCtorParam(nameof(ServiceResponses.RefreshToken.Token), opt => opt.MapFrom(rt => rt.TokenHash));
+            .ForMember(nameof(ServiceResponses.RefreshToken.Token), opt => opt.MapFrom(rt => rt.TokenHash));
         CreateMap<Domain.Entities.RefreshToken, ServiceResponses.UserRefreshToken>()
-            .ForCtorParam(nameof(ServiceResponses.RefreshToken.Token), opt => opt.MapFrom(rt => rt.TokenHash));
+            .ForMember(nameof(ServiceResponses.RefreshToken.Token), opt => opt.MapFrom(rt => rt.TokenHash));
         CreateMap<UserLoggedOutNotificationData, UserSessionLoggedOutLog>();
         CreateMap<UserLoggedOutAllNotificationData, UserSessionsLoggedOutLog>();
         CreateMap<LogoutUserModel, LogoutUserRequest>();
