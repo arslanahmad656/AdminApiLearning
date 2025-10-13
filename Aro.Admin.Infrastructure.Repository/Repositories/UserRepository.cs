@@ -10,6 +10,9 @@ public class UserRepository(AroAdminApiDbContext dbContext) : RepositoryBase<Use
     public IQueryable<User> GetById(Guid id) => FindByCondition(filter: u => u.Id == id);
 
     public IQueryable<User> GetByEmail(string email) => FindByCondition(filter: u => u.Email == email);
+
+    public IQueryable<User> GetAll() => FindByCondition();
+
     public Task<bool> UsersExist(CancellationToken cancellationToken = default) => FindByCondition()
         .AnyAsync(cancellationToken);
 

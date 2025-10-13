@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using MediatorDtos = Aro.Admin.Application.Mediator.User.DTOs;
 using Aro.Admin.Presentation.Api.Filters;
 using Aro.Admin.Domain.Shared;
+using Aro.Admin.Application.Mediator.User.Queries;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Aro.Admin.Presentation.Api.Controllers;
 
@@ -24,6 +26,18 @@ public class UserController(IMediator mediator, IMapper mapper, ILogManager<User
         var response = await mediator.Send(new CreateUserCommand(mapper.Map<MediatorDtos.CreateUserRequest>(model)), cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Completed CreateUser operation successfully");
-        return CreatedAtAction("TODO", response);
+        return Ok(response);
+    }
+
+    [HttpPost("getbootstrapuser")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetBootstrapUser([FromBody] GetBootstrapUserModel model, CancellationToken cancellationToken)
+    {
+        logger.LogDebug("Starting GetBootstrapUser operation.");
+
+        var response = await mediator.Send(new GetBootstrapUserQuery { BootstrapPassword = model.BootstrapPassword }, cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed GetBootstrapUser operation successfully.");
+        return Ok(response);
     }
 }

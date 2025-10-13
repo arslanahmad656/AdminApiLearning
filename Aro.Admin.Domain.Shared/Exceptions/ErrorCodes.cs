@@ -22,6 +22,7 @@ public class ErrorCodes
     public readonly string NO_AVAILABLE_ACTIVE_REFRESH_TOKEN = nameof(NO_AVAILABLE_ACTIVE_REFRESH_TOKEN);
     public readonly string INVALID_REFRESH_TOKEN = nameof(INVALID_REFRESH_TOKEN);
     public readonly string TOKEN_INFO_RETRIEVAL_ERROR = nameof(TOKEN_INFO_RETRIEVAL_ERROR);
+    public readonly string INVALID_SYSTEM_ADMIN_PASSWORD = nameof(INVALID_SYSTEM_ADMIN_PASSWORD);
     #endregion
 
     #region [USERS]

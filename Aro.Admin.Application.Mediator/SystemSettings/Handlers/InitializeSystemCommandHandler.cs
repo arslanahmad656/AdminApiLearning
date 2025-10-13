@@ -25,7 +25,7 @@ public class InitializeSystemCommandHandler(IUserService userService, ISystemSet
         {
             if (request.User.BootstrapPassword != adminPassword)
             {
-                throw new AroUnauthorizedException(errorCodes.SYSTEM_INITIALIZATION_ERROR, $"The provided password does not match the required bootstrap password.");
+                throw new AroUnauthorizedException(errorCodes.INVALID_SYSTEM_ADMIN_PASSWORD, $"The provided password does not match the required bootstrap password.");
             }
 
             if (!currentUserService.IsAuthenticated())

@@ -10,4 +10,6 @@ public interface IUserService : IService
     Task<GetUserResponse> GetUserById(Guid userId, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default);
 
     Task<GetUserResponse> GetUserByEmail(string email, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default);
+
+    Task<GetUserResponse> GetSystemUser(string systemPassword, CancellationToken cancellationToken = default);
 }

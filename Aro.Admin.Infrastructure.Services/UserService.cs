@@ -2,17 +2,21 @@
 using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters;
 using Aro.Admin.Application.Services.DTOs.ServiceResponses;
+using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
 using Aro.Admin.Domain.Shared.Exceptions;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class UserService(IRepositoryManager repository, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, IMapper mapper, ILogManager<UserService> logger) : IUserService
+public partial class UserService(IRepositoryManager repository, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, IMapper mapper, 
+    ILogManager<UserService> logger, IOptions<AdminSettings> adminSettings, ErrorCodes errorCodes) : IUserService
 {
+    private readonly AdminSettings adminSettings = adminSettings.Value;
     private readonly IUserRepository userRepository = repository.UserRepository;
     private readonly IRoleRepository roleRepository = repository.RoleRepository;
 
@@ -87,5 +91,38 @@ public partial class UserService(IRepositoryManager repository, IHasher password
 
         logger.LogDebug("Completed {MethodName}", nameof(GetUserByEmail));
         return response;
+    }
+
+    public async Task<GetUserResponse> GetSystemUser(string systemPassword, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(GetUserByEmail));
+
+        logger.LogDebug("Verifying the system password.");
+        if (adminSettings.BootstrapPassword != systemPassword)
+        {
+            logger.LogWarn("Invalid system password provided.");
+            throw new AroUnauthorizedException(errorCodes.INVALID_SYSTEM_ADMIN_PASSWORD, "Invalid system password.");
+        }
+
+        string[] requiredPermissions = [PermissionCodes.GetSystemSettings, PermissionCodes.GetUser];
+        await authorizationService.EnsureCurrentUserPermissions(requiredPermissions, cancellationToken);
+        logger.LogDebug("Authorization verified for system user retrieval.");
+
+        var query = userRepository.GetAll();
+        logger.LogDebug("Retrieved user query for system user.");
+
+        var userEntity = await query
+            .Where(u => u.IsSystem && u.IsActive)
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false) 
+            ?? throw new AroUserNotFoundException("SYSTEM_USER");
+
+        logger.LogDebug("System user retrieved succesfully");
+
+        logger.LogDebug("Completed {MethodName}", nameof(GetUserByEmail));
+        
+        var systemUser = mapper.Map<GetUserResponse>(userEntity);
+
+        return systemUser;
     }
 }
