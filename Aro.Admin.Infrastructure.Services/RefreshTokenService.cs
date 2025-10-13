@@ -10,27 +10,36 @@ using RefreshToken = Aro.Admin.Application.Services.DTOs.ServiceResponses.Refres
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class RefreshTokenService(JwtOptions jwtOptions, IRepositoryManager repositoryManager, IMapper mapper, IHasher hasher, IAccessTokenService accessTokenService, IUniqueIdGenerator idGenerator, ErrorCodes errorCodes) : IRefreshTokenService
+public partial class RefreshTokenService(JwtOptions jwtOptions, IRepositoryManager repositoryManager, IMapper mapper, IHasher hasher, IAccessTokenService accessTokenService, IUniqueIdGenerator idGenerator, ErrorCodes errorCodes, ILogManager<RefreshTokenService> logger) : IRefreshTokenService
 {
     private readonly IRefreshTokenRepository refreshTokenRepo = repositoryManager.RefreshTokenRepository;
 
     public Task<RefreshToken> GenerateRefreshToken(CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Starting {MethodName}", nameof(GenerateRefreshToken));
+        
         var bytes = new byte[64];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(bytes);
+        logger.LogDebug("Generated random bytes for refresh token");
 
         var rawToken = Convert.ToBase64String(bytes);
         var expiry = DateTime.UtcNow.AddHours(jwtOptions.RefreshTokenExpirationHours);
+        logger.LogDebug("Created refresh token with expiry: {Expiry}", expiry);
 
         var token = new RefreshToken(rawToken, expiry);
+        logger.LogDebug("Refresh token generated successfully, expiry: {Expiry}", expiry);
 
+        logger.LogDebug("Completed {MethodName}", nameof(GenerateRefreshToken));
         return Task.FromResult(token);
     }
 
     public async Task<UserRefreshToken> GetActiveToken(Guid userId, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Starting {MethodName}", nameof(GetActiveToken));
+        
         var query = refreshTokenRepo.GetActiveTokensByUserId(userId);
+        logger.LogDebug("Retrieved active tokens query for user: {UserId}", userId);
 
         var tokenEntity = await query
             .OrderByDescending(rt => rt.CreatedAt)
@@ -38,8 +47,12 @@ public partial class RefreshTokenService(JwtOptions jwtOptions, IRepositoryManag
             .ConfigureAwait(false)
             ?? throw new AroRefreshTokenNotFoundException(userId.ToString(), AroRefreshTokenNotFoundException.IdentifierType.User);
 
-        var token = mapper.Map<UserRefreshToken>(tokenEntity);
+        logger.LogDebug("Found active refresh token for user: {UserId}, tokenId: {TokenId}", userId, tokenEntity.Id);
 
+        var token = mapper.Map<UserRefreshToken>(tokenEntity);
+        logger.LogDebug("Mapped refresh token entity to response for user: {UserId}", userId);
+
+        logger.LogDebug("Completed {MethodName}", nameof(GetActiveToken));
         return token;
     }
     
@@ -61,14 +74,22 @@ public partial class RefreshTokenService(JwtOptions jwtOptions, IRepositoryManag
 
     public async Task RevokeAll(Guid userId, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Starting {MethodName}", nameof(RevokeAll));
+        
         var query = refreshTokenRepo.GetActiveTokensByUserId(userId);
+        logger.LogDebug("Retrieved active tokens query for user: {UserId}", userId);
 
         var tokens = await query.ToListAsync(cancellationToken).ConfigureAwait(false);
+        logger.LogDebug("Found {TokenCount} active tokens for user: {UserId}", tokens.Count, userId);
 
         var now = DateTime.UtcNow;
         tokens.ForEach(t => MarkRevoked(t, now));
+        logger.LogDebug("Marked {TokenCount} tokens as revoked for user: {UserId}", tokens.Count, userId);
 
         await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
+        logger.LogInfo("Successfully revoked all refresh tokens for user: {UserId}, tokenCount: {TokenCount}", userId, tokens.Count);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(RevokeAll));
     }
 
     public async Task Revoke(Guid tokenId, CancellationToken cancellationToken = default)

@@ -3,23 +3,44 @@ using Microsoft.AspNetCore.Http;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class RequestInterpretorService(IHttpContextAccessor httpContextAccessor) : IRequestInterpretorService
+public class RequestInterpretorService(IHttpContextAccessor httpContextAccessor, ILogManager<RequestInterpretorService> logger) : IRequestInterpretorService
 {
     private readonly HttpContext? httpContext = httpContextAccessor.HttpContext;
 
-    public string? ExtractUsername() => httpContext?.User?.Identity?.Name;
+    public string? ExtractUsername()
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(ExtractUsername));
+        
+        var username = httpContext?.User?.Identity?.Name;
+        logger.LogDebug("Username extracted: {Username}", username);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(ExtractUsername));
+        return username;
+    }
 
     public string? RetrieveIpAddress()
     {
+        logger.LogDebug("Starting {MethodName}", nameof(RetrieveIpAddress));
+        
         // Check for forwarded headers first (useful when behind proxy/load balancer)
         var forwardedHeader = httpContext?.Request?.Headers?["X-Forwarded-For"].FirstOrDefault();
+        logger.LogDebug("X-Forwarded-For header: {ForwardedHeader}", forwardedHeader);
+        
         if (!string.IsNullOrEmpty(forwardedHeader))
         {
             // May contain multiple IPs, take the first one
-            return forwardedHeader.Split(',')[0];
+            var ipAddress = forwardedHeader.Split(',')[0];
+            logger.LogDebug("IP address extracted from forwarded header: {IpAddress}", ipAddress);
+            
+            logger.LogDebug("Completed {MethodName}", nameof(RetrieveIpAddress));
+            return ipAddress;
         }
 
         // Fallback to remote IP address
-        return httpContext?.Connection?.RemoteIpAddress?.ToString();
+        var remoteIpAddress = httpContext?.Connection?.RemoteIpAddress?.ToString();
+        logger.LogDebug("IP address retrieved from connection: {IpAddress}", remoteIpAddress);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(RetrieveIpAddress));
+        return remoteIpAddress;
     }
 }

@@ -2,7 +2,16 @@
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class GuidGenerator : IUniqueIdGenerator
+public class GuidGenerator(ILogManager<GuidGenerator> logger) : IUniqueIdGenerator
 {
-    public Guid Generate() => Guid.NewGuid();
+    public Guid Generate()
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(Generate));
+        
+        var guid = Guid.NewGuid();
+        logger.LogDebug("Generated GUID: {Guid}", guid);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(Generate));
+        return guid;
+    }
 }

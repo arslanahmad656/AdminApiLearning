@@ -9,16 +9,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthorizationService authorizationService) : IRoleService
+public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthorizationService authorizationService, ILogManager<RoleService> logger) : IRoleService
 {
     private readonly IUserRoleRepository userRoleRepository = repository.UserRoleRepository;
     private readonly IRoleRepository roleRepository = repository.RoleRepository;
 
     public async Task AssignRolesToUsers(IEnumerable<Guid> userIds, IEnumerable<Guid> roleIds, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Starting {MethodName}", nameof(AssignRolesToUsers));
+        
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.AssignUserRole], cancellationToken).ConfigureAwait(false);
+        logger.LogDebug("Authorization verified for role assignment");
 
         var userRolesToAdd = new List<UserRole>();
+        logger.LogDebug("Creating user role assignments");
 
         foreach (var userId in userIds)
         {
@@ -31,10 +35,15 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
                 });
             }
         }
+        logger.LogDebug("Created {AssignmentCount} user role assignments", userRolesToAdd.Count);
 
         userRolesToAdd.ForEach(async ur => await userRoleRepository.Create(ur, cancellationToken).ConfigureAwait(false));
+        logger.LogDebug("Created user role entities in repository");
 
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+        logger.LogInfo("Successfully assigned roles to users, assignmentCount: {AssignmentCount}", userRolesToAdd.Count);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(AssignRolesToUsers));
     }
 
     public async Task AssignRolesToUsers(IEnumerable<Guid> userIds, IEnumerable<string> roleNames, CancellationToken cancellationToken = default)
@@ -89,7 +98,11 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
 
     public async Task<bool> UserHasRole(Guid userId, string roleName, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Starting {MethodName}", nameof(UserHasRole));
+        
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.TestUserRole], cancellationToken).ConfigureAwait(false);
+        logger.LogDebug("Authorization verified for role check");
+
         var hasRole = await userRoleRepository
             .GetByUserIds([userId])
             .Include(ur => ur.Role)
@@ -97,6 +110,9 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
             .AnyAsync(cancellationToken)
             .ConfigureAwait(false);
 
+        logger.LogDebug("Role check completed, userId: {UserId}, roleName: {RoleName}, hasRole: {HasRole}", userId, roleName, hasRole);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(UserHasRole));
         return hasRole;
     }
 

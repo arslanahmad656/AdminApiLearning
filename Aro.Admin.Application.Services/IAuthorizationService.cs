@@ -1,6 +1,6 @@
 ﻿namespace Aro.Admin.Application.Services;
 
-public interface IAuthorizationService
+public interface IAuthorizationService : IService
 {
     Task<bool> UserHasPermission(Guid userId, string permissionCode, CancellationToken cancellationToken);
 

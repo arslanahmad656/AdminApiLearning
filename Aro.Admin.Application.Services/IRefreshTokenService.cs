@@ -2,7 +2,7 @@
 
 namespace Aro.Admin.Application.Services;
 
-public interface IRefreshTokenService
+public interface IRefreshTokenService : IService
 {
     Task<RefreshToken> GenerateRefreshToken(CancellationToken cancellationToken = default);
     Task<UserRefreshToken> GetActiveToken(Guid userId, CancellationToken cancellationToken = default);

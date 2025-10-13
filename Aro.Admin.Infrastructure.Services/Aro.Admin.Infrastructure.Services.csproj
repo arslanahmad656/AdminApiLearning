@@ -20,8 +20,4 @@
     <ProjectReference Include="..\Aro.Admin.Infrastructure.Repository\Aro.Admin.Infrastructure.Repository.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="RefreshTokenService\" />
-  </ItemGroup>
-
 </Project>

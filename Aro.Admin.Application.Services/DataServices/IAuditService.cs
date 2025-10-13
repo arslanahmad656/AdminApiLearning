@@ -2,7 +2,7 @@
 
 namespace Aro.Admin.Application.Services.DataServices;
 
-public interface IAuditService
+public interface IAuditService : IService
 {
     Task LogApplicationSeeded(CancellationToken cancellationToken = default);
 
