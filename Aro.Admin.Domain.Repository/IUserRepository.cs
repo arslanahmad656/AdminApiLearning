@@ -8,6 +8,8 @@ public interface IUserRepository
 
     IQueryable<User> GetByEmail(string email);
 
+    IQueryable<User> GetAll();
+
     Task<bool> UsersExist(CancellationToken cancellationToken = default);
 
     Task Create(User user, CancellationToken cancellationToken = default);
