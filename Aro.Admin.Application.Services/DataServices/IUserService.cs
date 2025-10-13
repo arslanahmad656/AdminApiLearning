@@ -3,7 +3,7 @@ using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 
 namespace Aro.Admin.Application.Services.DataServices;
 
-public interface IUserService
+public interface IUserService : IService
 {
     Task<CreateUserResponse> CreateUser(CreateUserDto user, CancellationToken cancellationToken = default);
 

@@ -2,7 +2,7 @@
 
 namespace Aro.Admin.Application.Services;
 
-public interface IAuthenticationService
+public interface IAuthenticationService : IService
 {
     Task<CompositeToken> Authenticate(string email, string password, CancellationToken cancellationToken = default);
 

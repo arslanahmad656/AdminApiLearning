@@ -1,5 +1,5 @@
 ﻿namespace Aro.Admin.Application.Services.DataServices;
 
-public interface IUserRoleService
+public interface IUserRoleService : IService
 {
 }

@@ -1,6 +1,6 @@
 ﻿namespace Aro.Admin.Application.Services;
 
-public interface IRequestInterpretorService
+public interface IRequestInterpretorService : IService
 {
     string? RetrieveIpAddress();
 

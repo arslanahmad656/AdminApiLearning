@@ -1,6 +1,6 @@
 ﻿namespace Aro.Admin.Application.Services;
 
-public interface ISeeder
+public interface ISeeder : IService
 {
     Task Seed(string jsonFile, CancellationToken cancellationToken = default);
 }

@@ -2,7 +2,7 @@
 
 namespace Aro.Admin.Application.Services.DataServices;
 
-public interface IRoleService
+public interface IRoleService : IService
 {
     /// <summary>
     /// Assigns roles to the users.

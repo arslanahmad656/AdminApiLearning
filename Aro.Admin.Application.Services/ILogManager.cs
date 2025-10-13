@@ -1,6 +1,6 @@
 ﻿namespace Aro.Admin.Application.Services;
 
-public interface ILogManager
+public interface ILogManager : IService
 {
     void LogInfo(string messageTemplate, params object[] propertyValues);
     void LogWarn(string messageTemplate, params object[] propertyValues);

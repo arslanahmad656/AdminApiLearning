@@ -2,7 +2,7 @@
 
 namespace Aro.Admin.Application.Services;
 
-public interface ICurrentUserService
+public interface ICurrentUserService : IService
 {
     Guid? GetCurrentUserId();
 

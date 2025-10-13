@@ -1,6 +1,6 @@
 ﻿namespace Aro.Admin.Application.Services;
 
-public interface ITokenBlackListService
+public interface ITokenBlackListService : IService
 {
     Task BlackList(string tokenIdentifier, DateTime expiry, CancellationToken cancellationToken = default);
 

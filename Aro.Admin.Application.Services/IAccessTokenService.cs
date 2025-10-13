@@ -2,7 +2,7 @@
 
 namespace Aro.Admin.Application.Services;
 
-public interface IAccessTokenService
+public interface IAccessTokenService : IService
 {
     Task<AccessTokenResponse> GenerateAccessToken(Guid userId, CancellationToken cancellationToken = default);
 }

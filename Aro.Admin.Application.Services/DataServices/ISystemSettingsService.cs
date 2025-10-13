@@ -1,6 +1,6 @@
 ﻿namespace Aro.Admin.Application.Services.DataServices;
 
-public interface ISystemSettingsService
+public interface ISystemSettingsService : IService
 {
     Task<bool> IsSystemInitialized(CancellationToken cancellationToken = default);
 
