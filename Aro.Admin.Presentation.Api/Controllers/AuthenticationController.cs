@@ -52,7 +52,7 @@ public class AuthenticationController(IMediator mediator, IMapper mapper) : Cont
 
     [HttpPost("logoutall")]
     [Authorize]
-    public async Task<IActionResult> LogoutAll([FromBody] LogoutUserAllCommand model, CancellationToken cancellationToken)
+    public async Task<IActionResult> LogoutAll([FromBody] LogoutAllUserModel model, CancellationToken cancellationToken)
     {
         await mediator.Send(new LogoutUserAllCommand(mapper.Map<LogoutUserAllRequest>(model)), cancellationToken).ConfigureAwait(false);
 

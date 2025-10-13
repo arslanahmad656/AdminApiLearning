@@ -1,4 +1,5 @@
 ﻿using Aro.Admin.Application.Mediator.Seed.Commands;
+using Aro.Admin.Presentation.Api.DTOs;
 using Aro.Admin.Presentation.Api.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -17,9 +18,9 @@ public class SystemController
 {
     [HttpPost("seed")]
     [Permissions(SeedApplication)]
-    public async Task<IActionResult> Seed([FromBody] string jsonPath, CancellationToken cancellationToken)
+    public async Task<IActionResult> Seed([FromBody] SeedModel model, CancellationToken cancellationToken)
     {
-        await mediator.Send(new SeedApplicationCommand(jsonPath), cancellationToken).ConfigureAwait(false);
+        await mediator.Send(new SeedApplicationCommand(model.FilePath), cancellationToken).ConfigureAwait(false);
         return Ok();
     }
 }
