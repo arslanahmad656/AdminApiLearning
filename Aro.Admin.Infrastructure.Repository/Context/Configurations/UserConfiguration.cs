@@ -35,7 +35,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.DisplayName)
             .HasMaxLength(256)
-            .IsRequired(false);
+            .IsRequired(true);
+
+        builder.Property(u => u.IsSystem)
+            .IsRequired(true)
+            .HasDefaultValue(false);
 
         builder.HasMany(u => u.UserRoles)
             .WithOne(ur => ur.User)

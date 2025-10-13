@@ -9,6 +9,7 @@ public class User : IEntity
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public string DisplayName { get; set; }
+    public bool IsSystem { get; set; }
     public ICollection<UserRole> UserRoles { get; set; }
     public ICollection<RefreshToken> RefreshTokens { get; set; }
 }
