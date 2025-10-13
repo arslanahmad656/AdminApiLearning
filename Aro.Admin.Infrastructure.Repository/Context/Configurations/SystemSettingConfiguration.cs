@@ -21,10 +21,21 @@ public class SystemSettingConfiguration : IEntityTypeConfiguration<SystemSetting
             .HasColumnType("nvarchar(max)")
             .IsRequired(false);
 
+        var sharedKeys = new SharedKeys();
         builder.HasData(new SystemSetting
         {
-            Key = new SharedKeys().IS_SYSTEM_INITIALIZED,
+            Key = sharedKeys.IS_SYSTEM_INITIALIZED,
             Value = false.ToString(),
+        },
+        new SystemSetting
+        {
+            Key = sharedKeys.IS_MIGRATIONS_COMPLETE,
+            Value = false.ToString(),
+        },
+        new SystemSetting
+        {
+            Key = sharedKeys.IS_DATABASE_SEEDED_AT_STARTUP,
+            Value = false.ToString()
         });
     }
 }

@@ -9,6 +9,7 @@ public class ErrorCodes
     public readonly string UNKNOWN_ERROR = nameof(UNKNOWN_ERROR);
 
     #region [SYSTEM SETTINGS]
+    public readonly string DATABASE_ALREADY_MIGRATED = nameof(DATABASE_ALREADY_MIGRATED);
     public readonly string SYSTEM_ALREADY_INITIALIZED = nameof(SYSTEM_ALREADY_INITIALIZED);
     public readonly string SYSTEM_INITIALIZATION_ERROR = nameof(SYSTEM_INITIALIZATION_ERROR);
     #endregion

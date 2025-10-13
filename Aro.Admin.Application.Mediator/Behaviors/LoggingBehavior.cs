@@ -14,7 +14,7 @@ public class LoggingBehavior<TRequest, TResponse>(ILogManager<LoggingBehavior<TR
         
         try
         {
-            var response = await next().ConfigureAwait(false);
+            var response = await next(cancellationToken).ConfigureAwait(false);
             
             logger.LogDebug("Completed {RequestName} successfully", requestName);
             

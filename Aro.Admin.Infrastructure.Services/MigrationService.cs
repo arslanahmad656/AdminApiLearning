@@ -1,16 +1,18 @@
 ﻿using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Domain.Shared;
+using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Admin.Infrastructure.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class MigrationService(AroAdminApiDbContext context, IAuthorizationService authorizationService, ILogManager<MigrationService> logger) : IMigrationService
+public class MigrationService(AroAdminApiDbContext context, IAuthorizationService authorizationService, ISystemSettingsService systemSettingsService, ILogManager<MigrationService> logger, ErrorCodes errorCodes) : IMigrationService
 {
     public async Task Migrate(CancellationToken cancellationToken)
     {
-        logger.LogDebug("Starting {MethodName}", nameof(Migrate));
-        
+        logger.LogDebug("Starting {MethodName}.", nameof(Migrate));
+
         logger.LogDebug("Ensuring current user has migration permissions");
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.MigrateDabase], cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Migration permissions verified");

@@ -1,3 +1,7 @@
 ﻿namespace Aro.Admin.Application.Shared.Options;
 
-public record AdminSettings(string AdminRoleName);
+public record AdminSettings
+{
+    public string AdminRoleName { get; init; } = string.Empty;
+}
+
