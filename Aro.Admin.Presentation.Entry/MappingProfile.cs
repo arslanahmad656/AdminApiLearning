@@ -20,7 +20,9 @@ public class MappingProfile : Profile
     {
         CreateMap<User, AuditParameters.UserCreatedLog>()
             .ForMember(nameof(AuditParameters.UserCreatedLog.AssignedRoles), opt => opt.MapFrom(u => u.UserRoles.Select(r => r.RoleId).ToList()));
+        CreateMap<ServiceResponses.CreateUserResponse, UserCreatedLog>();
         CreateMap<CreateUserRequest, ServiceParameters.CreateUserDto>();
+        CreateMap<CreateUserModel, CreateUserRequest>();
         CreateMap<ServiceResponses.CreateUserResponse, Application.Mediator.User.DTOs.CreateUserResponse>();
         CreateMap<ServiceResponses.CreateUserResponse, InitializeSystemResponse>()
             .ForMember(nameof(InitializeSystemResponse.BootstrapUsername), opt => opt.MapFrom(u => u.Email))

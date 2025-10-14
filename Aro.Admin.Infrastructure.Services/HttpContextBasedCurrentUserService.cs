@@ -3,6 +3,7 @@ using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 using Aro.Admin.Domain.Shared.Exceptions;
 using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace Aro.Admin.Infrastructure.Services;
 
@@ -14,7 +15,8 @@ public class HttpContextBasedCurrentUserService(IHttpContextAccessor contextAcce
     {
         logger.LogDebug("Starting {MethodName}", nameof(GetCurrentUserId));
 
-        Guid? userId = Guid.TryParse(httpContext?.User?.Identity?.Name, out var x) ? x : null;
+        var idClaimValue = httpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        Guid? userId = Guid.TryParse(idClaimValue, out var x) ? x : null;
         logger.LogDebug("Current user ID retrieved: {UserId}", userId ?? default);
         
         logger.LogDebug("Completed {MethodName}", nameof(GetCurrentUserId));
