@@ -15,7 +15,6 @@ public partial class AuditService
     EntityTypes auditEntityTypes,
     IRepositoryManager repository,
     ISerializer serializer,
-    IDateFormatter dateFormatter,
     ILogManager<AuditService> logger
 ) : IAuditService
 {

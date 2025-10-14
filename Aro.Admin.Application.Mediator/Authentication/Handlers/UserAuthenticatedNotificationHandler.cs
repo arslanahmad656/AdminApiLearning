@@ -1,16 +1,14 @@
 ﻿using Aro.Admin.Application.Mediator.Authentication.Notifications;
 using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
-using AutoMapper;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Authentication.Handlers;
 
-public class UserAuthenticatedNotificationHandler(IAuditService auditService, IMapper mapper) : INotificationHandler<UserAuthenticatedNotification>
+public class UserAuthenticatedNotificationHandler(IAuditService auditService) : INotificationHandler<UserAuthenticatedNotification>
 {
     public async Task Handle(UserAuthenticatedNotification notification, CancellationToken cancellationToken)
     {
-        var data = mapper.Map<AuthenticationSuccessfulLog>(notification.Data);
-        await auditService.LogAuthenticationSuccessful(data, cancellationToken).ConfigureAwait(false);
+        await auditService.LogAuthenticationSuccessful(new(notification.Data.UserId, notification.Data.Email, notification.Data.RefreshTokenId, notification.Data.AccessTokenExpiry, notification.Data.RefreshTokenExpiry, notification.Data.AccessTokenIdentifier), cancellationToken).ConfigureAwait(false);
     }
 }

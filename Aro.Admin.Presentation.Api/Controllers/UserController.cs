@@ -1,29 +1,28 @@
 ﻿using Aro.Admin.Application.Mediator.User.Commands;
+using Aro.Admin.Application.Mediator.User.Queries;
 using Aro.Admin.Application.Services;
+using Aro.Admin.Domain.Shared;
 using Aro.Admin.Presentation.Api.DTOs;
-using AutoMapper;
+using Aro.Admin.Presentation.Api.Filters;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MediatorDtos = Aro.Admin.Application.Mediator.User.DTOs;
-using Aro.Admin.Presentation.Api.Filters;
-using Aro.Admin.Domain.Shared;
-using Aro.Admin.Application.Mediator.User.Queries;
-using Microsoft.AspNetCore.Authorization;
 
 namespace Aro.Admin.Presentation.Api.Controllers;
 
 [ApiController]
 [Route("api/user")]
-public class UserController(IMediator mediator, IMapper mapper, ILogManager<UserController> logger) : ControllerBase
+public class UserController(IMediator mediator, ILogManager<UserController> logger) : ControllerBase
 {
     [HttpPost("create")]
     [Permissions(PermissionCodes.CreateUser)]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserModel model, CancellationToken cancellationToken)
     {
-        logger.LogDebug("Starting CreateUser operation for email: {Email}, displayName: {DisplayName}, isActive: {IsActive}, assignedRoles: {AssignedRoles}", 
+        logger.LogDebug("Starting CreateUser operation for email: {Email}, displayName: {DisplayName}, isActive: {IsActive}, assignedRoles: {AssignedRoles}",
             model.Email, model.DisplayName, model.IsActive, string.Join(", ", model.AssignedRoles));
-        
-        var response = await mediator.Send(new CreateUserCommand(mapper.Map<MediatorDtos.CreateUserRequest>(model)), cancellationToken).ConfigureAwait(false);
+
+        var response = await mediator.Send(new CreateUserCommand(new(model.Email, model.IsActive, model.Password, model.DisplayName, model.AssignedRoles)), cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Completed CreateUser operation successfully");
         return Ok(response);

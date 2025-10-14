@@ -2,32 +2,31 @@
 using Aro.Admin.Application.Mediator.Authentication.DTOs;
 using Aro.Admin.Application.Mediator.Authentication.Notifications;
 using Aro.Admin.Application.Services;
-using AutoMapper;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Authentication.Handlers;
 
-public class AuthenticateUserCommandHandler(IAuthenticationService authenticationService, IMapper mapper, IMediator mediator) : IRequestHandler<AuthenticateUserCommand, AuthenticateUserResponse>
+public class AuthenticateUserCommandHandler(IAuthenticationService authenticationService, IMediator mediator) : IRequestHandler<AuthenticateUserCommand, AuthenticateUserResponse>
 {
     public async Task<AuthenticateUserResponse> Handle(AuthenticateUserCommand request, CancellationToken cancellationToken)
     {
-		try
-		{
+        try
+        {
             Services.DTOs.ServiceResponses.CompositeToken? response = await authenticationService.Authenticate(request.Data.Email, request.Data.Password, cancellationToken).ConfigureAwait(false);
 
-            var notificationData = mapper.Map<SuccessfulAuthenticationData>(response);
+            var notificationData = new SuccessfulAuthenticationData(response.UserId, request.Data.Email, response.RefreshTokenId, response.AccessTokenExpiry, response.RefreshTokenExpiry, response.AccessTokenIdentifier);
             await mediator.Publish(new UserAuthenticatedNotification(notificationData with { Email = request.Data.Email }), cancellationToken).ConfigureAwait(false);
 
-            return mapper.Map<AuthenticateUserResponse>(response);
+            return new(response.RefreshTokenId, response.AccessToken, response.RefreshToken, response.AccessTokenExpiry, response.RefreshTokenExpiry, response.AccessTokenIdentifier);
         }
-		catch (Exception ex)
-		{
+        catch (Exception ex)
+        {
             await mediator.Publish(new UserAuthenticationFailedNotification(new FailedAuthenticationData(
-                request.Data.Email, 
+                request.Data.Email,
                 ex.Message
             )), cancellationToken).ConfigureAwait(false);
 
-			throw;
-		}
+            throw;
+        }
     }
 }

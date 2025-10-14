@@ -4,12 +4,11 @@ using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthorizationService authorizationService, ILogManager<RoleService> logger) : IRoleService
+public class RoleService(IRepositoryManager repository, IAuthorizationService authorizationService, ILogManager<RoleService> logger) : IRoleService
 {
     private readonly IUserRoleRepository userRoleRepository = repository.UserRoleRepository;
     private readonly IRoleRepository roleRepository = repository.RoleRepository;
@@ -17,7 +16,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
     public async Task AssignRolesToUsers(IEnumerable<Guid> userIds, IEnumerable<Guid> roleIds, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(AssignRolesToUsers));
-        
+
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.AssignUserRole], cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Authorization verified for role assignment");
 
@@ -42,7 +41,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
 
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogInfo("Successfully assigned roles to users, assignmentCount: {AssignmentCount}", userRolesToAdd.Count);
-        
+
         logger.LogDebug("Completed {MethodName}", nameof(AssignRolesToUsers));
     }
 
@@ -63,7 +62,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
             .GetByNames(names)
             .ToListAsync(cancellationToken);
 
-        var roles = mapper.Map<List<GetRoleRespose>>(roleEntities);
+        var roles = roleEntities.Select(r => new GetRoleRespose(r.Id, r.Name, r.Description, r.IsBuiltin)).ToList();
 
         return roles;
     }
@@ -77,7 +76,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var roles = mapper.Map<List<GetRoleRespose>>(roleEntities);
+        var roles = roleEntities.Select(r => new GetRoleRespose(r.Id, r.Name, r.Description, r.IsBuiltin)).ToList();
         return roles;
     }
 
@@ -99,7 +98,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
     public async Task<bool> UserHasRole(Guid userId, string roleName, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(UserHasRole));
-        
+
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.TestUserRole], cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Authorization verified for role check");
 
@@ -111,7 +110,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
             .ConfigureAwait(false);
 
         logger.LogDebug("Role check completed, userId: {UserId}, roleName: {RoleName}, hasRole: {HasRole}", userId, roleName, hasRole);
-        
+
         logger.LogDebug("Completed {MethodName}", nameof(UserHasRole));
         return hasRole;
     }
@@ -136,7 +135,7 @@ public class RoleService(IRepositoryManager repository, IMapper mapper, IAuthori
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
-        var roles = mapper.Map<List<GetUserRolesResponse>>(roleEntities);
+        var roles = roleEntities.Select(r => new GetUserRolesResponse(r.Id, r.Name, r.Description, r.IsBuiltin)).ToList();
 
         return roles;
     }

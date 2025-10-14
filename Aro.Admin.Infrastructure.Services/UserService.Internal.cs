@@ -24,7 +24,8 @@ public partial class UserService
         var userEntity = await query.SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false)
             ?? throw new AroUserNotFoundException(identifier);
 
-        var response = mapper.Map<GetUserResponse>(userEntity);
+        var response = new GetUserResponse(userEntity.Id, userEntity.Email, userEntity.IsActive, userEntity.DisplayName, userEntity.PasswordHash, userEntity.UserRoles.Select(ur => new GetRoleRespose(ur.Role.Id, ur.Role.Name, ur.Role.Description, ur.Role.IsBuiltin)).ToList());
+
         if (!includePasswordHash)
         {
             response = response with { PasswordHash = string.Empty };
