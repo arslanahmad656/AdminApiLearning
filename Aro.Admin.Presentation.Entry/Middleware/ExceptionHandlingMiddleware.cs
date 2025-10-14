@@ -26,7 +26,9 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogManager logge
                 _ => HttpStatusCode.InternalServerError,
             });
 
-            var errorCode = ex is AroException aroEx ? aroEx.ErrorCode : errorCodes.UNKNOWN_ERROR;
+            var errorCode = ex is AroException aroEx ? aroEx.ErrorCode
+                : ex is OperationCanceledException opEx ? errorCodes.OPERATION_CANCELLED_ERROR
+                : errorCodes.UNKNOWN_ERROR;
             var response = new Error(errorCode, ex.Message);
 
             var json = JsonSerializer.Serialize(response);

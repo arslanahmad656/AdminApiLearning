@@ -41,7 +41,9 @@ public class InitializeSystemCommandHandler(IUserService userService, ISystemSet
 
             var userForService = mapper.Map<Services.DTOs.ServiceParameters.CreateUserDto>(request.User) with
             {
-                AssignedRoles = [adminRoleName]
+                AssignedRoles = [adminRoleName],
+                IsSystemUser = true,
+                IsActive = true
             };
 
             var response = await userService.CreateUser(userForService, cancellationToken).ConfigureAwait(false);

@@ -1,4 +1,5 @@
 ﻿using Aro.Admin.Application.Mediator.Authentication.Commands;
+using Aro.Admin.Application.Mediator.Authentication.DTOs;
 using Aro.Admin.Application.Mediator.Authentication.Notifications;
 using Aro.Admin.Application.Services;
 using MediatR;
@@ -11,6 +12,6 @@ public class LogoutUserAllCommandHandler(IAuthenticationService authenticationSe
     {
         await authenticationService.LogoutAll(request.Data.UserId, cancellationToken).ConfigureAwait(false);
 
-        await mediator.Publish(new UserLoggedOutAllNotification(new(request.Data.UserId)), cancellationToken).ConfigureAwait(false);
+        await mediator.Publish(new UserLoggedOutAllNotification(new UserLoggedOutAllNotificationData { UserId = request.Data.UserId }), cancellationToken).ConfigureAwait(false);
     }
 }

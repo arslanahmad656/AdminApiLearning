@@ -13,15 +13,20 @@ public class AuthenticateUserCommandHandler(IAuthenticationService authenticatio
     {
 		try
 		{
-            var response = await authenticationService.Authenticate(request.Data.Email, request.Data.Password, cancellationToken).ConfigureAwait(false);
+            Services.DTOs.ServiceResponses.CompositeToken? response = await authenticationService.Authenticate(request.Data.Email, request.Data.Password, cancellationToken).ConfigureAwait(false);
 
-            await mediator.Publish(new UserAuthenticatedNotification(mapper.Map<SuccessfulAuthenticationData>(response) with { Email = request.Data.Email }), cancellationToken).ConfigureAwait(false);
+            var notificationData = mapper.Map<SuccessfulAuthenticationData>(response);
+            await mediator.Publish(new UserAuthenticatedNotification(notificationData with { Email = request.Data.Email }), cancellationToken).ConfigureAwait(false);
 
             return mapper.Map<AuthenticateUserResponse>(response);
         }
 		catch (Exception ex)
 		{
-            await mediator.Publish(new UserAuthenticationFailedNotification(new(request.Data.Email, ex.Message)), cancellationToken).ConfigureAwait(false);
+            await mediator.Publish(new UserAuthenticationFailedNotification(new FailedAuthenticationData 
+            { 
+                Email = request.Data.Email, 
+                ErrorMessage = ex.Message 
+            }), cancellationToken).ConfigureAwait(false);
 
 			throw;
 		}

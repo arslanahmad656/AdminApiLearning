@@ -1,3 +1,7 @@
 ﻿namespace Aro.Admin.Application.Services.DTOs.ServiceResponses;
 
-public record TokenInfo(string TokenIdentifier, DateTime Expiry);
+public record TokenInfo
+{
+    public string TokenIdentifier { get; init; } = string.Empty;
+    public DateTime Expiry { get; init; }
+}

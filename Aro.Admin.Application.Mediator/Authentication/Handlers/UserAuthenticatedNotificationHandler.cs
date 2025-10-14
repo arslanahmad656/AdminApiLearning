@@ -10,6 +10,7 @@ public class UserAuthenticatedNotificationHandler(IAuditService auditService, IM
 {
     public async Task Handle(UserAuthenticatedNotification notification, CancellationToken cancellationToken)
     {
-        await auditService.LogAuthenticationSuccessful(mapper.Map<AuthenticationSuccessfulLog>(notification.Data), cancellationToken).ConfigureAwait(false);
+        var data = mapper.Map<AuthenticationSuccessfulLog>(notification.Data);
+        await auditService.LogAuthenticationSuccessful(data, cancellationToken).ConfigureAwait(false);
     }
 }

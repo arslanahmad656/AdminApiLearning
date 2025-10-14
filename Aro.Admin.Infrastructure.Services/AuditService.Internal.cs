@@ -113,11 +113,7 @@ public partial class AuditService
 
     private AuditTrail GenerateTrialForAuthenticationSuccesful(AuthenticationSuccessfulLog log)
     {
-        var trail = GenerateAuditTrialEntityWithCommonParams(action: auditActions.AuthenticationSuccessful, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(new
-        {
-            Email = log.Email,
-            Expiry = dateFormatter.Format(log.Expiry)
-        }));
+        var trail = GenerateAuditTrialEntityWithCommonParams(action: auditActions.AuthenticationSuccessful, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(log));
 
         return trail;
     }

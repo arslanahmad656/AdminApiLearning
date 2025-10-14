@@ -1,3 +1,6 @@
 ﻿namespace Aro.Admin.Presentation.Api.DTOs;
 
-public record LogoutAllUserModel(Guid UserId);
+public record LogoutAllUserModel
+{
+    public Guid UserId { get; init; }
+}
