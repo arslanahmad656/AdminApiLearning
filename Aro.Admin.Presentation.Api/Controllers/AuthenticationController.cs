@@ -25,7 +25,9 @@ public class AuthenticationController(IMediator mediator, IMapper mapper, ILogMa
         return Ok(new
         {
             response.RefreshTokenExpiry,
-            response.AccessToken
+            response.RefreshToken,
+            response.AccessToken,
+            response.AccessTokenExpiry
         });
     }
 
