@@ -1,8 +1,4 @@
 ﻿namespace Aro.Admin.Presentation.Api.DTOs;
 
-public record RevokeRolesModel
-{
-    public IEnumerable<Guid> UserIds { get; init; } = Array.Empty<Guid>();
-    public IEnumerable<Guid> RoleIds { get; init; } = Array.Empty<Guid>();
-}
+public record RevokeRolesModel(IEnumerable<Guid> UserIds, IEnumerable<Guid> RoleIds);
 

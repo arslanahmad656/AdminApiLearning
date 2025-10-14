@@ -13,14 +13,13 @@ public class RefreshTokenCommandHandler(IMediator mediator, IRefreshTokenService
     {
         var response = await refreshTokenService.RefreshToken(request.Data.RefreshToken, cancellationToken).ConfigureAwait(false);
 
-        await mediator.Publish(new TokenRefreshedNotification(new TokenRefreshedNotificationData 
-        { 
-            UserId = response.UserId, 
-            OldRefreshTokenHash = response.OldRefreshTokenHash, 
-            NewRefreshTokenHash = hasher.Hash(response.RefreshToken), 
-            NewAccessTokenExpiry = response.AccessTokenExpiry, 
-            NewRefreshTokenExpiry = response.RefreshTokenExpiry 
-        }), cancellationToken).ConfigureAwait(false);
+        await mediator.Publish(new TokenRefreshedNotification(new TokenRefreshedNotificationData(
+            response.UserId, 
+            response.OldRefreshTokenHash, 
+            hasher.Hash(response.RefreshToken), 
+            response.AccessTokenExpiry, 
+            response.RefreshTokenExpiry
+        )), cancellationToken).ConfigureAwait(false);
 
         return mapper.Map<RefreshTokenResponse>(response);
     }

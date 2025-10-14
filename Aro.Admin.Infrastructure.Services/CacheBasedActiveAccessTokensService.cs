@@ -20,7 +20,7 @@ public partial class CacheBasedActiveAccessTokensService(IDistributedCache cache
         var existingTokens = await GetActiveTokens(userId, cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Found {ExistingTokenCount} existing tokens for user: {UserId}", existingTokens.Count, userId);
         
-        existingTokens.Add(new TokenInfo { TokenIdentifier = tokenIdentifier, Expiry = expiry });
+        existingTokens.Add(new TokenInfo(tokenIdentifier, expiry));
         logger.LogDebug("Added new token to existing tokens for user: {UserId}, totalTokens: {TotalTokens}", userId, existingTokens.Count);
 
         var serialized = serializer.Serialize(existingTokens);

@@ -15,8 +15,8 @@ public class RevokeRolesByIdCommandHandler(IRoleService roleService, IMediator m
 
         await roleService.RevokeRolesFromUsers(userIds, roleIds, cancellationToken).ConfigureAwait(false);
 
-        await mediator.Publish(new RevokeRolesByIdNotification(new RevokeRolesByIdResponse { UserIds = userIds, RoleIds = roleIds }), cancellationToken).ConfigureAwait(false);
+        await mediator.Publish(new RevokeRolesByIdNotification(new RevokeRolesByIdResponse(userIds, roleIds)), cancellationToken).ConfigureAwait(false);
 
-        return new RevokeRolesByIdResponse { UserIds = userIds, RoleIds = roleIds };
+        return new RevokeRolesByIdResponse(userIds, roleIds);
     }
 }
