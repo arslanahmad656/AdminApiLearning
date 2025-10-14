@@ -1,6 +1,3 @@
 ﻿namespace Aro.Admin.Application.Services.DTOs.ServiceResponses;
 
-public record UserRefreshToken : RefreshToken
-{
-    public Guid UserId { get; init; }
-}
+public record UserRefreshToken(string Token, DateTime ExpiresAt, Guid UserId) : RefreshToken(Token, ExpiresAt);

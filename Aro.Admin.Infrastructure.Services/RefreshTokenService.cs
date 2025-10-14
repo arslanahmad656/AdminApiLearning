@@ -29,11 +29,7 @@ public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepos
         var expiry = DateTime.UtcNow.AddHours(jwtOptions.RefreshTokenExpirationHours);
         logger.LogDebug("Created refresh token with expiry: {Expiry}", expiry);
 
-        var token = new RefreshToken
-        {
-            Token = rawToken,
-            ExpiresAt = expiry,
-        };
+        var token = new RefreshToken(rawToken, expiry);
 
         logger.LogDebug("Refresh token generated successfully, expiry: {Expiry}", expiry);
 
@@ -174,16 +170,15 @@ public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepos
 
         await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
 
-        return new CompositeToken
-        {
-            OldRefreshTokenHash = existingRefreshToken.TokenHash,
-            UserId = userId,
-            RefreshTokenId = newRefreshEntity.Id,
-            AccessToken = newAccessToken.Token,
-            RefreshToken = newRefreshToken.Token,
-            AccessTokenExpiry = newAccessToken.Expiry,
-            RefreshTokenExpiry = newRefreshToken.ExpiresAt,
-            AccessTokenIdentifier = newAccessToken.TokenIdentifier
-        };
+        return new CompositeToken(
+            existingRefreshToken.TokenHash,
+            userId,
+            newRefreshEntity.Id,
+            newAccessToken.Token,
+            newRefreshToken.Token,
+            newAccessToken.Expiry,
+            newRefreshToken.ExpiresAt,
+            newAccessToken.TokenIdentifier
+        );
     }
 }

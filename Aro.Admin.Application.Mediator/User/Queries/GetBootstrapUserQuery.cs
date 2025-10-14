@@ -3,7 +3,4 @@ using MediatR;
 
 namespace Aro.Admin.Application.Mediator.User.Queries;
 
-public record GetBootstrapUserQuery : IRequest<GetBootstrapUserResponse>
-{
-    public string BootstrapPassword { get; init; } = string.Empty;
-}
+public record GetBootstrapUserQuery(string BootstrapPassword) : IRequest<GetBootstrapUserResponse>;
