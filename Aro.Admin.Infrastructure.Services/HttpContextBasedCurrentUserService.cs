@@ -40,7 +40,7 @@ public class HttpContextBasedCurrentUserService(IHttpContextAccessor contextAcce
         var expiry = DateTimeOffset.FromUnixTimeSeconds(expSeconds).UtcDateTime;
         logger.LogDebug("Token expiry calculated: {Expiry}", expiry);
 
-        var tokenInfo = new TokenInfo { TokenIdentifier = jti.Value, Expiry = expiry };
+        var tokenInfo = new TokenInfo(jti.Value, expiry);
         logger.LogDebug("Token info created successfully, jti: {Jti}, expiry: {Expiry}", tokenInfo.TokenIdentifier, tokenInfo.Expiry);
 
         logger.LogDebug("Completed {MethodName}", nameof(GetTokenInfo));

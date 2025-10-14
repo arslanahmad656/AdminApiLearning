@@ -63,7 +63,7 @@ public class JwtTokenService(IUserService userService, IUniqueIdGenerator idGene
         await activeAccessTokenService.RegisterToken(user.Id, jti, DateTime.Now.AddMinutes(jwtOptions.AccessTokenExpirationMinutes), cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Token registered with active access token service for user: {UserId}", userId);
 
-        var response = new AccessTokenResponse { Token = serializedToken, Expiry = expiry, TokenIdentifier = jti };
+        var response = new AccessTokenResponse(serializedToken, expiry, jti);
         logger.LogInfo("Access token generated successfully for user: {UserId}, jti: {Jti}, expiry: {Expiry}", userId, jti, expiry);
         
         logger.LogDebug("Completed {MethodName}", nameof(GenerateAccessToken));

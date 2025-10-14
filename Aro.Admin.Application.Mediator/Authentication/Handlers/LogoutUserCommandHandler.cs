@@ -13,12 +13,11 @@ public class LogoutUserCommandHandler(IMediator mediator, IAuthenticationService
         var tokenInfo = currentUserService.GetTokenInfo();
         var response = await authenticationService.Logout(request.Data.UserId, request.Data.RefreshToken, tokenInfo.TokenIdentifier, tokenInfo.Expiry, cancellationToken).ConfigureAwait(false);
 
-        await mediator.Publish(new UserLoggedOutNotification(new UserLoggedOutNotificationData 
-        { 
-            UserId = request.Data.UserId, 
-            RefreshTokenHash = hasher.Hash(request.Data.RefreshToken), 
-            TokenIdentifier = tokenInfo.TokenIdentifier 
-        }), cancellationToken).ConfigureAwait(false);
+        await mediator.Publish(new UserLoggedOutNotification(new UserLoggedOutNotificationData(
+            request.Data.UserId, 
+            hasher.Hash(request.Data.RefreshToken), 
+            tokenInfo.TokenIdentifier
+        )), cancellationToken).ConfigureAwait(false);
 
         return response;
     }

@@ -12,6 +12,6 @@ public class LogoutUserAllCommandHandler(IAuthenticationService authenticationSe
     {
         await authenticationService.LogoutAll(request.Data.UserId, cancellationToken).ConfigureAwait(false);
 
-        await mediator.Publish(new UserLoggedOutAllNotification(new UserLoggedOutAllNotificationData { UserId = request.Data.UserId }), cancellationToken).ConfigureAwait(false);
+        await mediator.Publish(new UserLoggedOutAllNotification(new UserLoggedOutAllNotificationData(request.Data.UserId)), cancellationToken).ConfigureAwait(false);
     }
 }

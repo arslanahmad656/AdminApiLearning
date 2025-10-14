@@ -19,7 +19,7 @@ public class AuthenticationController(IMediator mediator, IMapper mapper, ILogMa
     {
         logger.LogDebug("Starting Authenticate operation for email: {Email}", model.Email);
         
-        var response = await mediator.Send(new AuthenticateUserCommand(new AuthenticateUserRequest { Email = model.Email, Password = model.Password }), token).ConfigureAwait(false);
+        var response = await mediator.Send(new AuthenticateUserCommand(new AuthenticateUserRequest(model.Email, model.Password)), token).ConfigureAwait(false);
 
         logger.LogDebug("Completed Authenticate operation successfully");
         return Ok(new

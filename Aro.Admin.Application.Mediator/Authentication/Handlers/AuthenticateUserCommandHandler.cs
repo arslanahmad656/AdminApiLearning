@@ -22,11 +22,10 @@ public class AuthenticateUserCommandHandler(IAuthenticationService authenticatio
         }
 		catch (Exception ex)
 		{
-            await mediator.Publish(new UserAuthenticationFailedNotification(new FailedAuthenticationData 
-            { 
-                Email = request.Data.Email, 
-                ErrorMessage = ex.Message 
-            }), cancellationToken).ConfigureAwait(false);
+            await mediator.Publish(new UserAuthenticationFailedNotification(new FailedAuthenticationData(
+                request.Data.Email, 
+                ex.Message
+            )), cancellationToken).ConfigureAwait(false);
 
 			throw;
 		}

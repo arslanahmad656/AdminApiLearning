@@ -15,8 +15,8 @@ public class AssignRolesByIdCommandHandler(IRoleService roleService, IMediator m
 
         await roleService.AssignRolesToUsers(userIds, roleIds, cancellationToken).ConfigureAwait(false);
 
-        await mediator.Publish(new AssignRolesByIdNotification(new AssignRolesByIdResponse { UserIds = userIds, RoleIds = roleIds }), cancellationToken).ConfigureAwait(false);
+        await mediator.Publish(new AssignRolesByIdNotification(new AssignRolesByIdResponse(userIds, roleIds)), cancellationToken).ConfigureAwait(false);
 
-        return new AssignRolesByIdResponse { UserIds = userIds, RoleIds = roleIds };
+        return new AssignRolesByIdResponse(userIds, roleIds);
     }
 }

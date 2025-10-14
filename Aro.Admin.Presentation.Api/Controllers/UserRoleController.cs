@@ -47,7 +47,7 @@ public class UserRoleController(IMediator mediator, IMapper mapper, ILogManager<
     {
         logger.LogDebug("Starting UserHasRole operation for userId: {UserId}, roleId: {RoleId}", userId, roleId);
         
-        var response = await mediator.Send(new UserHasRoleQuery(new UserHasRoleRequest { UserId = userId, RoleId = roleId }), cancellationToken).ConfigureAwait(false);
+        var response = await mediator.Send(new UserHasRoleQuery(new UserHasRoleRequest(userId, roleId)), cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Completed UserHasRole operation with result: {HasRole}", response);
         return Ok(response);
@@ -59,7 +59,7 @@ public class UserRoleController(IMediator mediator, IMapper mapper, ILogManager<
     {
         logger.LogDebug("Starting GetUserRoles operation for userId: {UserId}", userId);
         
-        var roles = await mediator.Send(new GetUserRolesQuery(new GetUserRolesRequest { UserId = userId }), cancellationToken).ConfigureAwait(false);
+        var roles = await mediator.Send(new GetUserRolesQuery(new GetUserRolesRequest(userId)), cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Completed GetUserRoles operation successfully");
         return Ok(roles);
