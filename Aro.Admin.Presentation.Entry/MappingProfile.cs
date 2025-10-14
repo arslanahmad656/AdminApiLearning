@@ -22,7 +22,9 @@ public class MappingProfile : Profile
             .ForMember(nameof(AuditParameters.UserCreatedLog.AssignedRoles), opt => opt.MapFrom(u => u.UserRoles.Select(r => r.RoleId).ToList()));
         CreateMap<CreateUserRequest, ServiceParameters.CreateUserDto>();
         CreateMap<ServiceResponses.CreateUserResponse, Application.Mediator.User.DTOs.CreateUserResponse>();
-        CreateMap<ServiceResponses.CreateUserResponse, InitializeSystemResponse>();
+        CreateMap<ServiceResponses.CreateUserResponse, InitializeSystemResponse>()
+            .ForMember(nameof(InitializeSystemResponse.BootstrapUsername), opt => opt.MapFrom(u => u.Email))
+            .ForMember(nameof(InitializeSystemResponse.BootstrapUserId), opt => opt.MapFrom(u => u.Id));
         CreateMap<BootstrapUser, ServiceParameters.CreateUserDto>();
         CreateMap<InitializeApplicationModel, BootstrapUser>();
         CreateMap<Role, ServiceResponses.GetRoleRespose>();
@@ -44,6 +46,8 @@ public class MappingProfile : Profile
         CreateMap<ServiceResponses.AccessTokenResponse, SuccessfulAuthenticationData>();
         CreateMap<SuccessfulAuthenticationData, AuthenticationSuccessfulLog>();
         CreateMap<FailedAuthenticationData, AuthenticationFailedLog>();
+        CreateMap<CompositeToken, SuccessfulAuthenticationData>();
+        CreateMap<CompositeToken, AuthenticateUserResponse>();
 
         CreateMap<Domain.Entities.RefreshToken, ServiceResponses.RefreshToken>()
             .ForMember(nameof(ServiceResponses.RefreshToken.Token), opt => opt.MapFrom(rt => rt.TokenHash));

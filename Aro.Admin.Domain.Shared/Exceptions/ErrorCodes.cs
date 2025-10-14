@@ -7,6 +7,7 @@ public class ErrorCodes
     public readonly string DATA_SEED_ERROR = nameof(DATA_SEED_ERROR);
     public readonly string CONFIGURATION_ERROR = nameof(CONFIGURATION_ERROR);
     public readonly string UNKNOWN_ERROR = nameof(UNKNOWN_ERROR);
+    public readonly string OPERATION_CANCELLED_ERROR = nameof(OPERATION_CANCELLED_ERROR);
 
     #region [SYSTEM SETTINGS]
     public readonly string DATABASE_ALREADY_MIGRATED = nameof(DATABASE_ALREADY_MIGRATED);

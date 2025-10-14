@@ -1,4 +1,9 @@
 ﻿namespace Aro.Admin.Application.Mediator.Authentication.DTOs;
 
-public record UserLoggedOutNotificationData(Guid UserId, string RefreshTokenHash, string TokenIdentifier);
+public record UserLoggedOutNotificationData
+{
+    public Guid UserId { get; init; }
+    public string RefreshTokenHash { get; init; } = string.Empty;
+    public string TokenIdentifier { get; init; } = string.Empty;
+}
 

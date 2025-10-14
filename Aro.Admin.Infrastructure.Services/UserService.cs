@@ -37,6 +37,7 @@ public partial class UserService(IRepositoryManager repository, IHasher password
             IsActive = user.IsActive,
             PasswordHash = passwordHasher.Hash(user.Password),
             UpdatedAt = now,
+            IsSystem = user.IsSystemUser
         };
         logger.LogDebug("Created user entity: {UserId}, email: {Email}, isActive: {IsActive}", userEntity.Id, userEntity.Email, userEntity.IsActive);
 
@@ -54,7 +55,7 @@ public partial class UserService(IRepositoryManager repository, IHasher password
         logger.LogInfo("User created successfully: {UserId}, email: {Email}, roleCount: {RoleCount}", userEntity.Id, userEntity.Email, assignableRoles.Count);
 
         logger.LogDebug("Completed {MethodName}", nameof(CreateUser));
-        return new(userEntity.Id, userEntity.Email, assignableRoles);
+        return new CreateUserResponse { Id = userEntity.Id, Email = userEntity.Email, AssignedRoles = assignableRoles };
     }
 
     public async Task<GetUserResponse> GetUserById(Guid userId, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default)
