@@ -46,7 +46,7 @@ public class ApplicationController(IMediator mediator, ILogManager<ApplicationCo
     {
         logger.LogDebug("Starting InitializeSystem operation for email: {Email}, displayName: {DisplayName}", model.Email, model.DisplayName);
 
-        var response = await mediator.Send(new InitializeSystemCommand(new(model.Email, model.Password, model.DisplayName, model.Password)), cancellationToken).ConfigureAwait(false);
+        var response = await mediator.Send(new InitializeSystemCommand(new(model.Email, model.Password, model.DisplayName, model.BootstrapPassword)), cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Completed InitializeSystem operation successfully");
         return Ok(response);
