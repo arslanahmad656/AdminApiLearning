@@ -21,6 +21,11 @@ public partial class UserService
                 .ThenInclude(ur => ur.Role);
         }
 
+        // TODO: fix later:
+        query = query
+                .Include(u => u.UserRoles)
+                .ThenInclude(ur => ur.Role);
+
         var userEntity = await query.SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false)
             ?? throw new AroUserNotFoundException(identifier);
 
