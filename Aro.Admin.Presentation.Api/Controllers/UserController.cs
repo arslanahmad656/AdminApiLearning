@@ -35,7 +35,7 @@ public class UserController(IMediator mediator, IMapper mapper, ILogManager<User
     {
         logger.LogDebug("Starting GetBootstrapUser operation.");
 
-        var response = await mediator.Send(new GetBootstrapUserQuery { BootstrapPassword = model.BootstrapPassword }, cancellationToken).ConfigureAwait(false);
+        var response = await mediator.Send(new GetBootstrapUserQuery(model.BootstrapPassword), cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Completed GetBootstrapUser operation successfully.");
         return Ok(response);
