@@ -3,7 +3,6 @@ using Aro.Admin.Application.Services.DTOs.ServiceResponses;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared.Exceptions;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
@@ -11,7 +10,7 @@ using RefreshToken = Aro.Admin.Application.Services.DTOs.ServiceResponses.Refres
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepositoryManager repositoryManager, IMapper mapper, IHasher hasher, IAccessTokenService accessTokenService, IUniqueIdGenerator idGenerator, ErrorCodes errorCodes, ILogManager<RefreshTokenService> logger) : IRefreshTokenService
+public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepositoryManager repositoryManager, IHasher hasher, IAccessTokenService accessTokenService, IUniqueIdGenerator idGenerator, ErrorCodes errorCodes, ILogManager<RefreshTokenService> logger) : IRefreshTokenService
 {
     private readonly JwtOptions jwtOptions = jwtOptions.Value;
     private readonly IRefreshTokenRepository refreshTokenRepo = repositoryManager.RefreshTokenRepository;
@@ -19,7 +18,7 @@ public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepos
     public Task<RefreshToken> GenerateRefreshToken(CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(GenerateRefreshToken));
-        
+
         var bytes = new byte[64];
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(bytes);
@@ -37,40 +36,40 @@ public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepos
         return Task.FromResult(token);
     }
 
-    public async Task<UserRefreshToken> GetActiveToken(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<List<UserRefreshToken>> GetActiveToken(Guid userId, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(GetActiveToken));
-        
+
         var query = refreshTokenRepo.GetActiveTokensByUserId(userId);
         logger.LogDebug("Retrieved active tokens query for user: {UserId}", userId);
 
-        var tokenEntity = await query
+        var tokenEntities = await query
             .OrderByDescending(rt => rt.CreatedAt)
-            .FirstOrDefaultAsync(cancellationToken)
+            .ToListAsync(cancellationToken)
             .ConfigureAwait(false)
             ?? throw new AroRefreshTokenNotFoundException(userId.ToString(), AroRefreshTokenNotFoundException.IdentifierType.User);
 
-        logger.LogDebug("Found active refresh token for user: {UserId}, tokenId: {TokenId}", userId, tokenEntity.Id);
+        logger.LogDebug("Found active refresh tokens for user: {UserId}, Total tokens: {Total}", userId, tokenEntities.Count);
 
-        var token = mapper.Map<UserRefreshToken>(tokenEntity);
+        var token = tokenEntities.Select(t => new UserRefreshToken(t.TokenHash, t.ExpiresAt, t.UserId)).ToList();
         logger.LogDebug("Mapped refresh token entity to response for user: {UserId}", userId);
 
         logger.LogDebug("Completed {MethodName}", nameof(GetActiveToken));
         return token;
     }
-    
+
     public async Task<UserRefreshToken> GetActiveToken(string refreshToken, CancellationToken cancellationToken = default)
-    { 
+    {
         var tokenHash = hasher.Hash(refreshToken);
         var query = refreshTokenRepo.GetActiveTokenByTokenHash(tokenHash);
 
         var tokenEntity = await query
             .OrderByDescending(rt => rt.CreatedAt)
-            .FirstOrDefaultAsync(cancellationToken)
+            .SingleOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false)
             ?? throw new AroRefreshTokenNotFoundException(tokenHash, AroRefreshTokenNotFoundException.IdentifierType.Token);
 
-        var token = mapper.Map<UserRefreshToken>(tokenEntity);
+        var token = new UserRefreshToken(tokenEntity.TokenHash, tokenEntity.ExpiresAt, tokenEntity.UserId);
 
         return token;
     }
@@ -78,7 +77,7 @@ public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepos
     public async Task RevokeAll(Guid userId, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(RevokeAll));
-        
+
         var query = refreshTokenRepo.GetActiveTokensByUserId(userId);
         logger.LogDebug("Retrieved active tokens query for user: {UserId}", userId);
 
@@ -91,7 +90,7 @@ public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepos
 
         await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogInfo("Successfully revoked all refresh tokens for user: {UserId}, tokenCount: {TokenCount}", userId, tokens.Count);
-        
+
         logger.LogDebug("Completed {MethodName}", nameof(RevokeAll));
     }
 

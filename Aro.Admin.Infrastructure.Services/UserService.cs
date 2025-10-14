@@ -7,14 +7,12 @@ using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
 using Aro.Admin.Domain.Shared.Exceptions;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class UserService(IRepositoryManager repository, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, IMapper mapper, 
-    ILogManager<UserService> logger, IOptions<AdminSettings> adminSettings, ErrorCodes errorCodes) : IUserService
+public partial class UserService(IRepositoryManager repository, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, ILogManager<UserService> logger, IOptions<AdminSettings> adminSettings, ErrorCodes errorCodes) : IUserService
 {
     private readonly AdminSettings adminSettings = adminSettings.Value;
     private readonly IUserRepository userRepository = repository.UserRepository;
@@ -23,7 +21,7 @@ public partial class UserService(IRepositoryManager repository, IHasher password
     public async Task<CreateUserResponse> CreateUser(CreateUserDto user, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(CreateUser));
-        
+
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateUser], cancellationToken);
         logger.LogDebug("Authorization verified for user creation");
 
@@ -44,13 +42,13 @@ public partial class UserService(IRepositoryManager repository, IHasher password
         logger.LogDebug("Retrieving assignable roles: {RoleCount}", user.AssignedRoles.Count);
         var assignableRoles = await roleRepository.GetByNames(user.AssignedRoles).Select(r => r.Id).ToListAsync(cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Found {RoleCount} assignable roles for user: {UserId}", assignableRoles.Count, userEntity.Id);
-        
+
         userEntity.UserRoles = [.. assignableRoles.Select(i => new UserRole { RoleId = i })];
         logger.LogDebug("Assigned {RoleCount} roles to user: {UserId}", assignableRoles.Count, userEntity.Id);
 
         await userRepository.Create(userEntity, cancellationToken).ConfigureAwait(false);
         logger.LogDebug("User entity created in repository: {UserId}", userEntity.Id);
-        
+
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogInfo("User created successfully: {UserId}, email: {Email}, roleCount: {RoleCount}", userEntity.Id, userEntity.Email, assignableRoles.Count);
 
@@ -61,14 +59,14 @@ public partial class UserService(IRepositoryManager repository, IHasher password
     public async Task<GetUserResponse> GetUserById(Guid userId, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(GetUserById));
-        
+
         string[] requiredPermissions = includeRoles ? [PermissionCodes.GetUser, PermissionCodes.GetUserRoles] : [PermissionCodes.GetUser];
         await authorizationService.EnsureCurrentUserPermissions(requiredPermissions, cancellationToken);
         logger.LogDebug("Authorization verified for user retrieval");
 
         var query = userRepository.GetById(userId);
         logger.LogDebug("Retrieved user query for ID: {UserId}", userId);
-        
+
         var response = await GetUserFromQueryable(query, userId.ToString(), includeRoles, includePasswordHash, cancellationToken).ConfigureAwait(false);
         logger.LogDebug("User retrieved successfully: {UserId}, email: {Email}", userId, response.Email);
 
@@ -79,14 +77,14 @@ public partial class UserService(IRepositoryManager repository, IHasher password
     public async Task<GetUserResponse> GetUserByEmail(string email, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(GetUserByEmail));
-        
+
         string[] requiredPermissions = includeRoles ? [PermissionCodes.GetUser, PermissionCodes.GetUserRoles] : [PermissionCodes.GetUser];
         await authorizationService.EnsureCurrentUserPermissions(requiredPermissions, cancellationToken);
         logger.LogDebug("Authorization verified for user retrieval by email");
 
         var query = userRepository.GetByEmail(email);
         logger.LogDebug("Retrieved user query for email: {Email}", email);
-        
+
         var response = await GetUserFromQueryable(query, email, includeRoles, includePasswordHash, cancellationToken).ConfigureAwait(false);
         logger.LogDebug("User retrieved successfully by email: {Email}, userId: {UserId}", email, response.Id);
 
@@ -115,14 +113,14 @@ public partial class UserService(IRepositoryManager repository, IHasher password
         var userEntity = await query
             .Where(u => u.IsSystem && u.IsActive)
             .SingleOrDefaultAsync(cancellationToken)
-            .ConfigureAwait(false) 
+            .ConfigureAwait(false)
             ?? throw new AroUserNotFoundException("SYSTEM_USER");
 
         logger.LogDebug("System user retrieved succesfully");
 
         logger.LogDebug("Completed {MethodName}", nameof(GetUserByEmail));
-        
-        var systemUser = mapper.Map<GetUserResponse>(userEntity);
+
+        var systemUser = new GetUserResponse(userEntity.Id, userEntity.Email, userEntity.IsActive, userEntity.DisplayName, userEntity.PasswordHash, userEntity.UserRoles.Select(ur => new GetRoleRespose(ur.RoleId, ur.Role.Name, ur.Role.Description, ur.Role.IsBuiltin)).ToList());
 
         return systemUser;
     }
