@@ -1,0 +1,122 @@
+@page "/login"
+@layout AuthLayout
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager NavigationManager
+
+<div class="login-container">
+    <div class="login-left-panel">
+        <div class="logo-container">
+            <img src="aro-logo.svg" alt="ARO Digital Strategy" class="aro-logo-svg" />
+        </div>
+    </div>
+
+    <div class="login-right-panel">
+        <div class="login-card">
+            @if (showSuccessMessage)
+            {
+                <MudAlert Severity="Severity.Success" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="@(() => showSuccessMessage = false)">
+                    New password has been set!
+                </MudAlert>
+            }
+
+            <div class="login-header">
+                <h1 class="welcome-text">Welcome</h1>
+                <h2 class="login-text">Login</h2>
+            </div>
+
+            <MudForm @ref="form" Class="login-form">
+                <MudTextField @bind-Value="model.Username"
+                              Label="Username"
+                              Variant="Variant.Outlined"
+                              Class="login-input"
+                              Required="true"
+                              RequiredError="Username is required" />
+
+                <MudTextField @bind-Value="model.Password"
+                              Label="Password"
+                              Variant="Variant.Outlined"
+                              InputType="@passwordInputType"
+                              Class="login-input"
+                              Required="true"
+                              RequiredError="Password is required"
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@passwordIcon"
+                              OnAdornmentClick="TogglePasswordVisibility" />
+
+                <div class="remember-me-container">
+                    <MudCheckBox @bind-Value="model.RememberMe" Color="Color.Dark">
+                        Remember me
+                    </MudCheckBox>
+                </div>
+
+                <div class="forgot-password-container">
+                    <span>Forgot your password? <MudLink Href="/reset" Underline="Underline.Always" Color="Color.Dark">Reset here.</MudLink></span>
+                </div>
+
+                <div class="login-button-container">
+                    <MudButton Variant="Variant.Filled"
+                               Class="login-button"
+                               OnClick="HandleLogin"
+                               FullWidth="false">
+                        Continue
+                    </MudButton>
+                </div>
+            </MudForm>
+        </div>
+    </div>
+</div>
+
+@code {
+    private MudForm? form;
+    private LoginModel model = new();
+    private bool showSuccessMessage = false;
+    private bool passwordVisible = false;
+    private InputType passwordInputType = InputType.Password;
+    private string passwordIcon = Icons.Material.Filled.Visibility;
+
+    protected override void OnInitialized()
+    {
+        // Check if redirected from password reset
+        var uri = new Uri(NavigationManager.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        if (query["passwordReset"] == "true")
+        {
+            showSuccessMessage = true;
+        }
+    }
+
+    private void TogglePasswordVisibility()
+    {
+        passwordVisible = !passwordVisible;
+        passwordInputType = passwordVisible ? InputType.Text : InputType.Password;
+        passwordIcon = passwordVisible ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility;
+    }
+
+    private async Task HandleLogin()
+    {
+        await form!.Validate();
+
+        if (form.IsValid)
+        {
+            // TODO: Implement actual login logic here
+            // For now, just log the attempt
+            Console.WriteLine($"Login attempt for: {model.Username}");
+
+            // Example: Navigate to dashboard after successful login
+            // NavigationManager.NavigateTo("/");
+        }
+    }
+
+    public class LoginModel
+    {
+        [Required(ErrorMessage = "Username is required")]
+        public string Username { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Password is required")]
+        public string Password { get; set; } = string.Empty;
+
+        public bool RememberMe { get; set; } = false;
+    }
+}
