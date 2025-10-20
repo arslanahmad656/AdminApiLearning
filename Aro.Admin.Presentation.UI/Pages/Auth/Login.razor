@@ -2,7 +2,11 @@
 @layout AuthLayout
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components
+@using Aro.Admin.Presentation.UI.Services
 @inject NavigationManager NavigationManager
+@inject IAuthenticationService AuthService
+@inject ApiAuthenticationStateProvider AuthStateProvider
+@inject ISnackbar Snackbar
 
 <div class="login-container">
     <div class="login-left-panel">
@@ -58,8 +62,17 @@
                     <MudButton Variant="Variant.Filled"
                                Class="login-button"
                                OnClick="HandleLogin"
+                               Disabled="@isLoading"
                                FullWidth="false">
-                        Continue
+                        @if (isLoading)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                            <MudText Class="ms-2">Logging in...</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Continue</MudText>
+                        }
                     </MudButton>
                 </div>
             </MudForm>
@@ -71,6 +84,7 @@
     private MudForm? form;
     private LoginModel model = new();
     private bool showSuccessMessage = false;
+    private bool isLoading = false;
     private bool passwordVisible = false;
     private InputType passwordInputType = InputType.Password;
     private string passwordIcon = Icons.Material.Filled.Visibility;
@@ -98,20 +112,50 @@
     {
         await form!.Validate();
 
-        if (form.IsValid)
+        if (!form.IsValid)
         {
-            // TODO: Implement actual login logic here
-            // For now, just log the attempt
-            Console.WriteLine($"Login attempt for: {model.Username}");
+            return;
+        }
 
-            // Example: Navigate to dashboard after successful login
-            // NavigationManager.NavigateTo("/");
+        isLoading = true;
+
+        try
+        {
+            // Call API to authenticate
+            var response = await AuthService.LoginAsync(model.Username, model.Password);
+
+            if (response != null)
+            {
+                // Update authentication state
+                await AuthStateProvider.MarkUserAsAuthenticated();
+
+                // Show success message
+                Snackbar.Add("Login successful! Welcome back.", Severity.Success);
+
+                // Navigate to home/dashboard
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                // Show error message
+                Snackbar.Add("Invalid email or password. Please try again.", Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Login error: {ex.Message}");
+            Snackbar.Add("An error occurred during login. Please try again.", Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 
     public class LoginModel
     {
-        [Required(ErrorMessage = "Username is required")]
+        [Required(ErrorMessage = "Email is required")]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Username { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Password is required")]
