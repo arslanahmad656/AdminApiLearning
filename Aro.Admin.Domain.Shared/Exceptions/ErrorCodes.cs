@@ -29,4 +29,11 @@ public class ErrorCodes
     #region [USERS]
     public readonly string USER_NOT_FOUND = nameof(USER_NOT_FOUND);
     #endregion
+
+    #region [PASSWORD RESET]
+    public readonly string PASSWORD_RESET_TOKEN_NOT_FOUND = nameof(PASSWORD_RESET_TOKEN_NOT_FOUND);
+    public readonly string PASSWORD_RESET_TOKEN_EXPIRED = nameof(PASSWORD_RESET_TOKEN_EXPIRED);
+    public readonly string PASSWORD_RESET_TOKEN_ALREADY_USED = nameof(PASSWORD_RESET_TOKEN_ALREADY_USED);
+    public readonly string PASSWORD_RESET_TOKEN_INVALID = nameof(PASSWORD_RESET_TOKEN_INVALID);
+    #endregion
 }

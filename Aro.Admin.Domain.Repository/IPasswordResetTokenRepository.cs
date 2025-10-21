@@ -18,5 +18,5 @@ public interface IPasswordResetTokenRepository
 
     IQueryable<PasswordResetToken> GetExpiredTokens();
 
-    void DeleteExpiredTokens();
+    Task DeleteExpiredTokens(CancellationToken cancellationToken = default);
 }

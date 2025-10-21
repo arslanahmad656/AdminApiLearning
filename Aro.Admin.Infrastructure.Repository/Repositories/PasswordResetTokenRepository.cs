@@ -1,6 +1,7 @@
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Infrastructure.Repository.Context;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Repository.Repositories;
 
@@ -23,10 +24,10 @@ internal class PasswordResetTokenRepository(AroAdminApiDbContext dbContext) : Re
     public IQueryable<PasswordResetToken> GetExpiredTokens() => 
         FindByCondition(filter: prt => prt.Expiry <= DateTime.UtcNow);
 
-    public void DeleteExpiredTokens()
+    public async Task DeleteExpiredTokens(CancellationToken cancellationToken = default)
     {
-        var expiredTokens = GetExpiredTokens().ToList();
-        if (expiredTokens.Any())
+        var expiredTokens = await GetExpiredTokens().ToListAsync(cancellationToken).ConfigureAwait(false);
+        if (expiredTokens.Count != 0)
         {
             base.DeleteRange(expiredTokens);
         }
