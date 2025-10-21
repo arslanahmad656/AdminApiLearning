@@ -124,4 +124,30 @@ public partial class UserService(IRepositoryManager repository, IHasher password
 
         return systemUser;
     }
+
+    public async Task ResetPassword(Guid userId, string newPassword, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(ResetPassword));
+        logger.LogDebug("Resetting password for user: {UserId}", userId);
+
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.ResetPassword], cancellationToken);
+        logger.LogDebug("Authorization verified for password reset");
+
+        var userEntity = await userRepository.GetById(userId)
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false) ?? throw new AroUserNotFoundException(userId.ToString());
+
+        logger.LogDebug("User found for password reset: {UserId}, email: {Email}", userEntity.Id, userEntity.Email);
+
+        var hashedPassword = passwordHasher.Hash(newPassword);
+        userEntity.PasswordHash = hashedPassword;
+        userEntity.UpdatedAt = DateTime.UtcNow;
+
+        // Update the user entity
+        userRepository.Update(userEntity);
+        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+
+        logger.LogInfo("Password reset successfully for user: {UserId}, email: {Email}", userEntity.Id, userEntity.Email);
+        logger.LogDebug("Completed {MethodName}", nameof(ResetPassword));
+    }
 }

@@ -17,4 +17,6 @@ public class UserRepository(AroAdminApiDbContext dbContext) : RepositoryBase<Use
         .AnyAsync(cancellationToken);
 
     public Task Create(User user, CancellationToken cancellationToken = default) => base.Add(user, cancellationToken);
+
+    public new void Update(User user) => base.Update(user);
 }

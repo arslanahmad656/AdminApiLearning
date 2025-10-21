@@ -13,4 +13,6 @@ public interface IUserRepository
     Task<bool> UsersExist(CancellationToken cancellationToken = default);
 
     Task Create(User user, CancellationToken cancellationToken = default);
+
+    void Update(User user);
 }
