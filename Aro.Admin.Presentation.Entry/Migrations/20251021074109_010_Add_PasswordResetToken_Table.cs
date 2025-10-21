@@ -11,12 +11,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<string>(
-                name: "PhoneNumber",
-                table: "Users",
-                type: "nvarchar(max)",
-                nullable: true);
-
             migrationBuilder.CreateTable(
                 name: "PasswordResetTokens",
                 columns: table => new
@@ -52,10 +46,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
         {
             migrationBuilder.DropTable(
                 name: "PasswordResetTokens");
-
-            migrationBuilder.DropColumn(
-                name: "PhoneNumber",
-                table: "Users");
         }
     }
 }

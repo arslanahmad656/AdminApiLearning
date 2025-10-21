@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Aro.Admin.Presentation.Entry.Migrations
 {
     [DbContext(typeof(AroAdminApiDbContext))]
-    [Migration("20251021073511_010_Add_PasswordResetToken_Table")]
+    [Migration("20251021074109_010_Add_PasswordResetToken_Table")]
     partial class _010_Add_PasswordResetToken_Table
     {
         /// <inheritdoc />
@@ -301,9 +301,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         .IsRequired()
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
