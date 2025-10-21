@@ -14,17 +14,17 @@ public class ValidatePasswordResetTokenQueryHandler(
     {
         try
         {
-            var isValid = await passwordResetTokenService.ValidateToken(request.Data.Token, cancellationToken).ConfigureAwait(false);
+            var result = await passwordResetTokenService.ValidateToken(request.Data.Token, cancellationToken).ConfigureAwait(false);
             
             // Publish notification
             var notificationData = new PasswordResetTokenValidatedNotificationData(
-                Guid.Empty, // TODO: Get user ID from token validation
+                result.UserId ?? Guid.Empty,
                 request.Data.Token,
-                isValid
+                result.IsValid
             );
             await mediator.Publish(new PasswordResetTokenValidatedNotification(notificationData), cancellationToken).ConfigureAwait(false);
             
-            return new ValidatePasswordResetTokenResponse(isValid, isValid ? Guid.Empty : null); // TODO: Get actual user ID
+            return new ValidatePasswordResetTokenResponse(result.IsValid, result.UserId);
         }
         catch (Exception)
         {

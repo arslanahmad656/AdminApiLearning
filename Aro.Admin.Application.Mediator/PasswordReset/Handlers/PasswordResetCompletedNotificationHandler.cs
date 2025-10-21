@@ -8,9 +8,8 @@ public class PasswordResetCompletedNotificationHandler(ILogManager<PasswordReset
 {
     public Task Handle(PasswordResetCompletedNotification notification, CancellationToken cancellationToken)
     {
-        logger.LogInfo("Password reset completed for user: {UserId}, email: {Email}, resetAt: {ResetAt}",
+        logger.LogInfo("Password reset completed for user: {UserId}, resetAt: {ResetAt}",
             notification.Data.UserId,
-            notification.Data.Email,
             notification.Data.ResetAt);
 
         // TODO: Send confirmation email, log security events, etc.
