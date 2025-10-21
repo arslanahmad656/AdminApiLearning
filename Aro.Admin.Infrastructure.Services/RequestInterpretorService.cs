@@ -43,4 +43,15 @@ public class RequestInterpretorService(IHttpContextAccessor httpContextAccessor,
         logger.LogDebug("Completed {MethodName}", nameof(RetrieveIpAddress));
         return remoteIpAddress;
     }
+
+    public string? GetUserAgent()
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(GetUserAgent));
+        
+        var userAgent = httpContext?.Request?.Headers?["User-Agent"].FirstOrDefault();
+        logger.LogDebug("User-Agent header: {UserAgent}", userAgent ?? string.Empty);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(GetUserAgent));
+        return userAgent;
+    }
 }
