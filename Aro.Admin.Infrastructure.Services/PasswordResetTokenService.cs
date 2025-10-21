@@ -25,7 +25,7 @@ public class PasswordResetTokenService(
     public async Task<string> GenerateToken(GenerateTokenParameters parameters, CancellationToken ct = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(GenerateToken));
-        logger.LogDebug("Generating password reset token for user: {UserId}, requestIP: {RequestIP}", parameters.userId, parameters.requestIp);
+        logger.LogDebug("Generating password reset token for user: {UserId}, requestIP: {RequestIP}", parameters.UserId, parameters.RequestIp);
 
         try
         {
@@ -44,15 +44,15 @@ public class PasswordResetTokenService(
             var tokenEntity = new PasswordResetToken
             {
                 Id = idGenerator.Generate(),
-                UserId = parameters.userId,
+                UserId = parameters.UserId,
                 TokenHash = tokenHash,
                 CreatedAt = now,
                 Expiry = expiry,
                 IsUsed = false,
-                RequestIP = parameters.requestIp,
-                UserAgent = parameters.userAgent
+                RequestIP = parameters.RequestIp,
+                UserAgent = parameters.UserAgent
             };
-            logger.LogDebug("Created password reset token entity, tokenId: {TokenId}, userId: {UserId}", tokenEntity.Id, parameters.userId);
+            logger.LogDebug("Created password reset token entity, tokenId: {TokenId}, userId: {UserId}", tokenEntity.Id, parameters.UserId);
 
             // Save to database
             await passwordResetTokenRepo.Create(tokenEntity, ct).ConfigureAwait(false);
@@ -60,14 +60,14 @@ public class PasswordResetTokenService(
             logger.LogDebug("Password reset token saved to database, tokenId: {TokenId}", tokenEntity.Id);
 
             logger.LogInfo("Password reset token generated successfully for user: {UserId}, tokenId: {TokenId}, expiry: {Expiry}", 
-                parameters.userId, tokenEntity.Id, expiry);
+                parameters.UserId, tokenEntity.Id, expiry);
 
             logger.LogDebug("Completed {MethodName}", nameof(GenerateToken));
             return rawToken;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Error occurred while generating password reset token for user: {UserId}", parameters.userId);
+            logger.LogError(ex, "Error occurred while generating password reset token for user: {UserId}", parameters.UserId);
             throw new AroException(errorCodes.UNKNOWN_ERROR, "Failed to generate password reset token", ex);
         }
     }
