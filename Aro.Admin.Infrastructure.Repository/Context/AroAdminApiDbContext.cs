@@ -37,10 +37,12 @@ public class AroAdminApiDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+#if DEBUG
         if (!Debugger.IsAttached)
         {
-            Debugger.Launch();
+            //Debugger.Launch();
         }
+#endif
 
         modelBuilder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
 
