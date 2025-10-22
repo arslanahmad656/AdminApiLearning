@@ -143,7 +143,6 @@ public partial class UserService(IRepositoryManager repository, IHasher password
         userEntity.PasswordHash = hashedPassword;
         userEntity.UpdatedAt = DateTime.UtcNow;
 
-        // Update the user entity
         userRepository.Update(userEntity);
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
 

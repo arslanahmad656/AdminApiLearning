@@ -24,13 +24,9 @@ public class ResetPasswordCommandHandler(
                 return new ResetPasswordResponse(false, "Invalid or expired password reset token");
             }
             
-            // Update user password using userService
             await userService.ResetPassword(result.UserId.Value, request.Data.NewPassword, cancellationToken).ConfigureAwait(false);
             
-            // Mark token as used
             await passwordResetTokenService.MarkTokenUsed(request.Data.Token, cancellationToken).ConfigureAwait(false);
-            
-            // Publish notification
             var notificationData = new PasswordResetCompletedNotificationData(
                 result.UserId.Value,
                 DateTime.UtcNow

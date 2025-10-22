@@ -19,14 +19,11 @@ public class GeneratePasswordResetTokenCommandHandler(
 {
     public async Task<GeneratePasswordResetTokenResponse> Handle(GeneratePasswordResetTokenCommand request, CancellationToken cancellationToken)
     {
-        // Get user by email
         var user = await userService.GetUserByEmail(request.Data.Email, false, true, cancellationToken).ConfigureAwait(false);
         
-        // Get IP address and User Agent from request context
         var ipAddress = requestInterpretorService.RetrieveIpAddress() ?? string.Empty;
         var userAgent = requestInterpretorService.GetUserAgent() ?? string.Empty;
         
-        // Generate password reset token
         var parameters = new GenerateTokenParameters(
             user.Id,
             ipAddress,
@@ -35,11 +32,8 @@ public class GeneratePasswordResetTokenCommandHandler(
         
         var token = await passwordResetTokenService.GenerateToken(parameters, cancellationToken).ConfigureAwait(false);
         
-        // Get expiry from configuration
         var passwordResetSettings = passwordResetOptions.Value;
         var expiry = DateTime.UtcNow.AddMinutes(passwordResetSettings.TokenExpiryMinutes);
-        
-        // Publish notification
         var notificationData = new PasswordResetTokenGeneratedNotificationData(
             user.Id,
             user.Email,

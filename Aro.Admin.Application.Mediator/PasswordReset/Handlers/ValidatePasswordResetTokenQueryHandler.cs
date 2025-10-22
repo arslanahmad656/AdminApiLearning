@@ -16,7 +16,6 @@ public class ValidatePasswordResetTokenQueryHandler(
         {
             var result = await passwordResetTokenService.ValidateToken(request.Data.Token, cancellationToken).ConfigureAwait(false);
             
-            // Publish notification
             var notificationData = new PasswordResetTokenValidatedNotificationData(
                 result.UserId ?? Guid.Empty,
                 request.Data.Token,
@@ -28,7 +27,6 @@ public class ValidatePasswordResetTokenQueryHandler(
         }
         catch (Exception)
         {
-            // Token validation failed
             var notificationData = new PasswordResetTokenValidatedNotificationData(
                 Guid.Empty,
                 request.Data.Token,

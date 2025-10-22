@@ -8,7 +8,7 @@ public class PasswordResetTokenGeneratedNotificationHandler(ILogManager<Password
 {
     public Task Handle(PasswordResetTokenGeneratedNotification notification, CancellationToken cancellationToken)
     {
-        logger.LogInfo("Password reset token generated for user: {UserId}, email: {Email}, token: {Token}, expiry: {Expiry}",
+        logger.LogInfo("Sending password reset email for user: {UserId}, email: {Email}, token: {Token}, expiry: {Expiry}",
             notification.Data.UserId,
             notification.Data.Email,
             notification.Data.Token,
