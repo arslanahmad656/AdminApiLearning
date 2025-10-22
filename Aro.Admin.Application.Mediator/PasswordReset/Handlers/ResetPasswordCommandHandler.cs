@@ -16,17 +16,24 @@ public class ResetPasswordCommandHandler(
     {
         try
         {
-            // Validate token first
             var result = await passwordResetTokenService.ValidateToken(request.Data.Token, cancellationToken).ConfigureAwait(false);
             
             if (!result.IsValid || result.UserId == null)
             {
+                var failureNotificationData = new PasswordResetFailedNotificationData(
+                    result.UserId,
+                    "Invalid or expired password reset token",
+                    DateTime.UtcNow
+                );
+                await mediator.Publish(new PasswordResetFailedNotification(failureNotificationData), cancellationToken).ConfigureAwait(false);
+                
                 return new ResetPasswordResponse(false, "Invalid or expired password reset token");
             }
             
             await userService.ResetPassword(result.UserId.Value, request.Data.NewPassword, cancellationToken).ConfigureAwait(false);
             
             await passwordResetTokenService.MarkTokenUsed(request.Data.Token, cancellationToken).ConfigureAwait(false);
+            
             var notificationData = new PasswordResetCompletedNotificationData(
                 result.UserId.Value,
                 DateTime.UtcNow
@@ -37,7 +44,14 @@ public class ResetPasswordCommandHandler(
         }
         catch (Exception ex)
         {
-            return new ResetPasswordResponse(false, $"Password reset failed: {ex.Message}");
+            var failureNotificationData = new PasswordResetFailedNotificationData(
+                null,
+                ex.Message,
+                DateTime.UtcNow
+            );
+            await mediator.Publish(new PasswordResetFailedNotification(failureNotificationData), cancellationToken).ConfigureAwait(false);
+            
+            return new ResetPasswordResponse(false, ex.Message);
         }
     }
 }

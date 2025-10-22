@@ -12,4 +12,6 @@ public class AuditActions
     public readonly string AuthenticationFailed = "AUTHENTICAITON_FAIL";
     public readonly string UserSessionLoggedOut = "SESSION_LOGOUT";
     public readonly string PasswordResetTokenGenerated = "PASSWORD_RESET_TOKEN_GENERATED";
+    public readonly string PasswordResetCompleted = "PASSWORD_RESET_COMPLETED";
+    public readonly string PasswordResetFailed = "PASSWORD_RESET_FAILED";
 }
