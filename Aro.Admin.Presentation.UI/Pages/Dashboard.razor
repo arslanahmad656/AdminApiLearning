@@ -1,0 +1,187 @@
+@page "/dashboard"
+@attribute [Authorize]
+@inject IAuthenticationService AuthService
+@inject ApiAuthenticationStateProvider AuthStateProvider
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+
+<PageTitle>ARO Admin - Dashboard</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <AuthorizeView>
+        <Authorized>
+            <MudText Typo="Typo.h3" Class="mb-4">Dashboard</MudText>
+
+            <MudGrid Spacing="3">
+                <!-- User Information Card -->
+                <MudItem xs="12" md="4">
+                    <MudPaper Elevation="2" Class="pa-4" Style="height: 100%;">
+                        <MudText Typo="Typo.h6" Class="mb-3">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Class="mr-2" />
+                            User Information
+                        </MudText>
+                        <MudDivider Class="mb-3" />
+                        <MudText Typo="Typo.body2" Class="mb-2">
+                            <strong>Name:</strong> @context.User.Identity?.Name
+                        </MudText>
+                        <MudText Typo="Typo.body2" Class="mb-2">
+                            <strong>Email:</strong> @context.User.FindFirst("email")?.Value
+                        </MudText>
+                        <MudText Typo="Typo.body2">
+                            <strong>Roles:</strong>
+                            @string.Join(", ", context.User.Claims
+                                .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
+                                .Select(c => c.Value))
+                        </MudText>
+                    </MudPaper>
+                </MudItem>
+
+                <!-- Statistics Card -->
+                <MudItem xs="12" md="8">
+                    <MudPaper Elevation="2" Class="pa-4" Style="height: 100%;">
+                        <MudText Typo="Typo.h6" Class="mb-3">
+                            <MudIcon Icon="@Icons.Material.Filled.Analytics" Class="mr-2" />
+                            System Overview
+                        </MudText>
+                        <MudDivider Class="mb-3" />
+                        <MudGrid>
+                            <MudItem xs="12" sm="6" md="3">
+                                <MudPaper Elevation="1" Class="pa-3 text-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.People" Size="Size.Large" Color="Color.Primary" />
+                                    <MudText Typo="Typo.h5" Class="mt-2">-</MudText>
+                                    <MudText Typo="Typo.body2">Total Users</MudText>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="3">
+                                <MudPaper Elevation="1" Class="pa-3 text-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Group" Size="Size.Large" Color="Color.Secondary" />
+                                    <MudText Typo="Typo.h5" Class="mt-2">-</MudText>
+                                    <MudText Typo="Typo.body2">Total Roles</MudText>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="3">
+                                <MudPaper Elevation="1" Class="pa-3 text-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Login" Size="Size.Large" Color="Color.Success" />
+                                    <MudText Typo="Typo.h5" Class="mt-2">-</MudText>
+                                    <MudText Typo="Typo.body2">Active Sessions</MudText>
+                                </MudPaper>
+                            </MudItem>
+                            <MudItem xs="12" sm="6" md="3">
+                                <MudPaper Elevation="1" Class="pa-3 text-center">
+                                    <MudIcon Icon="@Icons.Material.Filled.Security" Size="Size.Large" Color="Color.Warning" />
+                                    <MudText Typo="Typo.h5" Class="mt-2">-</MudText>
+                                    <MudText Typo="Typo.body2">Permissions</MudText>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                    </MudPaper>
+                </MudItem>
+
+                <!-- Quick Actions Card -->
+                <MudItem xs="12" md="6">
+                    <MudPaper Elevation="2" Class="pa-4">
+                        <MudText Typo="Typo.h6" Class="mb-3">
+                            <MudIcon Icon="@Icons.Material.Filled.Apps" Class="mr-2" />
+                            Quick Actions
+                        </MudText>
+                        <MudDivider Class="mb-3" />
+                        <MudStack Spacing="2">
+                            <MudButton Variant="Variant.Filled"
+                                      Color="Color.Primary"
+                                      FullWidth="true"
+                                      StartIcon="@Icons.Material.Filled.PersonAdd"
+                                      Href="/users">
+                                Manage Users
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled"
+                                      Color="Color.Secondary"
+                                      FullWidth="true"
+                                      StartIcon="@Icons.Material.Filled.GroupAdd"
+                                      Href="/roles">
+                                Manage Roles
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled"
+                                      Color="Color.Tertiary"
+                                      FullWidth="true"
+                                      StartIcon="@Icons.Material.Filled.Security"
+                                      Href="/permissions">
+                                Manage Permissions
+                            </MudButton>
+                            <MudButton Variant="Variant.Filled"
+                                      Color="Color.Info"
+                                      FullWidth="true"
+                                      StartIcon="@Icons.Material.Filled.Settings"
+                                      Href="/settings">
+                                System Settings
+                            </MudButton>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+
+                <!-- Recent Activity Card -->
+                <MudItem xs="12" md="6">
+                    <MudPaper Elevation="2" Class="pa-4">
+                        <MudText Typo="Typo.h6" Class="mb-3">
+                            <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2" />
+                            Recent Activity
+                        </MudText>
+                        <MudDivider Class="mb-3" />
+                        <MudText Typo="Typo.body2" Color="Color.Secondary">
+                            No recent activity to display.
+                        </MudText>
+                    </MudPaper>
+                </MudItem>
+
+                <!-- Account Actions Card -->
+                <MudItem xs="12">
+                    <MudPaper Elevation="2" Class="pa-4">
+                        <MudText Typo="Typo.h6" Class="mb-3">
+                            <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Class="mr-2" />
+                            Account Actions
+                        </MudText>
+                        <MudDivider Class="mb-3" />
+                        <MudStack Row="true" Spacing="2">
+                            <MudButton Variant="Variant.Outlined"
+                                      Color="Color.Primary"
+                                      StartIcon="@Icons.Material.Filled.Key"
+                                      Href="/change-password">
+                                Change Password
+                            </MudButton>
+                            <MudButton Variant="Variant.Outlined"
+                                      Color="Color.Error"
+                                      StartIcon="@Icons.Material.Filled.Logout"
+                                      OnClick="HandleLogout">
+                                Logout
+                            </MudButton>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </Authorized>
+        <NotAuthorized>
+            <MudAlert Severity="Severity.Warning">
+                Please log in to access the admin portal.
+            </MudAlert>
+        </NotAuthorized>
+    </AuthorizeView>
+</MudContainer>
+
+@code {
+    private async Task HandleLogout()
+    {
+        try
+        {
+            await AuthService.LogoutAsync();
+            AuthStateProvider.MarkUserAsLoggedOut();
+
+            Snackbar.Add("You have been logged out successfully.", Severity.Info);
+
+            NavigationManager.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Logout error: {ex.Message}");
+            Snackbar.Add("An error occurred during logout.", Severity.Error);
+        }
+    }
+}

@@ -23,6 +23,8 @@ try
 
     app.UseHttpsRedirection();
 
+    app.UseCors("DevelopmentCors");
+
     app.UseAuthentication();
     app.UseAuthorization();
 
