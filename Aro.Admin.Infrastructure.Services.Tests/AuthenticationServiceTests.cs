@@ -223,8 +223,8 @@ public class AuthenticationServiceTests : TestBase
     public async Task Logout_WithInvalidRefreshToken_ShouldReturnFalse()
     {
         var userId = Guid.NewGuid();
-        var refreshToken = "invalid-refresh-token";
-        var accessTokenIdentifier = "access-token-identifier";
+        var refreshToken = "refresh-token";
+        var accessTokenIdentifier = "token-identifier";
         var accessTokenExpiry = DateTime.UtcNow.AddHours(1);
 
         mockRefreshTokenService.Setup(x => x.Revoke(userId, refreshToken, It.IsAny<CancellationToken>()))
@@ -244,7 +244,7 @@ public class AuthenticationServiceTests : TestBase
     {
         var userId = Guid.NewGuid();
         var refreshToken = "refresh-token";
-        var accessTokenIdentifier = "access-token-identifier";
+        var accessTokenIdentifier = "token-identifier";
         var accessTokenExpiry = DateTime.UtcNow.AddHours(1);
         var cancellationToken = new CancellationToken();
 
@@ -374,7 +374,7 @@ public class AuthenticationServiceTests : TestBase
     {
         var userId = Guid.NewGuid();
         var refreshToken = "refresh-token";
-        var accessTokenIdentifier = "access-token-identifier";
+        var accessTokenIdentifier = "token-identifier";
         var accessTokenExpiry = DateTime.UtcNow.AddHours(1);
 
         mockRefreshTokenService.Setup(x => x.Revoke(userId, refreshToken, It.IsAny<CancellationToken>()))
