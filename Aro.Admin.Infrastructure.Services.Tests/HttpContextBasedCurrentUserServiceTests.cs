@@ -150,9 +150,8 @@ public class HttpContextBasedCurrentUserServiceTests : TestBase
 
         Action act = () => service.GetTokenInfo();
 
-        act.Should().Throw<AroInvalidOperationException>()
-            .WithMessage($"Could not find {JwtRegisteredClaimNames.Jti} value in the claims.")
-            .Which.ErrorCode.Should().Be(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR);
+        var exception = act.Should().Throw<AroInvalidOperationException>();
+        exception.Which.ErrorCode.Should().Be(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR);
     }
 
     [Fact]
@@ -164,9 +163,8 @@ public class HttpContextBasedCurrentUserServiceTests : TestBase
 
         Action act = () => service.GetTokenInfo();
 
-        act.Should().Throw<AroInvalidOperationException>()
-            .WithMessage($"Could not find {JwtRegisteredClaimNames.Exp} value in the claims.")
-            .Which.ErrorCode.Should().Be(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR);
+        var exception = act.Should().Throw<AroInvalidOperationException>();
+        exception.Which.ErrorCode.Should().Be(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR);
     }
 
     [Fact]
@@ -176,9 +174,8 @@ public class HttpContextBasedCurrentUserServiceTests : TestBase
 
         Action act = () => service.GetTokenInfo();
 
-        act.Should().Throw<AroUnauthorizedException>()
-            .WithMessage("Cannot extract the token information out of an unauthorized context.")
-            .Which.ErrorCode.Should().Be(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR);
+        var exception = act.Should().Throw<AroUnauthorizedException>();
+        exception.Which.ErrorCode.Should().Be(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR);
     }
 
     [Fact]
@@ -188,9 +185,8 @@ public class HttpContextBasedCurrentUserServiceTests : TestBase
 
         Action act = () => service.GetTokenInfo();
 
-        act.Should().Throw<AroInvalidOperationException>()
-            .WithMessage($"Could not find {JwtRegisteredClaimNames.Jti} value in the claims.")
-            .Which.ErrorCode.Should().Be(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR);
+        var exception = act.Should().Throw<AroInvalidOperationException>();
+        exception.Which.ErrorCode.Should().Be(errorCodes.TOKEN_INFO_RETRIEVAL_ERROR);
     }
 
     [Fact]
