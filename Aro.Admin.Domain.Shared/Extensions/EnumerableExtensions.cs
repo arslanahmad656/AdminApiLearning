@@ -17,5 +17,5 @@ public static class EnumerableExtensions
     }
 
     public static IEnumerable<T> Merge<T>(this IEnumerable<T>? collection1, params T[] collection)
-        => collection1.Merge(collection);
+        => collection1.Merge((IEnumerable<T>?)collection);
 }
