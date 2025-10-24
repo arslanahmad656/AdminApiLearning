@@ -3,36 +3,28 @@ using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters.PasswordReset;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
+using Aro.Admin.Domain.Shared;
 using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Admin.Infrastructure.Repository.Repositories;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class EmailTemplateService(IRepositoryManager repositoryManager, ILogManager<EmailTemplateService> logger, ErrorCodes errorCodes) : IEmailTemplateService
+public partial class EmailTemplateService(IRepositoryManager repositoryManager, ILogManager<EmailTemplateService> logger, ErrorCodes errorCodes, SharedKeys sharedKeys) : IEmailTemplateService
 {
-    public async Task<EmailTemplateDto> GetByIdentifier(string identifier, CancellationToken cancellationToken = default)
+    public async Task<EmailTemplateDto> GetPasswordResetLinkEmail(string name, string resetUrl, int tokenExpiryMinutes, CancellationToken cancellationToken = default)
     {
-        logger.LogInfo("Retrieving email template by identifier: {Identifier}", identifier);
+        var rawTemplate = await GetByIdentifier(sharedKeys.PASSWORD_RESET_LINK_TEMPLATE, cancellationToken).ConfigureAwait(false);
+        var sb = new StringBuilder(rawTemplate.Body);
 
-        var template = await repositoryManager.EmailTemplateRepository
-            .GetByIdentifier(identifier)
-            .FirstOrDefaultAsync(cancellationToken);
+        sb.Replace("{{FirstName}}", name)
+            .Replace("{{ResetUrl}}", resetUrl)
+            .Replace("{{TokenExpiryMinutes}}", tokenExpiryMinutes.ToString());
 
-        if (template == null)
-        {
-            logger.LogWarn("Email template not found for identifier: {Identifier}", identifier);
-            throw new AroException(errorCodes.EMAIL_TEMPLATE_NOT_FOUND, $"Email template with identifier '{identifier}' not found.");
-        }
+        var finalTemplate = rawTemplate with { Body = sb.ToString() };
 
-        logger.LogInfo("Successfully retrieved email template for identifier: {Identifier}", identifier);
-
-        return new EmailTemplateDto(
-            template.Identifier,
-            template.Subject,
-            template.Body,
-            template.IsHTML
-        );
+        return finalTemplate;
     }
 
     public async Task<EmailTemplateDto> Add(EmailTemplateDto emailTemplate, CancellationToken cancellationToken = default)

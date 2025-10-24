@@ -9,4 +9,6 @@ public class SharedKeys
     public readonly string IS_DATABASE_SEEDED_AT_STARTUP = nameof(IS_DATABASE_SEEDED_AT_STARTUP);
 
     public readonly string JWT_CLAIM_ACTIVE = "active";
+
+    public readonly string PASSWORD_RESET_LINK_TEMPLATE = "PASSWORD_RESET_LINK_TEMPLATE";
 }

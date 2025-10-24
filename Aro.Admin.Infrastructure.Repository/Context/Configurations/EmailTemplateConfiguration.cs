@@ -28,7 +28,6 @@ public class EmailTemplateConfiguration : IEntityTypeConfiguration<EmailTemplate
             .HasColumnType("text");
 
         builder.Property(et => et.IsHTML)
-            .IsRequired()
-            .HasMaxLength(10);
+            .IsRequired();
     }
 }

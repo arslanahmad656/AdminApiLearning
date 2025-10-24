@@ -2,10 +2,13 @@ using Aro.Admin.Application.Mediator.PasswordReset.Commands;
 using Aro.Admin.Application.Mediator.PasswordReset.DTOs;
 using Aro.Admin.Application.Mediator.PasswordReset.Notifications;
 using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters.Email;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters.PasswordLink;
+using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Shared.Exceptions;
 using MediatR;
+using Microsoft.Extensions.Options;
 
 namespace Aro.Admin.Application.Mediator.PasswordReset.Handlers;
 
@@ -13,8 +16,12 @@ public class SendPasswordResetEmailLinkCommandHandler(
     IPasswordResetLinkService passwordResetLinkService,
     IEmailService emailService,
     ILogManager<SendPasswordResetEmailLinkCommandHandler> logger,
-    IMediator mediator) : IRequestHandler<SendPasswordResetEmailLinkCommand, bool>
+    IMediator mediator,
+    IEmailTemplateService emailTemplateService,
+    IUserService userService,
+    IOptionsSnapshot<PasswordResetSettings> passwordResetSettings) : IRequestHandler<SendPasswordResetEmailLinkCommand, bool>
 {
+    private readonly PasswordResetSettings passwordResetSettings = passwordResetSettings.Value;
     public async Task<bool> Handle(SendPasswordResetEmailLinkCommand request, CancellationToken cancellationToken)
     {
         try
@@ -22,26 +29,18 @@ public class SendPasswordResetEmailLinkCommandHandler(
             logger.LogInfo("Starting password reset email link generation for user {Email}", request.Data.Email);
 
             var linkParameters = new GenerateLinkParameters(request.Data.Email);
+            var user = await userService.GetUserByEmail(request.Data.Email, false, false, cancellationToken).ConfigureAwait(false);
             var resetLink = await passwordResetLinkService.GenerateLink(linkParameters, cancellationToken).ConfigureAwait(false);
 
             logger.LogInfo("Generated password reset link for user {Email}. Link={ResetLink}", request.Data.Email, resetLink);
 
+            var emailTemplate = await emailTemplateService.GetPasswordResetLinkEmail(user.DisplayName, resetLink.ToString(), passwordResetSettings.TokenExpiryMinutes, cancellationToken).ConfigureAwait(false);
+
             var emailParameters = new SendEmailParameters(
                 To: request.Data.Email,
-                Subject: "Password Reset Request",
-                Body: $@"
-                    <html>
-                    <body>
-                        <h2>Password Reset Request</h2>
-                        <p>You have requested to reset your password. Click the link below to reset your password:</p>
-                        <p><a href=""{resetLink}"">Reset Password</a></p>
-                        <p>If you did not request this password reset, please ignore this email.</p>
-                        <p>This link will expire in 30 minutes for security reasons.</p>
-                        <br>
-                        <p>Best regards,<br>Administration Team</p>
-                    </body>
-                    </html>",
-                IsHtml: true
+                Subject: emailTemplate.Subject,
+                Body: emailTemplate.Body,
+                IsHtml: emailTemplate.IsHtml
             );
 
             await emailService.SendEmail(emailParameters, cancellationToken).ConfigureAwait(false);
