@@ -12,18 +12,6 @@ namespace Aro.Admin.Presentation.Api.Controllers;
 [Route("api/password-reset")]
 public class PasswordResetController(IMediator mediator, ILogManager<PasswordResetController> logger) : ControllerBase
 {
-    //[HttpPost("generate-token")]
-    //[AllowAnonymous]
-    //public async Task<IActionResult> GeneratePasswordResetToken([FromBody] GeneratePasswordResetTokenModel model, CancellationToken cancellationToken)
-    //{
-    //    logger.LogDebug("Starting GeneratePasswordResetToken operation for email: {Email}", model.Email);
-
-    //    var response = await mediator.Send(new GeneratePasswordResetTokenCommand(new GeneratePasswordResetTokenRequest(model.Email)), cancellationToken).ConfigureAwait(false);
-
-    //    logger.LogDebug("Completed GeneratePasswordResetToken operation successfully");
-    //    return Ok(response);
-    //}
-
     [HttpPost("send-reset-link")]
     public async Task<IActionResult> SendPasswordResetLink([FromBody] SendPasswordResetLinkModel model, CancellationToken cancellationToken)
     {
