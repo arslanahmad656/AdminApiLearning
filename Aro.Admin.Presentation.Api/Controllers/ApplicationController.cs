@@ -16,17 +16,17 @@ namespace Aro.Admin.Presentation.Api.Controllers;
 [Route("api/app")]
 public class ApplicationController(IMediator mediator, ILogManager<ApplicationController> logger) : ControllerBase
 {
-    [HttpPost("reseed")]
-    [Permissions(PermissionCodes.SeedApplication)]
-    public async Task<IActionResult> Seed([FromBody] SeedModel model, CancellationToken cancellationToken)
-    {
-        logger.LogDebug("Starting Seed operation with FilePath: {FilePath}", model.FilePath);
+    //[HttpPost("reseed")]
+    //[Permissions(PermissionCodes.SeedApplication)]
+    //public async Task<IActionResult> Seed([FromBody] SeedModel model, CancellationToken cancellationToken)
+    //{
+    //    logger.LogDebug("Starting Seed operation with FilePath: {FilePath}", model.FilePath);
 
-        await mediator.Send(new SeedApplicationCommand(model.FilePath), cancellationToken).ConfigureAwait(false);
+    //    await mediator.Send(new SeedApplicationCommand(model.FilePath), cancellationToken).ConfigureAwait(false);
 
-        logger.LogDebug("Completed Seed operation successfully");
-        return Ok();
-    }
+    //    logger.LogDebug("Completed Seed operation successfully");
+    //    return Ok();
+    //}
 
     [HttpGet("isinitialized")]
     [Permissions(PermissionCodes.GetSystemSettings)]

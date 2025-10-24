@@ -3,11 +3,14 @@ using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters.PasswordLink;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Shared.Exceptions;
+using Microsoft.Extensions.Options;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class PasswordResetLinkGenerationService(IUserService userService, IRequestInterpretorService requestInterpretorService, IPasswordResetTokenService passwordResetTokenService, PasswordResetSettings passwordResetSettings, ErrorCodes errorCodes, ILogManager<PasswordResetLinkGenerationService> logger) : IPasswordResetLinkService
+public class PasswordResetLinkGenerationService(IUserService userService, IRequestInterpretorService requestInterpretorService, IPasswordResetTokenService passwordResetTokenService, IOptionsSnapshot<PasswordResetSettings> passwordResetSettings, ErrorCodes errorCodes, ILogManager<PasswordResetLinkGenerationService> logger) : IPasswordResetLinkService
 {
+    private readonly PasswordResetSettings passwordResetSettings = passwordResetSettings.Value;
+
     public async Task<Uri> GenerateLink(GenerateLinkParameters parameters, CancellationToken ct = default)
     {
 		try

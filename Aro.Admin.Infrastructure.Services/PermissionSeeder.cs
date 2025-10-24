@@ -7,15 +7,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class Seeder
+public class PermissionSeeder
 (
     IRepositoryManager repository,
     ISerializer serializer,
     ErrorCodes errorCodes,
     IAuthorizationService authorizationService,
-    ILogManager<Seeder> logger
+    ILogManager<PermissionSeeder> logger
 )
-: ISeeder
+: IPermissionSeeder
 {
     public async Task Seed(string jsonFile, CancellationToken cancellationToken = default)
     {

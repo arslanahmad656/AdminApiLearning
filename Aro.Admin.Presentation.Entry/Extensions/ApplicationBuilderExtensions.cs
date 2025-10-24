@@ -26,7 +26,7 @@ public static class ApplicationBuilderExtensions
         }
     }
 
-    public static async Task SeedDatabase(this IApplicationBuilder app, string jsonPath)
+    public static async Task SeedDatabase(this IApplicationBuilder app, string jsonPath, string emailTemplatesDirectory)
     {
         ISystemContext? systemContext = null;
 
@@ -53,7 +53,7 @@ public static class ApplicationBuilderExtensions
 
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            await mediator.Send(new SeedApplicationCommand(jsonPath));
+            await mediator.Send(new SeedApplicationCommand(jsonPath, emailTemplatesDirectory));
         }
         finally
         {

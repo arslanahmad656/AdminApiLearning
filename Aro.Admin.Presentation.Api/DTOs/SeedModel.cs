@@ -1,3 +1,3 @@
 ﻿namespace Aro.Admin.Presentation.Api.DTOs;
 
-public record SeedModel(string FilePath);
+//public record SeedModel(string FilePath, string EmailTemplatesFilePath);

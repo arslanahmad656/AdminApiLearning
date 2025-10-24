@@ -7,7 +7,8 @@ namespace Aro.Admin.Application.Mediator.Seed.Handlers;
 
 public class SeedApplicationCommandHandler
 (
-    ISeeder seedService,
+    IPermissionSeeder seedService,
+    IEmailTemplateSeeder emailTemplateSeeder,
     IMediator mediator
 )
 : IRequestHandler<SeedApplicationCommand>
@@ -15,6 +16,7 @@ public class SeedApplicationCommandHandler
     public async Task Handle(SeedApplicationCommand request, CancellationToken cancellationToken)
     {
         await seedService.Seed(request.JsonFilePath, cancellationToken).ConfigureAwait(false);
+        await emailTemplateSeeder.Seed(request.templatesDirectory, cancellationToken).ConfigureAwait(false);
 
         await mediator.Publish(new ApplicationSeededNotification(), cancellationToken).ConfigureAwait(false);
     }

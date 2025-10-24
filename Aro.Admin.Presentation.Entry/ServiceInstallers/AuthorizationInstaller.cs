@@ -11,6 +11,7 @@ public class AuthorizationInstaller : IServiceInstaller
         builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
         builder.Services.AddScoped<ISystemContext, SystemContext>();
         builder.Services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
+        builder.Services.AddScoped<IPasswordResetLinkService, PasswordResetLinkGenerationService>();
         builder.Services.AddAuthorization();
     }
 }
