@@ -18,6 +18,7 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
     private readonly Mock<IUserService> mockUserService;
     private readonly Mock<IRequestInterpretorService> mockRequestInterpretorService;
     private readonly Mock<IPasswordResetTokenService> mockPasswordResetTokenService;
+    private readonly Mock<ILogManager<PasswordResetLinkGenerationService>> mockLogger;
     private readonly PasswordResetSettings passwordResetSettings;
     private readonly ErrorCodes errorCodes;
     private readonly PasswordResetLinkGenerationService service;
@@ -27,6 +28,7 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
         mockUserService = new Mock<IUserService>();
         mockRequestInterpretorService = new Mock<IRequestInterpretorService>();
         mockPasswordResetTokenService = new Mock<IPasswordResetTokenService>();
+        mockLogger = new Mock<ILogManager<PasswordResetLinkGenerationService>>();
         errorCodes = new ErrorCodes();
         
         passwordResetSettings = new PasswordResetSettings
@@ -42,7 +44,8 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
             mockRequestInterpretorService.Object,
             mockPasswordResetTokenService.Object,
             passwordResetSettings,
-            errorCodes
+            errorCodes,
+            mockLogger.Object
         );
     }
 
@@ -82,6 +85,7 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
         result.AbsolutePath.Should().Be("/reset-password");
         result.Query.Should().Contain($"token={Uri.EscapeDataString(token)}");
         result.Query.Should().Contain($"email={Uri.EscapeDataString(email)}");
+
     }
 
     [Fact]
@@ -216,6 +220,7 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
         var exception = await action.Should().ThrowAsync<AroEmailException>();
         exception.Which.ErrorCode.Should().Be(errorCodes.EMAIL_LINK_GENERATION_ERROR);
         exception.Which.InnerException.Should().BeOfType<InvalidOperationException>();
+
     }
 
     [Fact]
@@ -352,7 +357,8 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
             mockRequestInterpretorService.Object,
             mockPasswordResetTokenService.Object,
             customSettings,
-            errorCodes
+            errorCodes,
+            mockLogger.Object
         );
 
         var email = "test@example.com";
@@ -406,7 +412,8 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
             mockRequestInterpretorService.Object,
             mockPasswordResetTokenService.Object,
             httpSettings,
-            errorCodes
+            errorCodes,
+            mockLogger.Object
         );
 
         var email = "test@example.com";
