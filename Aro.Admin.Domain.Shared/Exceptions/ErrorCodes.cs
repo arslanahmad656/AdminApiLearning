@@ -40,5 +40,6 @@ public class ErrorCodes
     #region [EMAIL]
     public readonly string EMAIL_SENDING_ERROR = nameof(EMAIL_SENDING_ERROR);
     public readonly string EMAIL_LINK_GENERATION_ERROR = nameof(EMAIL_LINK_GENERATION_ERROR);
+    public readonly string EMAIL_TEMPLATE_NOT_FOUND = nameof(EMAIL_TEMPLATE_NOT_FOUND);
     #endregion
 }

@@ -55,7 +55,7 @@ public class RequestInterpretorServiceTests : TestBase
     [Fact]
     public void ExtractUsername_WithNullHttpContext_ShouldReturnNull()
     {
-        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns((HttpContext?)null);
+        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns((HttpContext?)null!);
 
         var result = service.ExtractUsername();
 
@@ -65,7 +65,7 @@ public class RequestInterpretorServiceTests : TestBase
     [Fact]
     public void ExtractUsername_WithNullUser_ShouldReturnNull()
     {
-        mockHttpContext.Setup(x => x.User).Returns((ClaimsPrincipal?)null);
+        mockHttpContext.Setup(x => x.User).Returns((ClaimsPrincipal?)null!);
 
         var result = service.ExtractUsername();
 
@@ -177,7 +177,7 @@ public class RequestInterpretorServiceTests : TestBase
     [Fact]
     public void RetrieveIpAddress_WithNullHttpContext_ShouldReturnNull()
     {
-        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns((HttpContext?)null);
+        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns((HttpContext?)null!);
 
         var result = service.RetrieveIpAddress();
 
@@ -187,7 +187,7 @@ public class RequestInterpretorServiceTests : TestBase
     [Fact]
     public void RetrieveIpAddress_WithNullRequest_ShouldReturnNull()
     {
-        mockHttpContext.Setup(x => x.Request).Returns((HttpRequest?)null);
+        mockHttpContext.Setup(x => x.Request).Returns((HttpRequest?)null!);
 
         var result = service.RetrieveIpAddress();
 
@@ -197,7 +197,7 @@ public class RequestInterpretorServiceTests : TestBase
     [Fact]
     public void RetrieveIpAddress_WithNullConnection_ShouldReturnNull()
     {
-        mockHttpContext.Setup(x => x.Connection).Returns((ConnectionInfo?)null);
+        mockHttpContext.Setup(x => x.Connection).Returns((ConnectionInfo?)null!);
 
         var result = service.RetrieveIpAddress();
 
@@ -263,7 +263,7 @@ public class RequestInterpretorServiceTests : TestBase
     [Fact]
     public void GetUserAgent_WithNullHttpContext_ShouldReturnNull()
     {
-        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns((HttpContext?)null);
+        mockHttpContextAccessor.Setup(x => x.HttpContext).Returns((HttpContext?)null!);
 
         var result = service.GetUserAgent();
 
@@ -273,7 +273,7 @@ public class RequestInterpretorServiceTests : TestBase
     [Fact]
     public void GetUserAgent_WithNullRequest_ShouldReturnNull()
     {
-        mockHttpContext.Setup(x => x.Request).Returns((HttpRequest?)null);
+        mockHttpContext.Setup(x => x.Request).Returns((HttpRequest?)null!);
 
         var result = service.GetUserAgent();
 

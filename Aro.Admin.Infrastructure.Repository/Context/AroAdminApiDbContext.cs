@@ -35,6 +35,8 @@ public class AroAdminApiDbContext : DbContext
 
     public DbSet<RefreshToken> RefreshTokens { get; set; }
 
+    public DbSet<EmailTemplate> EmailTemplates { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 #if DEBUG

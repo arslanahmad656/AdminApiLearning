@@ -301,7 +301,7 @@ public class SeriLoggerTests : TestBase
     [Fact]
     public void LogDebug_WithNullParameters_ShouldNotThrow()
     {
-        Action act = () => seriLogger.LogDebug("Message with {Param}", (object?)null);
+        Action act = () => seriLogger.LogDebug("Message with {Param}", (object?)null!);
 
         act.Should().NotThrow();
     }
