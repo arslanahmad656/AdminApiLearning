@@ -36,4 +36,8 @@ public class ErrorCodes
     public readonly string PASSWORD_RESET_TOKEN_ALREADY_USED = nameof(PASSWORD_RESET_TOKEN_ALREADY_USED);
     public readonly string PASSWORD_RESET_TOKEN_INVALID = nameof(PASSWORD_RESET_TOKEN_INVALID);
     #endregion
+
+    #region [EMAIL]
+    public readonly string EMAIL_SENDING_ERROR = nameof(EMAIL_SENDING_ERROR);
+    #endregion
 }
