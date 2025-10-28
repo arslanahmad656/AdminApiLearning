@@ -14,7 +14,9 @@ namespace Aro.Admin.Presentation.Api.Controllers;
 
 [ApiController]
 [Route("api/app")]
+#pragma warning disable CS9113 // Parameter is unread.
 public class ApplicationController(IMediator mediator, ILogManager<ApplicationController> logger) : ControllerBase
+#pragma warning restore CS9113 // Parameter is unread.
 {
     //[HttpPost("reseed")]
     //[Permissions(PermissionCodes.SeedApplication)]
@@ -28,27 +30,27 @@ public class ApplicationController(IMediator mediator, ILogManager<ApplicationCo
     //    return Ok();
     //}
 
-    [HttpGet("isinitialized")]
-    [Permissions(PermissionCodes.GetSystemSettings)]
-    public async Task<IActionResult> IsApplicationInitialized(CancellationToken cancellationToken)
-    {
-        logger.LogDebug("Starting IsApplicationInitialized operation");
+    //[HttpGet("isinitialized")]
+    //[Permissions(PermissionCodes.GetSystemSettings)]
+    //public async Task<IActionResult> IsApplicationInitialized(CancellationToken cancellationToken)
+    //{
+    //    logger.LogDebug("Starting IsApplicationInitialized operation");
 
-        var response = await mediator.Send(new IsSystemInitializedQuery(), cancellationToken).ConfigureAwait(false);
+    //    var response = await mediator.Send(new IsSystemInitializedQuery(), cancellationToken).ConfigureAwait(false);
 
-        logger.LogDebug("Completed IsApplicationInitialized operation with result: {IsInitialized}", response);
-        return Ok(response);
-    }
+    //    logger.LogDebug("Completed IsApplicationInitialized operation with result: {IsInitialized}", response);
+    //    return Ok(response);
+    //}
 
-    [HttpPost("initialize")]
-    [AllowAnonymous]
-    public async Task<IActionResult> InitializeSystem([FromBody] InitializeApplicationModel model, CancellationToken cancellationToken)
-    {
-        logger.LogDebug("Starting InitializeSystem operation for email: {Email}, displayName: {DisplayName}", model.Email, model.DisplayName);
+    //[HttpPost("initialize")]
+    //[AllowAnonymous]
+    //public async Task<IActionResult> InitializeSystem([FromBody] InitializeApplicationModel model, CancellationToken cancellationToken)
+    //{
+    //    logger.LogDebug("Starting InitializeSystem operation for email: {Email}, displayName: {DisplayName}", model.Email, model.DisplayName);
 
-        var response = await mediator.Send(new InitializeSystemCommand(new(model.Email, model.Password, model.DisplayName, model.BootstrapPassword)), cancellationToken).ConfigureAwait(false);
+    //    var response = await mediator.Send(new InitializeSystemCommand(new(model.Email, model.Password, model.DisplayName, model.BootstrapPassword)), cancellationToken).ConfigureAwait(false);
 
-        logger.LogDebug("Completed InitializeSystem operation successfully");
-        return Ok(response);
-    }
+    //    logger.LogDebug("Completed InitializeSystem operation successfully");
+    //    return Ok(response);
+    //}
 }

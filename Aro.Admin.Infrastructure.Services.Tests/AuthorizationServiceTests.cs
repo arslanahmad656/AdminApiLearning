@@ -1,4 +1,5 @@
 using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.SystemContext;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Admin.Tests.Common;
@@ -63,7 +64,7 @@ public class AuthorizationServiceTests : TestBase
     {
         var userId = Guid.NewGuid();
         var permissionCode = "test.permission";
-        mockSystemContext.Setup(x => x.IsSystemContext).Returns(true);
+        mockSystemContext.Setup(x => x.IsEnabled).Returns(true);
 
         await service.EnsureUserHasPermission(userId, permissionCode, CancellationToken.None);
 
@@ -76,7 +77,7 @@ public class AuthorizationServiceTests : TestBase
     {
         var userId = Guid.NewGuid();
         var permissionCode = "test.permission";
-        mockSystemContext.Setup(x => x.IsSystemContext).Returns(true);
+        mockSystemContext.Setup(x => x.IsEnabled).Returns(true);
 
         var result = await service.UserHasPermission(userId, permissionCode, CancellationToken.None);
 
@@ -89,7 +90,7 @@ public class AuthorizationServiceTests : TestBase
     public async Task CurrentUserHasPermissions_WithSystemContext_ShouldReturnTrue()
     {
         var permissions = new[] { "test.permission1", "test.permission2" };
-        mockSystemContext.Setup(x => x.IsSystemContext).Returns(true);
+        mockSystemContext.Setup(x => x.IsEnabled).Returns(true);
 
         var result = await service.CurrentUserHasPermissions(permissions, CancellationToken.None);
 
@@ -102,7 +103,7 @@ public class AuthorizationServiceTests : TestBase
     public async Task CurrentUserHasPermissions_WithUnauthenticatedUser_ShouldReturnFalse()
     {
         var permissions = new[] { "test.permission1", "test.permission2" };
-        mockSystemContext.Setup(x => x.IsSystemContext).Returns(false);
+        mockSystemContext.Setup(x => x.IsEnabled).Returns(false);
         mockCurrentUserService.Setup(x => x.IsAuthenticated()).Returns(false);
 
         var result = await service.CurrentUserHasPermissions(permissions, CancellationToken.None);
@@ -115,7 +116,7 @@ public class AuthorizationServiceTests : TestBase
     public async Task CurrentUserHasPermissions_WithNoUserId_ShouldReturnFalse()
     {
         var permissions = new[] { "test.permission1", "test.permission2" };
-        mockSystemContext.Setup(x => x.IsSystemContext).Returns(false);
+        mockSystemContext.Setup(x => x.IsEnabled).Returns(false);
         mockCurrentUserService.Setup(x => x.IsAuthenticated()).Returns(true);
         mockCurrentUserService.Setup(x => x.GetCurrentUserId()).Returns((Guid?)null);
 
@@ -129,7 +130,7 @@ public class AuthorizationServiceTests : TestBase
     public async Task CurrentUserHasPermissions_WithEmptyPermissionsList_ShouldReturnTrue()
     {
         var permissions = new string[0];
-        mockSystemContext.Setup(x => x.IsSystemContext).Returns(false);
+        mockSystemContext.Setup(x => x.IsEnabled).Returns(false);
         mockCurrentUserService.Setup(x => x.IsAuthenticated()).Returns(true);
         var userId = Guid.NewGuid();
         mockCurrentUserService.Setup(x => x.GetCurrentUserId()).Returns(userId);
@@ -144,7 +145,7 @@ public class AuthorizationServiceTests : TestBase
     public async Task EnsureCurrentUserPermissions_WithSystemContext_ShouldReturnImmediately()
     {
         var permissions = new[] { "test.permission1", "test.permission2" };
-        mockSystemContext.Setup(x => x.IsSystemContext).Returns(true);
+        mockSystemContext.Setup(x => x.IsEnabled).Returns(true);
 
         await service.EnsureCurrentUserPermissions(permissions, CancellationToken.None);
 
@@ -156,7 +157,7 @@ public class AuthorizationServiceTests : TestBase
     public async Task EnsureCurrentUserPermissions_WithUnauthenticatedUser_ShouldThrowAroException()
     {
         var permissions = new[] { "test.permission1", "test.permission2" };
-        mockSystemContext.Setup(x => x.IsSystemContext).Returns(false);
+        mockSystemContext.Setup(x => x.IsEnabled).Returns(false);
         mockCurrentUserService.Setup(x => x.IsAuthenticated()).Returns(false);
 
         Func<Task> act = async () => await service.EnsureCurrentUserPermissions(permissions, CancellationToken.None);
@@ -171,7 +172,7 @@ public class AuthorizationServiceTests : TestBase
     public async Task EnsureCurrentUserPermissions_WithNoUserId_ShouldThrowAroException()
     {
         var permissions = new[] { "test.permission1", "test.permission2" };
-        mockSystemContext.Setup(x => x.IsSystemContext).Returns(false);
+        mockSystemContext.Setup(x => x.IsEnabled).Returns(false);
         mockCurrentUserService.Setup(x => x.IsAuthenticated()).Returns(true);
         mockCurrentUserService.Setup(x => x.GetCurrentUserId()).Returns((Guid?)null);
 
@@ -187,7 +188,7 @@ public class AuthorizationServiceTests : TestBase
     public async Task EnsureCurrentUserPermissions_WithEmptyPermissionsList_ShouldNotThrow()
     {
         var permissions = Array.Empty<string>();
-        mockSystemContext.Setup(x => x.IsSystemContext).Returns(false);
+        mockSystemContext.Setup(x => x.IsEnabled).Returns(false);
         mockCurrentUserService.Setup(x => x.IsAuthenticated()).Returns(true);
         var userId = Guid.NewGuid();
         mockCurrentUserService.Setup(x => x.GetCurrentUserId()).Returns(userId);

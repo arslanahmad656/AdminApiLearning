@@ -13,6 +13,7 @@ try
 
     await app.MigrateDatabase().ConfigureAwait(false);
     await app.SeedDatabase(Path.Combine(@"AppData\PemissionSeed.json"), @"AppData\EmailTemplates").ConfigureAwait(false);
+    await app.CreateBootstrapUser().ConfigureAwait(false);
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

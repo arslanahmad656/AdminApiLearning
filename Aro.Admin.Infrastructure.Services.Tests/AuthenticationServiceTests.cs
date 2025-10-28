@@ -1,6 +1,7 @@
 using Aro.Admin.Application.Services;
 using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.DTOs.ServiceResponses;
+using Aro.Admin.Application.Services.SystemContext;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared.Exceptions;
@@ -24,7 +25,7 @@ public class AuthenticationServiceTests : TestBase
     private readonly Mock<IActiveAccessTokenService> mockActiveAccessTokenService;
     private readonly Mock<ILogManager<AuthenticationService>> mockLogger;
     private readonly Mock<ICurrentUserService> mockCurrentUserService;
-    private readonly Mock<ISystemContext> mockSystemContext;
+    private readonly Mock<ISystemContextFactory> mockSystemContext;
     private readonly ErrorCodes errorCodes;
     private readonly AuthenticationService service;
 
@@ -41,7 +42,7 @@ public class AuthenticationServiceTests : TestBase
         mockActiveAccessTokenService = new Mock<IActiveAccessTokenService>();
         mockLogger = new Mock<ILogManager<AuthenticationService>>();
         mockCurrentUserService = new Mock<ICurrentUserService>();
-        mockSystemContext = new Mock<ISystemContext>();
+        mockSystemContext = new Mock<ISystemContextFactory>();
         errorCodes = new ErrorCodes();
 
         mockRepositoryManager.Setup(x => x.RefreshTokenRepository).Returns(mockRefreshTokenRepository.Object);
@@ -107,8 +108,6 @@ public class AuthenticationServiceTests : TestBase
         result.RefreshTokenExpiry.Should().Be(refreshTokenExpiry);
         result.AccessTokenIdentifier.Should().Be(accessTokenIdentifier);
 
-        mockSystemContext.VerifySet(x => x.IsSystemContext = true, Times.Once);
-        mockSystemContext.VerifySet(x => x.IsSystemContext = false, Times.Once);
         mockRefreshTokenRepository.Verify(x => x.Create(It.IsAny<Domain.Entities.RefreshToken>(), It.IsAny<CancellationToken>()), Times.Once);
         mockRepositoryManager.Verify(x => x.SaveChanges(It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -132,8 +131,6 @@ public class AuthenticationServiceTests : TestBase
         await act.Should().ThrowAsync<AroException>()
             .WithMessage($"Invalid password for user {email}.");
 
-        mockSystemContext.VerifySet(x => x.IsSystemContext = true, Times.Once);
-        mockSystemContext.VerifySet(x => x.IsSystemContext = false, Times.Once);
         mockLogger.Verify(x => x.LogWarn("Authentication failed for email: {Email} - invalid password", email), Times.Once);
     }
 
@@ -161,9 +158,6 @@ public class AuthenticationServiceTests : TestBase
         mockHasher.Setup(x => x.Hash(It.IsAny<string>())).Returns("hashed-refresh-token");
 
         await service.Authenticate(email, password);
-
-        mockSystemContext.VerifySet(x => x.IsSystemContext = true, Times.Never);
-        mockSystemContext.VerifySet(x => x.IsSystemContext = false, Times.Once);
     }
 
     [Fact]

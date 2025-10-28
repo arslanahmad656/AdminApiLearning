@@ -24,16 +24,18 @@ public class MailKitEmailServiceTests : TestBase
         mockLogger = new Mock<ILogManager<MailKitEmailService>>();
         errorCodes = new ErrorCodes();
 
-        var emailSettings = new EmailSettings(
-            "smtp.example.com",
-            587,
-            false,
-            true,
-            "test@example.com",
-            "password",
-            "Test Sender",
-            "test@example.com"
-        );
+        var emailSettings = new EmailSettings
+        {
+            Host = "smtp.example.com",
+            Port = 587,
+            UseSsl = false,
+            UseStartTls = true,
+            UserName = "test@example.com",
+            Password = "password",
+            FromName = "Test Sender",
+            FromEmail = "test@example.com"
+        };
+
         mockEmailSettings.Setup(x => x.Value).Returns(emailSettings);
 
         service = new MailKitEmailService(mockEmailSettings.Object, mockLogger.Object, errorCodes);
@@ -323,16 +325,18 @@ public class MailKitEmailServiceTests : TestBase
     [Fact]
     public async Task SendEmail_WithInvalidHost_ShouldLogErrorAndThrowAroEmailException()
     {
-        var emailSettings = new EmailSettings(
-            "invalid-host",
-            587,
-            false,
-            true,
-            "test@example.com",
-            "password",
-            "Test Sender",
-            "test@example.com"
-        );
+        var emailSettings = new EmailSettings
+        {
+            Host = "invalid-host",
+            Port = 587,
+            UseSsl = false,
+            UseStartTls = true,
+            UserName = "test@example.com",
+            Password = "password",
+            FromName = "Test Sender",
+            FromEmail = "test@example.com"
+        };
+
         mockEmailSettings.Setup(x => x.Value).Returns(emailSettings);
 
         var parameters = new SendEmailParameters(
@@ -353,16 +357,18 @@ public class MailKitEmailServiceTests : TestBase
     [Fact]
     public async Task SendEmail_WithInvalidPort_ShouldLogErrorAndThrowAroEmailException()
     {
-        var emailSettings = new EmailSettings(
-            "smtp.example.com",
-            -1,
-            false,
-            true,
-            "test@example.com",
-            "password",
-            "Test Sender",
-            "test@example.com"
-        );
+        var emailSettings = new EmailSettings
+        {
+            Host = "smtp.example.com",
+            Port = -1,
+            UseSsl = false,
+            UseStartTls = true,
+            UserName = "test@example.com",
+            Password = "password",
+            FromName = "Test Sender",
+            FromEmail = "test@example.com"
+        };
+
         mockEmailSettings.Setup(x => x.Value).Returns(emailSettings);
 
         var parameters = new SendEmailParameters(
@@ -383,16 +389,18 @@ public class MailKitEmailServiceTests : TestBase
     [Fact]
     public async Task SendEmail_WithInvalidCredentials_ShouldLogErrorAndThrowAroEmailException()
     {
-        var emailSettings = new EmailSettings(
-            "smtp.example.com",
-            587,
-            false,
-            true,
-            "invalid-user",
-            "invalid-password",
-            "Test Sender",
-            "test@example.com"
-        );
+        var emailSettings = new EmailSettings
+        {
+            Host = "smtp.example.com",
+            Port = 587,
+            UseSsl = false,
+            UseStartTls = true,
+            UserName = "invalid-user",
+            Password = "invalid-password",
+            FromName = "Test Sender",
+            FromEmail = "test@example.com"
+        };
+
         mockEmailSettings.Setup(x => x.Value).Returns(emailSettings);
 
         var parameters = new SendEmailParameters(
@@ -413,16 +421,18 @@ public class MailKitEmailServiceTests : TestBase
     [Fact]
     public async Task SendEmail_WithNetworkException_ShouldLogErrorAndThrowAroEmailException()
     {
-        var emailSettings = new EmailSettings(
-            "non-existent-host",
-            587,
-            false,
-            true,
-            "test@example.com",
-            "password",
-            "Test Sender",
-            "test@example.com"
-        );
+        var emailSettings = new EmailSettings
+        {
+            Host = "non-existent-host",
+            Port = 587,
+            UseSsl = false,
+            UseStartTls = true,
+            UserName = "test@example.com",
+            Password = "password",
+            FromName = "Test Sender",
+            FromEmail = "test@example.com"
+        };
+
         mockEmailSettings.Setup(x => x.Value).Returns(emailSettings);
 
         var parameters = new SendEmailParameters(
@@ -443,16 +453,18 @@ public class MailKitEmailServiceTests : TestBase
     [Fact]
     public async Task SendEmail_WithGenericException_ShouldLogErrorAndThrowAroEmailException()
     {
-        var emailSettings = new EmailSettings(
-            "smtp.example.com",
-            587,
-            false,
-            true,
-            "test@example.com",
-            "password",
-            "Test Sender",
-            "test@example.com"
-        );
+        var emailSettings = new EmailSettings
+        {
+            Host = "smtp.example.com",
+            Port = 587,
+            UseSsl = false,
+            UseStartTls = true,
+            UserName = "test@example.com",
+            Password = "password",
+            FromName = "Test Sender",
+            FromEmail = "test@example.com"
+        };
+
         mockEmailSettings.Setup(x => x.Value).Returns(emailSettings);
 
         var parameters = new SendEmailParameters(

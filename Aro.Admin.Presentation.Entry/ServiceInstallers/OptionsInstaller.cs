@@ -12,5 +12,6 @@ public class OptionsInstaller : IServiceInstaller
         builder.Services.Configure<LoggingSettings>(builder.Configuration.GetSection("LoggingSettings"));
         builder.Services.Configure<PasswordResetSettings>(builder.Configuration.GetSection("PasswordResetSettings"));
         builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+        builder.Services.Configure<BootstrapUserSettings>(builder.Configuration.GetSection("BootstrapUser"));
     }
 }
