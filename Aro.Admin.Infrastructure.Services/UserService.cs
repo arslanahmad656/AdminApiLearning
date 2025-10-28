@@ -130,7 +130,7 @@ public partial class UserService(IRepositoryManager repository, IHasher password
         logger.LogDebug("Starting {MethodName}", nameof(ResetPassword));
         logger.LogDebug("Resetting password for user: {UserId}", userId);
 
-        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.ResetPassword], cancellationToken);
+        //await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.ResetPassword], cancellationToken); // reset password is going to be anonymous- token validation is the validation
         logger.LogDebug("Authorization verified for password reset");
 
         var userEntity = await userRepository.GetById(userId)

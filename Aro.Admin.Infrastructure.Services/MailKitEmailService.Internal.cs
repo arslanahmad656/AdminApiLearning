@@ -11,7 +11,7 @@ public partial class MailKitEmailService
 
         msg.From.Add(new MailboxAddress(emailSettings.FromName, emailSettings.FromEmail));
 
-        AddMailbox(msg.To, []);
+        AddMailbox(msg.To, [parameters.To]);
         AddMailbox(msg.Cc, parameters.Cc);
         AddMailbox(msg.Bcc, parameters.Bcc);
 

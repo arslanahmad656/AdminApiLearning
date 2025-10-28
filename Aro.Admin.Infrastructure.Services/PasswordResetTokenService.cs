@@ -67,7 +67,7 @@ public partial class PasswordResetTokenService(
                 parameters.UserId, tokenEntity.Id, expiry);
 
             logger.LogDebug("Completed {MethodName}", nameof(GenerateToken));
-            return rawToken;
+            return tokenHash;
         }
         catch (Exception ex)
         {
@@ -76,15 +76,14 @@ public partial class PasswordResetTokenService(
         }
     }
 
-    public async Task<ValidateTokenResult> ValidateToken(string rawToken, CancellationToken ct = default)
+    public async Task<ValidateTokenResult> ValidateToken(string tokenHash, CancellationToken ct = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(ValidateToken));
         logger.LogDebug("Validating password reset token");
 
         try
         {
-            var tokenHash = hasher.Hash(rawToken);
-            logger.LogDebug("Generated token hash for validation");
+            logger.LogDebug("Using provided token hash for validation");
 
             var query = passwordResetTokenRepo.GetActiveTokenByTokenHash(tokenHash);
             var tokenEntity = await query
@@ -101,43 +100,15 @@ public partial class PasswordResetTokenService(
             logger.LogDebug("Found password reset token entity, tokenId: {TokenId}, userId: {UserId}, isUsed: {IsUsed}, expiry: {Expiry}", 
                 tokenEntity.Id, tokenEntity.UserId, tokenEntity.IsUsed, tokenEntity.Expiry);
 
-            // Try to extract context from token for additional validation
-            var tokenContext = ExtractTokenContext(rawToken);
-            Guid userId;
-            string ipAddress;
-            string userAgent;
-            DateTime timestamp;
-
-            if (tokenContext != null)
-            {
-                var (contextUserId, contextIpAddress, contextUserAgent, contextTimestamp) = tokenContext.Value;
-                logger.LogDebug("Extracted token context - UserId: {UserId}, IP: {IpAddress}, UserAgent: {UserAgent}, Timestamp: {Timestamp}", 
-                    contextUserId, contextIpAddress, contextUserAgent, contextTimestamp);
-
-                // Validate that the token belongs to the expected user
-                if (tokenEntity.UserId != contextUserId)
-                {
-                    logger.LogWarn("Password reset token user mismatch - expected: {ExpectedUserId}, actual: {ActualUserId}", 
-                        contextUserId, tokenEntity.UserId);
-                    logger.LogDebug("Completed {MethodName}", nameof(ValidateToken));
-                    return new ValidateTokenResult(false, contextUserId, contextIpAddress, contextUserAgent, contextTimestamp);
-                }
-
-                // Use context data for result
-                userId = contextUserId;
-                ipAddress = contextIpAddress;
-                userAgent = contextUserAgent;
-                timestamp = contextTimestamp;
-            }
-            else
-            {
-                logger.LogDebug("Token context could not be extracted (fallback token), using entity data");
-                // For fallback tokens, use data from the token entity
-                userId = tokenEntity.UserId;
-                ipAddress = tokenEntity.RequestIP;
-                userAgent = tokenEntity.UserAgent ?? string.Empty;
-                timestamp = tokenEntity.CreatedAt;
-            }
+            // Since we're working with hashes, we can't extract context from the token
+            // Use data from the token entity instead
+            var userId = tokenEntity.UserId;
+            var ipAddress = tokenEntity.RequestIP;
+            var userAgent = tokenEntity.UserAgent ?? string.Empty;
+            var timestamp = tokenEntity.CreatedAt;
+            
+            logger.LogDebug("Using token entity data - UserId: {UserId}, IP: {IpAddress}, UserAgent: {UserAgent}, Timestamp: {Timestamp}", 
+                userId, ipAddress, userAgent, timestamp);
 
             // Check if token is already used
             if (tokenEntity.IsUsed)
@@ -171,15 +142,14 @@ public partial class PasswordResetTokenService(
         }
     }
 
-    public async Task MarkTokenUsed(string rawToken, CancellationToken ct = default)
+    public async Task MarkTokenUsed(string tokenHash, CancellationToken ct = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(MarkTokenUsed));
         logger.LogDebug("Marking password reset token as used");
 
         try
         {
-            var tokenHash = hasher.Hash(rawToken);
-            logger.LogDebug("Generated token hash for marking as used");
+            logger.LogDebug("Using provided token hash for marking as used");
 
             var query = passwordResetTokenRepo.GetActiveTokenByTokenHash(tokenHash);
             var tokenEntity = await query
