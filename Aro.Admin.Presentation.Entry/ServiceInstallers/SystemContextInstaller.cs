@@ -8,8 +8,10 @@ public class SystemContextInstaller : IServiceInstaller
 {
     public void Install(WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<ISystemContext, SystemContext>();
-        builder.Services.AddScoped<ISystemContextEnabler, SystemContext>();
+        builder.Services.AddScoped<SystemContextState>();
+        builder.Services.AddScoped<ISystemContext>(sp => sp.GetRequiredService<SystemContextState>());
+        builder.Services.AddScoped<ISystemContextEnabler, SystemContextEnabler>();
         builder.Services.AddScoped<ISystemContextFactory, SystemContextFactory>();
+
     }
 }
