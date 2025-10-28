@@ -83,19 +83,6 @@ public partial class PasswordResetTokenService(
 
         try
         {
-            // Extract context from token
-            var tokenContext = ExtractTokenContext(rawToken);
-            if (tokenContext == null)
-            {
-                logger.LogWarn("Password reset token context could not be extracted");
-                logger.LogDebug("Completed {MethodName}", nameof(ValidateToken));
-                return new ValidateTokenResult(false, null, null, null, null);
-            }
-
-            var (userId, ipAddress, userAgent, timestamp) = tokenContext.Value;
-            logger.LogDebug("Extracted token context - UserId: {UserId}, IP: {IpAddress}, UserAgent: {UserAgent}, Timestamp: {Timestamp}", 
-                userId, ipAddress, userAgent, timestamp);
-
             var tokenHash = hasher.Hash(rawToken);
             logger.LogDebug("Generated token hash for validation");
 
@@ -108,20 +95,49 @@ public partial class PasswordResetTokenService(
             {
                 logger.LogWarn("Password reset token not found or invalid");
                 logger.LogDebug("Completed {MethodName}", nameof(ValidateToken));
-                return new ValidateTokenResult(false, userId, ipAddress, userAgent, timestamp);
-            }
-
-            // Validate that the token belongs to the expected user
-            if (tokenEntity.UserId != userId)
-            {
-                logger.LogWarn("Password reset token user mismatch - expected: {ExpectedUserId}, actual: {ActualUserId}", 
-                    userId, tokenEntity.UserId);
-                logger.LogDebug("Completed {MethodName}", nameof(ValidateToken));
-                return new ValidateTokenResult(false, userId, ipAddress, userAgent, timestamp);
+                return new ValidateTokenResult(false, null, null, null, null);
             }
 
             logger.LogDebug("Found password reset token entity, tokenId: {TokenId}, userId: {UserId}, isUsed: {IsUsed}, expiry: {Expiry}", 
                 tokenEntity.Id, tokenEntity.UserId, tokenEntity.IsUsed, tokenEntity.Expiry);
+
+            // Try to extract context from token for additional validation
+            var tokenContext = ExtractTokenContext(rawToken);
+            Guid userId;
+            string ipAddress;
+            string userAgent;
+            DateTime timestamp;
+
+            if (tokenContext != null)
+            {
+                var (contextUserId, contextIpAddress, contextUserAgent, contextTimestamp) = tokenContext.Value;
+                logger.LogDebug("Extracted token context - UserId: {UserId}, IP: {IpAddress}, UserAgent: {UserAgent}, Timestamp: {Timestamp}", 
+                    contextUserId, contextIpAddress, contextUserAgent, contextTimestamp);
+
+                // Validate that the token belongs to the expected user
+                if (tokenEntity.UserId != contextUserId)
+                {
+                    logger.LogWarn("Password reset token user mismatch - expected: {ExpectedUserId}, actual: {ActualUserId}", 
+                        contextUserId, tokenEntity.UserId);
+                    logger.LogDebug("Completed {MethodName}", nameof(ValidateToken));
+                    return new ValidateTokenResult(false, contextUserId, contextIpAddress, contextUserAgent, contextTimestamp);
+                }
+
+                // Use context data for result
+                userId = contextUserId;
+                ipAddress = contextIpAddress;
+                userAgent = contextUserAgent;
+                timestamp = contextTimestamp;
+            }
+            else
+            {
+                logger.LogDebug("Token context could not be extracted (fallback token), using entity data");
+                // For fallback tokens, use data from the token entity
+                userId = tokenEntity.UserId;
+                ipAddress = tokenEntity.RequestIP;
+                userAgent = tokenEntity.UserAgent ?? string.Empty;
+                timestamp = tokenEntity.CreatedAt;
+            }
 
             // Check if token is already used
             if (tokenEntity.IsUsed)
