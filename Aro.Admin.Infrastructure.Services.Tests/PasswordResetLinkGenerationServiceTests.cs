@@ -8,6 +8,7 @@ using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Admin.Tests.Common;
 using AutoFixture;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Moq;
 using Xunit;
 
@@ -19,7 +20,7 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
     private readonly Mock<IRequestInterpretorService> mockRequestInterpretorService;
     private readonly Mock<IPasswordResetTokenService> mockPasswordResetTokenService;
     private readonly Mock<ILogManager<PasswordResetLinkGenerationService>> mockLogger;
-    private readonly PasswordResetSettings passwordResetSettings;
+    private readonly Mock<IOptionsSnapshot<PasswordResetSettings>> mockPasswordResetSettings;
     private readonly ErrorCodes errorCodes;
     private readonly PasswordResetLinkGenerationService service;
 
@@ -31,19 +32,22 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
         mockLogger = new Mock<ILogManager<PasswordResetLinkGenerationService>>();
         errorCodes = new ErrorCodes();
         
-        passwordResetSettings = new PasswordResetSettings
+        var passwordResetSettings = new PasswordResetSettings
         {
             TokenExpiryMinutes = 30,
             TokenLength = 32,
             EnforceSameIPandUserAgentForTokenUsage = true,
             FrontendResetPasswordUrl = "https://example.com/reset-password"
         };
+        
+        mockPasswordResetSettings = new Mock<IOptionsSnapshot<PasswordResetSettings>>();
+        mockPasswordResetSettings.Setup(x => x.Value).Returns(passwordResetSettings);
 
         service = new PasswordResetLinkGenerationService(
             mockUserService.Object,
             mockRequestInterpretorService.Object,
             mockPasswordResetTokenService.Object,
-            passwordResetSettings,
+            mockPasswordResetSettings.Object,
             errorCodes,
             mockLogger.Object
         );
@@ -352,11 +356,14 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
             FrontendResetPasswordUrl = "https://custom.example.com/auth/reset"
         };
 
+        var mockCustomSettings = new Mock<IOptionsSnapshot<PasswordResetSettings>>();
+        mockCustomSettings.Setup(x => x.Value).Returns(customSettings);
+        
         var customService = new PasswordResetLinkGenerationService(
             mockUserService.Object,
             mockRequestInterpretorService.Object,
             mockPasswordResetTokenService.Object,
-            customSettings,
+            mockCustomSettings.Object,
             errorCodes,
             mockLogger.Object
         );
@@ -407,11 +414,14 @@ public class PasswordResetLinkGenerationServiceTests : TestBase
             FrontendResetPasswordUrl = "http://localhost:3000/reset"
         };
 
+        var mockHttpSettings = new Mock<IOptionsSnapshot<PasswordResetSettings>>();
+        mockHttpSettings.Setup(x => x.Value).Returns(httpSettings);
+        
         var httpService = new PasswordResetLinkGenerationService(
             mockUserService.Object,
             mockRequestInterpretorService.Object,
             mockPasswordResetTokenService.Object,
-            httpSettings,
+            mockHttpSettings.Object,
             errorCodes,
             mockLogger.Object
         );
