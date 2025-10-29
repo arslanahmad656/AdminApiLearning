@@ -3,4 +3,4 @@ using MediatR;
 
 namespace Aro.Admin.Application.Mediator.PasswordReset.Commands;
 
-public record GeneratePasswordResetTokenCommand(GeneratePasswordResetTokenRequest Data) : IRequest<GeneratePasswordResetTokenResponse>;
+//public record GeneratePasswordResetTokenCommand(GeneratePasswordResetTokenRequest Data) : IRequest<GeneratePasswordResetTokenResponse>;

@@ -1,3 +1,3 @@
-namespace Aro.Admin.Application.Mediator.PasswordReset.DTOs;
+//namespace Aro.Admin.Application.Mediator.PasswordReset.DTOs;
 
-public record ValidatePasswordResetTokenRequest(string Token);
+//public record ValidatePasswordResetTokenRequest(string Token);

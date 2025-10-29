@@ -1,3 +1,3 @@
-namespace Aro.Admin.Application.Mediator.PasswordReset.DTOs;
+//namespace Aro.Admin.Application.Mediator.PasswordReset.DTOs;
 
-public record ValidatePasswordResetTokenResponse(bool IsValid, Guid? UserId);
+//public record ValidatePasswordResetTokenResponse(bool IsValid, Guid? UserId);

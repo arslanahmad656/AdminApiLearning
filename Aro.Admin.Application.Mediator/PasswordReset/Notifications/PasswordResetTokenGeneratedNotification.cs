@@ -1,6 +1,6 @@
-using Aro.Admin.Application.Mediator.PasswordReset.DTOs;
-using MediatR;
+//using Aro.Admin.Application.Mediator.PasswordReset.DTOs;
+//using MediatR;
 
-namespace Aro.Admin.Application.Mediator.PasswordReset.Notifications;
+//namespace Aro.Admin.Application.Mediator.PasswordReset.Notifications;
 
-public record PasswordResetTokenGeneratedNotification(PasswordResetTokenGeneratedNotificationData Data) : INotification;
+//public record PasswordResetTokenGeneratedNotification(PasswordResetTokenGeneratedNotificationData Data) : INotification;
