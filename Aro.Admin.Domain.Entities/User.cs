@@ -13,4 +13,5 @@ public class User : IEntity
     public ICollection<UserRole> UserRoles { get; set; }
     public ICollection<RefreshToken> RefreshTokens { get; set; }
     public ICollection<PasswordResetToken> PasswordResetTokens { get; set; }
+    public ICollection<PasswordHistory> PasswordHistories { get; set; }
 }

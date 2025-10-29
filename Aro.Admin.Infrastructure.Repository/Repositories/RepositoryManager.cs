@@ -16,6 +16,7 @@ public class RepositoryManager(AroAdminApiDbContext dbContext) : IRepositoryMana
     private readonly Lazy<RefreshTokenRepository> refreshTokenRepository = new(() => new RefreshTokenRepository(dbContext));
     private readonly Lazy<PasswordResetTokenRepository> passwordResetTokenRepository = new(() => new PasswordResetTokenRepository(dbContext));
     private readonly Lazy<EmailTemplateRepository> emailTemplateRepository = new(() => new EmailTemplateRepository(dbContext));
+    private readonly Lazy<PasswordHistoryRepository> passwordHistoryRepository = new(() => new PasswordHistoryRepository(dbContext));
 
     public IAuditTrailRepository AuditTrailRepository => auditTrailRepository.Value;
 
@@ -38,6 +39,8 @@ public class RepositoryManager(AroAdminApiDbContext dbContext) : IRepositoryMana
     public IPasswordResetTokenRepository PasswordResetTokenRepository => passwordResetTokenRepository.Value;
 
     public IEmailTemplateRepository EmailTemplateRepository => emailTemplateRepository.Value;
+
+    public IPasswordHistoryRepository PasswordHistoryRepository => passwordHistoryRepository.Value;
 
     public Task SaveChanges(CancellationToken cancellationToken = default) => dbContext.SaveChangesAsync(cancellationToken);
 }

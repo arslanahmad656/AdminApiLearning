@@ -37,6 +37,8 @@ public class AroAdminApiDbContext : DbContext
 
     public DbSet<EmailTemplate> EmailTemplates { get; set; }
 
+    public DbSet<PasswordHistory> PasswordHistories { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
 #if DEBUG

@@ -24,5 +24,7 @@ public interface IRepositoryManager // also acts as a Unit of Work
 
     IEmailTemplateRepository EmailTemplateRepository { get; }
 
+    IPasswordHistoryRepository PasswordHistoryRepository { get; }
+
     Task SaveChanges(CancellationToken cancellationToken = default);
 }
