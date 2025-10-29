@@ -2,6 +2,7 @@
 @layout AuthLayout
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Authorization
 @using Aro.Admin.Presentation.UI.Services
 @inject NavigationManager NavigationManager
 @inject IAuthenticationService AuthService
@@ -55,7 +56,7 @@
                 </div>
 
                 <div class="forgot-password-container">
-                    <span>Forgot your password? <MudLink Href="/reset" Underline="Underline.Always" Color="Color.Dark">Reset here.</MudLink></span>
+                    <span>Forgot your password? <MudLink Href="/forgot-password" Underline="Underline.Always" Color="Color.Dark">Reset here.</MudLink></span>
                 </div>
 
                 <div class="login-button-container">
@@ -121,8 +122,8 @@
 
         try
         {
-            // Call API to authenticate
-            var response = await AuthService.LoginAsync(model.Username, model.Password);
+            // Call API to authenticate with rememberMe parameter
+            var response = await AuthService.LoginAsync(model.Username, model.Password, model.RememberMe);
 
             if (response != null)
             {
@@ -132,8 +133,11 @@
                 // Show success message
                 Snackbar.Add("Login successful! Welcome back.", Severity.Success);
 
-                // Navigate to dashboard
-                NavigationManager.NavigateTo("/dashboard");
+                // Small delay to ensure state is updated
+                await Task.Delay(100);
+
+                // Navigate to home page
+                NavigationManager.NavigateTo("/");
             }
             else
             {

@@ -4,7 +4,7 @@ namespace Aro.Admin.Presentation.UI.Services;
 
 public interface IAuthenticationService
 {
-    Task<AuthenticationResponse?> LoginAsync(string email, string password);
+    Task<AuthenticationResponse?> LoginAsync(string email, string password, bool rememberMe = false);
     Task<AuthenticationResponse?> RefreshTokenAsync();
     Task LogoutAsync();
     Task<UserInfo?> GetCurrentUserAsync();

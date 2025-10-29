@@ -32,6 +32,7 @@ builder.Services.AddScoped(sp =>
 // Register authentication services
 builder.Services.AddScoped<ITokenStorageService, TokenStorageService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 
 // Register custom AuthenticationStateProvider
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();

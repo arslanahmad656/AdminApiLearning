@@ -18,7 +18,16 @@ public class TokenStorageService : ITokenStorageService
     {
         try
         {
-            return await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", AccessTokenKey);
+            // Try localStorage first (rememberMe = true)
+            var token = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", AccessTokenKey);
+
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                return token;
+            }
+
+            // Then try sessionStorage (rememberMe = false)
+            return await _jsRuntime.InvokeAsync<string?>("sessionStorage.getItem", AccessTokenKey);
         }
         catch
         {
@@ -30,7 +39,16 @@ public class TokenStorageService : ITokenStorageService
     {
         try
         {
-            return await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", RefreshTokenKey);
+            // Try localStorage first (rememberMe = true)
+            var token = await _jsRuntime.InvokeAsync<string?>("localStorage.getItem", RefreshTokenKey);
+
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                return token;
+            }
+
+            // Then try sessionStorage (rememberMe = false)
+            return await _jsRuntime.InvokeAsync<string?>("sessionStorage.getItem", RefreshTokenKey);
         }
         catch
         {
@@ -38,16 +56,45 @@ public class TokenStorageService : ITokenStorageService
         }
     }
 
-    public async Task SetTokensAsync(string accessToken, string refreshToken)
+    public async Task SetTokensAsync(string accessToken, string refreshToken, bool rememberMe = false)
     {
-        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", AccessTokenKey, accessToken);
-        await _jsRuntime.InvokeVoidAsync("localStorage.setItem", RefreshTokenKey, refreshToken);
+        try
+        {
+            Console.WriteLine($"TokenStorageService: SetTokensAsync called, rememberMe: {rememberMe}");
+
+            // Clear tokens from both storages first to avoid duplicates
+            await ClearTokensAsync();
+
+            if (rememberMe)
+            {
+                // Store in localStorage (persists even after browser is closed)
+                Console.WriteLine("TokenStorageService: Storing tokens in localStorage");
+                await _jsRuntime.InvokeVoidAsync("localStorage.setItem", AccessTokenKey, accessToken);
+                await _jsRuntime.InvokeVoidAsync("localStorage.setItem", RefreshTokenKey, refreshToken);
+            }
+            else
+            {
+                // Store in sessionStorage (cleared when browser tab is closed)
+                Console.WriteLine("TokenStorageService: Storing tokens in sessionStorage");
+                await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", AccessTokenKey, accessToken);
+                await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", RefreshTokenKey, refreshToken);
+            }
+
+            Console.WriteLine("TokenStorageService: Tokens stored successfully");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"TokenStorageService: Error storing tokens - {ex.Message}");
+        }
     }
 
     public async Task ClearTokensAsync()
     {
+        // Clear from both localStorage and sessionStorage
         await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", AccessTokenKey);
         await _jsRuntime.InvokeVoidAsync("localStorage.removeItem", RefreshTokenKey);
+        await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", AccessTokenKey);
+        await _jsRuntime.InvokeVoidAsync("sessionStorage.removeItem", RefreshTokenKey);
     }
 
     public async Task<bool> HasValidTokensAsync()

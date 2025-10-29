@@ -1,13 +1,82 @@
 ﻿@page "/"
-@inject NavigationManager NavigationManager
+@attribute [Authorize]
 
 <PageTitle>ARO Admin - Home</PageTitle>
 
-@code {
-    protected override void OnInitialized()
-    {
-        // Redirect to dashboard
-        NavigationManager.NavigateTo("/dashboard");
-    }
-}
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <AuthorizeView>
+        <Authorized>
+            <MudText Typo="Typo.h3" Class="mb-4">Welcome to ARO Admin Portal</MudText>
+
+            <MudGrid Spacing="3">
+                <MudItem xs="12">
+                    <MudPaper Elevation="2" Class="pa-6 text-center">
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Large" Class="mb-3" />
+                        <MudText Typo="Typo.h5" Class="mb-2">Successfully Logged In!</MudText>
+                        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-4">
+                            Welcome back, @context.User.Identity?.Name!
+                        </MudText>
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   Href="/dashboard"
+                                   StartIcon="@Icons.Material.Filled.Dashboard">
+                            Go to Dashboard
+                        </MudButton>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudPaper Elevation="2" Class="pa-4">
+                        <MudText Typo="Typo.h6" Class="mb-3">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Class="mr-2" />
+                            Your Profile
+                        </MudText>
+                        <MudDivider Class="mb-3" />
+                        <MudText Typo="Typo.body2" Class="mb-2">
+                            <strong>Name:</strong> @context.User.Identity?.Name
+                        </MudText>
+                        <MudText Typo="Typo.body2" Class="mb-2">
+                            <strong>Email:</strong> @context.User.FindFirst("email")?.Value
+                        </MudText>
+                        <MudText Typo="Typo.body2">
+                            <strong>Roles:</strong>
+                            @string.Join(", ", context.User.Claims
+                                .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
+                                .Select(c => c.Value))
+                        </MudText>
+                    </MudPaper>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudPaper Elevation="2" Class="pa-4">
+                        <MudText Typo="Typo.h6" Class="mb-3">
+                            <MudIcon Icon="@Icons.Material.Filled.Apps" Class="mr-2" />
+                            Quick Access
+                        </MudText>
+                        <MudDivider Class="mb-3" />
+                        <MudStack Spacing="2">
+                            <MudButton Variant="Variant.Outlined"
+                                      Color="Color.Primary"
+                                      FullWidth="true"
+                                      StartIcon="@Icons.Material.Filled.Dashboard"
+                                      Href="/dashboard">
+                                Dashboard
+                            </MudButton>
+                            <MudButton Variant="Variant.Outlined"
+                                      Color="Color.Secondary"
+                                      FullWidth="true"
+                                      StartIcon="@Icons.Material.Filled.Settings"
+                                      Href="/settings">
+                                Settings
+                            </MudButton>
+                        </MudStack>
+                    </MudPaper>
+                </MudItem>
+            </MudGrid>
+        </Authorized>
+        <NotAuthorized>
+            <RedirectToLogin />
+        </NotAuthorized>
+    </AuthorizeView>
+</MudContainer>
 
