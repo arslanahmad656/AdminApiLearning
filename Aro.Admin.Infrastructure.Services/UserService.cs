@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class UserService(IRepositoryManager repository, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, ILogManager<UserService> logger, IOptions<AdminSettings> adminSettings, ErrorCodes errorCodes) : IUserService
+public partial class UserService(IRepositoryManager repository, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, ILogManager<UserService> logger, IOptions<AdminSettings> adminSettings, ErrorCodes errorCodes, IPasswordHistoryEnforcer passwordHistoryEnforcer) : IUserService
 {
     private readonly AdminSettings adminSettings = adminSettings.Value;
     private readonly IUserRepository userRepository = repository.UserRepository;
@@ -51,6 +51,9 @@ public partial class UserService(IRepositoryManager repository, IHasher password
         logger.LogDebug("User entity created in repository: {UserId}", userEntity.Id);
 
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+
+        await passwordHistoryEnforcer.RecordPassword(userEntity.Id, userEntity.PasswordHash).ConfigureAwait(false);
+        logger.LogInfo("User created successfully: {UserId}, email: {Email}, roleCount: {RoleCount}", userEntity.Id, userEntity.Email, assignableRoles.Count);
         logger.LogInfo("User created successfully: {UserId}, email: {Email}, phone: {Phone}, roleCount: {RoleCount}", userEntity.Id, userEntity.Email, userEntity.PhoneNumber, assignableRoles.Count);
 
         logger.LogDebug("Completed {MethodName}", nameof(CreateUser));
@@ -124,5 +127,35 @@ public partial class UserService(IRepositoryManager repository, IHasher password
         var systemUser = new GetUserResponse(userEntity.Id, userEntity.Email, userEntity.IsActive, userEntity.DisplayName, userEntity.PasswordHash, userEntity.UserRoles.Select(ur => new GetRoleRespose(ur.RoleId, ur.Role.Name, ur.Role.Description, ur.Role.IsBuiltin)).ToList());
 
         return systemUser;
+    }
+
+    public async Task ResetPassword(Guid userId, string newPassword, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(ResetPassword));
+        logger.LogDebug("Resetting password for user: {UserId}", userId);
+
+        //await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.ResetPassword], cancellationToken); // reset password is going to be anonymous- token validation is the validation
+        logger.LogDebug("Authorization verified for password reset");
+
+        var userEntity = await userRepository.GetById(userId)
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false) ?? throw new AroUserNotFoundException(userId.ToString());
+
+        logger.LogDebug("User found for password reset: {UserId}, email: {Email}", userEntity.Id, userEntity.Email);
+        
+        await passwordHistoryEnforcer.EnsureCanUsePassword(userId, newPassword).ConfigureAwait(false);
+
+        var hashedPassword = passwordHasher.Hash(newPassword);
+        userEntity.PasswordHash = hashedPassword;
+        userEntity.UpdatedAt = DateTime.UtcNow;
+
+        userRepository.Update(userEntity);
+        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+
+        await passwordHistoryEnforcer.RecordPassword(userEntity.Id, hashedPassword).ConfigureAwait(false);
+        await passwordHistoryEnforcer.TrimHistory(userEntity.Id).ConfigureAwait(false);
+
+        logger.LogInfo("Password reset successfully for user: {UserId}, email: {Email}", userEntity.Id, userEntity.Email);
+        logger.LogDebug("Completed {MethodName}", nameof(ResetPassword));
     }
 }

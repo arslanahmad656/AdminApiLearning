@@ -72,9 +72,13 @@ public partial class CacheBasedActiveAccessTokensService(IDistributedCache cache
         var removedCount = tokens.RemoveAll(t => t.TokenIdentifier == tokenIdentifier);
         logger.LogDebug("Removed {RemovedCount} tokens for user: {UserId}, remainingTokens: {RemainingTokens}", removedCount, userId, tokens.Count);
         
-        var key = GetKey(userId);
-        logger.LogDebug("Serializing and updating cache for user: {UserId}", userId);
-        await cache.SetStringAsync(key, serializer.Serialize(tokens), cancellationToken).ConfigureAwait(false);
+        // Only update cache if tokens were actually removed
+        if (removedCount > 0)
+        {
+            var key = GetKey(userId);
+            logger.LogDebug("Serializing and updating cache for user: {UserId}", userId);
+            await cache.SetStringAsync(key, serializer.Serialize(tokens), cancellationToken).ConfigureAwait(false);
+        }
         
         logger.LogInfo("Successfully removed active access token for user: {UserId}, tokenIdentifier: {TokenIdentifier}, removedCount: {RemovedCount}", userId, tokenIdentifier, removedCount);
         

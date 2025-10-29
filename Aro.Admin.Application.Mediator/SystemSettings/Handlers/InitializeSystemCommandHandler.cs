@@ -11,7 +11,7 @@ using Microsoft.Extensions.Options;
 namespace Aro.Admin.Application.Mediator.SystemSettings.Handlers;
 
 public class InitializeSystemCommandHandler(IUserService userService, ISystemSettingsService systemSettingsService, IMediator mediator, ErrorCodes errorCodes,
-    IOptions<AdminSettings> adminSettings, ICurrentUserService currentUserService, ISystemContext systemContext)
+    IOptions<AdminSettings> adminSettings)
     : IRequestHandler<InitializeSystemCommand, InitializeSystemResponse>
 {
     private readonly string adminRoleName = adminSettings.Value.AdminRoleName;
@@ -19,39 +19,28 @@ public class InitializeSystemCommandHandler(IUserService userService, ISystemSet
 
     public async Task<InitializeSystemResponse> Handle(InitializeSystemCommand request, CancellationToken cancellationToken)
     {
-        try
+        //TODO: An improvement can be done. If user is authenticated, we can skip the password check since the service is going to check for the permissions anyway.
+        if (request.User.BootstrapPassword != adminPassword)
         {
-            if (request.User.BootstrapPassword != adminPassword)
-            {
-                throw new AroUnauthorizedException(errorCodes.INVALID_SYSTEM_ADMIN_PASSWORD, $"The provided password does not match the required bootstrap password.");
-            }
+            throw new AroUnauthorizedException(errorCodes.INVALID_SYSTEM_ADMIN_PASSWORD, $"The provided password does not match the required bootstrap password.");
+        }
 
-            if (!currentUserService.IsAuthenticated())
-            {
-                systemContext.IsSystemContext = true;
-            }
-
-            var isSystemAlreadyInitialized = await systemSettingsService.IsSystemInitialized(cancellationToken).ConfigureAwait(false);
-            if (isSystemAlreadyInitialized)
-            {
-                throw new AroInvalidOperationException(errorCodes.SYSTEM_ALREADY_INITIALIZED, $"Cannot re-initialize the system once it has been initialized.");
-            }
+        var isSystemAlreadyInitialized = await systemSettingsService.IsSystemInitialized(cancellationToken).ConfigureAwait(false);
+        if (isSystemAlreadyInitialized)
+        {
+            throw new AroInvalidOperationException(errorCodes.SYSTEM_ALREADY_INITIALIZED, $"Cannot re-initialize the system once it has been initialized.");
+        }
 
             var userForService = new Services.DTOs.ServiceParameters.CreateUserDto(request.User.Email, request.User.PhoneNumber, true, true, request.User.Password, request.User.DisplayName, [adminRoleName]);
 
-            var response = await userService.CreateUser(userForService, cancellationToken).ConfigureAwait(false);
+        var response = await userService.CreateUser(userForService, cancellationToken).ConfigureAwait(false);
 
-            var result = new InitializeSystemResponse(response.Id.ToString(), response.Email ?? string.Empty, adminRoleName);
+        var result = new InitializeSystemResponse(response.Id.ToString(), response.Email ?? string.Empty, adminRoleName);
 
-            await systemSettingsService.SetSystemStateToInitialized(cancellationToken).ConfigureAwait(false);
+        await systemSettingsService.SetSystemStateToInitialized(cancellationToken).ConfigureAwait(false);
 
-            await mediator.Publish(new SystemInitializedNotification(result), cancellationToken).ConfigureAwait(false);
+        await mediator.Publish(new SystemInitializedNotification(result), cancellationToken).ConfigureAwait(false);
 
-            return result;
-        }
-        finally
-        {
-            systemContext.IsSystemContext = false;
-        }
+        return result;
     }
 }

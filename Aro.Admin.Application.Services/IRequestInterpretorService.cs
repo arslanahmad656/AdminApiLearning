@@ -5,4 +5,6 @@ public interface IRequestInterpretorService : IService
     string? RetrieveIpAddress();
 
     string? ExtractUsername();
+
+    string? GetUserAgent();
 }

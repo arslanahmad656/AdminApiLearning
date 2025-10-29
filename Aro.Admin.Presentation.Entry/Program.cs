@@ -12,7 +12,8 @@ try
     app.UseRequestLogging();
 
     await app.MigrateDatabase().ConfigureAwait(false);
-    await app.SeedDatabase(Path.Combine(@"AppData\PemissionSeed.json")).ConfigureAwait(false);
+    await app.SeedDatabase(Path.Combine(@"AppData\PemissionSeed.json"), @"AppData\EmailTemplates").ConfigureAwait(false);
+    await app.CreateBootstrapUser().ConfigureAwait(false);
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
@@ -22,6 +23,11 @@ try
     }
 
     app.UseHttpsRedirection();
+
+    app.UseRouting();
+
+    // Add UseCors here - after UseRouting() and before UseAuthentication()
+    app.UseCors("DevelopmentCors"); // Make sure to replace with your actual policy name
 
     app.UseAuthentication();
     app.UseAuthorization();

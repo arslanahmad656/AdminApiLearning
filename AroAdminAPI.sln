@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36408.4
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11111.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -13,8 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentatio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notes", "Notes", "{03C93E4E-96C6-4AA8-B8B8-38764AB691AC}"
 	ProjectSection(SolutionItems) = preProject
-		Roadmap.txt = Roadmap.txt
 		Chat GPT Analysis - 20251008.txt = Chat GPT Analysis - 20251008.txt
+		Roadmap.txt = Roadmap.txt
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Application.Mediator", "Aro.Admin.Application.Mediator\Aro.Admin.Application.Mediator.csproj", "{E3D03199-25F3-C8D1-4AA4-AD546D6583EA}"
@@ -36,6 +36,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Presentation.Api", "Aro.Admin.Presentation.Api\Aro.Admin.Presentation.Api.csproj", "{23B8FB21-CAF5-4618-B43C-5BB4A3539FD5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Application.Shared", "Aro.Admin.Application.Shared\Aro.Admin.Application.Shared.csproj", "{99634C81-7A5D-40A6-8A2F-DAE615E76705}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{A0786A37-41C5-4908-A640-70F7CE76BD5B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Tests.Common", "Aro.Admin.Tests.Common\Aro.Admin.Tests.Common.csproj", "{EF7AFB83-AC49-400F-B967-8A363109A0D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Infrastructure.Repository.Tests", "Aro.Admin.Infrastructure.Repository.Tests\Aro.Admin.Infrastructure.Repository.Tests.csproj", "{09C86BA9-3683-4A89-AAB0-F91679759E09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Infrastructure.Services.Tests", "Aro.Admin.Infrastructure.Services.Tests\Aro.Admin.Infrastructure.Services.Tests.csproj", "{9F63C007-1433-43D7-8995-602BE6681EDC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Domain.Shared.Tests", "Aro.Admin.Domain.Shared.Tests\Aro.Admin.Domain.Shared.Tests.csproj", "{5D6AABA7-12D4-4528-82D8-892A99C90D37}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,6 +93,22 @@ Global
 		{99634C81-7A5D-40A6-8A2F-DAE615E76705}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99634C81-7A5D-40A6-8A2F-DAE615E76705}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99634C81-7A5D-40A6-8A2F-DAE615E76705}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF7AFB83-AC49-400F-B967-8A363109A0D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF7AFB83-AC49-400F-B967-8A363109A0D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF7AFB83-AC49-400F-B967-8A363109A0D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF7AFB83-AC49-400F-B967-8A363109A0D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09C86BA9-3683-4A89-AAB0-F91679759E09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09C86BA9-3683-4A89-AAB0-F91679759E09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09C86BA9-3683-4A89-AAB0-F91679759E09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09C86BA9-3683-4A89-AAB0-F91679759E09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F63C007-1433-43D7-8995-602BE6681EDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F63C007-1433-43D7-8995-602BE6681EDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F63C007-1433-43D7-8995-602BE6681EDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F63C007-1433-43D7-8995-602BE6681EDC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D6AABA7-12D4-4528-82D8-892A99C90D37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D6AABA7-12D4-4528-82D8-892A99C90D37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D6AABA7-12D4-4528-82D8-892A99C90D37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D6AABA7-12D4-4528-82D8-892A99C90D37}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -98,6 +124,10 @@ Global
 		{557F215C-259C-4AF0-A8E3-3EAE3B3BC751} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{23B8FB21-CAF5-4618-B43C-5BB4A3539FD5} = {055BFB8C-CC17-4E12-8C97-0D0AD7603F58}
 		{99634C81-7A5D-40A6-8A2F-DAE615E76705} = {A7E8652D-5871-482F-B1FA-98F262D57CC2}
+		{EF7AFB83-AC49-400F-B967-8A363109A0D4} = {A0786A37-41C5-4908-A640-70F7CE76BD5B}
+		{09C86BA9-3683-4A89-AAB0-F91679759E09} = {A0786A37-41C5-4908-A640-70F7CE76BD5B}
+		{9F63C007-1433-43D7-8995-602BE6681EDC} = {A0786A37-41C5-4908-A640-70F7CE76BD5B}
+		{5D6AABA7-12D4-4528-82D8-892A99C90D37} = {A0786A37-41C5-4908-A640-70F7CE76BD5B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B86AB3AF-0895-4FEF-8444-14F657F6FC4C}

@@ -21,5 +21,6 @@ internal class UtilitiesInstaller : IServiceInstaller
         builder.Services.AddSingleton<EntityTypes>();
         builder.Services.AddSingleton<SharedKeys>();
         builder.Services.AddSingleton<IDateFormatter, ISO8601DateFormatter>();
+        builder.Services.AddSingleton<IRandomValueGenerator, SecureRandomStringGenerator>();
     }
 }

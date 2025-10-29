@@ -20,6 +20,12 @@ public interface IRepositoryManager // also acts as a Unit of Work
 
     IRefreshTokenRepository RefreshTokenRepository { get; }
 
+    IPasswordResetTokenRepository PasswordResetTokenRepository { get; }
+
+    IEmailTemplateRepository EmailTemplateRepository { get; }
+
+    IPasswordHistoryRepository PasswordHistoryRepository { get; }
+
     IGroupRepository GroupRepository { get; }
 
     Task SaveChanges(CancellationToken cancellationToken = default);

@@ -172,6 +172,76 @@ public partial class AuditService
         logger.LogDebug("Completed {MethodName}", nameof(LogTokenRefreshedLog));
     }
 
+    public async Task LogPasswordResetTokenGenerated(PasswordResetTokenGeneratedLog log, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(LogPasswordResetTokenGenerated));
+        
+        var entity = GenerateTrailForPasswordResetTokenGenerated(log);
+
+        logger.LogDebug("Generated audit entity for password reset token generation with action: {Action}, userId: {UserId}", 
+            "password_reset_token_generated", log.UserId);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(LogPasswordResetTokenGenerated));
+    }
+
+    public async Task LogPasswordResetCompleted(PasswordResetCompletedLog log, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(LogPasswordResetCompleted));
+        
+        var entity = GenerateTrailForPasswordResetCompleted(log);
+
+        logger.LogDebug("Generated audit entity for password reset completed with action: {Action}, userId: {UserId}", 
+            auditActions.PasswordResetCompleted, log.UserId);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(LogPasswordResetCompleted));
+    }
+
+    public async Task LogPasswordResetFailed(PasswordResetFailedLog log, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(LogPasswordResetFailed));
+        
+        var entity = GenerateTrailForPasswordResetFailed(log);
+
+        logger.LogDebug("Generated audit entity for password reset failed with action: {Action}, userId: {UserId}, reason: {Reason}", 
+            auditActions.PasswordResetFailed, log.UserId?.ToString() ?? string.Empty, log.FailureReason);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(LogPasswordResetFailed));
+    }
+
+    public async Task LogPasswordResetLinkGenerated(PasswordResetLinkGeneratedLog log, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(LogPasswordResetLinkGenerated));
+        
+        var entity = GenerateTrailForPasswordResetLinkGenerated(log);
+
+        logger.LogDebug("Generated audit entity for password reset link generated with action: {Action}, email: {Email}", 
+            auditActions.PasswordResetLinkGenerated, log.Email);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(LogPasswordResetLinkGenerated));
+    }
+
+    public async Task LogPasswordResetLinkGenerationFailed(PasswordResetLinkGenerationFailedLog log, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(LogPasswordResetLinkGenerationFailed));
+        
+        var entity = GenerateTrailForPasswordResetLinkGenerationFailed(log);
+
+        logger.LogDebug("Generated audit entity for password reset link generation failed with action: {Action}, email: {Email}, errorCode: {ErrorCode}", 
+            auditActions.PasswordResetLinkGenerationFailed, log.Email, log.ErrorCode);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+        
+        logger.LogDebug("Completed {MethodName}", nameof(LogPasswordResetLinkGenerationFailed));
+    }
+
     public async Task LogGroupCreated(GroupCreatedLog log, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(LogGroupCreated));

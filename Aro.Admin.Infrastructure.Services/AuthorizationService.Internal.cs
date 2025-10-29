@@ -4,7 +4,7 @@ public partial class AuthorizationService
 {
     private bool IsSystemContext()
     {
-        if (systemContext.IsSystemContext)
+        if (systemContext.IsEnabled)
         {
             logger.LogWarn($"Skipping the permission validation since the code is running under the system context.");
             return true;

@@ -126,6 +126,16 @@ public partial class AuditService
 
     private AuditTrail GenerateTrailForTokenRefreshed(TokenRefreshedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.UserSessionLoggedOut, entityType: auditEntityTypes.RefreshToken, entityId: log.OldRefreshTokenHash, data: serializer.Serialize(log));
 
+    private AuditTrail GenerateTrailForPasswordResetTokenGenerated(PasswordResetTokenGeneratedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.PasswordResetTokenGenerated, entityType: auditEntityTypes.User, entityId: log.UserId.ToString(), data: serializer.Serialize(log));
+
+    private AuditTrail GenerateTrailForPasswordResetCompleted(PasswordResetCompletedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.PasswordResetCompleted, entityType: auditEntityTypes.User, entityId: log.UserId.ToString(), data: serializer.Serialize(log));
+
+    private AuditTrail GenerateTrailForPasswordResetFailed(PasswordResetFailedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.PasswordResetFailed, entityType: auditEntityTypes.User, entityId: log.UserId?.ToString(), data: serializer.Serialize(log));
+
+    private AuditTrail GenerateTrailForPasswordResetLinkGenerated(PasswordResetLinkGeneratedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.PasswordResetLinkGenerated, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(log));
+
+    private AuditTrail GenerateTrailForPasswordResetLinkGenerationFailed(PasswordResetLinkGenerationFailedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.PasswordResetLinkGenerationFailed, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(log));
+
     #region [Entity Creation]
 
     private AuditTrail GenerateTrailForUserCreated(string action, Guid userId, UserCreatedLog log)
