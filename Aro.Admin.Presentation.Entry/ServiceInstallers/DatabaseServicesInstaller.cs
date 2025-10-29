@@ -27,11 +27,13 @@ internal class DatabaseServicesInstaller : IServiceInstaller
         builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
 
         // Add data services here
-        builder.Services.AddScoped<ISeeder, Seeder>();
+        builder.Services.AddScoped<IPermissionSeeder, PermissionSeeder>();
         builder.Services.AddScoped<IAuditService, AuditService>();
         builder.Services.AddScoped<IMigrationService, MigrationService>();
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ISystemSettingsService, SystemSettingsService>();
         builder.Services.AddScoped<IRoleService, RoleService>();
+        builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
+        builder.Services.AddScoped<IEmailTemplateSeeder, EmailTemplateSeeder>();
     }
 }

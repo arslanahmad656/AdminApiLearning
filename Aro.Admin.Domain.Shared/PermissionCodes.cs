@@ -5,6 +5,7 @@ public class PermissionCodes
     #region [Users]
     public const string CreateUser = "user.create";
     public const string GetUser = "user.read";
+    public const string ResetPassword = "user.resetpassword";
     #endregion
 
     #region [UserRoles]

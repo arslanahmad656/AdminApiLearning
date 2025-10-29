@@ -25,4 +25,14 @@ public interface IAuditService : IService
     Task LogUserSessionsLoggedOutLog(UserSessionsLoggedOutLog log, CancellationToken cancellationToken = default);
 
     Task LogTokenRefreshedLog(TokenRefreshedLog log, CancellationToken cancellationToken = default);
+
+    Task LogPasswordResetTokenGenerated(PasswordResetTokenGeneratedLog log, CancellationToken cancellationToken = default);
+
+    Task LogPasswordResetCompleted(PasswordResetCompletedLog log, CancellationToken cancellationToken = default);
+
+    Task LogPasswordResetFailed(PasswordResetFailedLog log, CancellationToken cancellationToken = default);
+
+    Task LogPasswordResetLinkGenerated(PasswordResetLinkGeneratedLog log, CancellationToken cancellationToken = default);
+
+    Task LogPasswordResetLinkGenerationFailed(PasswordResetLinkGenerationFailedLog log, CancellationToken cancellationToken = default);
 }

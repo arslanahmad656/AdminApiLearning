@@ -10,5 +10,9 @@ public class OptionsInstaller : IServiceInstaller
         builder.Services.Configure<AdminSettings>(builder.Configuration.GetSection("AdminSettings"));
         builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
         builder.Services.Configure<LoggingSettings>(builder.Configuration.GetSection("LoggingSettings"));
+        builder.Services.Configure<PasswordResetSettings>(builder.Configuration.GetSection("PasswordResetSettings"));
+        builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+        builder.Services.Configure<BootstrapUserSettings>(builder.Configuration.GetSection("BootstrapUser"));
+        builder.Services.Configure<PasswordHistorySettings>(builder.Configuration.GetSection("PasswordHistorySettings"));
     }
 }

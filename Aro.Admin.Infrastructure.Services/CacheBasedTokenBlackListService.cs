@@ -12,10 +12,10 @@ public class CacheBasedTokenBlackListService(IDistributedCache cache, ILogManage
         var ttl = expiry - DateTime.UtcNow;
         logger.LogDebug("Calculated TTL for token: {TokenIdentifier}, ttl: {Ttl}", tokenIdentifier, ttl);
         
-        if (ttl < TimeSpan.Zero)
+        if (ttl <= TimeSpan.Zero)
         {
-            logger.LogDebug("TTL is negative for token: {TokenIdentifier}, setting to zero", tokenIdentifier);
-            ttl = TimeSpan.Zero;
+            logger.LogDebug("TTL is zero or negative for token: {TokenIdentifier}, skipping cache entry", tokenIdentifier);
+            return;
         }
 
         var options = new DistributedCacheEntryOptions
@@ -24,7 +24,8 @@ public class CacheBasedTokenBlackListService(IDistributedCache cache, ILogManage
         };
         logger.LogDebug("Setting cache options for token: {TokenIdentifier}, absoluteExpiry: {AbsoluteExpiry}", tokenIdentifier, ttl);
 
-        await cache.SetStringAsync(tokenIdentifier, "revoked", options, cancellationToken);
+        var value = System.Text.Encoding.UTF8.GetBytes("revoked");
+        await cache.SetAsync(tokenIdentifier, value, options, cancellationToken);
         logger.LogInfo("Successfully blacklisted token: {TokenIdentifier}, ttl: {Ttl}", tokenIdentifier, ttl);
         
         logger.LogDebug("Completed {MethodName}", nameof(BlackList));
@@ -34,7 +35,7 @@ public class CacheBasedTokenBlackListService(IDistributedCache cache, ILogManage
     {
         logger.LogDebug("Starting {MethodName}", nameof(IsBlackListed));
         
-        var value = await cache.GetStringAsync(tokenIdentifier, cancellationToken);
+        var value = await cache.GetAsync(tokenIdentifier, cancellationToken);
         var isBlacklisted = value != null;
         logger.LogDebug("Token blacklist check completed: {TokenIdentifier}, isBlacklisted: {IsBlacklisted}", tokenIdentifier, isBlacklisted);
         

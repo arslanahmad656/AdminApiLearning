@@ -16,7 +16,10 @@
       "Name": "user.delete",
       "Description": "Can delete users"
     },
-
+    {
+      "Name": "user.resetpassword",
+      "Description": "Can reset user passwords"
+    },
     {
       "Name": "role.read",
       "Description": "Can view roles"
