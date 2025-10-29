@@ -12,6 +12,10 @@ internal class PasswordHistoryRepository(AroAdminApiDbContext dbContext)
 	public IQueryable<PasswordHistory> GetByUserId(Guid userId) =>
 		FindByCondition(filter: ph => ph.UserId == userId,
 			orderBy: q => q.OrderByDescending(ph => ph.PasswordSetDate));
+
+	public new void Delete(PasswordHistory history) => base.Delete(history);
+
+	public new void DeleteRange(IEnumerable<PasswordHistory> histories) => base.DeleteRange(histories);
 }
 
 

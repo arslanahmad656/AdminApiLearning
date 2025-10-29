@@ -7,6 +7,10 @@ public interface IPasswordHistoryRepository
 	Task Create(PasswordHistory history, CancellationToken cancellationToken = default);
 
 	IQueryable<PasswordHistory> GetByUserId(Guid userId);
+
+	void Delete(PasswordHistory history);
+
+	void DeleteRange(IEnumerable<PasswordHistory> histories);
 }
 
 

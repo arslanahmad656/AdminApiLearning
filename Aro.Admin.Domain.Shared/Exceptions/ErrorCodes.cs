@@ -35,6 +35,7 @@ public class ErrorCodes
     public readonly string PASSWORD_RESET_TOKEN_EXPIRED = nameof(PASSWORD_RESET_TOKEN_EXPIRED);
     public readonly string PASSWORD_RESET_TOKEN_ALREADY_USED = nameof(PASSWORD_RESET_TOKEN_ALREADY_USED);
     public readonly string PASSWORD_RESET_TOKEN_INVALID = nameof(PASSWORD_RESET_TOKEN_INVALID);
+    public readonly string PASSWORD_NOT_ALLOWED_TO_BE_REUSED = nameof(PASSWORD_NOT_ALLOWED_TO_BE_REUSED);
     #endregion
 
     #region [EMAIL]
