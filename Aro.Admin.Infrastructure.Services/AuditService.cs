@@ -171,4 +171,51 @@ public partial class AuditService
         
         logger.LogDebug("Completed {MethodName}", nameof(LogTokenRefreshedLog));
     }
+
+    public async Task LogGroupCreated(GroupCreatedLog log, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(LogGroupCreated));
+
+        var entity = GenerateTrailForGroupCreated(auditActions.GroupCreated, log.Id, log);
+
+        logger.LogDebug("Generated audit entity for group created with action: {Action}, groupID: {GroupID}", auditActions.GroupCreated, log.Id);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed {MethodName}", nameof(LogGroupCreated));
+    }
+
+    #region [Entity Patches] 
+
+    public async Task LogGroupPatched(GroupPatchedLog log, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(LogGroupPatched));
+
+        var entity = GenerateTrailForGroupPatched(auditActions.GroupPatched, log.Id, log);
+
+        logger.LogDebug("Generated audit entity for group patched with action: {Action}, groupID: {GroupID}", auditActions.GroupPatched, log.Id);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed {MethodName}", nameof(LogGroupPatched));
+    }
+
+    #endregion
+
+    #region [Entity Deletion]
+
+    public async Task LogGroupDeleted(GroupDeletedLog log, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(LogGroupDeleted));
+
+        var entity = GenerateTrailForGroupDeleted(auditActions.GroupDeleted, log.Id, log);
+
+        logger.LogDebug("Generated audit entity for group deleted with action: {Action}, groupID: {GroupID}", auditActions.GroupDeleted, log.Id);
+
+        await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed {MethodName}", nameof(LogGroupDeleted));
+    }
+
+    #endregion
 }

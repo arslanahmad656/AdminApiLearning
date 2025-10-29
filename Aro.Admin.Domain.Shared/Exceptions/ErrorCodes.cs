@@ -29,4 +29,8 @@ public class ErrorCodes
     #region [USERS]
     public readonly string USER_NOT_FOUND = nameof(USER_NOT_FOUND);
     #endregion
+
+    #region [GROUP]
+    public readonly string GROUP_NOT_FOUND = nameof(GROUP_NOT_FOUND);
+    #endregion
 }

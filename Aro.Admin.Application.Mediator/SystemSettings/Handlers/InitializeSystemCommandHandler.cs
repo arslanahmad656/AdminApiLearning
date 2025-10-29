@@ -37,7 +37,7 @@ public class InitializeSystemCommandHandler(IUserService userService, ISystemSet
                 throw new AroInvalidOperationException(errorCodes.SYSTEM_ALREADY_INITIALIZED, $"Cannot re-initialize the system once it has been initialized.");
             }
 
-            var userForService = new Services.DTOs.ServiceParameters.CreateUserDto(request.User.Email, true, true, request.User.Password, request.User.DisplayName, [adminRoleName]);
+            var userForService = new Services.DTOs.ServiceParameters.CreateUserDto(request.User.Email, request.User.PhoneNumber, true, true, request.User.Password, request.User.DisplayName, [adminRoleName]);
 
             var response = await userService.CreateUser(userForService, cancellationToken).ConfigureAwait(false);
 

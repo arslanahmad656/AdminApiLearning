@@ -33,5 +33,6 @@ internal class DatabaseServicesInstaller : IServiceInstaller
         builder.Services.AddScoped<IUserService, UserService>();
         builder.Services.AddScoped<ISystemSettingsService, SystemSettingsService>();
         builder.Services.AddScoped<IRoleService, RoleService>();
+        builder.Services.AddScoped<IGroupService, GroupService>();
     }
 }

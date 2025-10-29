@@ -74,6 +74,59 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.ToTable("AuditTrails", (string)null);
                 });
 
+            modelBuilder.Entity("Aro.Admin.Domain.Entities.Group", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AddressLine1")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<byte[]>("Logo")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("PrimaryContactId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrimaryContactId");
+
+                    b.ToTable("Groups", (string)null);
+                });
+
             modelBuilder.Entity("Aro.Admin.Domain.Entities.IdempotencyRecord", b =>
                 {
                     b.Property<string>("Key")
@@ -258,6 +311,11 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("nvarchar(1024)");
 
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -298,6 +356,17 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Actor");
+                });
+
+            modelBuilder.Entity("Aro.Admin.Domain.Entities.Group", b =>
+                {
+                    b.HasOne("Aro.Admin.Domain.Entities.User", "PrimaryContact")
+                        .WithMany("PrimaryContactForGroups")
+                        .HasForeignKey("PrimaryContactId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PrimaryContact");
                 });
 
             modelBuilder.Entity("Aro.Admin.Domain.Entities.RefreshToken", b =>
@@ -363,6 +432,8 @@ namespace Aro.Admin.Presentation.Entry.Migrations
 
             modelBuilder.Entity("Aro.Admin.Domain.Entities.User", b =>
                 {
+                    b.Navigation("PrimaryContactForGroups");
+
                     b.Navigation("RefreshTokens");
 
                     b.Navigation("UserRoles");

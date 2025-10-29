@@ -19,10 +19,10 @@ public class UserController(IMediator mediator, ILogManager<UserController> logg
     [Permissions(PermissionCodes.CreateUser)]
     public async Task<IActionResult> CreateUser([FromBody] CreateUserModel model, CancellationToken cancellationToken)
     {
-        logger.LogDebug("Starting CreateUser operation for email: {Email}, displayName: {DisplayName}, isActive: {IsActive}, assignedRoles: {AssignedRoles}",
-            model.Email, model.DisplayName, model.IsActive, string.Join(", ", model.AssignedRoles));
+        logger.LogDebug("Starting CreateUser operation for email: {Email}, phone: {Phone}, displayName: {DisplayName}, isActive: {IsActive}, assignedRoles: {AssignedRoles}",
+            model.Email, model.PhoneNumber, model.DisplayName, model.IsActive, string.Join(", ", model.AssignedRoles));
 
-        var response = await mediator.Send(new CreateUserCommand(new(model.Email, model.IsActive, model.Password, model.DisplayName, model.AssignedRoles)), cancellationToken).ConfigureAwait(false);
+        var response = await mediator.Send(new CreateUserCommand(new(model.Email, model.PhoneNumber, model.IsActive, model.Password, model.DisplayName, model.AssignedRoles)), cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Completed CreateUser operation successfully");
         return Ok(response);

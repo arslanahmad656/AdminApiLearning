@@ -87,14 +87,6 @@ public partial class AuditService
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
     }
 
-    private AuditTrail GenerateTrailForUserCreated(string action, Guid userId, UserCreatedLog log)
-    {
-        var data = serializer.Serialize(log);
-        var trail = GenerateAuditTrialEntityWithCommonParams(action: action, entityType: auditEntityTypes.User, entityId: userId.ToString(), /*stateAfter: state*/ data: data);
-
-        return trail;
-    }
-
     private AuditTrail GenerateTrialForRolesAssigned(string action, RolesAssignedLog log)
     {
         var data = serializer.Serialize(log);
@@ -133,4 +125,48 @@ public partial class AuditService
     private AuditTrail GenerateTrailForUserSessionsLoggedOut(UserSessionsLoggedOutLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.UserSessionLoggedOut, entityType: auditEntityTypes.RefreshToken, data: serializer.Serialize(log));
 
     private AuditTrail GenerateTrailForTokenRefreshed(TokenRefreshedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.UserSessionLoggedOut, entityType: auditEntityTypes.RefreshToken, entityId: log.OldRefreshTokenHash, data: serializer.Serialize(log));
+
+    #region [Entity Creation]
+
+    private AuditTrail GenerateTrailForUserCreated(string action, Guid userId, UserCreatedLog log)
+    {
+        var data = serializer.Serialize(log);
+        var trail = GenerateAuditTrialEntityWithCommonParams(action: action, entityType: auditEntityTypes.User, entityId: userId.ToString(), /*stateAfter: state*/ data: data);
+
+        return trail;
+    }
+
+    private AuditTrail GenerateTrailForGroupCreated(string action, Guid groupId, GroupCreatedLog log)
+    {
+        var data = serializer.Serialize(log);
+        var trail = GenerateAuditTrialEntityWithCommonParams(action: action, entityType: auditEntityTypes.Group, entityId: groupId.ToString(), /*stateAfter: state*/ data: data);
+
+        return trail;
+    }
+
+    #endregion
+
+    #region [Entity Updates]
+
+    private AuditTrail GenerateTrailForGroupPatched(string action, Guid groupId, GroupPatchedLog log)
+    {
+        var data = serializer.Serialize(log);
+        var trail = GenerateAuditTrialEntityWithCommonParams(action: action, entityType: auditEntityTypes.Group, entityId: groupId.ToString(), /*stateAfter: state*/ data: data);
+
+        return trail;
+    }
+
+    #endregion
+
+    #region [Entity Deletion]
+
+    private AuditTrail GenerateTrailForGroupDeleted(string action, Guid groupId, GroupDeletedLog log)
+    {
+        var data = serializer.Serialize(log);
+        var trail = GenerateAuditTrialEntityWithCommonParams(action: action, entityType: auditEntityTypes.Group, entityId: groupId.ToString(), /*stateAfter: state*/ data: data);
+
+        return trail;
+    }
+
+    #endregion
 }
