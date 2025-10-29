@@ -1,10 +1,12 @@
 using Aro.Admin.Application.Mediator.PasswordReset.Notifications;
 using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.DataServices;
+using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.PasswordReset.Handlers;
 
-public class PasswordResetEmailSentNotificationHandler(ILogManager<PasswordResetEmailSentNotificationHandler> logger) : INotificationHandler<PasswordResetEmailSentNotification>
+public class PasswordResetEmailSentNotificationHandler(ILogManager<PasswordResetEmailSentNotificationHandler> logger, IAuditService auditService) : INotificationHandler<PasswordResetEmailSentNotification>
 {
     public Task Handle(PasswordResetEmailSentNotification notification, CancellationToken cancellationToken)
     {
@@ -13,12 +15,7 @@ public class PasswordResetEmailSentNotificationHandler(ILogManager<PasswordReset
             notification.Data.ResetLink,
             notification.Data.SentAt);
 
-        // TODO: Log security events, audit trail, etc.
-        // This is where you would:
-        // - Log security events for audit purposes
-        // - Track email delivery metrics
-        // - Update user communication preferences if needed
-
-        return Task.CompletedTask;
+        var log = new PasswordResetLinkGeneratedLog(notification.Data.Email, notification.Data.SentAt);
+        return auditService.LogPasswordResetLinkGenerated(log, cancellationToken);
     }
 }

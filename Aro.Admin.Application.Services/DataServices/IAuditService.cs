@@ -31,4 +31,8 @@ public interface IAuditService : IService
     Task LogPasswordResetCompleted(PasswordResetCompletedLog log, CancellationToken cancellationToken = default);
 
     Task LogPasswordResetFailed(PasswordResetFailedLog log, CancellationToken cancellationToken = default);
+
+    Task LogPasswordResetLinkGenerated(PasswordResetLinkGeneratedLog log, CancellationToken cancellationToken = default);
+
+    Task LogPasswordResetLinkGenerationFailed(PasswordResetLinkGenerationFailedLog log, CancellationToken cancellationToken = default);
 }
