@@ -1,7 +1,6 @@
 namespace Aro.Admin.Presentation.UI.Models;
 
-public class AuthenticationRequest
-{
-    public string Email { get; set; } = string.Empty;
-    public string Password { get; set; } = string.Empty;
-}
+public record AuthenticationRequest(
+    string Email,
+    string Password
+);

@@ -1,9 +1,8 @@
 namespace Aro.Admin.Presentation.UI.Models;
 
-public class AuthenticationResponse
-{
-    public string AccessToken { get; set; } = string.Empty;
-    public string RefreshToken { get; set; } = string.Empty;
-    public DateTime AccessTokenExpiry { get; set; }
-    public DateTime RefreshTokenExpiry { get; set; }
-}
+public record AuthenticationResponse(
+    string AccessToken,
+    string RefreshToken,
+    DateTime AccessTokenExpiry,
+    DateTime RefreshTokenExpiry
+);

@@ -20,11 +20,7 @@ public class AuthenticationService : IAuthenticationService
         try
         {
 
-            var request = new AuthenticationRequest
-            {
-                Email = email,
-                Password = password
-            };
+            var request = new AuthenticationRequest(email, password);
 
             var response = await _httpClient.PostAsJsonAsync("api/auth/authenticate", request);
 
@@ -62,10 +58,7 @@ public class AuthenticationService : IAuthenticationService
                 return null;
             }
 
-            var request = new RefreshTokenRequest
-            {
-                RefreshToken = refreshToken
-            };
+            var request = new RefreshTokenRequest(refreshToken);
 
             var response = await _httpClient.PostAsJsonAsync("api/auth/refresh", request);
 
@@ -189,13 +182,9 @@ public class AuthenticationService : IAuthenticationService
                 displayName = nameClaimProp.GetString() ?? string.Empty;
             }
 
-            var userInfo = new UserInfo
-            {
-                UserId = Guid.Parse(subProperty.GetString() ?? Guid.Empty.ToString()),
-                Email = email,
-                DisplayName = displayName
-            };
-
+            var userId = Guid.Parse(subProperty.GetString() ?? Guid.Empty.ToString());
+            var roles = new List<string>();
+            var permissions = new List<string>();
 
             // Extract roles (try both 'role' and the full claim name)
             if (root.TryGetProperty("role", out var roleProperty))
@@ -204,12 +193,12 @@ public class AuthenticationService : IAuthenticationService
                 {
                     foreach (var role in roleProperty.EnumerateArray())
                     {
-                        userInfo.Roles.Add(role.GetString() ?? string.Empty);
+                        roles.Add(role.GetString() ?? string.Empty);
                     }
                 }
                 else if (roleProperty.ValueKind == JsonValueKind.String)
                 {
-                    userInfo.Roles.Add(roleProperty.GetString() ?? string.Empty);
+                    roles.Add(roleProperty.GetString() ?? string.Empty);
                 }
             }
             else if (root.TryGetProperty("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", out var roleClaimProperty))
@@ -218,15 +207,14 @@ public class AuthenticationService : IAuthenticationService
                 {
                     foreach (var role in roleClaimProperty.EnumerateArray())
                     {
-                        userInfo.Roles.Add(role.GetString() ?? string.Empty);
+                        roles.Add(role.GetString() ?? string.Empty);
                     }
                 }
                 else if (roleClaimProperty.ValueKind == JsonValueKind.String)
                 {
-                    userInfo.Roles.Add(roleClaimProperty.GetString() ?? string.Empty);
+                    roles.Add(roleClaimProperty.GetString() ?? string.Empty);
                 }
             }
-
 
             // Extract permissions
             if (root.TryGetProperty("permission", out var permissionProperty))
@@ -235,15 +223,16 @@ public class AuthenticationService : IAuthenticationService
                 {
                     foreach (var permission in permissionProperty.EnumerateArray())
                     {
-                        userInfo.Permissions.Add(permission.GetString() ?? string.Empty);
+                        permissions.Add(permission.GetString() ?? string.Empty);
                     }
                 }
                 else if (permissionProperty.ValueKind == JsonValueKind.String)
                 {
-                    userInfo.Permissions.Add(permissionProperty.GetString() ?? string.Empty);
+                    permissions.Add(permissionProperty.GetString() ?? string.Empty);
                 }
             }
 
+            var userInfo = new UserInfo(userId, email, displayName, roles, permissions);
 
             return userInfo;
         }

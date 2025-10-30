@@ -17,10 +17,7 @@ public class PasswordResetService : IPasswordResetService
         try
         {
 
-            var request = new SendPasswordResetLinkRequest
-            {
-                Email = email
-            };
+            var request = new SendPasswordResetLinkRequest(email);
 
             var response = await _httpClient.PostAsJsonAsync("api/password-reset/send-reset-link", request);
 
@@ -45,11 +42,7 @@ public class PasswordResetService : IPasswordResetService
         try
         {
 
-            var request = new PasswordResetRequest
-            {
-                Token = token,
-                NewPassword = newPassword
-            };
+            var request = new PasswordResetRequest(token, newPassword);
 
             var response = await _httpClient.PostAsJsonAsync("api/password-reset/reset", request);
 
@@ -61,20 +54,12 @@ public class PasswordResetService : IPasswordResetService
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                return new PasswordResetResponse
-                {
-                    Success = false,
-                    Message = "Failed to reset password. Please try again."
-                };
+                return new PasswordResetResponse(false, null, "Failed to reset password. Please try again.");
             }
         }
         catch (Exception ex)
         {
-            return new PasswordResetResponse
-            {
-                Success = false,
-                Message = "An error occurred. Please try again."
-            };
+            return new PasswordResetResponse(false, null, "An error occurred. Please try again.");
         }
     }
 }
