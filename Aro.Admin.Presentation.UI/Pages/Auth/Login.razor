@@ -127,20 +127,26 @@
 
             if (response != null)
             {
+                // Clear any existing toasts before showing success
+                Snackbar.Clear();
+
                 // Update authentication state
                 await AuthStateProvider.MarkUserAsAuthenticated();
 
                 // Show success message
                 Snackbar.Add("Login successful! Welcome back.", Severity.Success);
 
-                // Small delay to ensure state is updated
-                await Task.Delay(100);
+                // Small delay to show success message before navigation
+                await Task.Delay(500);
 
                 // Navigate to home page
                 NavigationManager.NavigateTo("/");
             }
             else
             {
+                // Clear any existing toasts first
+                Snackbar.Clear();
+
                 // Show error message
                 Snackbar.Add("Invalid email or password. Please try again.", Severity.Error);
             }
@@ -148,6 +154,10 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Login error: {ex.Message}");
+
+            // Clear any existing toasts first
+            Snackbar.Clear();
+
             Snackbar.Add("An error occurred during login. Please try again.", Severity.Error);
         }
         finally

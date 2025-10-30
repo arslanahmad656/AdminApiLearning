@@ -42,7 +42,17 @@ builder.Services.AddScoped<AuthenticationStateProvider>(provider =>
 // Add authorization
 builder.Services.AddAuthorizationCore();
 
-// Add MudBlazor
-builder.Services.AddMudServices();
+// Add MudBlazor with Snackbar configuration
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = MudBlazor.Defaults.Classes.Position.TopRight;
+    config.SnackbarConfiguration.PreventDuplicates = false;
+    config.SnackbarConfiguration.NewestOnTop = true;
+    config.SnackbarConfiguration.ShowCloseIcon = true;
+    config.SnackbarConfiguration.VisibleStateDuration = 3000; // 3 seconds
+    config.SnackbarConfiguration.HideTransitionDuration = 300;
+    config.SnackbarConfiguration.ShowTransitionDuration = 300;
+    config.SnackbarConfiguration.SnackbarVariant = MudBlazor.Variant.Filled;
+});
 
 await builder.Build().RunAsync();
