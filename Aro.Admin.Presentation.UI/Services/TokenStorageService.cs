@@ -60,7 +60,6 @@ public class TokenStorageService : ITokenStorageService
     {
         try
         {
-            Console.WriteLine($"TokenStorageService: SetTokensAsync called, rememberMe: {rememberMe}");
 
             // Clear tokens from both storages first to avoid duplicates
             await ClearTokensAsync();
@@ -68,23 +67,19 @@ public class TokenStorageService : ITokenStorageService
             if (rememberMe)
             {
                 // Store in localStorage (persists even after browser is closed)
-                Console.WriteLine("TokenStorageService: Storing tokens in localStorage");
                 await _jsRuntime.InvokeVoidAsync("localStorage.setItem", AccessTokenKey, accessToken);
                 await _jsRuntime.InvokeVoidAsync("localStorage.setItem", RefreshTokenKey, refreshToken);
             }
             else
             {
                 // Store in sessionStorage (cleared when browser tab is closed)
-                Console.WriteLine("TokenStorageService: Storing tokens in sessionStorage");
                 await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", AccessTokenKey, accessToken);
                 await _jsRuntime.InvokeVoidAsync("sessionStorage.setItem", RefreshTokenKey, refreshToken);
             }
 
-            Console.WriteLine("TokenStorageService: Tokens stored successfully");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"TokenStorageService: Error storing tokens - {ex.Message}");
         }
     }
 

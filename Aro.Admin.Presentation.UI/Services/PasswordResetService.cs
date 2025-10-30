@@ -16,7 +16,6 @@ public class PasswordResetService : IPasswordResetService
     {
         try
         {
-            Console.WriteLine($"PasswordResetService: Sending reset link to {email}");
 
             var request = new SendPasswordResetLinkRequest
             {
@@ -24,23 +23,19 @@ public class PasswordResetService : IPasswordResetService
             };
 
             var response = await _httpClient.PostAsJsonAsync("api/password-reset/send-reset-link", request);
-            Console.WriteLine($"PasswordResetService: API response status: {response.StatusCode}");
 
             if (response.IsSuccessStatusCode)
             {
-                Console.WriteLine("PasswordResetService: Reset link sent successfully");
                 return true;
             }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"PasswordResetService: API error - {errorContent}");
                 return false;
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"PasswordResetService: Send reset link error - {ex.Message}");
             return false;
         }
     }
@@ -49,7 +44,6 @@ public class PasswordResetService : IPasswordResetService
     {
         try
         {
-            Console.WriteLine("PasswordResetService: Resetting password with token");
 
             var request = new PasswordResetRequest
             {
@@ -58,18 +52,15 @@ public class PasswordResetService : IPasswordResetService
             };
 
             var response = await _httpClient.PostAsJsonAsync("api/password-reset/reset", request);
-            Console.WriteLine($"PasswordResetService: API response status: {response.StatusCode}");
 
             if (response.IsSuccessStatusCode)
             {
                 var resetResponse = await response.Content.ReadFromJsonAsync<PasswordResetResponse>();
-                Console.WriteLine($"PasswordResetService: Password reset response - Success: {resetResponse?.Success}");
                 return resetResponse;
             }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"PasswordResetService: API error - {errorContent}");
                 return new PasswordResetResponse
                 {
                     Success = false,
@@ -79,7 +70,6 @@ public class PasswordResetService : IPasswordResetService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"PasswordResetService: Reset password error - {ex.Message}");
             return new PasswordResetResponse
             {
                 Success = false,

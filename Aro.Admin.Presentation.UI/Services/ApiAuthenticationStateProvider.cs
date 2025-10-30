@@ -20,16 +20,12 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     {
         try
         {
-            Console.WriteLine("ApiAuthenticationStateProvider: GetAuthenticationStateAsync called");
             var user = await _authenticationService.GetCurrentUserAsync();
 
             if (user == null)
             {
-                Console.WriteLine("ApiAuthenticationStateProvider: No user found, returning anonymous");
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
-
-            Console.WriteLine($"ApiAuthenticationStateProvider: User found - {user.Email}");
 
             var claims = new List<Claim>
             {
@@ -53,12 +49,10 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
             var identity = new ClaimsIdentity(claims, "jwt");
             var claimsPrincipal = new ClaimsPrincipal(identity);
 
-            Console.WriteLine($"ApiAuthenticationStateProvider: Authentication state created with {claims.Count} claims");
             return new AuthenticationState(claimsPrincipal);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"ApiAuthenticationStateProvider: Error - {ex.Message}");
             return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
         }
     }

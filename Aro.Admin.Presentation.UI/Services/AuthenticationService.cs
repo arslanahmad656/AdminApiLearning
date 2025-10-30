@@ -19,7 +19,6 @@ public class AuthenticationService : IAuthenticationService
     {
         try
         {
-            Console.WriteLine($"AuthenticationService: Starting login for {email}, rememberMe: {rememberMe}");
 
             var request = new AuthenticationRequest
             {
@@ -28,7 +27,6 @@ public class AuthenticationService : IAuthenticationService
             };
 
             var response = await _httpClient.PostAsJsonAsync("api/auth/authenticate", request);
-            Console.WriteLine($"AuthenticationService: API response status: {response.StatusCode}");
 
             if (response.IsSuccessStatusCode)
             {
@@ -36,24 +34,19 @@ public class AuthenticationService : IAuthenticationService
 
                 if (authResponse != null)
                 {
-                    Console.WriteLine($"AuthenticationService: Login successful, storing tokens (rememberMe: {rememberMe})");
                     await _tokenStorage.SetTokensAsync(authResponse.AccessToken, authResponse.RefreshToken, rememberMe);
-                    Console.WriteLine("AuthenticationService: Tokens stored successfully");
                     return authResponse;
                 }
             }
             else
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"AuthenticationService: API error - {errorContent}");
             }
 
             return null;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"AuthenticationService: Login error - {ex.Message}");
-            Console.WriteLine($"AuthenticationService: Stack trace - {ex.StackTrace}");
             return null;
         }
     }
@@ -91,7 +84,6 @@ public class AuthenticationService : IAuthenticationService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Token refresh error: {ex.Message}");
             return null;
         }
     }
@@ -124,7 +116,6 @@ public class AuthenticationService : IAuthenticationService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Logout error: {ex.Message}");
             // Always clear tokens on logout
             await _tokenStorage.ClearTokensAsync();
         }
@@ -147,7 +138,6 @@ public class AuthenticationService : IAuthenticationService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Get user error: {ex.Message}");
             return null;
         }
     }
@@ -156,12 +146,10 @@ public class AuthenticationService : IAuthenticationService
     {
         try
         {
-            Console.WriteLine("AuthenticationService: Starting token decode");
 
             var parts = token.Split('.');
             if (parts.Length != 3)
             {
-                Console.WriteLine("AuthenticationService: Invalid token format");
                 return null;
             }
 
@@ -169,7 +157,6 @@ public class AuthenticationService : IAuthenticationService
             var jsonBytes = ParseBase64WithoutPadding(payload);
             var json = System.Text.Encoding.UTF8.GetString(jsonBytes);
 
-            Console.WriteLine($"AuthenticationService: Token payload: {json}");
 
             using var document = JsonDocument.Parse(json);
             var root = document.RootElement;
@@ -177,7 +164,6 @@ public class AuthenticationService : IAuthenticationService
             // Try to get user ID from 'sub' claim
             if (!root.TryGetProperty("sub", out var subProperty))
             {
-                Console.WriteLine("AuthenticationService: 'sub' claim not found in token");
                 return null;
             }
 
@@ -210,7 +196,6 @@ public class AuthenticationService : IAuthenticationService
                 DisplayName = displayName
             };
 
-            Console.WriteLine($"AuthenticationService: Decoded user - ID: {userInfo.UserId}, Email: {userInfo.Email}, Name: {userInfo.DisplayName}");
 
             // Extract roles (try both 'role' and the full claim name)
             if (root.TryGetProperty("role", out var roleProperty))
@@ -242,7 +227,6 @@ public class AuthenticationService : IAuthenticationService
                 }
             }
 
-            Console.WriteLine($"AuthenticationService: Found {userInfo.Roles.Count} roles");
 
             // Extract permissions
             if (root.TryGetProperty("permission", out var permissionProperty))
@@ -260,15 +244,11 @@ public class AuthenticationService : IAuthenticationService
                 }
             }
 
-            Console.WriteLine($"AuthenticationService: Found {userInfo.Permissions.Count} permissions");
-            Console.WriteLine("AuthenticationService: Token decode completed successfully");
 
             return userInfo;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"AuthenticationService: Token decode error - {ex.Message}");
-            Console.WriteLine($"AuthenticationService: Stack trace - {ex.StackTrace}");
             return null;
         }
     }
