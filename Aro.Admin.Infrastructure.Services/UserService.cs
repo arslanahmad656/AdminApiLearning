@@ -12,7 +12,7 @@ using Microsoft.Extensions.Options;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class UserService(IRepositoryManager repository, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, ILogManager<UserService> logger, IOptions<AdminSettings> adminSettings, ErrorCodes errorCodes, IPasswordHistoryEnforcer passwordHistoryEnforcer) : IUserService
+public partial class UserService(IRepositoryManager repository, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, ILogManager<UserService> logger, IOptions<AdminSettings> adminSettings, ErrorCodes errorCodes, IPasswordHistoryEnforcer passwordHistoryEnforcer, IPasswordComplexityService passwordComplexityService) : IUserService
 {
     private readonly AdminSettings adminSettings = adminSettings.Value;
     private readonly IUserRepository userRepository = repository.UserRepository;
@@ -24,6 +24,8 @@ public partial class UserService(IRepositoryManager repository, IHasher password
 
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateUser], cancellationToken);
         logger.LogDebug("Authorization verified for user creation");
+
+        await ValidatePasswordComplexity(user.Password, cancellationToken).ConfigureAwait(false);
 
         var now = DateTime.Now;
         var userEntity = new User
@@ -51,7 +53,10 @@ public partial class UserService(IRepositoryManager repository, IHasher password
 
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
 
+        logger.LogDebug("Recording password in history for user: {UserId}", userEntity.Id);
         await passwordHistoryEnforcer.RecordPassword(userEntity.Id, userEntity.PasswordHash).ConfigureAwait(false);
+        logger.LogDebug("Password recorded in history for user: {UserId}", userEntity.Id);
+
         logger.LogInfo("User created successfully: {UserId}, email: {Email}, roleCount: {RoleCount}", userEntity.Id, userEntity.Email, assignableRoles.Count);
 
         logger.LogDebug("Completed {MethodName}", nameof(CreateUser));
@@ -141,7 +146,11 @@ public partial class UserService(IRepositoryManager repository, IHasher password
 
         logger.LogDebug("User found for password reset: {UserId}, email: {Email}", userEntity.Id, userEntity.Email);
         
+        logger.LogDebug("Validating password history for user: {UserId}", userEntity.Id);
         await passwordHistoryEnforcer.EnsureCanUsePassword(userId, newPassword).ConfigureAwait(false);
+        logger.LogDebug("Password history validation passed for user: {UserId}", userEntity.Id);
+
+        await ValidatePasswordComplexity(newPassword, cancellationToken).ConfigureAwait(false);
 
         var hashedPassword = passwordHasher.Hash(newPassword);
         userEntity.PasswordHash = hashedPassword;

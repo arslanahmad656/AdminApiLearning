@@ -38,4 +38,17 @@ public partial class UserService
 
         return response;
     }
+
+    private async Task ValidatePasswordComplexity(string password, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Validating password complexity for new user");
+        var passwordValidationResult = await passwordComplexityService.Validate(password).ConfigureAwait(false);
+        if (!passwordValidationResult.Success)
+        {
+            logger.LogWarn("Password complexity validation failed: {Errors}", string.Join(", ", passwordValidationResult.Errors!));
+            throw new AroInvalidOperationException(errorCodes.PASSWORD_COMPLEXITY_ERROR, string.Join(", ", passwordValidationResult.Errors!));
+        }
+
+        logger.LogDebug("Password complexity validation passed");
+    }
 }

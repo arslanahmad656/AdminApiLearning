@@ -12,6 +12,7 @@ public class AuthorizationInstaller : IServiceInstaller
         builder.Services.AddScoped<IPasswordResetTokenService, PasswordResetTokenService>();
         builder.Services.AddScoped<IPasswordResetLinkService, PasswordResetLinkGenerationService>();
         builder.Services.AddScoped<IPasswordHistoryEnforcer, PasswordHistoryEnforcer>();
+        builder.Services.AddTransient<IPasswordComplexityService, EasyPasswordValidator>(); // must be transient due to internal state
         builder.Services.AddAuthorization();
     }
 }
