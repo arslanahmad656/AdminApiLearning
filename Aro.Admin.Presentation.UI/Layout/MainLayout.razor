@@ -1,32 +1,38 @@
 ﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
 
 <MudThemeProvider />
 <MudPopoverProvider />
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<MudLayout>
-    <MudAppBar Elevation="1">
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
-        <MudText Typo="Typo.h6">Aro Admin</MudText>
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.Info" Color="Color.Inherit" Href="https://learn.microsoft.com/aspnet/core/" Target="_blank" />
-    </MudAppBar>
-    <MudDrawer @bind-Open="@_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
-        <NavMenu />
-    </MudDrawer>
-    <MudMainContent>
-        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+<link href="css/home.css" rel="stylesheet" />
+
+<AuthorizeView>
+    <Authorized>
+        <div class="home-container">
+            <!-- ARO Sidebar - Exact Figma Design -->
+            <div class="aro-sidebar">
+                <!-- Logo Section -->
+                <div class="aro-logo">
+                    <img src="aro-logo.svg" alt="ARO Digital Strategy" />
+                </div>
+
+                <!-- Menu Items -->
+                <div class="sidebar-menu">
+                    <NavMenu />
+                </div>
+            </div>
+
+            <!-- Main Content Body -->
             @Body
-        </MudContainer>
-    </MudMainContent>
-</MudLayout>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <!-- No Sidebar for Unauthorized Pages -->
+        @Body
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
-    private bool _drawerOpen = true;
-
-    void ToggleDrawer()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
 }
