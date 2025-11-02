@@ -53,9 +53,7 @@ public partial class UserService(IRepositoryManager repository, IHasher password
 
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
 
-        logger.LogDebug("Recording password in history for user: {UserId}", userEntity.Id);
-        await passwordHistoryEnforcer.RecordPassword(userEntity.Id, userEntity.PasswordHash).ConfigureAwait(false);
-        logger.LogDebug("Password recorded in history for user: {UserId}", userEntity.Id);
+        await RecordPassword(userEntity.Id, userEntity.PasswordHash).ConfigureAwait(false);
 
         logger.LogInfo("User created successfully: {UserId}, email: {Email}, roleCount: {RoleCount}", userEntity.Id, userEntity.Email, assignableRoles.Count);
 
@@ -145,11 +143,8 @@ public partial class UserService(IRepositoryManager repository, IHasher password
             .ConfigureAwait(false) ?? throw new AroUserNotFoundException(userId.ToString());
 
         logger.LogDebug("User found for password reset: {UserId}, email: {Email}", userEntity.Id, userEntity.Email);
-        
-        logger.LogDebug("Validating password history for user: {UserId}", userEntity.Id);
-        await passwordHistoryEnforcer.EnsureCanUsePassword(userId, newPassword).ConfigureAwait(false);
-        logger.LogDebug("Password history validation passed for user: {UserId}", userEntity.Id);
 
+        await ValidatePasswordHistory(userId, newPassword).ConfigureAwait(false);
         await ValidatePasswordComplexity(newPassword, cancellationToken).ConfigureAwait(false);
 
         var hashedPassword = passwordHasher.Hash(newPassword);
@@ -159,10 +154,32 @@ public partial class UserService(IRepositoryManager repository, IHasher password
         userRepository.Update(userEntity);
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
 
-        await passwordHistoryEnforcer.RecordPassword(userEntity.Id, hashedPassword).ConfigureAwait(false);
-        await passwordHistoryEnforcer.TrimHistory(userEntity.Id).ConfigureAwait(false);
+        await RecordPassword(userEntity.Id, hashedPassword, true);
 
         logger.LogInfo("Password reset successfully for user: {UserId}, email: {Email}", userEntity.Id, userEntity.Email);
         logger.LogDebug("Completed {MethodName}", nameof(ResetPassword));
+    }
+
+    public async Task ChangePassword(ChangePasswordParameters parameters, CancellationToken cancellationToken = default)
+    {
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.ChangePassword], cancellationToken);
+
+        var userEntity = await userRepository.GetByEmail(parameters.UserEmail)
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false) ?? throw new AroUserNotFoundException(parameters.UserEmail.ToString());
+
+        if (!passwordHasher.Verify(parameters.OldPassword, userEntity.PasswordHash))
+        {
+            throw new AroInvalidOperationException(errorCodes.OLD_PASSWORD_INVALID, $"The old password does not match the given password.");
+        }
+
+        var newPasswordHash = passwordHasher.Hash(parameters.NewPassword);
+        await ValidatePasswordHistory(userEntity.Id, newPasswordHash).ConfigureAwait(false);
+        await ValidatePasswordComplexity(parameters.NewPassword, cancellationToken).ConfigureAwait(false);
+
+        userEntity.PasswordHash = newPasswordHash;
+        userEntity.UpdatedAt = DateTime.UtcNow;
+
+        await RecordPassword(userEntity.Id, newPasswordHash, true).ConfigureAwait(false);
     }
 }

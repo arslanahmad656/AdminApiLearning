@@ -14,4 +14,6 @@ public interface IUserService : IService
     Task<GetUserResponse> GetSystemUser(string systemPassword, CancellationToken cancellationToken = default);
 
     Task ResetPassword(Guid userId, string newPassword, CancellationToken cancellationToken = default);
+
+    Task ChangePassword(ChangePasswordParameters parameters, CancellationToken cancellationToken = default);
 }

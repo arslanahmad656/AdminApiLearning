@@ -67,6 +67,7 @@
         "user.read",
         "user.update",
         "user.delete",
+        "user.changepassword",
         "role.read",
         "userrole.assign",
         "userrole.revoke",

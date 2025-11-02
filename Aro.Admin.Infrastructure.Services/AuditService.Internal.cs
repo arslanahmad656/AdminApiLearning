@@ -143,4 +143,8 @@ public partial class AuditService
     private AuditTrail GenerateTrailForPasswordResetLinkGenerated(PasswordResetLinkGeneratedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.PasswordResetLinkGenerated, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(log));
 
     private AuditTrail GenerateTrailForPasswordResetLinkGenerationFailed(PasswordResetLinkGenerationFailedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.PasswordResetLinkGenerationFailed, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(log));
+
+    private AuditTrail GenerateTrailForPasswordChangeSuccess(ChangePasswordSuccessLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.PasswordChangeSuccess, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(log));
+    
+    private AuditTrail GenerateTrailForPasswordChangeFailure(ChangePasswordFailedLog log) => GenerateAuditTrialEntityWithCommonParams(action: auditActions.PasswordChangeFailed, entityType: auditEntityTypes.User, entityId: log.Email, data: serializer.Serialize(log));
 }

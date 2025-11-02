@@ -39,4 +39,11 @@ public class UserController(IMediator mediator, ILogManager<UserController> logg
         logger.LogDebug("Completed GetBootstrapUser operation successfully.");
         return Ok(response);
     }
+
+    public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model, CancellationToken cancellationToken)
+    {
+        await mediator.Send(new ChangePasswordCommand(new(model.UserEmail, model.OldPassword, model.NewPassword)), cancellationToken).ConfigureAwait(false);
+
+        return NoContent();
+    }
 }

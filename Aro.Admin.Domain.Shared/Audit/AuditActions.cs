@@ -16,4 +16,6 @@ public class AuditActions
     public readonly string PasswordResetFailed = "PASSWORD_RESET_FAILED";
     public readonly string PasswordResetLinkGenerated = "PASSWORD_RESET_LINK_GENERATED";
     public readonly string PasswordResetLinkGenerationFailed = "PASSWORD_RESET_LINK_GENERATION_FAILED";
+    public readonly string PasswordChangeSuccess = "PASSWORD_CHANGE_SUCCESSFUL";
+    public readonly string PasswordChangeFailed = "PASSWORD_CHANGE_FAILED";
 }

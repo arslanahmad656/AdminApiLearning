@@ -51,4 +51,23 @@ public partial class UserService
 
         logger.LogDebug("Password complexity validation passed");
     }
+
+    private async Task RecordPassword(Guid userId, string passwordHash, bool trimHistory = false)
+    {
+        logger.LogDebug("Recording password in history for user: {UserId}", userId);
+        await passwordHistoryEnforcer.RecordPassword(userId, passwordHash).ConfigureAwait(false);
+        logger.LogDebug("Password recorded in history for user: {UserId}", userId);
+
+        if (trimHistory)
+        {
+            await passwordHistoryEnforcer.TrimHistory(userId).ConfigureAwait(false);
+        }
+    }
+
+    private async Task ValidatePasswordHistory(Guid userId, string newPassword)
+    {
+        logger.LogDebug("Validating password history for user: {UserId}", userId);
+        await passwordHistoryEnforcer.EnsureCanUsePassword(userId, newPassword).ConfigureAwait(false);
+        logger.LogDebug("Password history validation passed for user: {UserId}", userId);
+    }
 }
