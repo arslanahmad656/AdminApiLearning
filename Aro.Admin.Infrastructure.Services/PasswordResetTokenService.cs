@@ -19,6 +19,8 @@ public partial class PasswordResetTokenService(
     IRandomValueGenerator randomValueGenerator,
     ISerializer serializer,
     ErrorCodes errorCodes,
+    IRequestInterpretorService requestInterpretorService,
+    ICurrentUserService currentUserService,
     ILogManager<PasswordResetTokenService> logger) : IPasswordResetTokenService
 {
     private readonly PasswordResetSettings passwordResetSettings = passwordResetOptions.Value;
@@ -128,7 +130,25 @@ public partial class PasswordResetTokenService(
                 return new ValidateTokenResult(false, userId, ipAddress, userAgent, timestamp);
             }
 
-            logger.LogInfo("Password reset token validation successful, tokenId: {TokenId}, userId: {UserId}", 
+            if (passwordResetSettings.UseStrictSecurityChecks)
+            {
+                logger.LogDebug("Validating the strict security measurements.");
+                var currentIpAddress = requestInterpretorService.RetrieveIpAddress();
+                var currentUserAgent = requestInterpretorService.GetUserAgent();
+
+                if (!string.Equals(currentIpAddress, ipAddress) || !string.Equals(currentUserAgent, userAgent))
+                {
+                    return new ValidateTokenResult(false, userId, ipAddress, userAgent, timestamp);
+                }
+
+                logger.LogDebug($"Strict security measurements validated.");
+            }
+            else
+            {
+                logger.LogWarn("Strict security checks are disabled, skipping the strict security checks.");
+            }
+
+            logger.LogInfo("Password reset token validation successful, tokenId: {TokenId}, userId: {UserId}",
                 tokenEntity.Id, tokenEntity.UserId);
 
             logger.LogDebug("Completed {MethodName}", nameof(ValidateToken));

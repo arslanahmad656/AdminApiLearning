@@ -36,14 +36,6 @@ public partial class PasswordResetTokenService
         }
     }
 
-    private record TokenContextData(
-        Guid UserId,
-        string IpAddress,
-        string UserAgent,
-        DateTime Timestamp,
-        string RandomPart
-    );
-
     private string GenerateStructuredToken(GenerateTokenParameters parameters, DateTime now)
     {
         // Create a token that embeds the raw UserId, RequestIp, and UserAgent values
@@ -76,3 +68,11 @@ public partial class PasswordResetTokenService
         return token;
     }
 }
+
+file record TokenContextData(
+        Guid UserId,
+        string IpAddress,
+        string UserAgent,
+        DateTime Timestamp,
+        string RandomPart
+);

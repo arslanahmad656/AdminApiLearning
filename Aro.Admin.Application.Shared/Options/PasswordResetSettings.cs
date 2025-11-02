@@ -4,6 +4,8 @@ public record PasswordResetSettings
 {
     public int TokenExpiryMinutes { get; init; }
     public int TokenLength { get; init; }
-    public bool EnforceSameIPandUserAgentForTokenUsage { get; set; }
+    public bool EnforceSameIPandUserAgentForTokenUsage { get; init; }
+    public bool UseStrictSecurityChecks { get; init; }
     public required string FrontendResetPasswordUrl { get; init; }
+
 }
