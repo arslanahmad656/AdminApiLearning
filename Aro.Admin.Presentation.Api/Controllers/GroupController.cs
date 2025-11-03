@@ -20,7 +20,7 @@ public class GroupController(
     ) : ControllerBase
 {
     [HttpPost("create")]
-    //[Permissions(PermissionCodes.CreateGroup)]
+    [Permissions(PermissionCodes.CreateGroup)]
     public async Task<IActionResult> CreateGroup(
         [FromBody] CreateGroupModel model,
         CancellationToken cancellationToken
@@ -49,7 +49,7 @@ public class GroupController(
     }
 
     [HttpGet("getall")]
-    //[Permissions(PermissionCodes.GetGroups)]
+    [Permissions(PermissionCodes.GetGroups)]
     public async Task<IActionResult> GetGroups(
         [FromQuery] GetGroupsQueryParameters query,
         CancellationToken cancellationToken
@@ -73,7 +73,7 @@ public class GroupController(
     }
 
     [HttpGet("get/{groupId:guid}")]
-    //[Permissions(PermissionCodes.GetGroup)]
+    [Permissions(PermissionCodes.GetGroup)]
     public async Task<IActionResult> GetGroup(
         Guid groupId, 
         [FromQuery] GetGroupQueryParameters model,
@@ -96,7 +96,7 @@ public class GroupController(
     }
 
     [HttpPatch("patch/{groupId:guid}")]
-    //[Permissions(PermissionCodes.PatchGroup)]
+    [Permissions(PermissionCodes.PatchGroup)]
     public async Task<IActionResult> PatchGroup(
         Guid groupId,
         [FromBody] PatchGroupModel model,
@@ -127,7 +127,7 @@ public class GroupController(
     }
 
     [HttpDelete("delete/{groupId:guid}")]
-    //[Permissions(PermissionCodes.DeleteGroup)]
+    [Permissions(PermissionCodes.DeleteGroup)]
     public async Task<IActionResult> DeleteGroup(
         Guid groupId,
         CancellationToken cancellationToken

@@ -1,8 +1,7 @@
 ﻿namespace Aro.Admin.Application.Services.DTOs.ServiceParameters;
 
 public record CreateUserDto(
-    string Email, 
-    string PhoneNumber,
+    string Email,
     bool IsActive, 
     bool IsSystemUser, 
     string Password, 

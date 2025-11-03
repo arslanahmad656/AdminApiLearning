@@ -26,7 +26,7 @@ public partial class GroupService(
 
     public async Task<CreateGroupResponse> CreateGroup(CreateGroupDto group, CancellationToken cancellationToken = default)
     {
-        //await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateGroup], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateGroup], cancellationToken);
 
         var query = userRepository.GetById(group.PrimaryContactId);
         _ = await query
@@ -60,7 +60,7 @@ public partial class GroupService(
         CancellationToken cancellationToken = default
         )
     {
-        //await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetGroups], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetGroups], cancellationToken);
 
         var groups = groupRepository.GetAll()
             .IncludeElements(query.Include)
@@ -91,7 +91,7 @@ public partial class GroupService(
         CancellationToken cancellationToken = default
         )
     {
-        //await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetGroup], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetGroup], cancellationToken);
 
         var query = groupRepository.GetById(dto.Id);
 
@@ -122,7 +122,7 @@ public partial class GroupService(
         CancellationToken cancellationToken = default
         )
     {
-        //await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchGroup], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchGroup], cancellationToken);
 
         var existingGroup = await groupRepository.GetById(group.Id)
             .SingleOrDefaultAsync(cancellationToken)
@@ -165,7 +165,7 @@ public partial class GroupService(
         CancellationToken cancellationToken = default
         )
     {
-        //await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.DeleteGroup], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.DeleteGroup], cancellationToken);
 
         var query = groupRepository.GetById(dto.Id);
 

@@ -2,7 +2,6 @@
 
 public record CreateUserModel(
     string Email,
-    string PhoneNumber,
     bool IsActive, 
     string Password, 
     string DisplayName, 
