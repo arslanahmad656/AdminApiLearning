@@ -22,7 +22,7 @@ public partial class UserService(IRepositoryManager repository, IHasher password
     {
         logger.LogDebug("Starting {MethodName}", nameof(CreateUser));
 
-        //await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateUser], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateUser], cancellationToken);
         logger.LogDebug("Authorization verified for user creation");
 
         var now = DateTime.Now;
