@@ -1,0 +1,38 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<link href="css/home.css" rel="stylesheet" />
+
+<AuthorizeView>
+    <Authorized>
+        <div class="home-container">
+            <!-- ARO Sidebar - Exact Figma Design -->
+            <div class="aro-sidebar">
+                <!-- Logo Section -->
+                <div class="aro-logo">
+                    <img src="aro-logo.svg" alt="ARO Digital Strategy" />
+                </div>
+
+                <!-- Menu Items -->
+                <div class="sidebar-menu">
+                    <NavMenu />
+                </div>
+            </div>
+
+            <!-- Main Content Body -->
+            @Body
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <!-- No Sidebar for Unauthorized Pages -->
+        @Body
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+}

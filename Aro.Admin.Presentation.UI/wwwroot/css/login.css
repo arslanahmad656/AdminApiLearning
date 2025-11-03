@@ -1,0 +1,222 @@
+/* Login Page Styles - Based on ARO Digital Strategy Design */
+
+.login-container {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+    background: #434343;
+    overflow: hidden;
+}
+
+/* Left Panel - Logo Section */
+.login-left-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #434343;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aro-logo-svg {
+    width: 100%;
+    max-width: 487px;
+    height: auto;
+}
+
+/* Right Panel - Login Form Section */
+.login-right-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.login-card {
+    background: #FFFFFF;
+    box-shadow: 0px 4px 20px 8px rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    padding: 60px 80px;
+    width: 100%;
+    max-width: 560px;
+}
+
+/* Header */
+.login-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.welcome-text {
+    font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 700;
+    font-size: 60px;
+    line-height: 73px;
+    letter-spacing: 0.05em;
+    color: #F69126;
+    margin: 0 0 10px 0;
+    text-align: center;
+}
+
+.login-text {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 29px;
+    color: #000000;
+    margin: 0;
+    text-align: center;
+}
+
+/* Form */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.login-input {
+    margin-bottom: 10px;
+}
+
+/* MudBlazor TextField Customization */
+.login-input .mud-input-root {
+    background: #F5F5F5;
+}
+
+.login-input .mud-input-outlined {
+    border-color: #C3C3C3;
+    border-radius: 2px;
+}
+
+.login-input .mud-input-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #000000;
+}
+
+.login-input input {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #000000;
+}
+
+/* Password visibility icon */
+.login-input .mud-input-adornment button {
+    color: #1C1B1F !important;
+}
+
+.login-input .mud-input-adornment svg {
+    fill: #1C1B1F !important;
+    color: #1C1B1F !important;
+}
+
+/* Remember Me */
+.remember-me-container {
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+.remember-me-container .mud-checkbox-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #1B1B1B;
+}
+
+/* Forgot Password */
+.forgot-password-container {
+    text-align: center;
+    margin-bottom: 30px;
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: #000000;
+}
+
+.forgot-password-container a {
+    color: #000000;
+    text-decoration: underline;
+}
+
+/* Login Button */
+.login-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.login-button {
+    background: #F69126 !important;
+    color: #1C1B1F !important;
+    border-radius: 6px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 16px !important;
+    font-weight: 400 !important;
+    text-transform: none !important;
+    padding: 15px 60px !important;
+    height: 50px !important;
+    min-width: 190px !important;
+}
+
+.login-button:hover {
+    background: #FF931E !important;
+}
+
+/* Success Alert Customization */
+.mud-alert-success {
+    background: #D8EDD9 !important;
+    color: #166719 !important;
+    border-radius: 6px !important;
+}
+
+.mud-alert-success .mud-alert-icon {
+    color: #166719 !important;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .login-left-panel {
+        display: none;
+    }
+
+    .login-right-panel {
+        flex: 1;
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-card {
+        padding: 40px 30px;
+    }
+
+    .welcome-text {
+        font-size: 48px;
+        line-height: 58px;
+    }
+
+    .login-text {
+        font-size: 20px;
+        line-height: 24px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-right-panel {
+        padding: 20px;
+    }
+
+    .login-card {
+        padding: 30px 20px;
+    }
+
+    .welcome-text {
+        font-size: 36px;
+        line-height: 44px;
+    }
+}
