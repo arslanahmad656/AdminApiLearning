@@ -1,0 +1,286 @@
+/* Home Page - Exact Figma Design Implementation */
+/* MacBook Pro 14" - 16 (1512px x 982px) */
+
+/* Base Container */
+.home-container {
+    position: relative;
+    width: 100%;
+    min-height: 982px;
+    background: #FFFFFF;
+}
+
+/* ============================================
+   SIDEBAR - ARO MENU
+   ============================================ */
+.aro-sidebar {
+    position: fixed;
+    width: 381px;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    background: #434343;
+    border: 1px solid #474747;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+}
+
+/* Logo Section */
+.aro-logo {
+    position: relative;
+    padding: 36px 36px 40px 36px;
+    height: auto;
+}
+
+.aro-logo img {
+    width: 140px;
+    height: auto;
+}
+
+/* Menu Items Container */
+.sidebar-menu {
+    position: relative;
+    padding: 0;
+    margin-top: 20px;
+}
+
+.sidebar-menu-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* Individual Menu Item */
+.menu-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 16px 34px;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: #FFFFFF;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.menu-item:hover {
+    background-color: rgba(91, 91, 91, 0.5);
+}
+
+/* Active Menu Item - Exact Figma Styling */
+.menu-item.active {
+    background: #5B5B5B;
+    border-radius: 10px;
+    font-weight: 600;
+    margin: 0 16px;
+    padding: 16px 18px;
+}
+
+/* Menu Item Icons */
+.menu-item-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 14px;
+    object-fit: contain;
+}
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+.home-main-content {
+    position: relative;
+    margin-left: 381px;
+    padding: 125px 36px 36px 36px;
+    min-height: 100vh;
+    background: #FFFFFF;
+    box-sizing: border-box;
+}
+
+/* ============================================
+   TOP RIGHT SEARCH - Exact Figma Specifications
+   ============================================ */
+.top-right-search {
+    position: absolute;
+    right: 36px;
+    top: 18px;
+    width: 51px;
+    height: 50px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.top-right-search:hover {
+    opacity: 0.8;
+}
+
+.top-right-search img {
+    width: 51px;
+    height: 50px;
+    object-fit: contain;
+    display: block;
+}
+
+/* ============================================
+   CONTENT CARD - White Box Container
+   ============================================ */
+.content-card {
+    position: relative;
+    background: #FFFFFF;
+    box-shadow: 0px 4px 20px 8px rgba(0, 0, 0, 0.06);
+    border-radius: 6px;
+    padding: 32px 40px;
+    box-sizing: border-box;
+    min-height: 156px;
+}
+
+/* ============================================
+   CONTENT ROW - Greeting & Button
+   ============================================ */
+.content-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    width: 100%;
+    gap: 24px;
+}
+
+/* ============================================
+   GREETING SECTION
+   ============================================ */
+.greeting-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.greeting-section h1 {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 29px;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+}
+
+.greeting-section p {
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: #000000;
+    margin: 0;
+    padding: 0;
+}
+
+/* ============================================
+   ADD GROUP BUTTON
+   ============================================ */
+.button-section {
+    flex-shrink: 0;
+}
+
+.aro-button-primary {
+    position: relative;
+    width: 190px;
+    height: 50px;
+    background: #F69126;
+    border-radius: 6px;
+    border: none;
+    font-family: 'Inter', sans-serif;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    color: #1C1B1F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.aro-button-primary:hover {
+    background: #FF931E;
+}
+
+.aro-button-primary:active {
+    background: #E58115;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 1512px) {
+    .home-main-content {
+        padding: 100px 24px 24px 24px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .aro-sidebar {
+        width: 300px;
+    }
+
+    .home-main-content {
+        margin-left: 300px;
+    }
+}
+
+@media (max-width: 968px) {
+    .aro-sidebar {
+        width: 250px;
+    }
+
+    .home-main-content {
+        margin-left: 250px;
+        padding: 80px 20px 20px 20px;
+    }
+
+    .content-row {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .aro-button-primary {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .aro-sidebar {
+        width: 220px;
+    }
+
+    .home-main-content {
+        margin-left: 220px;
+    }
+
+    .aro-logo img {
+        width: 100px;
+    }
+
+    .menu-item {
+        font-size: 14px;
+        padding: 12px 20px;
+    }
+
+    .menu-item.active {
+        margin: 0 10px;
+        padding: 12px 14px;
+    }
+}

@@ -31,6 +31,9 @@ internal class CorsInstaller : IServiceInstaller
 
                     if (policy.ExposedHeaders.Count != 0)
                         builder.WithExposedHeaders([.. policy.ExposedHeaders]);
+
+                    if (policy.AllowCredentials)
+                        builder.AllowCredentials();
                 });
             }
         });
@@ -44,4 +47,5 @@ file class CorsPolicyConfig
     public List<string> AllowedMethods { get; set; } = [];
     public List<string> AllowedHeaders { get; set; } = [];
     public List<string> ExposedHeaders { get; set; } = [];
+    public bool AllowCredentials { get; set; } = false;
 }

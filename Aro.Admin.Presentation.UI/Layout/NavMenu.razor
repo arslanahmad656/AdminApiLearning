@@ -1,0 +1,38 @@
+@inject NavigationManager NavigationManager
+
+<div class="sidebar-menu-items">
+    <!-- Group List Menu Item -->
+    <a href="/" class="menu-item @GetActiveClass("/")">
+        <img src="icons/account_circle.png" alt="Group List" class="menu-item-icon" />
+        <span>Group List</span>
+    </a>
+
+    <!-- Users & Permissions Menu Item -->
+    <a href="/users" class="menu-item @GetActiveClass("/users")">
+        <img src="icons/key.png" alt="Users & Permissions" class="menu-item-icon" />
+        <span>Users & Permissions</span>
+    </a>
+
+    <!-- Facilities & Services Menu Item -->
+    <a href="/facilities" class="menu-item @GetActiveClass("/facilities")">
+        <img src="icons/outpatient.png" alt="Facilities & Services" class="menu-item-icon" />
+        <span>Facilities & Services</span>
+    </a>
+</div>
+
+@code {
+    private string GetActiveClass(string path)
+    {
+        var currentPath = new Uri(NavigationManager.Uri).AbsolutePath;
+
+        // Exact match for home page
+        if (path == "/" && currentPath == "/")
+            return "active";
+
+        // For other paths, check if current path starts with the menu path
+        if (path != "/" && currentPath.StartsWith(path, StringComparison.OrdinalIgnoreCase))
+            return "active";
+
+        return "";
+    }
+}
