@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aro.Admin.Domain.Entities\Aro.Admin.Domain.Entities.csproj" />
     <ProjectReference Include="..\Aro.Admin.Domain.Repository\Aro.Admin.Domain.Repository.csproj" />
     <ProjectReference Include="..\Aro.Admin.Domain.Shared\Aro.Admin.Domain.Shared.csproj" />
   </ItemGroup>
