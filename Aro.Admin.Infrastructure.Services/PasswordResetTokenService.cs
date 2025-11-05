@@ -20,7 +20,6 @@ public partial class PasswordResetTokenService(
     ISerializer serializer,
     ErrorCodes errorCodes,
     IRequestInterpretorService requestInterpretorService,
-    ICurrentUserService currentUserService,
     ILogManager<PasswordResetTokenService> logger) : IPasswordResetTokenService
 {
     private readonly PasswordResetSettings passwordResetSettings = passwordResetOptions.Value;

@@ -16,9 +16,9 @@ public class PasswordResetController(IMediator mediator, ILogManager<PasswordRes
     public async Task<IActionResult> SendPasswordResetLink([FromBody] SendPasswordResetLinkModel model, CancellationToken cancellationToken)
     {
         logger.LogDebug("Starting SendPasswordResetLink operation for email: {Email}", model.Email);
-        var response = await mediator.Send(new SendPasswordResetEmailLinkCommand(new(model.Email)), cancellationToken).ConfigureAwait(false);
+        _ = await mediator.Send(new SendPasswordResetEmailLinkCommand(new(model.Email)), cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Completed SendPasswordResetLink operation successfully");
-        return Ok(response);
+        return NoContent(); // Security: The client should not know about the outcome.
     }
 
     [HttpPost("reset")]

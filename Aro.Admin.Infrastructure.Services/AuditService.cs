@@ -242,9 +242,9 @@ public partial class AuditService
         logger.LogDebug("Completed {MethodName}", nameof(LogPasswordResetLinkGenerationFailed));
     }
 
-    public async Task LogPasswordChangeSuccess(ChangePasswordSuccessLog log, CancellationToken cancellationToken = default)
+    public async Task LogPasswordChangedSuccess(ChangePasswordSuccessLog log, CancellationToken cancellationToken = default)
     {
-        logger.LogDebug("Starting {MethodName}", nameof(LogPasswordChangeSuccess));
+        logger.LogDebug("Starting {MethodName}", nameof(LogPasswordChangedSuccess));
 
         var entity = GenerateTrailForPasswordChangeSuccess(log);
 
@@ -253,7 +253,7 @@ public partial class AuditService
 
         await CreateTrial(entity, cancellationToken).ConfigureAwait(false);
 
-        logger.LogDebug("Completed {MethodName}", nameof(LogPasswordChangeSuccess));
+        logger.LogDebug("Completed {MethodName}", nameof(LogPasswordChangedSuccess));
     }
 
     public async Task LogPasswordChangedFailed(ChangePasswordFailedLog log, CancellationToken cancellationToken = default)

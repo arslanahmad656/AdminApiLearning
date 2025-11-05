@@ -2,6 +2,7 @@ using Aro.Admin.Application.Services;
 using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters;
 using Aro.Admin.Application.Services.DTOs.ServiceResponses;
+using Aro.Admin.Application.Services.DTOs.ServiceResponses.PasswordComplexity;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
@@ -24,6 +25,8 @@ public class UserServiceTests : TestBase
     private readonly Mock<IAuthorizationService> mockAuthorizationService;
     private readonly Mock<ILogManager<UserService>> mockLogger;
     private readonly Mock<IOptions<AdminSettings>> mockAdminSettings;
+    private readonly Mock<IPasswordHistoryEnforcer> mockPasswordHistoryEnforcer;
+    private readonly Mock<IPasswordComplexityService> mockPasswordComplexityService;
     private readonly ErrorCodes errorCodes;
     private readonly UserService service;
 
@@ -37,6 +40,8 @@ public class UserServiceTests : TestBase
         mockAuthorizationService = new Mock<IAuthorizationService>();
         mockLogger = new Mock<ILogManager<UserService>>();
         mockAdminSettings = new Mock<IOptions<AdminSettings>>();
+        mockPasswordHistoryEnforcer = new Mock<IPasswordHistoryEnforcer>();
+        mockPasswordComplexityService = new Mock<IPasswordComplexityService>();
         errorCodes = new ErrorCodes();
 
         mockRepositoryManager.Setup(x => x.UserRepository).Returns(mockUserRepository.Object);
@@ -45,6 +50,22 @@ public class UserServiceTests : TestBase
         var adminSettings = new AdminSettings { BootstrapPassword = "test-bootstrap-password" };
         mockAdminSettings.Setup(x => x.Value).Returns(adminSettings);
 
+        mockPasswordComplexityService
+            .Setup(x => x.Validate(It.IsAny<string>()))
+            .ReturnsAsync(new PasswordComplexityValidationResult(true, null));
+
+        mockPasswordHistoryEnforcer
+            .Setup(x => x.EnsureCanUsePassword(It.IsAny<Guid>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+
+        mockPasswordHistoryEnforcer
+            .Setup(x => x.RecordPassword(It.IsAny<Guid>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
+
+        mockPasswordHistoryEnforcer
+            .Setup(x => x.TrimHistory(It.IsAny<Guid>()))
+            .Returns(Task.CompletedTask);
+
         service = new UserService(
             mockRepositoryManager.Object,
             mockPasswordHasher.Object,
@@ -52,7 +73,9 @@ public class UserServiceTests : TestBase
             mockAuthorizationService.Object,
             mockLogger.Object,
             mockAdminSettings.Object,
-            errorCodes
+            errorCodes,
+            mockPasswordHistoryEnforcer.Object,
+            mockPasswordComplexityService.Object
         );
     }
 
@@ -66,6 +89,12 @@ public class UserServiceTests : TestBase
         var logger = new Mock<ILogManager<UserService>>();
         var adminSettings = new Mock<IOptions<AdminSettings>>();
         var errorCodes = new ErrorCodes();
+        var passwordHistoryEnforcer = new Mock<IPasswordHistoryEnforcer>();
+        var passwordComplexityService = new Mock<IPasswordComplexityService>();
+
+        passwordComplexityService
+            .Setup(x => x.Validate(It.IsAny<string>()))
+            .ReturnsAsync(new PasswordComplexityValidationResult(true, null));
 
         var service = new UserService(
             repositoryManager.Object,
@@ -74,7 +103,9 @@ public class UserServiceTests : TestBase
             authorizationService.Object,
             logger.Object,
             adminSettings.Object,
-            errorCodes
+            errorCodes,
+            passwordHistoryEnforcer.Object,
+            passwordComplexityService.Object
         );
 
         service.Should().NotBeNull();
