@@ -46,4 +46,8 @@ public class ErrorCodes
     public readonly string EMAIL_LINK_GENERATION_ERROR = nameof(EMAIL_LINK_GENERATION_ERROR);
     public readonly string EMAIL_TEMPLATE_NOT_FOUND = nameof(EMAIL_TEMPLATE_NOT_FOUND);
     #endregion
+
+    #region [GROUP]
+    public readonly string GROUP_NOT_FOUND = nameof(GROUP_NOT_FOUND);
+    #endregion
 }

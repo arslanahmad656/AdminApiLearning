@@ -16,6 +16,14 @@ public class PermissionCodes
     public const string TestUserRole = "userrole.test";
     #endregion
 
+    #region [Groups]
+    public const string CreateGroup = "group.create";
+    public const string GetGroups = "group.read";
+    public const string GetGroup = "group.read";
+    public const string PatchGroup = "group.patch";
+    public const string DeleteGroup = "group.delete";
+    #endregion
+
     #region [Miscs]
     public const string MigrateDabase = "database.migrate";
     public const string SeedApplication = "application.seed";

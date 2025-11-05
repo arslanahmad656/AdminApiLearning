@@ -26,5 +26,7 @@ public interface IRepositoryManager // also acts as a Unit of Work
 
     IPasswordHistoryRepository PasswordHistoryRepository { get; }
 
+    IGroupRepository GroupRepository { get; }
+
     Task SaveChanges(CancellationToken cancellationToken = default);
 }

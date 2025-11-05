@@ -35,5 +35,6 @@ internal class DatabaseServicesInstaller : IServiceInstaller
         builder.Services.AddScoped<IRoleService, RoleService>();
         builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         builder.Services.AddScoped<IEmailTemplateSeeder, EmailTemplateSeeder>();
+        builder.Services.AddScoped<IGroupService, GroupService>();
     }
 }

@@ -56,7 +56,6 @@ public partial class UserService(IRepositoryManager repository, IHasher password
         await RecordPassword(userEntity.Id, userEntity.PasswordHash).ConfigureAwait(false);
 
         logger.LogInfo("User created successfully: {UserId}, email: {Email}, roleCount: {RoleCount}", userEntity.Id, userEntity.Email, assignableRoles.Count);
-
         logger.LogDebug("Completed {MethodName}", nameof(CreateUser));
         return new CreateUserResponse(userEntity.Id, userEntity.Email, assignableRoles);
     }
