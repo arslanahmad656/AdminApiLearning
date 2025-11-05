@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 18
-VisualStudioVersion = 18.0.11111.16
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36408.4 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 EndProject
@@ -10,12 +10,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{849EFA24-E4B7-4F6F-ADEF-E24F30CA06CF}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{055BFB8C-CC17-4E12-8C97-0D0AD7603F58}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Notes", "Notes", "{03C93E4E-96C6-4AA8-B8B8-38764AB691AC}"
-	ProjectSection(SolutionItems) = preProject
-		Chat GPT Analysis - 20251008.txt = Chat GPT Analysis - 20251008.txt
-		Roadmap.txt = Roadmap.txt
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Application.Mediator", "Aro.Admin.Application.Mediator\Aro.Admin.Application.Mediator.csproj", "{E3D03199-25F3-C8D1-4AA4-AD546D6583EA}"
 EndProject
