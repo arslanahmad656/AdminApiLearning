@@ -1,3 +1,5 @@
+using Aro.Common.Domain.Entities;
+
 namespace Aro.Admin.Domain.Entities;
 
 public class PasswordResetToken : IEntity

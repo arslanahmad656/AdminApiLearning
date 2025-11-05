@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
+    <ProjectReference Include="..\Aro.Common.Domain.Entities\Aro.Common.Domain.Entities.csproj" />
   </ItemGroup>
 
 </Project>

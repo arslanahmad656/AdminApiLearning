@@ -1,4 +1,6 @@
-﻿namespace Aro.Admin.Domain.Entities;
+﻿using Aro.Common.Domain.Entities;
+
+namespace Aro.Admin.Domain.Entities;
 
 public class SystemSetting : IEntity
 {

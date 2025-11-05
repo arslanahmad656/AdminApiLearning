@@ -1,4 +1,4 @@
-﻿namespace Aro.Admin.Domain.Entities;
+﻿namespace Aro.Common.Domain.Entities;
 
 /// <summary>
 /// Interface create to enforce the constraint.

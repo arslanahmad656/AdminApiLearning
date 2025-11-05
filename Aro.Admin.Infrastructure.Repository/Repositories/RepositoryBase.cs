@@ -1,6 +1,6 @@
-﻿using Aro.Admin.Domain.Entities;
-using Aro.Admin.Domain.Repository;
+﻿using Aro.Admin.Domain.Repository;
 using Aro.Admin.Infrastructure.Repository.Context;
+using Aro.Common.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -9,7 +9,7 @@ namespace Aro.Admin.Infrastructure.Repository.Repositories;
 public abstract class RepositoryBase<T>(AroAdminApiDbContext dbContext)
     : IRepositoryBase<T> where T : class, IEntity
 {
-    private readonly  DbSet<T> set = dbContext.Set<T>();
+    private readonly DbSet<T> set = dbContext.Set<T>();
 
     protected AroAdminApiDbContext DbContext => dbContext;
 
@@ -21,7 +21,7 @@ public abstract class RepositoryBase<T>(AroAdminApiDbContext dbContext)
 
     public IQueryable<T> FindByCondition
     (
-        Expression<Func<T, bool>>? filter = null, 
+        Expression<Func<T, bool>>? filter = null,
         Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null,
         Func<IQueryable<T>, IQueryable<T>>? include = null,
         bool trackChanges = true

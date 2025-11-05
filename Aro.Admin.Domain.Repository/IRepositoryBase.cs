@@ -1,4 +1,4 @@
-﻿using Aro.Admin.Domain.Entities;
+﻿using Aro.Common.Domain.Entities;
 using System.Linq.Expressions;
 
 namespace Aro.Admin.Domain.Repository;
