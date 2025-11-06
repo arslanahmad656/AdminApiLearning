@@ -1,5 +1,5 @@
 ﻿using Aro.Admin.Application.Services.Email;
-using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;

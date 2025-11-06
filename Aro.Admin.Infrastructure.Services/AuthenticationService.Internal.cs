@@ -1,6 +1,5 @@
 ﻿using Aro.Admin.Application.Services.Authentication;
-using Aro.Admin.Domain.Shared.Exceptions;
-using System.Threading;
+using Aro.Common.Domain.Shared.Exceptions;
 
 namespace Aro.Admin.Infrastructure.Services;
 
@@ -39,7 +38,7 @@ public partial class AuthenticationService
         logger.LogDebug("Created refresh token entity for user: {UserId}, tokenId: {TokenId}", user.Id, refreshEntity.Id);
 
         await refreshTokenRepo.Create(refreshEntity, cancellationToken).ConfigureAwait(false);
-        await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Refresh token entity saved to database for user: {UserId}", user.Id);
 
         var response = new CompositeToken(

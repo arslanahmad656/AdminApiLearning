@@ -1,24 +1,25 @@
+using Aro.Admin.Application.Repository;
 using Aro.Admin.Application.Services.Hasher;
 using Aro.Admin.Application.Services.Password;
 using Aro.Admin.Application.Services.RandomValueGenerator;
-using Aro.Admin.Application.Services.RequestInterpretor;
-using Aro.Admin.Application.Services.Serializer;
-using Aro.Admin.Application.Services.UniqueIdGenerator;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Entities;
-using Aro.Admin.Domain.Repository;
-using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Application.Services.RequestInterpretor;
+using Aro.Common.Application.Services.Serializer;
+using Aro.Common.Application.Services.UniqueIdGenerator;
 using Aro.Common.Domain.Shared;
+using Aro.Common.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using System.Security.Cryptography;
 
 namespace Aro.Admin.Infrastructure.Services;
 
 public partial class PasswordResetTokenService(
     IOptionsSnapshot<PasswordResetSettings> passwordResetOptions,
-    IRepositoryManager repositoryManager,
+    Application.Repository.IRepositoryManager repositoryManager,
+    IUnitOfWork unitOfWork,
     IHasher hasher,
     IUniqueIdGenerator idGenerator,
     IRandomValueGenerator randomValueGenerator,
@@ -43,7 +44,7 @@ public partial class PasswordResetTokenService(
 
             // Generate structured token
             var rawToken = GenerateStructuredToken(parameters, now);
-            
+
             logger.LogDebug("Generated structured token with user context, length: {Length}", rawToken.Length);
 
             var tokenHash = hasher.Hash(rawToken);
@@ -66,10 +67,10 @@ public partial class PasswordResetTokenService(
 
             // Save to database
             await passwordResetTokenRepo.Create(tokenEntity, ct).ConfigureAwait(false);
-            await repositoryManager.SaveChanges(ct).ConfigureAwait(false);
+            await unitOfWork.SaveChanges(ct).ConfigureAwait(false);
             logger.LogDebug("Password reset token saved to database, tokenId: {TokenId}", tokenEntity.Id);
 
-            logger.LogInfo("Password reset token generated successfully for user: {UserId}, tokenId: {TokenId}, expiry: {Expiry}", 
+            logger.LogInfo("Password reset token generated successfully for user: {UserId}, tokenId: {TokenId}, expiry: {Expiry}",
                 parameters.UserId, tokenEntity.Id, expiry);
 
             logger.LogDebug("Completed {MethodName}", nameof(GenerateToken));
@@ -103,7 +104,7 @@ public partial class PasswordResetTokenService(
                 return new ValidateTokenResult(false, null, null, null, null);
             }
 
-            logger.LogDebug("Found password reset token entity, tokenId: {TokenId}, userId: {UserId}, isUsed: {IsUsed}, expiry: {Expiry}", 
+            logger.LogDebug("Found password reset token entity, tokenId: {TokenId}, userId: {UserId}, isUsed: {IsUsed}, expiry: {Expiry}",
                 tokenEntity.Id, tokenEntity.UserId, tokenEntity.IsUsed, tokenEntity.Expiry);
 
             // Since we're working with hashes, we can't extract context from the token
@@ -112,14 +113,14 @@ public partial class PasswordResetTokenService(
             var ipAddress = tokenEntity.RequestIP;
             var userAgent = tokenEntity.UserAgent ?? string.Empty;
             var timestamp = tokenEntity.CreatedAt;
-            
-            logger.LogDebug("Using token entity data - UserId: {UserId}, IP: {IpAddress}, UserAgent: {UserAgent}, Timestamp: {Timestamp}", 
+
+            logger.LogDebug("Using token entity data - UserId: {UserId}, IP: {IpAddress}, UserAgent: {UserAgent}, Timestamp: {Timestamp}",
                 userId, ipAddress, userAgent, timestamp);
 
             // Check if token is already used
             if (tokenEntity.IsUsed)
             {
-                logger.LogWarn("Password reset token already used, tokenId: {TokenId}, userId: {UserId}", 
+                logger.LogWarn("Password reset token already used, tokenId: {TokenId}, userId: {UserId}",
                     tokenEntity.Id, tokenEntity.UserId);
                 logger.LogDebug("Completed {MethodName}", nameof(ValidateToken));
                 return new ValidateTokenResult(false, userId, ipAddress, userAgent, timestamp);
@@ -128,7 +129,7 @@ public partial class PasswordResetTokenService(
             // Check if token is expired
             if (tokenEntity.Expiry <= DateTime.UtcNow)
             {
-                logger.LogWarn("Password reset token expired, tokenId: {TokenId}, userId: {UserId}, expiry: {Expiry}", 
+                logger.LogWarn("Password reset token expired, tokenId: {TokenId}, userId: {UserId}, expiry: {Expiry}",
                     tokenEntity.Id, tokenEntity.UserId, tokenEntity.Expiry);
                 logger.LogDebug("Completed {MethodName}", nameof(ValidateToken));
                 return new ValidateTokenResult(false, userId, ipAddress, userAgent, timestamp);
@@ -187,15 +188,15 @@ public partial class PasswordResetTokenService(
                 return;
             }
 
-            logger.LogDebug("Found password reset token entity to mark as used, tokenId: {TokenId}, userId: {UserId}", 
+            logger.LogDebug("Found password reset token entity to mark as used, tokenId: {TokenId}, userId: {UserId}",
                 tokenEntity.Id, tokenEntity.UserId);
 
             // Mark token as used
             tokenEntity.IsUsed = true;
             passwordResetTokenRepo.Update(tokenEntity);
-            await repositoryManager.SaveChanges(ct).ConfigureAwait(false);
+            await unitOfWork.SaveChanges(ct).ConfigureAwait(false);
 
-            logger.LogInfo("Password reset token marked as used successfully, tokenId: {TokenId}, userId: {UserId}", 
+            logger.LogInfo("Password reset token marked as used successfully, tokenId: {TokenId}, userId: {UserId}",
                 tokenEntity.Id, tokenEntity.UserId);
 
             logger.LogDebug("Completed {MethodName}", nameof(MarkTokenUsed));
@@ -216,8 +217,8 @@ public partial class PasswordResetTokenService(
         {
             logger.LogDebug("Calling repository DeleteExpiredTokens method");
             await passwordResetTokenRepo.DeleteExpiredTokens(ct).ConfigureAwait(false);
-            await repositoryManager.SaveChanges(ct).ConfigureAwait(false);
-            
+            await unitOfWork.SaveChanges(ct).ConfigureAwait(false);
+
             logger.LogInfo("Expired password reset tokens cleanup completed");
 
             logger.LogDebug("Completed {MethodName}", nameof(DeleteExpiredTokens));

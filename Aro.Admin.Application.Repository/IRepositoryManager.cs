@@ -12,8 +12,6 @@ public interface IRepositoryManager
 
     ISystemSettingsRepository SystemSettingsRepository { get; }
 
-    IUserRepository UserRepository { get; }
-
     IUserRoleRepository UserRoleRepository { get; }
 
     IRefreshTokenRepository RefreshTokenRepository { get; }

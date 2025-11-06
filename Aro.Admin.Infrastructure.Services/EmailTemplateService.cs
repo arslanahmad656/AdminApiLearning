@@ -1,17 +1,14 @@
-using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.Email;
 using Aro.Admin.Domain.Entities;
-using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
-using Aro.Admin.Infrastructure.Repository.Repositories;
+using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
-using Microsoft.EntityFrameworkCore;
 using System.Text;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class EmailTemplateService(IRepositoryManager repositoryManager, ILogManager<EmailTemplateService> logger, ErrorCodes errorCodes, SharedKeys sharedKeys) : IEmailTemplateService
+public partial class EmailTemplateService(Application.Repository.IRepositoryManager repositoryManager, IUnitOfWork unitOfWork, ILogManager<EmailTemplateService> logger, ErrorCodes errorCodes, SharedKeys sharedKeys) : IEmailTemplateService
 {
     public async Task<EmailTemplateDto> GetPasswordResetLinkEmail(string name, string resetUrl, int tokenExpiryMinutes, CancellationToken cancellationToken = default)
     {
@@ -41,7 +38,7 @@ public partial class EmailTemplateService(IRepositoryManager repositoryManager, 
         };
 
         await repositoryManager.EmailTemplateRepository.Create(entity, cancellationToken);
-        await repositoryManager.SaveChanges(cancellationToken);
+        await unitOfWork.SaveChanges(cancellationToken);
 
         logger.LogInfo("Successfully created email template with identifier: {Identifier}", emailTemplate.Identifier);
 
@@ -71,7 +68,7 @@ public partial class EmailTemplateService(IRepositoryManager repositoryManager, 
         {
             await repositoryManager.EmailTemplateRepository.Create(entity, cancellationToken);
         }
-        await repositoryManager.SaveChanges(cancellationToken);
+        await unitOfWork.SaveChanges(cancellationToken);
 
         logger.LogInfo("Successfully created {Count} email templates", templatesList.Count);
 

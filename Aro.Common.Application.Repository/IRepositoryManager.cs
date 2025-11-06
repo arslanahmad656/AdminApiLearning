@@ -3,4 +3,6 @@
 public interface IRepositoryManager
 {
     IAuditTrailRepository AuditTrailRepository { get; }
+
+    IUserRepository UserRepository { get; }
 }

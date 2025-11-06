@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aro.Common.Domain.Shared\Aro.Common.Domain.Shared.csproj" />
+    <ProjectReference Include="..\Aro.Booking.Application.Services\Aro.Booking.Application.Services.csproj" />
   </ItemGroup>
 
 </Project>

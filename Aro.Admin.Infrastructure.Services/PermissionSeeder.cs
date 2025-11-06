@@ -1,19 +1,20 @@
 ﻿using Aro.Admin.Application.Services.Authorization;
 using Aro.Admin.Application.Services.PermissionSeeder;
-using Aro.Admin.Application.Services.Serializer;
 using Aro.Admin.Domain.Entities;
-using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
-using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Application.Services.Serializer;
 using Aro.Common.Domain.Shared;
+using Aro.Common.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
 public class PermissionSeeder
 (
-    IRepositoryManager repository,
+    Application.Repository.IRepositoryManager repository,
+    IUnitOfWork unitOfWork,
     ISerializer serializer,
     ErrorCodes errorCodes,
     IAuthorizationService authorizationService,
@@ -24,7 +25,7 @@ public class PermissionSeeder
     public async Task Seed(string jsonFile, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(Seed));
-        
+
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.SeedApplication], cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Authorization verified for seeding");
 
@@ -37,7 +38,7 @@ public class PermissionSeeder
 
         var json = await File.ReadAllTextAsync(jsonFile, cancellationToken);
         logger.LogDebug("Read seed file content, length: {Length}", json.Length);
-        
+
         var model = serializer.Deserialize<RbacSeedModel>(json)
             ?? throw new AroException(errorCodes.DESERIALIZATION_ERROR, "Failed to deserialize RBAC seed file.");
         logger.LogDebug("Deserialized seed model, permissionCount: {PermissionCount}, roleCount: {RoleCount}", model.Permissions.Count, model.Roles.Count);
@@ -126,9 +127,9 @@ public class PermissionSeeder
         }
 
         logger.LogDebug("Saving changes to database");
-        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogInfo("Application seeding completed successfully");
-        
+
         logger.LogDebug("Completed {MethodName}", nameof(Seed));
     }
 }

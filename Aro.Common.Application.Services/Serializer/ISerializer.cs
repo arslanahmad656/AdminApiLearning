@@ -1,6 +1,4 @@
-﻿using Aro.Common.Application.Services;
-
-namespace Aro.Admin.Application.Services.Serializer;
+﻿namespace Aro.Common.Application.Services.Serializer;
 
 public interface ISerializer : IService
 {

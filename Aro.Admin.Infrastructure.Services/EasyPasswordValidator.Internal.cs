@@ -1,7 +1,6 @@
 ﻿using Aro.Admin.Application.Shared.Options;
 using Easy_Password_Validator;
 using Easy_Password_Validator.Models;
-using Microsoft.Extensions.Options;
 
 namespace Aro.Admin.Infrastructure.Services;
 

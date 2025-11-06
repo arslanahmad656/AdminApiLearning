@@ -1,8 +1,8 @@
 using Aro.Admin.Application.Services.DTOs.ServiceResponses;
-using Aro.Admin.Application.Services.Serializer;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Tests.Common;
 using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Application.Services.Serializer;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;

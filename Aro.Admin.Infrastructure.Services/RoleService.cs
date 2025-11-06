@@ -1,14 +1,15 @@
-﻿using Aro.Admin.Application.Services.Authorization;
+﻿using Aro.Admin.Application.Repository;
+using Aro.Admin.Application.Services.Authorization;
 using Aro.Admin.Application.Services.Role;
 using Aro.Admin.Domain.Entities;
-using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
+using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.LogManager;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class RoleService(IRepositoryManager repository, IAuthorizationService authorizationService, ILogManager<RoleService> logger) : IRoleService
+public class RoleService(Application.Repository.IRepositoryManager repository, IUnitOfWork unitOfWork, IAuthorizationService authorizationService, ILogManager<RoleService> logger) : IRoleService
 {
     private readonly IUserRoleRepository userRoleRepository = repository.UserRoleRepository;
     private readonly IRoleRepository roleRepository = repository.RoleRepository;
@@ -39,7 +40,7 @@ public class RoleService(IRepositoryManager repository, IAuthorizationService au
         userRolesToAdd.ForEach(async ur => await userRoleRepository.Create(ur, cancellationToken).ConfigureAwait(false));
         logger.LogDebug("Created user role entities in repository");
 
-        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogInfo("Successfully assigned roles to users, assignmentCount: {AssignmentCount}", userRolesToAdd.Count);
 
         logger.LogDebug("Completed {MethodName}", nameof(AssignRolesToUsers));
@@ -92,7 +93,7 @@ public class RoleService(IRepositoryManager repository, IAuthorizationService au
 
         userRoleRepository.Remove(userRoles);
 
-        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<bool> UserHasRole(Guid userId, string roleName, CancellationToken cancellationToken = default)

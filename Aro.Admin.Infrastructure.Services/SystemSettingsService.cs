@@ -1,16 +1,16 @@
-﻿using Aro.Admin.Application.Services.Authorization;
+﻿using Aro.Admin.Application.Repository;
+using Aro.Admin.Application.Services.Authorization;
 using Aro.Admin.Application.Services.SystemSettings;
-using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
+using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.LogManager;
-using System.Threading;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class SystemSettingsService(IRepositoryManager repository, SharedKeys sharedKeys, IAuthorizationService authorizationService, ILogManager<SystemSettingsService> logger) : ISystemSettingsService
+public class SystemSettingsService(Application.Repository.IRepositoryManager adminRepository, Common.Application.Repository.IRepositoryManager commonRepository, IUnitOfWork unitOfWork, SharedKeys sharedKeys, IAuthorizationService authorizationService, ILogManager<SystemSettingsService> logger) : ISystemSettingsService
 {
-    private readonly ISystemSettingsRepository settingsRepo = repository.SystemSettingsRepository;
-    private readonly IUserRepository userRepository = repository.UserRepository;
+    private readonly ISystemSettingsRepository settingsRepo = adminRepository.SystemSettingsRepository;
+    private readonly IUserRepository userRepository = commonRepository.UserRepository;
 
     public async Task<bool> IsMigrationComplete(CancellationToken cancellationToken = default)
     {
@@ -38,7 +38,7 @@ public class SystemSettingsService(IRepositoryManager repository, SharedKeys sha
         settingsRepo.UpdateSetting(setting);
         logger.LogDebug("Updated migration complete setting to true");
 
-        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogInfo("migration state set to completed successfully");
 
         logger.LogDebug("Completed {MethodName}", nameof(SetMigrationStateToComplete));
@@ -47,7 +47,7 @@ public class SystemSettingsService(IRepositoryManager repository, SharedKeys sha
     public async Task<bool> IsSystemInitialized(CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(IsSystemInitialized));
-        
+
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetSystemSettings], cancellationToken);
         logger.LogDebug("Authorization verified for system initialization check");
 
@@ -71,7 +71,7 @@ public class SystemSettingsService(IRepositoryManager repository, SharedKeys sha
     public async Task SetSystemStateToInitialized(CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(SetSystemStateToInitialized));
-        
+
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.InitializeSystem], cancellationToken);
         logger.LogDebug("Authorization verified for system initialization");
 
@@ -83,9 +83,9 @@ public class SystemSettingsService(IRepositoryManager repository, SharedKeys sha
         settingsRepo.UpdateSetting(setting);
         logger.LogDebug("Updated system initialization setting to true");
 
-        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogInfo("System state set to initialized successfully");
-        
+
         logger.LogDebug("Completed {MethodName}", nameof(SetSystemStateToInitialized));
     }
 
@@ -115,7 +115,7 @@ public class SystemSettingsService(IRepositoryManager repository, SharedKeys sha
         settingsRepo.UpdateSetting(setting);
         logger.LogDebug("Updated seed settings to true.");
 
-        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogInfo("Seed setting set to completed successfully");
 
         logger.LogDebug("Completed {MethodName}", nameof(SetSeedStateAtStartupToComplete));

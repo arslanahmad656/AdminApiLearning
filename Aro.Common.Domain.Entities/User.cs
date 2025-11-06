@@ -1,6 +1,4 @@
-﻿using Aro.Common.Domain.Entities;
-
-namespace Aro.Admin.Domain.Entities;
+﻿namespace Aro.Common.Domain.Entities;
 
 public class User : IEntity
 {
@@ -12,8 +10,4 @@ public class User : IEntity
     public DateTime? UpdatedAt { get; set; }
     public string DisplayName { get; set; }
     public bool IsSystem { get; set; }
-    public ICollection<UserRole> UserRoles { get; set; }
-    public ICollection<RefreshToken> RefreshTokens { get; set; }
-    public ICollection<PasswordResetToken> PasswordResetTokens { get; set; }
-    public ICollection<PasswordHistory> PasswordHistories { get; set; }
 }

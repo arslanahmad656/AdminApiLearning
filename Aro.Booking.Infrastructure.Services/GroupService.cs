@@ -1,20 +1,6 @@
-﻿using Aro.Admin.Application.Services.Authorization;
-using Aro.Admin.Application.Services.DataServices;
-using Aro.Admin.Application.Services.DTOs.ServiceParameters;
-using Aro.Admin.Application.Services.DTOs.ServiceResponses;
-using Aro.Admin.Application.Services.UniqueIdGenerator;
-using Aro.Admin.Application.Shared.Options;
-using Aro.Admin.Domain.Entities;
-using Aro.Admin.Domain.Repository;
-using Aro.Admin.Domain.Shared;
-using Aro.Admin.Domain.Shared.Exceptions;
-using Aro.Common.Application.Services.LogManager;
-using Aro.Common.Domain.Shared;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+﻿using Aro.Booking.Application.Services.Group;
 
-namespace Aro.Admin.Infrastructure.Services;
+namespace Aro.Booking.Infrastructure.Services;
 
 public partial class GroupService(
     IRepositoryManager repository,
@@ -101,9 +87,9 @@ public partial class GroupService(
         var response = await query
             .IncludeElements(dto.Inlcude)
             .SingleOrDefaultAsync(cancellationToken)
-            .ConfigureAwait(false) ?? 
+            .ConfigureAwait(false) ??
             throw new AroGroupNotFoundException(dto.Id.ToString());
-        
+
         var groupDto = new GroupDto(
             response.Id,
             response.GroupName,
@@ -121,7 +107,7 @@ public partial class GroupService(
     }
 
     public async Task<PatchGroupResponse> PatchGroup(
-        PatchGroupDto group, 
+        PatchGroupDto group,
         CancellationToken cancellationToken = default
         )
     {
@@ -138,7 +124,7 @@ public partial class GroupService(
                 .GetById(group.PrimaryContactId.Value)
                 .SingleOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false)
-                ?? throw new AroUserNotFoundException((group.PrimaryContactId.Value).ToString());
+                ?? throw new AroUserNotFoundException(group.PrimaryContactId.Value.ToString());
 
             existingGroup.PrimaryContactId = group.PrimaryContactId.Value;
         }
@@ -150,7 +136,7 @@ public partial class GroupService(
         await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
 
         return new PatchGroupResponse(
-            existingGroup.Id, 
+            existingGroup.Id,
             existingGroup.GroupName,
             existingGroup.AddressLine1,
             existingGroup.AddressLine2,

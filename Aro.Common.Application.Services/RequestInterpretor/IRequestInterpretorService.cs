@@ -1,6 +1,4 @@
-﻿using Aro.Common.Application.Services;
-
-namespace Aro.Admin.Application.Services.RequestInterpretor;
+﻿namespace Aro.Common.Application.Services.RequestInterpretor;
 
 public interface IRequestInterpretorService : IService
 {

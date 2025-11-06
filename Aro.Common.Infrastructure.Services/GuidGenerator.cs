@@ -1,7 +1,7 @@
-﻿using Aro.Admin.Application.Services.UniqueIdGenerator;
-using Aro.Common.Application.Services.LogManager;
+﻿using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Application.Services.UniqueIdGenerator;
 
-namespace Aro.Admin.Infrastructure.Services;
+namespace Aro.Common.Infrastructure.Services;
 
 public class GuidGenerator(ILogManager<GuidGenerator> logger) : IUniqueIdGenerator
 {

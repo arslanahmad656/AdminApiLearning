@@ -1,12 +1,14 @@
-﻿using Aro.Admin.Application.Services.AccessToken;
+﻿using Aro.Admin.Application.Repository;
+using Aro.Admin.Application.Services.AccessToken;
 using Aro.Admin.Application.Services.Authentication;
 using Aro.Admin.Application.Services.Hasher;
-using Aro.Admin.Application.Services.UniqueIdGenerator;
 using Aro.Admin.Application.Shared.Options;
-using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Application.Services.UniqueIdGenerator;
 using Aro.Common.Domain.Shared;
+using Aro.Common.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
@@ -14,7 +16,7 @@ using RefreshToken = Aro.Admin.Application.Services.AccessToken.RefreshToken;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepositoryManager repositoryManager, IHasher hasher, IAccessTokenService accessTokenService, IUniqueIdGenerator idGenerator, ErrorCodes errorCodes, ILogManager<RefreshTokenService> logger) : IRefreshTokenService
+public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, Application.Repository.IRepositoryManager repositoryManager, IUnitOfWork unitOfWork, IHasher hasher, IAccessTokenService accessTokenService, IUniqueIdGenerator idGenerator, ErrorCodes errorCodes, ILogManager<RefreshTokenService> logger) : IRefreshTokenService
 {
     private readonly JwtOptions jwtOptions = jwtOptions.Value;
     private readonly IRefreshTokenRepository refreshTokenRepo = repositoryManager.RefreshTokenRepository;
@@ -92,7 +94,7 @@ public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepos
         tokens.ForEach(t => MarkRevoked(t, now));
         logger.LogDebug("Marked {TokenCount} tokens as revoked for user: {UserId}", tokens.Count, userId);
 
-        await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
         logger.LogInfo("Successfully revoked all refresh tokens for user: {UserId}, tokenCount: {TokenCount}", userId, tokens.Count);
 
         logger.LogDebug("Completed {MethodName}", nameof(RevokeAll));
@@ -107,7 +109,7 @@ public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepos
 
         MarkRevoked(token, DateTime.Now);
 
-        await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
     }
 
     public async Task<bool> Revoke(Guid userId, string refreshToken, CancellationToken cancellationToken = default)
@@ -125,7 +127,7 @@ public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepos
         }
 
         MarkRevoked(token, DateTime.Now);
-        await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
         return true;
     }
@@ -171,7 +173,7 @@ public partial class RefreshTokenService(IOptions<JwtOptions> jwtOptions, IRepos
 
         await refreshTokenRepo.Create(newRefreshEntity, cancellationToken).ConfigureAwait(false);
 
-        await repositoryManager.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
         return new CompositeToken(
             existingRefreshToken.TokenHash,

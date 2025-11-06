@@ -1,6 +1,6 @@
-﻿using Aro.Admin.Domain.Entities;
+﻿using Aro.Common.Domain.Entities;
 
-namespace Aro.Admin.Application.Repository;
+namespace Aro.Common.Application.Repository;
 
 public interface IUserRepository
 {

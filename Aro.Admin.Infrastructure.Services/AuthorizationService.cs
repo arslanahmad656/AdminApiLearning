@@ -1,14 +1,15 @@
 ﻿using Aro.Admin.Application.Services.Authorization;
 using Aro.Admin.Application.Services.SystemContext;
-using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Application.Services.RequestInterpretor;
 using Aro.Common.Domain.Shared;
+using Aro.Common.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class AuthorizationService(IRepositoryManager repository, ICurrentUserService currentUserService, ISystemContext systemContext, ErrorCodes errorCodes, ILogManager<AuthorizationService> logger) : IAuthorizationService
+public partial class AuthorizationService(Common.Application.Repository.IRepositoryManager repository, IRequestInterpretorService currentUserService, ISystemContext systemContext, ErrorCodes errorCodes, ILogManager<AuthorizationService> logger) : IAuthorizationService
 {
     public async Task EnsureUserHasPermission(Guid userId, string permissionCode, CancellationToken cancellationToken)
     {
@@ -21,15 +22,15 @@ public partial class AuthorizationService(IRepositoryManager repository, ICurren
 
         var hasPermission = await UserHasPermission(userId, permissionCode, cancellationToken).ConfigureAwait(false);
         logger.LogDebug("Permission check result for user: {UserId}, permission: {PermissionCode}, hasPermission: {HasPermission}", userId, permissionCode, hasPermission);
-        
+
         if (!hasPermission)
         {
             logger.LogWarn("User does not have required permission, userId: {UserId}, permissionCode: {PermissionCode}", userId, permissionCode);
             throw new AroUserPermissionException(userId, permissionCode);
         }
-        
+
         logger.LogInfo("User has required permission, userId: {UserId}, permissionCode: {PermissionCode}", userId, permissionCode);
-        
+
         logger.LogDebug("Completed {MethodName}", nameof(EnsureUserHasPermission));
     }
 
@@ -50,7 +51,7 @@ public partial class AuthorizationService(IRepositoryManager repository, ICurren
             .ConfigureAwait(false);
 
         logger.LogDebug("Permission check completed, userId: {UserId}, permissionCode: {PermissionCode}, hasPermission: {HasPermission}", userId, permissionCode, exists);
-        
+
         logger.LogDebug("Completed {MethodName}", nameof(UserHasPermission));
         return exists;
     }
@@ -83,7 +84,7 @@ public partial class AuthorizationService(IRepositoryManager repository, ICurren
         {
             var hasPermission = await UserHasPermission(currentUserId.Value, permission, cancellationToken).ConfigureAwait(false);
             logger.LogDebug("Permission check for current user: {UserId}, permission: {Permission}, hasPermission: {HasPermission}", currentUserId.Value, permission, hasPermission);
-            
+
             if (!hasPermission)
             {
                 logger.LogDebug("Current user missing required permission: {Permission}", permission);
@@ -92,7 +93,7 @@ public partial class AuthorizationService(IRepositoryManager repository, ICurren
         }
 
         logger.LogDebug("Current user has all required permissions: {UserId}", currentUserId.Value);
-        
+
         logger.LogDebug("Completed {MethodName}", nameof(CurrentUserHasPermissions));
         return true;
     }
@@ -126,9 +127,9 @@ public partial class AuthorizationService(IRepositoryManager repository, ICurren
             logger.LogDebug("Ensuring permission for current user: {UserId}, permission: {Permission}", currentUserId.Value, permission);
             await EnsureUserHasPermission(currentUserId.Value, permission, cancellationToken).ConfigureAwait(false);
         }
-        
+
         logger.LogInfo("Current user has all required permissions: {UserId}", currentUserId.Value);
-        
+
         logger.LogDebug("Completed {MethodName}", nameof(EnsureCurrentUserPermissions));
     }
 }
