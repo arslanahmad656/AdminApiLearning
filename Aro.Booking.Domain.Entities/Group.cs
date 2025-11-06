@@ -1,6 +1,6 @@
 ﻿using Aro.Common.Domain.Entities;
 
-namespace Aro.Admin.Domain.Entities;
+namespace Aro.Booking.Domain.Entities;
 
 public class Group : IEntity
 {
@@ -13,6 +13,5 @@ public class Group : IEntity
     public string Country { get; set; }
     public byte[] Logo { get; set; }
     public Guid PrimaryContactId { get; set; }
-    public User PrimaryContact { get; set; }
     public bool IsActive { get; set; }
 }

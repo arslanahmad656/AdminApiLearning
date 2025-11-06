@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Disabling this as it's simple to work with the EF Core entities in a nullable-disabled context -->
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Aro.Common.Domain.Entities\Aro.Common.Domain.Entities.csproj" />
+  </ItemGroup>
+
+</Project>

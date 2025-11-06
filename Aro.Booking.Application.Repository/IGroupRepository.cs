@@ -1,6 +1,6 @@
-﻿using Aro.Admin.Domain.Entities;
+﻿using Aro.Booking.Domain.Entities;
 
-namespace Aro.Admin.Domain.Repository;
+namespace Aro.Booking.Application.Repository;
 
 public interface IGroupRepository
 {

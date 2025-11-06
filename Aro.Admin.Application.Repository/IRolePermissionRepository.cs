@@ -1,6 +1,6 @@
 ﻿using Aro.Admin.Domain.Entities;
 
-namespace Aro.Admin.Domain.Repository;
+namespace Aro.Admin.Application.Repository;
 
 public interface IRolePermissionRepository
 {

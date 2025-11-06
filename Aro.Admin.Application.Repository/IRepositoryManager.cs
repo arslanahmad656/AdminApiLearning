@@ -1,6 +1,6 @@
-﻿namespace Aro.Admin.Domain.Repository;
+﻿namespace Aro.Admin.Application.Repository;
 
-public interface IRepositoryManager // also acts as a Unit of Work
+public interface IRepositoryManager
 {
     IAuditTrailRepository AuditTrailRepository { get; }
 
@@ -25,8 +25,4 @@ public interface IRepositoryManager // also acts as a Unit of Work
     IEmailTemplateRepository EmailTemplateRepository { get; }
 
     IPasswordHistoryRepository PasswordHistoryRepository { get; }
-
-    IGroupRepository GroupRepository { get; }
-
-    Task SaveChanges(CancellationToken cancellationToken = default);
 }

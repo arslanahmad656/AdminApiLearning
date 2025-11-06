@@ -1,7 +1,7 @@
 ﻿using Aro.Common.Domain.Entities;
 using System.Linq.Expressions;
 
-namespace Aro.Admin.Domain.Repository;
+namespace Aro.Common.Application.Repository;
 
 public interface IRepositoryBase<T> where T : class, IEntity
 {
