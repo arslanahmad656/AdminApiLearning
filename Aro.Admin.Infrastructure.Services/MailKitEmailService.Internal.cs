@@ -1,4 +1,4 @@
-﻿using Aro.Admin.Application.Services.DTOs.ServiceParameters.Email;
+﻿using Aro.Admin.Application.Services.Email;
 using MimeKit;
 
 namespace Aro.Admin.Infrastructure.Services;

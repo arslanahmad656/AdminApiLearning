@@ -1,6 +1,6 @@
 ﻿using Aro.Admin.Application.Mediator.User.Commands;
 using Aro.Admin.Application.Mediator.User.Notifications;
-using Aro.Admin.Application.Services.DataServices;
+using Aro.Admin.Application.Services.User;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.User.Handlers;

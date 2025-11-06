@@ -2,8 +2,6 @@
 
 public interface IRepositoryManager
 {
-    IAuditTrailRepository AuditTrailRepository { get; }
-
     IIdempotencyRecordRepository IIdempotencyRecordRepository { get; }
     
     IPermissionRepository PermissionRepository { get; }

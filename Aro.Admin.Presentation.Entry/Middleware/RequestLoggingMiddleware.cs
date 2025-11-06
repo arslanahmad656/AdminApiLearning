@@ -1,6 +1,6 @@
 ﻿namespace Aro.Admin.Presentation.Entry.Middleware;
 
-using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Shared.Options;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;

@@ -1,4 +1,4 @@
-using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Infrastructure.Services;
 using Aro.Admin.Tests.Common;
 using FluentAssertions;

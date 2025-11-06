@@ -1,6 +1,6 @@
 ﻿using Aro.Admin.Application.Mediator.Migration.Commands;
 using Aro.Admin.Application.Mediator.Migration.Notifications;
-using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.Migration;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Migration.Handlers;

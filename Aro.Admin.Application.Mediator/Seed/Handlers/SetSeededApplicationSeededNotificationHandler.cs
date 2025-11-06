@@ -1,5 +1,5 @@
 ﻿using Aro.Admin.Application.Mediator.Seed.Notifications;
-using Aro.Admin.Application.Services.DataServices;
+using Aro.Admin.Application.Services.SystemSettings;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Seed.Handlers;

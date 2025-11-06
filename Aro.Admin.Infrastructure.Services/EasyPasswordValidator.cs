@@ -1,5 +1,4 @@
-﻿using Aro.Admin.Application.Services;
-using Aro.Admin.Application.Services.DTOs.ServiceResponses.PasswordComplexity;
+﻿using Aro.Admin.Application.Services.Password;
 using Aro.Admin.Application.Shared.Options;
 using Easy_Password_Validator;
 using Microsoft.Extensions.Options;

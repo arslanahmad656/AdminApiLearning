@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Aro.Admin.Application.Shared\Aro.Admin.Application.Shared.csproj" />
+    <ProjectReference Include="..\Aro.Common.Application.Services\Aro.Common.Application.Services.csproj" />
   </ItemGroup>
 
 </Project>

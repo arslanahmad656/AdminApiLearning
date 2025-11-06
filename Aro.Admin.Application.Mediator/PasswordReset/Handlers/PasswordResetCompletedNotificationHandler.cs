@@ -1,5 +1,5 @@
 using Aro.Admin.Application.Mediator.PasswordReset.Notifications;
-using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.LogManager;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.PasswordReset.Handlers;

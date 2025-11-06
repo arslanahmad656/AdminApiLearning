@@ -1,6 +1,6 @@
 ﻿using Aro.Admin.Application.Mediator.Role.Queries;
 using Aro.Admin.Application.Mediator.Shared.DTOs;
-using Aro.Admin.Application.Services.DataServices;
+using Aro.Admin.Application.Services.Role;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Role.Handlers;

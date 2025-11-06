@@ -1,4 +1,4 @@
-using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.LogManager;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Behaviors;

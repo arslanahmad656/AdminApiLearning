@@ -1,4 +1,4 @@
-﻿using Aro.Admin.Application.Services.DTOs.ServiceParameters.PasswordReset;
+﻿using Aro.Admin.Application.Services.Email;
 using Aro.Admin.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 

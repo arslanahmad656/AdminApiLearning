@@ -1,5 +1,5 @@
-using Aro.Admin.Application.Services.DTOs.ServiceParameters.PasswordReset;
 using Aro.Admin.Application.Services.DTOs.ServiceResponses.PasswordReset;
+using Aro.Admin.Application.Services.Password;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;

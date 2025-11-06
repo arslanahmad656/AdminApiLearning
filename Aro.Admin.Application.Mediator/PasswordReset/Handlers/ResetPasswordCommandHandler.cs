@@ -1,8 +1,8 @@
 using Aro.Admin.Application.Mediator.PasswordReset.Commands;
 using Aro.Admin.Application.Mediator.PasswordReset.DTOs;
 using Aro.Admin.Application.Mediator.PasswordReset.Notifications;
-using Aro.Admin.Application.Services;
-using Aro.Admin.Application.Services.DataServices;
+using Aro.Admin.Application.Services.Password;
+using Aro.Admin.Application.Services.User;
 using Aro.Admin.Domain.Shared.Exceptions;
 using MediatR;
 

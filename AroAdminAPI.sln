@@ -41,7 +41,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Infrastructure.Se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Domain.Shared.Tests", "Aro.Admin.Domain.Shared.Tests\Aro.Admin.Domain.Shared.Tests.csproj", "{5D6AABA7-12D4-4528-82D8-892A99C90D37}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{DCA12E25-68D8-46A1-8ACB-57B83908BEDA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{DCA12E25-68D8-46A1-8ACB-57B83908BEDA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{BB96D250-FC1D-45E4-AE0C-5BEAE7BF4BFA}"
 EndProject
@@ -68,6 +68,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Admin.Application.Repository", "Aro.Admin.Application.Repository\Aro.Admin.Application.Repository.csproj", "{516F8A12-F875-4EF4-9354-588DFF1C5D2F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Booking.Application.Repository", "Aro.Booking.Application.Repository\Aro.Booking.Application.Repository.csproj", "{0456BF04-C9DF-47B9-A6DD-C600313154CF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Booking.Application.Services", "Aro.Booking.Application.Services\Aro.Booking.Application.Services.csproj", "{F12C5419-0C52-4F3C-882F-6A1178346BAE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.Common.Application.Services", "Aro.Common.Application.Services\Aro.Common.Application.Services.csproj", "{1510DE7E-9613-4ACE-8D01-5CF85AF5E429}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -151,6 +155,14 @@ Global
 		{0456BF04-C9DF-47B9-A6DD-C600313154CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0456BF04-C9DF-47B9-A6DD-C600313154CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0456BF04-C9DF-47B9-A6DD-C600313154CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F12C5419-0C52-4F3C-882F-6A1178346BAE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F12C5419-0C52-4F3C-882F-6A1178346BAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F12C5419-0C52-4F3C-882F-6A1178346BAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F12C5419-0C52-4F3C-882F-6A1178346BAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1510DE7E-9613-4ACE-8D01-5CF85AF5E429}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1510DE7E-9613-4ACE-8D01-5CF85AF5E429}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1510DE7E-9613-4ACE-8D01-5CF85AF5E429}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1510DE7E-9613-4ACE-8D01-5CF85AF5E429}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -185,6 +197,8 @@ Global
 		{EB7AF607-84D2-4F38-8EE1-3A8E45BDD2C0} = {1884E111-EF37-4680-A52B-6DEF3E4778C6}
 		{516F8A12-F875-4EF4-9354-588DFF1C5D2F} = {A7E8652D-5871-482F-B1FA-98F262D57CC2}
 		{0456BF04-C9DF-47B9-A6DD-C600313154CF} = {FF83E17C-0E33-4099-88D3-D42226F044C8}
+		{F12C5419-0C52-4F3C-882F-6A1178346BAE} = {FF83E17C-0E33-4099-88D3-D42226F044C8}
+		{1510DE7E-9613-4ACE-8D01-5CF85AF5E429} = {1884E111-EF37-4680-A52B-6DEF3E4778C6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B86AB3AF-0895-4FEF-8444-14F657F6FC4C}

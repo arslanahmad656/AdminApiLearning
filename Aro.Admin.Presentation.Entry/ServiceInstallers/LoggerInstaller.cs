@@ -1,4 +1,5 @@
 ﻿
+using Aro.Admin.Application.Services.LogManager;
 using Serilog;
 
 namespace Aro.Admin.Presentation.Entry.ServiceInstallers;
@@ -14,7 +15,7 @@ public class LoggerInstaller : IServiceInstaller
 
         builder.Host.UseSerilog();
 
-        builder.Services.AddSingleton<Application.Services.ILogManager, Infrastructure.Services.SeriLogger>();
-        builder.Services.AddSingleton(typeof(Application.Services.ILogManager<>), typeof(Infrastructure.Services.SeriLogger<>));
+        builder.Services.AddSingleton<ILogManager, Infrastructure.Services.SeriLogger>();
+        builder.Services.AddSingleton(typeof(ILogManager<>), typeof(Infrastructure.Services.SeriLogger<>));
     }
 }

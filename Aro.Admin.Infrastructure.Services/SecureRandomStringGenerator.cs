@@ -1,4 +1,4 @@
-﻿using Aro.Admin.Application.Services;
+﻿using Aro.Admin.Application.Services.RandomValueGenerator;
 using System.Security.Cryptography;
 
 namespace Aro.Admin.Infrastructure.Services;

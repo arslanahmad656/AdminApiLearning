@@ -1,4 +1,4 @@
-using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Tests.Common;
 using FluentAssertions;
 using Microsoft.Extensions.Caching.Distributed;

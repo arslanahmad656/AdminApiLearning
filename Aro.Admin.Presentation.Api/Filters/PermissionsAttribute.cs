@@ -1,4 +1,4 @@
-﻿using Aro.Admin.Application.Services;
+﻿using Aro.Admin.Application.Services.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;

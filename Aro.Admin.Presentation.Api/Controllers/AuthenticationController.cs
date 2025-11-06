@@ -1,6 +1,6 @@
 ﻿using Aro.Admin.Application.Mediator.Authentication.Commands;
 using Aro.Admin.Application.Mediator.Authentication.DTOs;
-using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Presentation.Api.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;

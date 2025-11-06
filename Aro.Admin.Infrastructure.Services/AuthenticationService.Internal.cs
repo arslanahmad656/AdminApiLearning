@@ -1,4 +1,4 @@
-﻿using Aro.Admin.Application.Services.DTOs.ServiceResponses;
+﻿using Aro.Admin.Application.Services.Authentication;
 using Aro.Admin.Domain.Shared.Exceptions;
 using System.Threading;
 

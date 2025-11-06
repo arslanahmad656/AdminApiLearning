@@ -1,6 +1,7 @@
 ﻿using Aro.Admin.Application.Mediator.Seed.Commands;
 using Aro.Admin.Application.Mediator.Seed.Notifications;
-using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.Email;
+using Aro.Admin.Application.Services.PermissionSeeder;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Seed.Handlers;

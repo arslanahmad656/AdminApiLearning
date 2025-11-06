@@ -1,5 +1,6 @@
-using Aro.Admin.Application.Services;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters.Email;
+using Aro.Admin.Application.Services.Email;
+using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Admin.Tests.Common;

@@ -1,7 +1,8 @@
 ﻿using Aro.Admin.Application.Mediator.Authentication.Commands;
 using Aro.Admin.Application.Mediator.Authentication.DTOs;
 using Aro.Admin.Application.Mediator.Authentication.Notifications;
-using Aro.Admin.Application.Services;
+using Aro.Admin.Application.Services.Authentication;
+using Aro.Admin.Application.Services.Hasher;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Authentication.Handlers;

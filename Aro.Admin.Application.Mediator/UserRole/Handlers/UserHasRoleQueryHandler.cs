@@ -1,5 +1,5 @@
 ﻿using Aro.Admin.Application.Mediator.UserRole.Queries;
-using Aro.Admin.Application.Services.DataServices;
+using Aro.Admin.Application.Services.Role;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.UserRole.Handlers;
