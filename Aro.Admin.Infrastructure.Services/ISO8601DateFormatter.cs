@@ -1,5 +1,5 @@
 ﻿using Aro.Admin.Application.Services.DateFormatter;
-using Aro.Admin.Application.Services.LogManager;
+using Aro.Common.Application.Services.LogManager;
 
 namespace Aro.Admin.Infrastructure.Services;
 

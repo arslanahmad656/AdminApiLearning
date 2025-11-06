@@ -5,9 +5,9 @@ using Aro.Admin.Application.Services.RequestInterpretor;
 using Aro.Admin.Application.Services.Serializer;
 using Aro.Admin.Application.Services.UniqueIdGenerator;
 using Aro.Admin.Domain.Shared;
-using Aro.Admin.Domain.Shared.Audit;
-using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Admin.Infrastructure.Services;
+using Aro.Common.Application.Services.Audit;
+using Aro.Common.Domain.Shared;
 
 namespace Aro.Admin.Presentation.Entry.ServiceInstallers;
 

@@ -1,12 +1,12 @@
 using Aro.Admin.Application.Services.AccessToken;
 using Aro.Admin.Application.Services.DTOs.ServiceResponses;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Services.Role;
 using Aro.Admin.Application.Services.UniqueIdGenerator;
 using Aro.Admin.Application.Services.User;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Shared;
 using Aro.Admin.Tests.Common;
+using Aro.Common.Application.Services.LogManager;
 using FluentAssertions;
 using Microsoft.Extensions.Options;
 using Moq;

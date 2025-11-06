@@ -1,8 +1,8 @@
 ﻿using Aro.Admin.Application.Services.Authorization;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Services.SystemSettings;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
+using Aro.Common.Application.Services.LogManager;
 using System.Threading;
 
 namespace Aro.Admin.Infrastructure.Services;

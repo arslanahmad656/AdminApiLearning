@@ -1,5 +1,4 @@
 using Aro.Admin.Application.Services.Hasher;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Services.Password;
 using Aro.Admin.Application.Services.RandomValueGenerator;
 using Aro.Admin.Application.Services.RequestInterpretor;
@@ -9,6 +8,8 @@ using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;

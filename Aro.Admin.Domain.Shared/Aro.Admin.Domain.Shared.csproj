@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Audit\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Aro.Common.Domain.Shared\Aro.Common.Domain.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

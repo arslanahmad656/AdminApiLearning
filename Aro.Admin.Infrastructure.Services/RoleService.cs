@@ -1,9 +1,9 @@
 ﻿using Aro.Admin.Application.Services.Authorization;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Services.Role;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
+using Aro.Common.Application.Services.LogManager;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;

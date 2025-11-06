@@ -1,10 +1,10 @@
 ﻿using Aro.Admin.Application.Services.Authorization;
 using Aro.Admin.Application.Services.DataServices;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Services.Migration;
 using Aro.Admin.Domain.Shared;
 using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Admin.Infrastructure.Repository.Context;
+using Aro.Common.Application.Services.LogManager;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;

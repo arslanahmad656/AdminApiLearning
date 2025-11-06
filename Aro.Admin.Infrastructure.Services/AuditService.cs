@@ -1,13 +1,12 @@
 ﻿using Aro.Admin.Application.Services.Audit;
 using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Services.RequestInterpretor;
 using Aro.Admin.Application.Services.Serializer;
 using Aro.Admin.Application.Services.UniqueIdGenerator;
 using Aro.Admin.Domain.Repository;
-using Aro.Admin.Domain.Shared;
-using Aro.Admin.Domain.Shared.Audit;
 using Aro.Common.Application.Services.Audit;
+using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Shared;
 
 namespace Aro.Admin.Infrastructure.Services;
 

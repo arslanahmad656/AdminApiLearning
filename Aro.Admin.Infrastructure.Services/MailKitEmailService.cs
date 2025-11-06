@@ -1,7 +1,8 @@
 ﻿using Aro.Admin.Application.Services.Email;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Shared;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;

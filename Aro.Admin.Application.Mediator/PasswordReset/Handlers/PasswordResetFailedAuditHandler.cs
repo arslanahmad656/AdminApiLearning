@@ -1,6 +1,4 @@
 using Aro.Admin.Application.Mediator.PasswordReset.Notifications;
-using Aro.Admin.Application.Services.Audit;
-using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
 using Aro.Admin.Application.Services.RequestInterpretor;
 using Aro.Common.Application.Services.Audit;
 using MediatR;
@@ -9,18 +7,20 @@ namespace Aro.Admin.Application.Mediator.PasswordReset.Handlers;
 
 public class PasswordResetFailedAuditHandler(
     IAuditService auditService,
-    IRequestInterpretorService requestInterpretor) : INotificationHandler<PasswordResetFailedNotification>
+    IRequestInterpretorService requestInterpretor,
+    AuditActions auditActions) : INotificationHandler<PasswordResetFailedNotification>
 {
     public async Task Handle(PasswordResetFailedNotification notification, CancellationToken cancellationToken)
     {
-        var auditLog = new PasswordResetFailedLog(
+        var log = new
+        {
             notification.Data.UserId,
             notification.Data.FailureReason,
             notification.Data.FailedAt,
-            requestInterpretor.RetrieveIpAddress() ?? string.Empty,
-            requestInterpretor.GetUserAgent() ?? string.Empty
-        );
+            IPAddress = requestInterpretor.RetrieveIpAddress() ?? string.Empty,
+            UserAgent = requestInterpretor.GetUserAgent() ?? string.Empty
+        };
 
-        await auditService.LogPasswordResetFailed(auditLog, cancellationToken).ConfigureAwait(false);
+        await auditService.Log(new(auditActions.PasswordResetFailed, string.Empty, string.Empty, log), cancellationToken).ConfigureAwait(false);
     }
 }

@@ -1,7 +1,7 @@
 using Aro.Admin.Application.Mediator.PasswordReset.Commands;
 using Aro.Admin.Application.Mediator.PasswordReset.DTOs;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Presentation.Api.DTOs;
+using Aro.Common.Application.Services.LogManager;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

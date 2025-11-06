@@ -5,7 +5,8 @@ using Aro.Admin.Application.Services;
 using Aro.Admin.Application.Services.SystemSettings;
 using Aro.Admin.Application.Services.User;
 using Aro.Admin.Application.Shared.Options;
-using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Domain.Shared;
+using Aro.Common.Domain.Shared.Exceptions;
 using MediatR;
 using Microsoft.Extensions.Options;
 
@@ -32,7 +33,7 @@ public class InitializeSystemCommandHandler(IUserService userService, ISystemSet
             throw new AroInvalidOperationException(errorCodes.SYSTEM_ALREADY_INITIALIZED, $"Cannot re-initialize the system once it has been initialized.");
         }
 
-            var userForService = new Services.DTOs.ServiceParameters.CreateUserDto(request.User.Email, true, true, request.User.Password, request.User.DisplayName, [adminRoleName]);
+            var userForService = new CreateUserDto(request.User.Email, true, true, request.User.Password, request.User.DisplayName, [adminRoleName]);
 
         var response = await userService.CreateUser(userForService, cancellationToken).ConfigureAwait(false);
 

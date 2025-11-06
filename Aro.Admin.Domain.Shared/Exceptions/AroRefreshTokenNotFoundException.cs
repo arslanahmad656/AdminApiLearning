@@ -1,4 +1,7 @@
-﻿namespace Aro.Admin.Domain.Shared.Exceptions;
+﻿using Aro.Common.Domain.Shared;
+using Aro.Common.Domain.Shared.Exceptions;
+
+namespace Aro.Admin.Domain.Shared.Exceptions;
 
 public class AroRefreshTokenNotFoundException(string identifier, AroRefreshTokenNotFoundException.IdentifierType IdentifierType, Exception? innerException = null) : AroNotFoundException(
         IdentifierType switch

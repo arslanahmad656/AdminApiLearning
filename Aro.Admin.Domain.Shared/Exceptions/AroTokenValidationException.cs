@@ -1,3 +1,5 @@
+using Aro.Common.Domain.Shared.Exceptions;
+
 namespace Aro.Admin.Domain.Shared.Exceptions;
 
 [Serializable]

@@ -1,5 +1,5 @@
-﻿using Aro.Admin.Application.Services.LogManager;
-using Aro.Admin.Application.Services.Serializer;
+﻿using Aro.Admin.Application.Services.Serializer;
+using Aro.Common.Application.Services.LogManager;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;

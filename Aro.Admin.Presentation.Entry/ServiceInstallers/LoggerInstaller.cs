@@ -1,5 +1,4 @@
-﻿
-using Aro.Admin.Application.Services.LogManager;
+﻿using Aro.Common.Application.Services.LogManager;
 using Serilog;
 
 namespace Aro.Admin.Presentation.Entry.ServiceInstallers;

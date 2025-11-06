@@ -3,7 +3,8 @@ using Aro.Admin.Application.Mediator.PasswordReset.DTOs;
 using Aro.Admin.Application.Mediator.PasswordReset.Notifications;
 using Aro.Admin.Application.Services.Password;
 using Aro.Admin.Application.Services.User;
-using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Domain.Shared;
+using Aro.Common.Domain.Shared.Exceptions;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.PasswordReset.Handlers;

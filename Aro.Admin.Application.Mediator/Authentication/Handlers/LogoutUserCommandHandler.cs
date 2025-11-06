@@ -3,11 +3,12 @@ using Aro.Admin.Application.Mediator.Authentication.DTOs;
 using Aro.Admin.Application.Mediator.Authentication.Notifications;
 using Aro.Admin.Application.Services.Authentication;
 using Aro.Admin.Application.Services.Hasher;
+using Aro.Admin.Application.Services.RequestInterpretor;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Authentication.Handlers;
 
-public class LogoutUserCommandHandler(IMediator mediator, IAuthenticationService authenticationService, IHasher hasher, ICurrentUserService currentUserService) : IRequestHandler<LogoutUserCommand, bool>
+public class LogoutUserCommandHandler(IMediator mediator, IAuthenticationService authenticationService, IHasher hasher, IRequestInterpretorService currentUserService) : IRequestHandler<LogoutUserCommand, bool>
 {
     public async Task<bool> Handle(LogoutUserCommand request, CancellationToken cancellationToken)
     {

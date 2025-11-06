@@ -1,6 +1,7 @@
 ﻿using Aro.Admin.Application.Services.DTOs.ServiceResponses;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Shared;
 using Microsoft.AspNetCore.Http;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

@@ -1,11 +1,11 @@
 using Aro.Admin.Application.Services.DataServices;
 using Aro.Admin.Application.Services.Email;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
-using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Admin.Infrastructure.Services;
+using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Shared;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;

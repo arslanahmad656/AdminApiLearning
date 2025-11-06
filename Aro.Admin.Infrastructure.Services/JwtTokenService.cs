@@ -1,9 +1,9 @@
 ﻿using Aro.Admin.Application.Services.AccessToken;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Services.UniqueIdGenerator;
 using Aro.Admin.Application.Services.User;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Shared;
+using Aro.Common.Application.Services.LogManager;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;

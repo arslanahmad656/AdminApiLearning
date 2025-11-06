@@ -1,6 +1,6 @@
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Infrastructure.Services;
 using Aro.Admin.Tests.Common;
+using Aro.Common.Application.Services.LogManager;
 using AutoFixture;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;

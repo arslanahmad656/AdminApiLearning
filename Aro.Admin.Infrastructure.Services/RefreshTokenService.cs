@@ -1,11 +1,12 @@
 ﻿using Aro.Admin.Application.Services.AccessToken;
 using Aro.Admin.Application.Services.Authentication;
 using Aro.Admin.Application.Services.Hasher;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Services.UniqueIdGenerator;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;

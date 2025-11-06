@@ -1,7 +1,8 @@
 using Aro.Admin.Application.Services.DTOs.ServiceResponses;
-using Aro.Admin.Application.Services.LogManager;
-using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Admin.Tests.Common;
+using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Shared;
+using Aro.Common.Domain.Shared.Exceptions;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Moq;

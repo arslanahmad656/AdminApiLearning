@@ -1,11 +1,12 @@
 ﻿using Aro.Admin.Application.Services.Authorization;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Admin.Application.Services.PermissionSeeder;
 using Aro.Admin.Application.Services.Serializer;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Domain.Shared;
 using Aro.Admin.Domain.Shared.Exceptions;
+using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;

@@ -1,13 +1,12 @@
 using Aro.Admin.Application.Mediator.PasswordReset.Notifications;
-using Aro.Admin.Application.Services.Audit;
-using Aro.Admin.Application.Services.DTOs.ServiceParameters.Audit;
-using Aro.Admin.Application.Services.LogManager;
 using Aro.Common.Application.Services.Audit;
+using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Shared;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.PasswordReset.Handlers;
 
-public class PasswordResetEmailFailedNotificationHandler(ILogManager<PasswordResetEmailFailedNotificationHandler> logger, IAuditService auditService) : INotificationHandler<PasswordResetEmailFailedNotification>
+public class PasswordResetEmailFailedNotificationHandler(ILogManager<PasswordResetEmailFailedNotificationHandler> logger, IAuditService auditService, AuditActions auditActions, EntityTypes entityTypes) : INotificationHandler<PasswordResetEmailFailedNotification>
 {
     public Task Handle(PasswordResetEmailFailedNotification notification, CancellationToken cancellationToken)
     {
@@ -16,7 +15,15 @@ public class PasswordResetEmailFailedNotificationHandler(ILogManager<PasswordRes
             notification.Data.ErrorMessage,
             notification.Data.ErrorCode,
             notification.Data.FailedAt);
-        var log = new PasswordResetLinkGenerationFailedLog(notification.Data.Email, notification.Data.ErrorMessage, notification.Data.ErrorCode, notification.Data.FailedAt);
-        return auditService.LogPasswordResetLinkGenerationFailed(log, cancellationToken);
+
+        var log = new
+        {
+            notification.Data.Email,
+            notification.Data.ErrorMessage,
+            notification.Data.ErrorCode,
+            notification.Data.FailedAt,
+        };
+
+        return auditService.Log(new(auditActions.PasswordResetLinkGenerationFailed, entityTypes.PasswordResetLink, string.Empty, log), cancellationToken);
     }
 }
