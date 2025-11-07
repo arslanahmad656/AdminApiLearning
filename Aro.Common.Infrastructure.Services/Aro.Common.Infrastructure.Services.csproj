@@ -15,6 +15,7 @@
     <ProjectReference Include="..\Aro.Common.Application.Repository\Aro.Common.Application.Repository.csproj" />
     <ProjectReference Include="..\Aro.Common.Application.Services\Aro.Common.Application.Services.csproj" />
     <ProjectReference Include="..\Aro.Common.Domain.Shared\Aro.Common.Domain.Shared.csproj" />
+    <ProjectReference Include="..\Aro.Common.Infrastructure.Repository\Aro.Common.Infrastructure.Repository.csproj" />
   </ItemGroup>
 
 </Project>

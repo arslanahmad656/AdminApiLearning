@@ -14,4 +14,5 @@ public class Group : IEntity
     public byte[] Logo { get; set; }
     public Guid PrimaryContactId { get; set; }
     public bool IsActive { get; set; }
+    public User PrimaryContact { get; set; }
 }

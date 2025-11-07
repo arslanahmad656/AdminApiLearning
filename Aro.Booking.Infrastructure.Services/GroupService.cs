@@ -1,17 +1,28 @@
-﻿using Aro.Booking.Application.Services.Group;
+﻿using Aro.Booking.Application.Repository;
+using Aro.Booking.Application.Services.Group;
+using Aro.Booking.Domain.Entities;
+using Aro.Booking.Domain.Shared.Exceptions;
+using Aro.Common.Application.Repository;
+using Aro.Common.Application.Services.Authorization;
+using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Application.Services.UniqueIdGenerator;
+using Aro.Common.Domain.Shared;
+using Aro.Common.Domain.Shared.Exceptions;
+using Aro.Common.Infrastructure.Shared.Extensions;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Booking.Infrastructure.Services;
 
 public partial class GroupService(
-    IRepositoryManager repository,
+    Application.Repository.IRepositoryManager bookingRepository,
+    Common.Application.Repository.IRepositoryManager commonRepository,
+    IUnitOfWork unitOfWork,
     IUniqueIdGenerator idGenerator,
-    IAuthorizationService authorizationService,
-    ILogManager<GroupService> logger,
-    ErrorCodes errorCodes
+    IAuthorizationService authorizationService
 ) : IGroupService
 {
-    private readonly IGroupRepository groupRepository = repository.GroupRepository;
-    private readonly IUserRepository userRepository = repository.UserRepository;
+    private readonly IGroupRepository groupRepository = bookingRepository.GroupRepository;
+    private readonly IUserRepository userRepository = commonRepository.UserRepository;
 
     public async Task<CreateGroupResponse> CreateGroup(CreateGroupDto group, CancellationToken cancellationToken = default)
     {
@@ -39,7 +50,7 @@ public partial class GroupService(
 
         await groupRepository.Create(GroupEntity, cancellationToken).ConfigureAwait(false);
 
-        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
         return new CreateGroupResponse(GroupEntity.Id, GroupEntity.GroupName);
     }
@@ -133,7 +144,7 @@ public partial class GroupService(
             existingGroup.IsActive = group.IsActive.Value;
 
         groupRepository.Update(existingGroup);
-        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
         return new PatchGroupResponse(
             existingGroup.Id,
@@ -164,7 +175,7 @@ public partial class GroupService(
             throw new AroGroupNotFoundException(dto.Id.ToString());
 
         groupRepository.Delete(group);
-        await repository.SaveChanges(cancellationToken).ConfigureAwait(false);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
         return new DeleteGroupResponse(dto.Id);
     }

@@ -1,10 +1,9 @@
-﻿using Aro.Admin.Application.Services.Authorization;
-using Aro.Admin.Application.Services.PermissionSeeder;
-using Aro.Admin.Domain.Entities;
-using Aro.Admin.Domain.Shared;
+﻿using Aro.Admin.Application.Services.PermissionSeeder;
 using Aro.Common.Application.Repository;
+using Aro.Common.Application.Services.Authorization;
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Application.Services.Serializer;
+using Aro.Common.Domain.Entities;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +12,7 @@ namespace Aro.Admin.Infrastructure.Services;
 
 public class PermissionSeeder
 (
-    Application.Repository.IRepositoryManager repository,
+    IRepositoryManager repository,
     IUnitOfWork unitOfWork,
     ISerializer serializer,
     ErrorCodes errorCodes,

@@ -10,4 +10,5 @@ public class User : IEntity
     public DateTime? UpdatedAt { get; set; }
     public string DisplayName { get; set; }
     public bool IsSystem { get; set; }
+    public ICollection<UserRole> UserRoles { get; set; }
 }

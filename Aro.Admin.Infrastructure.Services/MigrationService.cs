@@ -1,13 +1,13 @@
-﻿using Aro.Admin.Application.Services.Authorization;
-using Aro.Admin.Application.Services.Migration;
-using Aro.Admin.Domain.Shared;
-using Aro.Admin.Infrastructure.Repository.Context;
+﻿using Aro.Admin.Application.Services.Migration;
+using Aro.Common.Application.Services.Authorization;
 using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Shared;
+using Aro.Common.Infrastructure.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class MigrationService(AroAdminApiDbContext context, IAuthorizationService authorizationService, ILogManager<MigrationService> logger) : IMigrationService
+public class MigrationService(AroDbContext context, IAuthorizationService authorizationService, ILogManager<MigrationService> logger) : IMigrationService
 {
     public async Task Migrate(CancellationToken cancellationToken)
     {

@@ -5,7 +5,7 @@ using Aro.Admin.Presentation.Api.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using static Aro.Admin.Domain.Shared.PermissionCodes;
+using static Aro.Common.Domain.Shared.PermissionCodes;
 
 namespace Aro.Admin.Presentation.Api.Controllers;
 

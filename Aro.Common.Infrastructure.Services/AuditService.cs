@@ -5,7 +5,6 @@ using Aro.Common.Application.Services.RequestInterpretor;
 using Aro.Common.Application.Services.Serializer;
 using Aro.Common.Application.Services.UniqueIdGenerator;
 using Aro.Common.Domain.Entities;
-using Aro.Common.Domain.Shared;
 
 namespace Aro.Common.Infrastructure.Services;
 

@@ -1,14 +1,10 @@
-﻿using Aro.Admin.Application.Repository;
-using Aro.Admin.Application.Services.Authorization;
-using Aro.Admin.Application.Services.Hasher;
+﻿using Aro.Admin.Application.Services.Hasher;
 using Aro.Admin.Application.Services.Password;
 using Aro.Admin.Application.Services.Role;
 using Aro.Admin.Application.Services.User;
 using Aro.Admin.Application.Shared.Options;
-using Aro.Admin.Domain.Entities;
-using Aro.Admin.Domain.Shared;
-using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Common.Application.Repository;
+using Aro.Common.Application.Services.Authorization;
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Application.Services.UniqueIdGenerator;
 using Aro.Common.Domain.Entities;
@@ -19,11 +15,11 @@ using Microsoft.Extensions.Options;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class UserService(Application.Repository.IRepositoryManager adminRepository, Common.Application.Repository.IRepositoryManager commonRepository, IUnitOfWork unitOfWork, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, ILogManager<UserService> logger, IOptions<AdminSettings> adminSettings, ErrorCodes errorCodes, IPasswordHistoryEnforcer passwordHistoryEnforcer, IPasswordComplexityService passwordComplexityService) : IUserService
+public partial class UserService(IRepositoryManager commonRepository, IUnitOfWork unitOfWork, IHasher passwordHasher, IUniqueIdGenerator idGenerator, IAuthorizationService authorizationService, ILogManager<UserService> logger, IOptions<AdminSettings> adminSettings, ErrorCodes errorCodes, IPasswordHistoryEnforcer passwordHistoryEnforcer, IPasswordComplexityService passwordComplexityService) : IUserService
 {
     private readonly AdminSettings adminSettings = adminSettings.Value;
     private readonly IUserRepository userRepository = commonRepository.UserRepository;
-    private readonly IRoleRepository roleRepository = adminRepository.RoleRepository;
+    private readonly IRoleRepository roleRepository = commonRepository.RoleRepository;
 
     public async Task<CreateUserResponse> CreateUser(CreateUserDto user, CancellationToken cancellationToken = default)
     {

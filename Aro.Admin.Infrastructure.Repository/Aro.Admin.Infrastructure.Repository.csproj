@@ -15,11 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Aro.Admin.Application.Repository\Aro.Admin.Application.Repository.csproj" />
+    <ProjectReference Include="..\Aro.Admin.Domain.Entities\Aro.Admin.Domain.Entities.csproj" />
     <ProjectReference Include="..\Aro.Admin.Domain.Shared\Aro.Admin.Domain.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Repositories\" />
+    <ProjectReference Include="..\Aro.Common.Infrastructure.Repository\Aro.Common.Infrastructure.Repository.csproj" />
   </ItemGroup>
 
 </Project>

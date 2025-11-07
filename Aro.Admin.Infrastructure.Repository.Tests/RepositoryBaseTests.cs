@@ -1,4 +1,3 @@
-using Aro.Admin.Domain.Entities;
 using Aro.Admin.Infrastructure.Repository.Context;
 using Aro.Admin.Infrastructure.Repository.Repositories;
 using Aro.Admin.Tests.Common;

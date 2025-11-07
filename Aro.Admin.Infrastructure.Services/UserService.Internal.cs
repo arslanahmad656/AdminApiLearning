@@ -1,7 +1,6 @@
 ﻿using Aro.Admin.Application.Services.Role;
-using Aro.Admin.Domain.Shared;
-using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Common.Domain.Entities;
+using Aro.Common.Domain.Shared;
 using Aro.Common.Domain.Shared.Exceptions;
 using Microsoft.EntityFrameworkCore;
 

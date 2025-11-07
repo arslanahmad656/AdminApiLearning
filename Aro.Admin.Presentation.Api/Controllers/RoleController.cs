@@ -1,10 +1,9 @@
 ﻿using Aro.Admin.Application.Services.Role;
-using Aro.Admin.Domain.Shared;
 using Aro.Admin.Presentation.Api.DTOs;
 using Aro.Admin.Presentation.Api.Filters;
 using Aro.Common.Application.Services.LogManager;
 using Microsoft.AspNetCore.Mvc;
-using static Aro.Admin.Domain.Shared.PermissionCodes;
+using static Aro.Common.Domain.Shared.PermissionCodes;
 
 namespace Aro.Admin.Presentation.Api.Controllers;
 

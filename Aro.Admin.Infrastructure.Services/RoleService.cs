@@ -1,15 +1,14 @@
-﻿using Aro.Admin.Application.Repository;
-using Aro.Admin.Application.Services.Authorization;
-using Aro.Admin.Application.Services.Role;
-using Aro.Admin.Domain.Entities;
-using Aro.Admin.Domain.Shared;
+﻿using Aro.Admin.Application.Services.Role;
 using Aro.Common.Application.Repository;
+using Aro.Common.Application.Services.Authorization;
 using Aro.Common.Application.Services.LogManager;
+using Aro.Common.Domain.Entities;
+using Aro.Common.Domain.Shared;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class RoleService(Application.Repository.IRepositoryManager repository, IUnitOfWork unitOfWork, IAuthorizationService authorizationService, ILogManager<RoleService> logger) : IRoleService
+public class RoleService(IRepositoryManager repository, IUnitOfWork unitOfWork, IAuthorizationService authorizationService, ILogManager<RoleService> logger) : IRoleService
 {
     private readonly IUserRoleRepository userRoleRepository = repository.UserRoleRepository;
     private readonly IRoleRepository roleRepository = repository.RoleRepository;

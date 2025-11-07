@@ -1,7 +1,6 @@
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Repository;
 using Aro.Admin.Infrastructure.Repository.Context;
-using Aro.Admin.Infrastructure.Repository.Repositories;
 using Aro.Admin.Tests.Common;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
