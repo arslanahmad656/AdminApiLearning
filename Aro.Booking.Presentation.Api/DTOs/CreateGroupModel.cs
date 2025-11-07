@@ -1,4 +1,4 @@
-﻿namespace Aro.Admin.Presentation.Api.DTOs;
+﻿namespace Aro.Booking.Presentation.Api.DTOs;
 
 public record CreateGroupModel(
     string GroupName,

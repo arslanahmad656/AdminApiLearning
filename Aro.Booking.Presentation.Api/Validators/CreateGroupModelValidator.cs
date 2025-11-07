@@ -1,7 +1,7 @@
-﻿using Aro.Admin.Presentation.Api.DTOs;
+﻿using Aro.Booking.Presentation.Api.DTOs;
 using FluentValidation;
 
-namespace Aro.Admin.Presentation.Api.Validators;
+namespace Aro.Booking.Presentation.Api.Validators;
 
 public class CreateGroupModelValidator : AbstractValidator<CreateGroupModel>
 {

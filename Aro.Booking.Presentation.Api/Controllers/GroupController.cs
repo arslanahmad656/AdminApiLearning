@@ -1,21 +1,18 @@
-﻿using Aro.Admin.Application.Mediator.Group.Commands;
-using Aro.Admin.Application.Mediator.Group.Queries;
-using Aro.Admin.Domain.Shared.Exceptions;
-using Aro.Admin.Presentation.Api.DTOs;
-using Aro.Admin.Presentation.Api.Filters;
+﻿using Aro.Booking.Application.Mediator.Group.Commands;
+using Aro.Booking.Application.Mediator.Group.Queries;
+using Aro.Booking.Presentation.Api.DTOs;
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
+using Aro.Common.Presentation.Shared.Filters;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MediatorDtos = Aro.Admin.Application.Mediator.Group.DTOs;
 
-namespace Aro.Admin.Presentation.Api.Controllers;
+namespace Aro.Booking.Presentation.Api.Controllers;
 
 [ApiController]
 [Route("api/group")]
 public class GroupController(
-    IMediator mediator, 
+    IMediator mediator,
     ILogManager<GroupController> logger
     ) : ControllerBase
 {
@@ -75,7 +72,7 @@ public class GroupController(
     [HttpGet("get/{groupId:guid}")]
     [Permissions(PermissionCodes.GetGroup)]
     public async Task<IActionResult> GetGroup(
-        Guid groupId, 
+        Guid groupId,
         [FromQuery] GetGroupQueryParameters model,
         CancellationToken cancellationToken
         )

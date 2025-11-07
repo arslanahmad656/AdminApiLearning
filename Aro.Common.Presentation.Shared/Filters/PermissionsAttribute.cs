@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Aro.Admin.Presentation.Api.Filters;
+namespace Aro.Common.Presentation.Shared.Filters;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class PermissionsAttribute(params string[] permissions) : Attribute, IAsyncAuthorizationFilter

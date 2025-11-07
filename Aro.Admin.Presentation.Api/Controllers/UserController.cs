@@ -1,13 +1,12 @@
 ﻿using Aro.Admin.Application.Mediator.User.Commands;
 using Aro.Admin.Application.Mediator.User.Queries;
 using Aro.Admin.Presentation.Api.DTOs;
-using Aro.Admin.Presentation.Api.Filters;
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
+using Aro.Common.Presentation.Shared.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MediatorDtos = Aro.Admin.Application.Mediator.User.DTOs;
 
 namespace Aro.Admin.Presentation.Api.Controllers;
 
