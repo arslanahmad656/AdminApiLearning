@@ -4,11 +4,13 @@ using Aro.Admin.Application.Services.PermissionSeeder;
 using Aro.Admin.Application.Services.Role;
 using Aro.Admin.Application.Services.SystemSettings;
 using Aro.Admin.Application.Services.User;
-using Aro.Admin.Domain.Repository;
 using Aro.Admin.Infrastructure.Repository;
-using Aro.Admin.Infrastructure.Repository.Context;
 using Aro.Admin.Infrastructure.Services;
+using Aro.Booking.Application.Services.Group;
+using Aro.Booking.Infrastructure.Services;
 using Aro.Common.Application.Services.Audit;
+using Aro.Common.Infrastructure.Repository.Context;
+using Aro.Common.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Admin.Presentation.Entry.ServiceInstallers;
@@ -17,7 +19,7 @@ internal class DatabaseServicesInstaller : IServiceInstaller
 {
     public void Install(WebApplicationBuilder builder)
     {
-        builder.Services.AddDbContext<AroAdminApiDbContext>(options =>
+        builder.Services.AddDbContext<AroDbContext>(options =>
         {
             options.UseSqlServer(builder.Configuration.GetConnectionString("sqlConnection"), b => b.MigrationsAssembly(this.GetType().Assembly));
             var enableSensitiveData = builder.Configuration.GetValue<bool>("EnableEfCoreParameterValuesLogging");
@@ -28,7 +30,9 @@ internal class DatabaseServicesInstaller : IServiceInstaller
             }
         });
 
-        builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
+        builder.Services.AddScoped<Common.Application.Repository.IRepositoryManager, Common.Infrastructure.Repository.RepositoryManager>();
+        builder.Services.AddScoped<Booking.Application.Repository.IRepositoryManager, Booking.Infrastructure.Repository.RepositoryManager>();
+        builder.Services.AddScoped<Admin.Application.Repository.IRepositoryManager, Admin.Infrastructure.Repository.RepositoryManager>();
 
         // Add data services here
         builder.Services.AddScoped<IPermissionSeeder, PermissionSeeder>();

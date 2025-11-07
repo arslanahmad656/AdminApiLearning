@@ -29,8 +29,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Aro.Admin.Application.Services\Aro.Admin.Application.Services.csproj" />
+    <ProjectReference Include="..\Aro.Admin.Infrastructure.Repository\Aro.Admin.Infrastructure.Repository.csproj" />
     <ProjectReference Include="..\Aro.Admin.Infrastructure.Services\Aro.Admin.Infrastructure.Services.csproj" />
     <ProjectReference Include="..\Aro.Admin.Presentation.Api\Aro.Admin.Presentation.Api.csproj" />
+    <ProjectReference Include="..\Aro.Booking.Infrastructure.Repository\Aro.Booking.Infrastructure.Repository.csproj" />
+    <ProjectReference Include="..\Aro.Booking.Infrastructure.Services\Aro.Booking.Infrastructure.Services.csproj" />
+    <ProjectReference Include="..\Aro.Booking.Presentation.Api\Aro.Booking.Presentation.Api.csproj" />
+    <ProjectReference Include="..\Aro.Common.Infrastructure.Repository\Aro.Common.Infrastructure.Repository.csproj" />
+    <ProjectReference Include="..\Aro.Common.Infrastructure.Services\Aro.Common.Infrastructure.Services.csproj" />
   </ItemGroup>
 
 </Project>

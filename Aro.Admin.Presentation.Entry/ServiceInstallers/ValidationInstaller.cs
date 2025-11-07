@@ -13,7 +13,9 @@ public class ValidationInstaller : IServiceInstaller
 {
     public void Install(WebApplicationBuilder builder)
     {
-        builder.Services.AddValidatorsFromAssemblyContaining<AssemblyReference>();
+        builder.Services
+            .AddValidatorsFromAssemblyContaining<Admin.Presentation.Api.AssemblyReference>()
+            .AddValidatorsFromAssemblyContaining<Booking.Presentation.Api.AssemblyReference>();
 
         builder.Services.AddFluentValidationAutoValidation(config =>
         {

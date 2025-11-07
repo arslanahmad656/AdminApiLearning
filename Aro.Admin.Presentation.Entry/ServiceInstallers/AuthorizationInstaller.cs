@@ -1,6 +1,7 @@
 ﻿using Aro.Admin.Application.Services.Password;
 using Aro.Admin.Infrastructure.Services;
 using Aro.Common.Application.Services.Authorization;
+using Aro.Common.Infrastructure.Services;
 
 namespace Aro.Admin.Presentation.Entry.ServiceInstallers;
 

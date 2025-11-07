@@ -3,8 +3,6 @@ using Aro.Admin.Application.Mediator.Seed.Commands;
 using Aro.Admin.Application.Mediator.SystemSettings.Commands;
 using Aro.Admin.Application.Services.SystemSettings;
 using Aro.Admin.Application.Shared.Options;
-using Aro.Admin.Domain.Repository;
-using Aro.Admin.Infrastructure.Services.SystemContext;
 using Aro.Admin.Presentation.Entry.ServiceInstallers;
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Application.Services.SystemContext;

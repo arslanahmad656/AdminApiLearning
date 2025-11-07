@@ -9,7 +9,9 @@ internal class MediatorInstaller : IServiceInstaller
     {
         builder.Services.AddMediatR(conf =>
         {
-            conf.RegisterServicesFromAssembly(typeof(AssemblyReference).Assembly);
+            conf.RegisterServicesFromAssembly(typeof(Common.Application.Mediator.AssemblyReference).Assembly);
+            conf.RegisterServicesFromAssembly(typeof(Admin.Application.Mediator.AssemblyReference).Assembly);
+            conf.RegisterServicesFromAssembly(typeof(Booking.Application.Mediator.AssemblyReference).Assembly);
         });
     }
 }

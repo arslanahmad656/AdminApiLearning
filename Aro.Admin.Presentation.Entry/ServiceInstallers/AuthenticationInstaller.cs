@@ -1,10 +1,9 @@
-﻿
-using Aro.Admin.Application.Services;
-using Aro.Admin.Application.Services.AccessToken;
+﻿using Aro.Admin.Application.Services.AccessToken;
 using Aro.Admin.Application.Services.Authentication;
 using Aro.Admin.Application.Shared.Options;
-using Aro.Admin.Domain.Shared.Exceptions;
 using Aro.Admin.Infrastructure.Services;
+using Aro.Common.Domain.Shared;
+using Aro.Common.Domain.Shared.Exceptions;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -15,7 +14,6 @@ public class AuthenticationInstaller : IServiceInstaller
 {
     public void Install(WebApplicationBuilder builder)
     {
-        builder.Services.AddScoped<ICurrentUserService, HttpContextBasedCurrentUserService>();
         builder.Services.AddScoped<IAccessTokenService, JwtTokenService>();
         builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         builder.Services.AddScoped<ITokenBlackListService, CacheBasedTokenBlackListService>();
