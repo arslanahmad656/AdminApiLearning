@@ -41,10 +41,11 @@ public class AuditTrailConfiguration : IEntityTypeConfiguration<AuditTrail>
         builder.Property(a => a.Timestamp)
             .IsRequired();
 
-        builder.HasOne<User>()
-            .WithMany()
-            .HasForeignKey(a => a.ActorUserId)
-            .OnDelete(DeleteBehavior.SetNull);
+        // not required because actor user may be deleted or under the system context, there is no user.
+        //builder.HasOne<User>()
+        //    .WithMany()
+        //    .HasForeignKey(a => a.ActorUserId)
+        //    .OnDelete(DeleteBehavior.SetNull);
 
         builder.HasIndex(a => new { a.EntityType, a.EntityId });
 

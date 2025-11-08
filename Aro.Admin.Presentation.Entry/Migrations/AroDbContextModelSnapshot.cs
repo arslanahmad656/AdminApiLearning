@@ -4,7 +4,6 @@ using Aro.Common.Infrastructure.Repository.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -12,11 +11,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Aro.Admin.Presentation.Entry.Migrations
 {
     [DbContext(typeof(AroDbContext))]
-    [Migration("20251021074109_010_Add_PasswordResetToken_Table")]
-    partial class _010_Add_PasswordResetToken_Table
+    partial class AroDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,56 +22,35 @@ namespace Aro.Admin.Presentation.Entry.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.AuditTrail", b =>
+            modelBuilder.Entity("Aro.Admin.Domain.Entities.EmailTemplate", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Action")
+                    b.Property<string>("Body")
                         .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
+                        .HasColumnType("text");
 
-                    b.Property<Guid?>("ActorId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("Identifier")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
-                    b.Property<string>("ActorName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                    b.Property<bool>("IsHTML")
+                        .HasColumnType("bit");
 
-                    b.Property<Guid?>("ActorUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Data")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("EntityId")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("EntityType")
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.Property<string>("IpAddress")
-                        .HasMaxLength(64)
-                        .HasColumnType("nvarchar(64)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Subject")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ActorId");
+                    b.HasIndex("Identifier")
+                        .IsUnique();
 
-                    b.HasIndex("ActorUserId");
-
-                    b.HasIndex("Timestamp");
-
-                    b.HasIndex("EntityType", "EntityId");
-
-                    b.ToTable("AuditTrails", (string)null);
+                    b.ToTable("EmailTemplates", (string)null);
                 });
 
             modelBuilder.Entity("Aro.Admin.Domain.Entities.IdempotencyRecord", b =>
@@ -103,6 +79,30 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("IdempotencyRecords", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Admin.Domain.Entities.PasswordHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.Property<DateTime>("PasswordSetDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordHistories", (string)null);
                 });
 
             modelBuilder.Entity("Aro.Admin.Domain.Entities.PasswordResetToken", b =>
@@ -146,25 +146,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.ToTable("PasswordResetTokens", (string)null);
                 });
 
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.Permission", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Permissions", (string)null);
-                });
-
             modelBuilder.Entity("Aro.Admin.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -192,49 +173,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens", (string)null);
-                });
-
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.Role", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(512)
-                        .HasColumnType("nvarchar(512)");
-
-                    b.Property<bool>("IsBuiltin")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(128)
-                        .HasColumnType("nvarchar(128)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Roles", (string)null);
-                });
-
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.RolePermission", b =>
-                {
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PermissionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("RoleId", "PermissionId");
-
-                    b.HasIndex("PermissionId");
-
-                    b.ToTable("RolePermissions", (string)null);
                 });
 
             modelBuilder.Entity("Aro.Admin.Domain.Entities.SystemSetting", b =>
@@ -268,7 +206,167 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.User", b =>
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Group", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AddressLine1")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("GroupName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<byte[]>("Logo")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<Guid>("PrimaryContactId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrimaryContactId");
+
+                    b.ToTable("Groups", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Common.Domain.Entities.AuditTrail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("ActorName")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Data")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EntityId")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("EntityType")
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Timestamp");
+
+                    b.HasIndex("EntityType", "EntityId");
+
+                    b.ToTable("AuditTrails", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Common.Domain.Entities.Permission", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Permissions", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Common.Domain.Entities.Role", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(512)
+                        .HasColumnType("nvarchar(512)");
+
+                    b.Property<bool>("IsBuiltin")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Roles", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Common.Domain.Entities.RolePermission", b =>
+                {
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PermissionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Common.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -313,7 +411,7 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.ToTable("Users", (string)null);
                 });
 
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.UserRole", b =>
+            modelBuilder.Entity("Aro.Common.Domain.Entities.UserRole", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -330,24 +428,21 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.ToTable("UserRoles", (string)null);
                 });
 
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.AuditTrail", b =>
+            modelBuilder.Entity("Aro.Admin.Domain.Entities.PasswordHistory", b =>
                 {
-                    b.HasOne("Aro.Admin.Domain.Entities.User", "Actor")
+                    b.HasOne("Aro.Common.Domain.Entities.User", "User")
                         .WithMany()
-                        .HasForeignKey("ActorId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("Aro.Admin.Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("ActorUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Actor");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Aro.Admin.Domain.Entities.PasswordResetToken", b =>
                 {
-                    b.HasOne("Aro.Admin.Domain.Entities.User", "User")
-                        .WithMany("PasswordResetTokens")
+                    b.HasOne("Aro.Common.Domain.Entities.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -357,8 +452,8 @@ namespace Aro.Admin.Presentation.Entry.Migrations
 
             modelBuilder.Entity("Aro.Admin.Domain.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("Aro.Admin.Domain.Entities.User", "User")
-                        .WithMany("RefreshTokens")
+                    b.HasOne("Aro.Common.Domain.Entities.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -366,15 +461,26 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.RolePermission", b =>
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Group", b =>
                 {
-                    b.HasOne("Aro.Admin.Domain.Entities.Permission", "Permission")
+                    b.HasOne("Aro.Common.Domain.Entities.User", "PrimaryContact")
+                        .WithMany()
+                        .HasForeignKey("PrimaryContactId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("PrimaryContact");
+                });
+
+            modelBuilder.Entity("Aro.Common.Domain.Entities.RolePermission", b =>
+                {
+                    b.HasOne("Aro.Common.Domain.Entities.Permission", "Permission")
                         .WithMany("RolePermissions")
                         .HasForeignKey("PermissionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Aro.Admin.Domain.Entities.Role", "Role")
+                    b.HasOne("Aro.Common.Domain.Entities.Role", "Role")
                         .WithMany("RolePermissions")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -385,15 +491,15 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.UserRole", b =>
+            modelBuilder.Entity("Aro.Common.Domain.Entities.UserRole", b =>
                 {
-                    b.HasOne("Aro.Admin.Domain.Entities.Role", "Role")
+                    b.HasOne("Aro.Common.Domain.Entities.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Aro.Admin.Domain.Entities.User", "User")
+                    b.HasOne("Aro.Common.Domain.Entities.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -404,24 +510,20 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.Permission", b =>
+            modelBuilder.Entity("Aro.Common.Domain.Entities.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
                 });
 
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.Role", b =>
+            modelBuilder.Entity("Aro.Common.Domain.Entities.Role", b =>
                 {
                     b.Navigation("RolePermissions");
 
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("Aro.Admin.Domain.Entities.User", b =>
+            modelBuilder.Entity("Aro.Common.Domain.Entities.User", b =>
                 {
-                    b.Navigation("PasswordResetTokens");
-
-                    b.Navigation("RefreshTokens");
-
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618

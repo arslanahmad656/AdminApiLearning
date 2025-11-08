@@ -39,6 +39,7 @@ public class UserController(IMediator mediator, ILogManager<UserController> logg
         return Ok(response);
     }
 
+    [HttpPost("changepassword")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model, CancellationToken cancellationToken)
     {
         await mediator.Send(new ChangePasswordCommand(new(model.UserEmail, model.OldPassword, model.NewPassword)), cancellationToken).ConfigureAwait(false);

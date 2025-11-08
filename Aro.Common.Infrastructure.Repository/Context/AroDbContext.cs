@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Aro.Common.Infrastructure.Shared;
+using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Runtime.Loader;
 
@@ -26,11 +27,13 @@ public class AroDbContext : DbContext
         }
 #endif
 
-        var assemblies = AssemblyLoadContext.Default.Assemblies
-            .Where(a => !a.IsDynamic && (a.FullName ?? string.Empty).StartsWith("Aro."));
+        var basePath = AppContext.BaseDirectory;
+        var configurationDlls = new EntityConfigurationDlls().Dlls;
 
-        foreach(var assembly in assemblies)
+        foreach (var dllPath in configurationDlls)
         {
+            var fullPath = Path.Combine(basePath, dllPath);
+            var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(fullPath);
             modelBuilder.ApplyConfigurationsFromAssembly(assembly);
         }
 

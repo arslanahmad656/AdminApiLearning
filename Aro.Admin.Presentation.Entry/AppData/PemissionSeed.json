@@ -21,6 +21,10 @@
       "Description": "Can reset user passwords"
     },
     {
+      "Name": "user.changepassword",
+      "Description": "Can change user passwords"
+    },
+    {
       "Name": "role.read",
       "Description": "Can view roles"
     },
