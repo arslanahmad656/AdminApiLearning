@@ -29,7 +29,7 @@ try
     app.UseRouting();
 
     // Add UseCors here - after UseRouting() and before UseAuthentication()
-    app.UseCors("DevelopmentCors");
+    app.UseCors(app.Environment.EnvironmentName);
 
     app.UseAuthentication();
     app.UseAuthorization();
