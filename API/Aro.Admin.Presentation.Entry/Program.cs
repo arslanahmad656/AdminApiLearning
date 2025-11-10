@@ -16,7 +16,9 @@ try
     await app.CreateBootstrapUser().ConfigureAwait(false);
 
     // Configure the HTTP request pipeline.
-    if (app.Environment.IsDevelopment())
+
+    var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwaggerUI");
+    if (enableSwagger)
     {
         app.UseSwagger();
         app.UseSwaggerUI();
