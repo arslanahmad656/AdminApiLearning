@@ -24,12 +24,11 @@ try
         app.UseSwaggerUI();
     }
 
-    app.UseHttpsRedirection();
-
     app.UseRouting();
 
-    // Add UseCors here - after UseRouting() and before UseAuthentication()
     app.UseCors(app.Environment.EnvironmentName);
+
+    app.UseHttpsRedirection();
 
     app.UseAuthentication();
     app.UseAuthorization();
