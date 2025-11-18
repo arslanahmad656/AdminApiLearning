@@ -24,6 +24,14 @@ public class PermissionCodes
     public const string DeleteGroup = "group.delete";
     #endregion
 
+    #region [Properties]
+    public const string CreateProperty = "property.create";
+    public const string GetProperties = "property.read";
+    public const string GetProperty = "property.read";
+    public const string PatchProperty = "property.patch";
+    public const string DeleteProperty = "property.delete";
+    #endregion
+
     #region [Miscs]
     public const string MigrateDabase = "database.migrate";
     public const string SeedApplication = "application.seed";

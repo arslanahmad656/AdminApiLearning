@@ -60,5 +60,47 @@
     "Name": "properties.delete",
     "Resource": "properties",
     "Action": "delete"
+  },
+
+  {
+    "Name": "property.create",
+    "Resource": "property",
+    "Action": "create"
+  },
+  {
+    "Name": "property.read",
+    "Resource": "property",
+    "Action": "read"
+  },
+  {
+    "Name": "property.patch",
+    "Resource": "property",
+    "Action": "patch"
+  },
+  {
+    "Name": "property.delete",
+    "Resource": "property",
+    "Action": "delete"
+  },
+
+  {
+    "Name": "group.create",
+    "Resource": "group",
+    "Action": "create"
+  },
+  {
+    "Name": "group.read",
+    "Resource": "group",
+    "Action": "read"
+  },
+  {
+    "Name": "group.patch",
+    "Resource": "group",
+    "Action": "patch"
+  },
+  {
+    "Name": "group.delete",
+    "Resource": "group",
+    "Action": "delete"
   }
 ]

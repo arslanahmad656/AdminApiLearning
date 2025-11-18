@@ -1,0 +1,720 @@
+@page "/property/media-files"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@layout WizardLayout
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<div class="property-wizard-container">
+    <!-- Header Bar -->
+    <div class="wizard-header">
+        <h1 class="header-title">Create New Property</h1>
+        <div class="close-icon" @onclick="HandleClose">
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                <line x1="1" y1="1" x2="16" y2="16" stroke="white" stroke-width="2" />
+                <line x1="16" y1="1" x2="1" y2="16" stroke="white" stroke-width="2" />
+            </svg>
+        </div>
+    </div>
+
+    <div class="wizard-body">
+        <!-- Left Sidebar with Steps -->
+        <div class="wizard-sidebar">
+            <div class="wizard-steps">
+                <div class="wizard-step completed">
+                    <div class="step-indicator">
+                        <div class="step-number completed-check">
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                                <path d="M1 5L6 10L15 1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="step-line completed"></div>
+                    </div>
+                    <div class="step-title">Property Information</div>
+                </div>
+                <div class="wizard-step completed">
+                    <div class="step-indicator">
+                        <div class="step-number completed-check">
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                                <path d="M1 5L6 10L15 1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="step-line completed"></div>
+                    </div>
+                    <div class="step-title">Address & Primary Contact</div>
+                </div>
+                <div class="wizard-step completed">
+                    <div class="step-indicator">
+                        <div class="step-number completed-check">
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                                <path d="M1 5L6 10L15 1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="step-line completed"></div>
+                    </div>
+                    <div class="step-title">Key Selling Points</div>
+                </div>
+                <div class="wizard-step active">
+                    <div class="step-indicator">
+                        <div class="step-number">4</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-title">Media Files</div>
+                </div>
+
+                <div class="wizard-step">
+                    <div class="step-indicator">
+                        <div class="step-number">5</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-title">Marketing & SEO</div>
+                </div>
+                <div class="wizard-step">
+                    <div class="step-indicator">
+                        <div class="step-number">6</div>
+                    </div>
+                    <div class="step-title">Review & Save</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="wizard-content">
+            <div class="content-header">
+                <p class="step-label">Step 4</p>
+                <h2 class="content-title">Upload page banner</h2>
+            </div>
+
+            <p class="instruction-text">
+                This picture will be displayed at the top of the screen.
+            </p>
+
+            <!-- Upload Banner Images Section -->
+            <div class="upload-section">
+                <div class="upload-grid">
+                    @foreach (var image in uploadedImages)
+                    {
+                        <div class="image-thumbnail" @onclick="() => SelectImage(image)">
+                            <img src="@image.Url" alt="@image.Name" />
+                            @* <div class="image-label">@image.Name</div> *@
+                        </div>
+                    }
+
+                    @if (uploadedImages.Count < maxBannerImages)
+                    {
+                        <div class="add-image-box" @onclick="TriggerFileUpload">
+                            <div class="add-icon">+</div>
+                            <div class="add-text">Add</div>
+                            <div class="add-text">@($"{maxBannerImages - uploadedImages.Count} Left")</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Hidden file input -->
+            <InputFile id="fileInput" OnChange="HandleFileSelected" multiple accept="image/jpeg,image/png,image/svg+xml" style="display: none;" @ref="fileInput" />
+
+            <!-- Upload Favicon Section -->
+            <div class="video-section">
+                <h3 class="section-title">Upload favicon</h3>
+                <p class="section-instruction">
+                    It's a small icon that appears in browser tabs on desktops. We recommend using a logo. Max 32px by 32px.
+                </p>
+
+                <div class="favicon-upload-container">
+                    <div class="favicon-filename-display">
+                        <img src="/icons/favicon-icon.png" alt="Favicon icon" class="favicon-icon" />
+                        <span>@(string.IsNullOrEmpty(faviconFileName) ? "No file chosen" : faviconFileName)</span>
+                    </div>
+                    <label class="favicon-browse-button">
+                        Browse Files
+                        <InputFile OnChange="HandleFaviconSelected" accept="image/png" style="display: none;" />
+                    </label>
+                </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <WizardFooter OnBack="HandleBack"
+                          OnNext="HandleNext"
+                          BackDisabled="false"
+                          NextDisabled="false" />
+        </div>
+    </div>
+</div>
+
+@code {
+    private const int maxBannerImages = 2;
+    private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
+    private const long MaxFaviconSize = 50 * 1024; // 50KB
+
+
+    private List<ImageModel> uploadedImages = new();
+    private string? faviconFileName = string.Empty;
+    private InputFile? fileInput;
+
+
+    private async Task TriggerFileUpload()
+    {
+        await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('fileInput').click()");
+    }
+
+
+    private async Task HandleFileSelected(InputFileChangeEventArgs e)
+    {
+        var files = e.GetMultipleFiles(maxBannerImages - uploadedImages.Count);
+
+        foreach (var file in files)
+        {
+            if (!file.ContentType.StartsWith("image/") || file.Size > MaxFileSize)
+                continue;
+
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream(MaxFileSize).ReadAsync(buffer);
+            var imageDataUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+
+            var newImage = new ImageModel
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = Path.GetFileNameWithoutExtension(file.Name),
+                Url = imageDataUrl
+            };
+
+            uploadedImages.Add(newImage);
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task HandleFaviconSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file is not null || file.ContentType != "image/png")
+        {
+            faviconFileName = file.Name;
+            StateHasChanged();
+        }
+        // Process or store favicon file if needed
+    }
+
+    private void SelectImage(ImageModel image)
+    {
+        // Implement rename functionality or other logic
+    }
+
+
+
+    private void HandleClose()
+    {
+        // Navigate back or show confirmation dialog
+    }
+
+    private void HandleBack()
+    {
+        // Navigate back to Facilities & Services page
+        NavigationManager.NavigateTo("/property/key-selling-points");
+    }
+
+    private void HandleNext()
+    {
+        // Navigate to Property Rules page (Step 5)
+        // TODO: Implement save logic
+         NavigationManager.NavigateTo("/property/marketing-seo");
+    }
+
+    public class ImageModel
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+    }
+}
+
+<style>
+    /* Main Container */
+    .property-wizard-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: #FFFFFF;
+    }
+
+    /* Header Bar - Dark Gray */
+    .wizard-header {
+        background: #434343;
+        height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+    }
+
+    .header-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 29px;
+        color: #FFFFFF;
+        margin: 0;
+    }
+
+    .close-icon {
+        cursor: pointer;
+        padding: 8px;
+    }
+
+    /* Body Container */
+    .wizard-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    /* Left Sidebar - Light Gray */
+    .wizard-sidebar {
+        width: 246px;
+        background: #FFFF;
+        padding: 40px 20px;
+        border-right: 1px solid #B3B3B3;
+    }
+
+    .wizard-steps {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .wizard-step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 32px;
+        position: relative;
+    }
+
+        .wizard-step:last-child {
+            margin-bottom: 0;
+        }
+
+    .step-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 16px;
+        position: relative;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #D9D9D9;
+        border: 1px solid rgba(0, 0, 0, 0.47);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        color: #000000;
+        z-index: 2;
+    }
+
+    .wizard-step.completed .step-number {
+        background: #FF931E;
+        border: none;
+    }
+
+    .step-number.completed-check {
+        background: #FF931E;
+        border: none;
+    }
+
+    .wizard-step.active .step-number {
+        border: 1px solid #FF931E;
+    }
+
+    .step-line {
+        width: 2px;
+        height: 60px;
+        background: #D9D9D9;
+        position: absolute;
+        top: 50px;
+        left: 24px;
+        z-index: 1;
+    }
+
+        .step-line.completed {
+            background: #737373;
+            border: 1px solid #737373;
+        }
+
+    .wizard-step.active .step-line {
+        background: #D9D9D9;
+    }
+
+    .wizard-step:last-child .step-line {
+        display: none;
+    }
+
+    .step-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 26px;
+        color: #000000;
+        padding-top: 12px;
+    }
+
+    .wizard-step.active .step-title {
+        font-weight: 600;
+    }
+
+    /* Main Content Area */
+    .wizard-content {
+        flex: 1;
+        background: #EDEDED;
+        padding: 60px 80px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .content-header {
+        margin-bottom: 16px;
+    }
+
+    .step-label {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 19px;
+        color: #000000;
+        margin: 0 0 8px 0;
+    }
+
+    .content-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 29px;
+        color: #000000;
+        margin: 0;
+    }
+
+    /* Instruction Text */
+    .instruction-text {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        color: #737373;
+        margin: 0 0 24px 0;
+    }
+
+    /* Upload Section
+        .upload-section {
+            background: #F6F6F6;
+            border: 1px solid #E0E0E0;
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 32px;
+        } */
+
+    .upload-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 16px;
+    }
+
+    .image-thumbnail {
+        position: relative;
+        aspect-ratio: 4/3;
+        border-radius: 4px;
+        overflow: hidden;
+        cursor: pointer;
+        background: #E0E0E0;
+        border: 2px solid transparent;
+    }
+
+        .image-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    .image-label {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: #FFFFFF;
+        padding: 6px 8px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        text-align: left;
+    }
+
+    .add-image-box {
+        aspect-ratio: 4/3;
+        border: 2px dashed #C3C3C3;
+        border-radius: 4px;
+        background: #FFFFFF;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .add-image-box:hover {
+            border-color: #999999;
+            background: #FAFAFA;
+        }
+
+    .add-icon {
+        font-size: 32px;
+        color: #737373;
+        font-weight: 300;
+        line-height: 1;
+    }
+
+    .add-text {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        color: #737373;
+        margin-top: 8px;
+    }
+
+    /* Thumbnail Section */
+    .thumbnail-section {
+        background: #F6F6F6;
+        border: 1px solid #E0E0E0;
+        border-radius: 4px;
+        padding: 24px;
+        margin-bottom: 32px;
+    }
+
+    .section-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 600;
+        font-size: 18px;
+        line-height: 22px;
+        color: #000000;
+        margin: 0 0 8px 0;
+    }
+
+    .section-instruction {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        color: #737373;
+        margin: 0 0 24px 0;
+    }
+
+    .thumbnail-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+
+    .thumbnail-item {
+        position: relative;
+        aspect-ratio: 4/3;
+        border-radius: 4px;
+        overflow: hidden;
+        cursor: pointer;
+        background: #E0E0E0;
+        border: 3px solid #000000;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+
+        .thumbnail-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .thumbnail-item.selected {
+            border-color: #000000;
+            box-shadow: 0 0 0 2px #000000;
+        }
+
+    .selected-border {
+        position: absolute;
+        inset: -3px;
+        border: 3px solid #000000;
+        pointer-events: none;
+        border-radius: 4px;
+    }
+
+    /* Video Section
+        .video-section {
+            background: #F6F6F6;
+            border: 1px solid #E0E0E0;
+            border-radius: 4px;
+            padding: 24px;
+            margin-bottom: 32px;
+        } */
+    /* Upload Section - Banner Images */
+    .upload-section {
+        background: #F5F5F5;
+        border: 1px solid #C3C3C3;
+        border-radius: 4px;
+        padding: 24px;
+        width: 70%;
+        margin-bottom: 32px;
+    }
+
+    .upload-grid {
+        display: grid;
+        /* grid-template-columns: repeat(2, 1fr); /* Only 2 images allowed */ */ gap: 16px;
+    }
+
+    /* Thumbnail/Image Box */
+    .image-thumbnail {
+        position: relative;
+        aspect-ratio: 4/3;
+        border: 5px solid #F69126;
+        border-radius: 4px;
+        overflow: hidden;
+        cursor: pointer;
+        background: #E0E0E0;
+    }
+
+        .image-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+    /* .image-label {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(0, 0, 0, 0.7);
+        color: #FFFFFF;
+        padding: 6px 8px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        text-align: left;
+    } */
+
+    /* Add Image Box */
+    .add-image-box {
+        aspect-ratio: 4/3;
+        border: 2px dashed #C3C3C3;
+        border-radius: 4px;
+        background: #FFFFFF;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+        .add-image-box:hover {
+            border-color: #999999;
+            background: #FAFAFA;
+        }
+
+    .add-icon {
+        font-size: 32px;
+        color: #737373;
+        font-weight: 300;
+        line-height: 1;
+    }
+
+    .add-text {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        color: #737373;
+        margin-top: 8px;
+    }
+
+    /* Favicon Upload Section */
+    .video-section {
+        margin-top: 32px;
+    }
+
+    .section-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 30px;
+        color: #000000;
+        margin: 0 0 8px 0;
+    }
+
+    .section-instruction {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 20px;
+        color: #737373;
+        margin: 0 0 16px 0;
+    }
+
+    .uploaded-favicon-name {
+        margin-top: 8px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        color: #333333;
+    }
+    /* Favicon Upload Layout */
+    .favicon-upload-container {
+        display: flex;
+        align-items: center;
+        align-content: center;
+        /* gap: 12px; */
+        margin-top: 12px;
+        max-width: 400px;
+    }
+
+    .favicon-filename-display {
+        flex: 1;
+        padding: 10px 20px;
+        align-content: center;
+        align-items: center;
+        background-color: #F5F5F5;
+        border: 1px solid #C3C3C3;
+        border-radius: 10px 0 0 10px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        color: #333333;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .favicon-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .favicon-browse-button {
+        background-color: #4A4A4A;
+        color: #FFFFFF;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        padding: 18px 20px;
+        border-radius: 0 10px 10px 0;
+        cursor: pointer;
+        user-select: none;
+        display: inline-block;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+        .favicon-browse-button:hover {
+            background-color: #333333;
+        }
+</style>

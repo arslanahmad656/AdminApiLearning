@@ -7,6 +7,7 @@ using Aro.Admin.Application.Services.User;
 using Aro.Admin.Infrastructure.Repository;
 using Aro.Admin.Infrastructure.Services;
 using Aro.Booking.Application.Services.Group;
+using Aro.Booking.Application.Services.Property;
 using Aro.Booking.Infrastructure.Services;
 using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.Audit;
@@ -47,5 +48,6 @@ internal class DatabaseServicesInstaller : IServiceInstaller
         builder.Services.AddScoped<IEmailTemplateService, EmailTemplateService>();
         builder.Services.AddScoped<IEmailTemplateSeeder, EmailTemplateSeeder>();
         builder.Services.AddScoped<IGroupService, GroupService>();
+        builder.Services.AddScoped<IPropertyService, PropertyService>();
     }
 }

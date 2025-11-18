@@ -1,5 +1,6 @@
 using Aro.Admin.Presentation.UI;
-using Aro.Admin.Presentation.UI.Services;
+using Aro.UI.Application.Interfaces;
+using Aro.UI.Infrastructure.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -33,6 +34,9 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped<ITokenStorageService, TokenStorageService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+
+// Register property services
+builder.Services.AddScoped<IPropertyService, PropertyService>();
 
 // Register custom AuthenticationStateProvider
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();

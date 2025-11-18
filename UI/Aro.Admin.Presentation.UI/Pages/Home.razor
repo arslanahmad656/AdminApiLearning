@@ -1,4 +1,6 @@
 ﻿@page "/"
+
+
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Components.Authorization
 
@@ -8,8 +10,19 @@
     <Authorized>
         <div class="home-main-content">
             <!-- Search Icon - Top Right Corner with Circle Background -->
-            <div class="top-right-search" @onclick="HandleSearch">
-                <img src="icons/searchicon.png" alt="Search" />
+            <div class="top-right-section">
+                <div class="top-right-profile">
+                    <img class="profile-img" Src="icons/profile.png" />
+                    <span class="property-name">Brochner hotels</span>
+                    <img src="icons/dropdown.png" alt="Dropdown" class="dropdown-icon"   />
+                </div>
+                <div class="top-right-icons" @onclick="HandleSearch">
+                    <img src="icons/searchicon.png" alt="Search" />
+                </div>
+
+                <div class="top-right-icons" @onclick="HandleSettings">
+                    <img src="icons/settings.png" alt="Settings" />
+                </div>
             </div>
 
             <!-- Content Card - White Box with Shadow (Figma Rectangle 1904) -->
@@ -18,13 +31,13 @@
                     <!-- Greeting Section - Left Side -->
                     <div class="greeting-section">
                         <h1>Hi @GetFirstName(context.User.Identity?.Name)!</h1>
-                        <p>You don't have any groups added yet.</p>
+                        <p>You don't have any properties added yet.</p>
                     </div>
 
                     <!-- Button Section - Right Side -->
                     <div class="button-section">
                         <button class="aro-button-primary" @onclick="HandleAddGroup">
-                            Add Group +
+                            Add Property +
                         </button>
                     </div>
                 </div>
@@ -58,14 +71,19 @@
 
     private void HandleAddGroup()
     {
-        // Navigate to add group page or show dialog
-        NavigationManager?.NavigateTo("/groups/add");
+        // Navigate to property information wizard
+        NavigationManager?.NavigateTo("/property/information");
     }
 
     private void HandleSearch()
     {
         // Implement search functionality
-        // NavigationManager?.NavigateTo("/search");
+         NavigationManager?.NavigateTo("/search");
+    }
+    private void HandleSettings()
+    {
+        // Implement search functionality
+        NavigationManager?.NavigateTo("/settings");
     }
 }
 

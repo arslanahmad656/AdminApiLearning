@@ -50,4 +50,9 @@ public class ErrorCodes
     #region [GROUP]
     public readonly string GROUP_NOT_FOUND = nameof(GROUP_NOT_FOUND);
     #endregion
+
+    #region [PROPERTY]
+    public readonly string PROPERTY_NOT_FOUND = nameof(PROPERTY_NOT_FOUND);
+    public readonly string PROPERTY_ALREADY_EXISTS = nameof(PROPERTY_ALREADY_EXISTS);
+    #endregion
 }

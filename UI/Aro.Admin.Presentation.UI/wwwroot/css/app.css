@@ -1,3 +1,6 @@
+/* Import Inter font for wizard pages */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
@@ -62,7 +65,50 @@ a, .btn-link {
     padding: 1rem 1rem 1rem 3.7rem;
     color: white;
 }
+.sidebar-header {
+    padding: 20px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 8px;
+}
 
+.hotel-selector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+/*    background-color: rgba(255, 255, 255, 0.05);*/
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .hotel-selector:hover {
+        background-color: rgba(255, 255, 255, 0.08);
+    }
+
+.hotel-logo {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #fff;
+}
+.brochner-hotels-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0;
+    font-style: normal;
+}
+.hotel-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 100%;
+    color: #ffffff;
+    flex: 1;
+}
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
@@ -88,7 +134,54 @@ a, .btn-link {
             stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
             transition: stroke-dasharray 0.05s ease-in-out;
         }
+.top-right-icons {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: white;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
 
+    .top-right-icons:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+.top-right-section {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    padding: 10px;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-radius: 999px;
+}
+.property-name {
+    font-weight: 500;
+    font-size: 14px;
+    color: #000000;
+    white-space:  nowrap;
+}
+.profile-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit:  cover;
+}
+.top-right-profile {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: white;
+    border-radius: 999px;
+    padding:  12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    cursor:  pointer;
+}
 .loading-progress-text {
     position: absolute;
     text-align: center;

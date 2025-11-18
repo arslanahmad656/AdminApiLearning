@@ -59,6 +59,38 @@
     {
       "Name": "applicationsettings.read",
       "Description": "Can read application settings"
+    },
+    {
+      "Name": "group.create",
+      "Description": "Can create groups"
+    },
+    {
+      "Name": "group.read",
+      "Description": "Can view group details"
+    },
+    {
+      "Name": "group.patch",
+      "Description": "Can update groups"
+    },
+    {
+      "Name": "group.delete",
+      "Description": "Can delete groups"
+    },
+    {
+      "Name": "property.create",
+      "Description": "Can create properties"
+    },
+    {
+      "Name": "property.read",
+      "Description": "Can view property details"
+    },
+    {
+      "Name": "property.patch",
+      "Description": "Can update properties"
+    },
+    {
+      "Name": "property.delete",
+      "Description": "Can delete properties"
     }
   ],
 
@@ -80,7 +112,15 @@
         "database.migrate",
         "application.seed",
         "application.initialize",
-        "applicationsettings.read"
+        "applicationsettings.read",
+        "group.create",
+        "group.read",
+        "group.patch",
+        "group.delete",
+        "property.create",
+        "property.read",
+        "property.patch",
+        "property.delete"
       ]
     },
     {
