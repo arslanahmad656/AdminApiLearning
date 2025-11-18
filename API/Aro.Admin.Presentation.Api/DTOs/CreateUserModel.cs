@@ -2,9 +2,11 @@
 
 public record CreateUserModel(
     string Email,
-    bool IsActive, 
-    string Password, 
-    string DisplayName, 
-    ICollection<string> AssignedRoles
+    bool IsActive,
+    string Password,
+    string DisplayName,
+    ICollection<string> AssignedRoles,
+    string? CountryCode,
+    string? PhoneNumber
 );
 

@@ -1,5 +1,4 @@
 ﻿using Aro.Admin.Application.Mediator.User.Commands;
-using Aro.Admin.Application.Mediator.User.DTOs;
 using Aro.Admin.Application.Mediator.User.Notifications;
 using Aro.Admin.Application.Services.User;
 using MediatR;
@@ -17,7 +16,9 @@ public class CreateUserCommandHandler(IUserService userService, IMediator mediat
                 false,
                 request.CreateUserRequest.Password,
                 request.CreateUserRequest.DisplayName,
-                request.CreateUserRequest.AssignedRoles
+                request.CreateUserRequest.AssignedRoles,
+                request.CreateUserRequest.CountryCode,
+                request.CreateUserRequest.PhoneNumber
                 ), cancellationToken
             ).ConfigureAwait(false);
 
