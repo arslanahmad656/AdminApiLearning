@@ -2,15 +2,14 @@
 
 namespace Aro.Admin.Presentation.Entry.Extensions;
 
-public static class MiddlewareExtensions
+public static partial class MiddlewareExtensions
 {
     public static IApplicationBuilder UseRequestLogging(this IApplicationBuilder app)
-    {
-        return app.UseMiddleware<RequestLoggingMiddleware>();
-    }
+        => app.UseMiddleware<RequestLoggingMiddleware>();
 
     public static IApplicationBuilder UseGlobalExceptionHandler(this IApplicationBuilder app)
-    {
-        return app.UseMiddleware<ExceptionHandlingMiddleware>();
-    }
+        => app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+    public static IApplicationBuilder EnableConfigurationSettings(this IApplicationBuilder app)
+        => app.AddConfigurationSettingsEndpoint();
 }
