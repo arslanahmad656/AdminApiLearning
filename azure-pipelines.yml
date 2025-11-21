@@ -13,7 +13,7 @@ variables:
   buildConfiguration: 'Release'
   azureSubscription: 'AzureServiceConnection'
   appServiceName: 'arobe1'
-  projectPath: 'Aro.Admin.Presentation.Entry/Aro.Admin.Presentation.Entry.csproj'
+  projectPath: 'API/Aro.Admin.Presentation.Entry/Aro.Admin.Presentation.Entry.csproj'
 
 stages:
 - stage: Build
