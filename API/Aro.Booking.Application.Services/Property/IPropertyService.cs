@@ -1,4 +1,4 @@
-using Aro.Common.Application.Services;
+using Aro.Common.Application.Shared;
 
 namespace Aro.Booking.Application.Services.Property;
 
