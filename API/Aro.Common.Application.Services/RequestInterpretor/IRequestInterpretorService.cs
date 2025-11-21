@@ -1,4 +1,6 @@
-﻿namespace Aro.Common.Application.Services.RequestInterpretor;
+﻿using Aro.Common.Application.Shared;
+
+namespace Aro.Common.Application.Services.RequestInterpretor;
 
 public interface IRequestInterpretorService : IService
 {

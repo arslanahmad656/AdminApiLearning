@@ -1,4 +1,4 @@
-﻿namespace Aro.Common.Application.Services;
+﻿namespace Aro.Common.Application.Shared;
 
 /// <summary>
 /// An indicative interface used to donate a service.

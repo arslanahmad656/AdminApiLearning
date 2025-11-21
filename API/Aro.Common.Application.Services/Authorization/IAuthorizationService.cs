@@ -1,4 +1,6 @@
-﻿namespace Aro.Common.Application.Services.Authorization;
+﻿using Aro.Common.Application.Shared;
+
+namespace Aro.Common.Application.Services.Authorization;
 
 public interface IAuthorizationService : IService
 {

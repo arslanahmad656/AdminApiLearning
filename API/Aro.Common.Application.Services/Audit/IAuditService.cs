@@ -1,4 +1,6 @@
-﻿namespace Aro.Common.Application.Services.Audit;
+﻿using Aro.Common.Application.Shared;
+
+namespace Aro.Common.Application.Services.Audit;
 
 public interface IAuditService : IService
 {
