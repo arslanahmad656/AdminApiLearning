@@ -10,10 +10,8 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
-  solution: '**/*.sln'
-  buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  azureSubscription: 'AzureServiceConnection' # You'll create this service connection
+  azureSubscription: 'AzureServiceConnection'
   appServiceName: 'arobe1'
   projectPath: 'Aro.Admin.Presentation.Entry/Aro.Admin.Presentation.Entry.csproj'
 
@@ -34,27 +32,29 @@ stages:
     - task: NuGetToolInstaller@1
       displayName: 'Install NuGet'
 
-    - task: NuGetCommand@2
-      displayName: 'Restore NuGet Packages'
-      inputs:
-        restoreSolution: '$(solution)'
-
+    # Restore only the entry project and its dependencies
     - task: DotNetCoreCLI@2
-      displayName: 'Build Solution'
+      displayName: 'Restore Entry Project'
+      inputs:
+        command: 'restore'
+        projects: '$(projectPath)'
+
+    # Build only the entry project
+    - task: DotNetCoreCLI@2
+      displayName: 'Build Entry Project'
       inputs:
         command: 'build'
-        projects: '$(solution)'
+        projects: '$(projectPath)'
         arguments: '--configuration $(buildConfiguration)'
 
+    # Publish only the entry project
     - task: DotNetCoreCLI@2
       displayName: 'Publish Project'
       inputs:
         command: 'publish'
-        publishWebProjects: false
         projects: '$(projectPath)'
         arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
         zipAfterPublish: true
-        modifyOutputPath: false
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Artifacts'
@@ -84,4 +84,3 @@ stages:
               WebAppName: '$(appServiceName)'
               packageForLinux: '$(Pipeline.Workspace)/drop/*.zip'
               AppSettings: '-ASPNETCORE_ENVIRONMENT Azure'
-
