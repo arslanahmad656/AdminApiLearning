@@ -18,9 +18,15 @@ variables:
 stages:
 - stage: Build
   displayName: 'Build Stage'
+
+  # HARD PROTECTION — Only run on cicd/production-api
+  condition: >
+    eq(variables['Build.SourceBranch'], 'refs/heads/cicd/production-api')
+
   jobs:
   - job: Build
     displayName: 'Build Job'
+
     steps:
     - task: UseDotNet@2
       displayName: 'Use .NET 8.0'
@@ -32,14 +38,12 @@ stages:
     - task: NuGetToolInstaller@1
       displayName: 'Install NuGet'
 
-    # Restore only the entry project and its dependencies
     - task: DotNetCoreCLI@2
       displayName: 'Restore Entry Project'
       inputs:
         command: 'restore'
         projects: '$(projectPath)'
 
-    # Build only the entry project
     - task: DotNetCoreCLI@2
       displayName: 'Build Entry Project'
       inputs:
@@ -47,26 +51,34 @@ stages:
         projects: '$(projectPath)'
         arguments: '--configuration $(buildConfiguration)'
 
-    # Publish only the entry project
+    # CRITICAL FIX:
+    # publish output must go to "/api", not repo root, so UI is NOT included
     - task: DotNetCoreCLI@2
       displayName: 'Publish Project'
       inputs:
         command: 'publish'
         projects: '$(projectPath)'
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/api'
         zipAfterPublish: true
 
     - task: PublishBuildArtifacts@1
       displayName: 'Publish Artifacts'
       inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/api'
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
 - stage: Deploy
   displayName: 'Deploy to Azure'
   dependsOn: Build
-  condition: succeeded()
+
+  # HARD PROTECTION — Only deploy when branch matches
+  condition: >
+    and(
+      succeeded(),
+      eq(variables['Build.SourceBranch'], 'refs/heads/cicd/production-api')
+    )
+
   jobs:
   - deployment: Deploy
     displayName: 'Deploy to App Service'
@@ -82,5 +94,5 @@ stages:
               azureSubscription: '$(azureSubscription)'
               appType: 'webApp'
               WebAppName: '$(appServiceName)'
-              packageForLinux: '$(Pipeline.Workspace)/drop/*.zip'
+              packageForLinux: '$(Pipeline.Workspace)/drop/api/*.zip'
               AppSettings: '-ASPNETCORE_ENVIRONMENT Azure'
