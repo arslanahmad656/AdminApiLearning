@@ -38,6 +38,9 @@ builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
 // Register property services
 builder.Services.AddScoped<IPropertyService, PropertyService>();
 
+// Register error handling service
+builder.Services.AddScoped<IErrorHandlingService, ErrorHandlingService>();
+
 // Register custom AuthenticationStateProvider
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(provider =>

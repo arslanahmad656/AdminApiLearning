@@ -42,9 +42,20 @@ public class AuthenticationService : IAuthenticationService
 
             return null;
         }
+        catch (HttpRequestException ex)
+        {
+            // Network-related errors (no internet, DNS failure, connection refused, etc.)
+            throw new HttpRequestException("Unable to connect to the server. Please check your internet connection and try again.", ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+            // Timeout errors
+            throw new TaskCanceledException("The request timed out. Please check your internet connection and try again.", ex);
+        }
         catch (Exception ex)
         {
-            return null;
+            // Other unexpected errors - rethrow
+            throw;
         }
     }
 
@@ -76,9 +87,20 @@ public class AuthenticationService : IAuthenticationService
 
             return null;
         }
+        catch (HttpRequestException ex)
+        {
+            // Network-related errors (no internet, DNS failure, connection refused, etc.)
+            throw new HttpRequestException("Unable to connect to the server. Please check your internet connection and try again.", ex);
+        }
+        catch (TaskCanceledException ex)
+        {
+            // Timeout errors
+            throw new TaskCanceledException("The request timed out. Please check your internet connection and try again.", ex);
+        }
         catch (Exception ex)
         {
-            return null;
+            // Other unexpected errors - rethrow
+            throw;
         }
     }
 

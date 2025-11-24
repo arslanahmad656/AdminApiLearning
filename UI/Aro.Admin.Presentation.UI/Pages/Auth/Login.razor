@@ -7,6 +7,7 @@
 @inject IAuthenticationService AuthService
 @inject ApiAuthenticationStateProvider AuthStateProvider
 @inject ISnackbar Snackbar
+@inject IErrorHandlingService ErrorHandler
 
 <div class="login-container">
     <div class="login-left-panel">
@@ -152,10 +153,7 @@
         }
         catch (Exception ex)
         {
-            // Clear any existing toasts first
-            Snackbar.Clear();
-
-            Snackbar.Add("An error occurred during login. Please try again.", Severity.Error);
+            ErrorHandler.ShowError(ex, "An unexpected error occurred during login. Please try again.");
         }
         finally
         {
