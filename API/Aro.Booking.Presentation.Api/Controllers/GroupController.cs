@@ -56,6 +56,7 @@ public class GroupController(
 
         var response = await mediator.Send(new GetGroupsQuery(
             new(
+                query.NameFilter,
                 query.Include,
                 query.Page,
                 query.PageSize,

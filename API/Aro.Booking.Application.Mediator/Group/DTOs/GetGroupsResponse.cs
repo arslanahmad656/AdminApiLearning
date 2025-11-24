@@ -1,6 +1,7 @@
 ﻿namespace Aro.Booking.Application.Mediator.Group.DTOs;
 
 public record GetGroupsResponse(
-    List<GroupDto> Groups
+    List<GroupDto> Groups,
+    int TotalCount
 );
 

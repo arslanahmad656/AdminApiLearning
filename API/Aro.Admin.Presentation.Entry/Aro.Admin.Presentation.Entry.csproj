@@ -38,6 +38,7 @@
     <ProjectReference Include="..\Aro.Booking.Presentation.Api\Aro.Booking.Presentation.Api.csproj" />
     <ProjectReference Include="..\Aro.Common.Infrastructure.Repository\Aro.Common.Infrastructure.Repository.csproj" />
     <ProjectReference Include="..\Aro.Common.Infrastructure.Services\Aro.Common.Infrastructure.Services.csproj" />
+    <ProjectReference Include="..\Aro.Common.Presentation.Api\Aro.Common.Presentation.Api.csproj" />
   </ItemGroup>
 
 </Project>

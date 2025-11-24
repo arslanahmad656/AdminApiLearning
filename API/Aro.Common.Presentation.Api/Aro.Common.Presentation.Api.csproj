@@ -7,9 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aro.Admin.Application.Mediator\Aro.Admin.Application.Mediator.csproj" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Aro.Common.Application.Shared\Aro.Common.Application.Shared.csproj" />
-    <ProjectReference Include="..\Aro.Common.Presentation.Shared\Aro.Common.Presentation.Shared.csproj" />
   </ItemGroup>
 
 </Project>

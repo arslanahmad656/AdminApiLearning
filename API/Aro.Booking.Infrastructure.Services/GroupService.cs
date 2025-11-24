@@ -4,7 +4,6 @@ using Aro.Booking.Domain.Entities;
 using Aro.Booking.Domain.Shared.Exceptions;
 using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.Authorization;
-using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Application.Services.UniqueIdGenerator;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Domain.Shared.Exceptions;
@@ -62,13 +61,18 @@ public partial class GroupService(
     {
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetGroups], cancellationToken);
 
-        var groups = groupRepository.GetAll()
+        var baseQuery = groupRepository.GetAll()
+            .FilterByName(query.NameFilter)
             .IncludeElements(query.Include)
-            .SortBy(query.SortBy, query.Ascending)
+            .SortBy(query.SortBy, query.Ascending);
+
+        var totalCount = await baseQuery.CountAsync(cancellationToken);
+
+        var pagedQuery = baseQuery
             .Paginate(query.Page, query.PageSize);
 
 
-        var groupDtos = await groups
+        var groupDtos = await pagedQuery
             .Select(g => new GroupDto(
                 g.Id,
                 g.GroupName,
@@ -79,11 +83,13 @@ public partial class GroupService(
                 g.Country,
                 g.Logo,
                 g.PrimaryContactId,
+                g.PrimaryContact.DisplayName,
+                g.PrimaryContact.Email,
                 g.IsActive
             ))
             .ToListAsync(cancellationToken);
 
-        return new GetGroupsResponse(groupDtos);
+        return new GetGroupsResponse(groupDtos, totalCount);
     }
 
     public async Task<GetGroupResponse> GetGroupById(
@@ -111,6 +117,8 @@ public partial class GroupService(
             response.Country,
             response.Logo,
             response.PrimaryContactId,
+            response.PrimaryContact.DisplayName,
+            response.PrimaryContact.Email,
             response.IsActive
         );
 
@@ -140,6 +148,21 @@ public partial class GroupService(
             existingGroup.PrimaryContactId = group.PrimaryContactId.Value;
         }
 
+        if (!string.IsNullOrEmpty(group.GroupName))
+            existingGroup.GroupName = group.GroupName;
+
+        if (!string.IsNullOrEmpty(group.AddressLine1))
+            existingGroup.AddressLine1 = group.AddressLine1;
+
+        if (!string.IsNullOrEmpty(group.AddressLine2))
+            existingGroup.AddressLine2 = group.AddressLine2;
+
+        if (!string.IsNullOrEmpty(group.City))
+            existingGroup.City = group.City;
+
+        if (!string.IsNullOrEmpty(group.Country))
+            existingGroup.Country = group.Country;
+
         if (group.IsActive.HasValue)
             existingGroup.IsActive = group.IsActive.Value;
 
@@ -147,16 +170,16 @@ public partial class GroupService(
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
         return new PatchGroupResponse(
-            existingGroup.Id,
-            existingGroup.GroupName,
-            existingGroup.AddressLine1,
-            existingGroup.AddressLine2,
-            existingGroup.City,
-            existingGroup.PostalCode,
-            existingGroup.Country,
-            existingGroup.Logo,
-            existingGroup.PrimaryContactId,
-            existingGroup.IsActive
+            group.Id,
+            group.GroupName,
+            group.AddressLine1,
+            group.AddressLine2,
+            group.City,
+            group.PostalCode,
+            group.Country,
+            group.Logo,
+            group.PrimaryContactId,
+            group.IsActive
             );
     }
 

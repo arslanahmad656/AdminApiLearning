@@ -1,5 +1,4 @@
-﻿using Aro.Admin.Application.Services.Role;
-using Aro.Common.Application.Services;
+﻿using Aro.Common.Application.Services;
 
 namespace Aro.Admin.Application.Services.User;
 

@@ -59,7 +59,9 @@ public class SendPasswordResetEmailLinkCommandHandler(
 
         logger.LogInfo("Generated password reset link for user {Email}. Link={ResetLink}", request.Data.Email, resetLink);
 
-        var emailTemplate = await emailTemplateService.GetPasswordResetLinkEmail(user.DisplayName, resetLink.ToString(), passwordResetSettings.TokenExpiryMinutes, cancellationToken).ConfigureAwait(false);
+        var userDisplayName = user.User.DisplayName;
+
+        var emailTemplate = await emailTemplateService.GetPasswordResetLinkEmail(userDisplayName, resetLink.ToString(), passwordResetSettings.TokenExpiryMinutes, cancellationToken).ConfigureAwait(false);
 
         var emailParameters = new SendEmailParameters(
             To: request.Data.Email,

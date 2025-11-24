@@ -6,6 +6,7 @@ internal class ControllerInstaller : IServiceInstaller
     {
         builder.Services.AddControllers()
             .AddApplicationPart(typeof(Admin.Presentation.Api.AssemblyReference).Assembly)
-            .AddApplicationPart(typeof(Booking.Presentation.Api.AssemblyReference).Assembly);
+            .AddApplicationPart(typeof(Booking.Presentation.Api.AssemblyReference).Assembly)
+        .AddApplicationPart(typeof(Common.Presentation.Api.AssemblyReference).Assembly);
     }
 }
