@@ -1,0 +1,45 @@
+name: Azure Static Web Apps CI/CD
+
+trigger:
+  branches:
+    include:
+      - cicd/production-ui
+
+pr:
+  branches:
+    include:
+      - cicd/production-ui
+
+jobs:
+- job: build_and_deploy_job
+  displayName: Build and Deploy Job
+
+  # HARD PROTECTION — ONLY run on cicd/production-ui
+  condition: >
+    and(
+      eq(variables['Build.SourceBranch'], 'refs/heads/cicd/production-ui'),
+      or(
+        eq(variables['Build.Reason'], 'Manual'),
+        eq(variables['Build.Reason'], 'IndividualCI'),
+        eq(variables['Build.Reason'], 'PullRequest')
+      )
+    )
+
+  pool:
+    vmImage: ubuntu-latest
+
+  variables:
+  - group: Azure-Static-Web-Apps-agreeable-water-06e3de21e-variable-group
+
+  steps:
+  - checkout: self
+    submodules: true
+
+  - task: AzureStaticWebApp@0
+    inputs:
+      azure_static_web_apps_api_token: $(AZURE_STATIC_WEB_APPS_API_TOKEN_AGREEABLE_WATER_06E3DE21E)
+
+      # Build configuration for SWA
+      app_location: "UI/Aro.Admin.Presentation.UI"
+      api_location: ""
+      output_location: "wwwroot"
