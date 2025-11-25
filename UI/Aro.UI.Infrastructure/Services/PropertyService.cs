@@ -38,4 +38,30 @@ public class PropertyService : IPropertyService
             return null;
         }
     }
+
+    public async Task<SavePropertyResponse?> SavePropertyAsync(SavePropertyRequest request)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/property/save", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var propertyResponse = await response.Content.ReadFromJsonAsync<SavePropertyResponse>();
+                return propertyResponse;
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error saving property: {errorContent}");
+            }
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Exception saving property: {ex.Message}");
+            return null;
+        }
+    }
 }
