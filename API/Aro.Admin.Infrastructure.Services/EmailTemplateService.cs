@@ -1,3 +1,4 @@
+using Aro.Admin.Application.Services.DateFormatter;
 using Aro.Admin.Application.Services.Email;
 using Aro.Admin.Domain.Entities;
 using Aro.Admin.Domain.Shared;
@@ -8,7 +9,7 @@ using System.Text;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class EmailTemplateService(Application.Repository.IRepositoryManager repositoryManager, IUnitOfWork unitOfWork, ILogManager<EmailTemplateService> logger, ErrorCodes errorCodes, SharedKeys sharedKeys) : IEmailTemplateService
+public partial class EmailTemplateService(Application.Repository.IRepositoryManager repositoryManager, IUnitOfWork unitOfWork, ILogManager<EmailTemplateService> logger, ErrorCodes errorCodes, SharedKeys sharedKeys, IDateFormatter dateFormatter) : IEmailTemplateService
 {
     public async Task<EmailTemplateDto> GetPasswordResetLinkEmail(string name, string resetUrl, int tokenExpiryMinutes, CancellationToken cancellationToken = default)
     {
@@ -18,6 +19,21 @@ public partial class EmailTemplateService(Application.Repository.IRepositoryMana
         sb.Replace("{{FirstName}}", name)
             .Replace("{{ResetUrl}}", resetUrl)
             .Replace("{{TokenExpiryMinutes}}", tokenExpiryMinutes.ToString());
+
+        var finalTemplate = rawTemplate with { Body = sb.ToString() };
+
+        return finalTemplate;
+    }
+
+    public async Task<EmailTemplateDto> GetPasswordResetSuccesfulEmail(string name, string loginUrl, DateTime resetTime, CancellationToken cancellationToken = default)
+    {
+        var rawTemplate = await GetByIdentifier(sharedKeys.PASSWORD_RESET_SUCCESSFUL_TEMPLATE, cancellationToken).ConfigureAwait(false);
+        var sb = new StringBuilder(rawTemplate.Body);
+
+        sb.Replace("{{FirstName}}", name)
+            .Replace("{{LoginUrl}}", loginUrl)
+            .Replace("{{ResetDate}}", dateFormatter.FormatDate(DateOnly.FromDateTime(resetTime)))
+            .Replace("{{ResetTime}}", dateFormatter.FormatTime(TimeOnly.FromDateTime(resetTime)));
 
         var finalTemplate = rawTemplate with { Body = sb.ToString() };
 

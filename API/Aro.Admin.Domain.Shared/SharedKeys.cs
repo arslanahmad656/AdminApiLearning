@@ -11,4 +11,6 @@ public class SharedKeys
     public readonly string JWT_CLAIM_ACTIVE = "active";
 
     public readonly string PASSWORD_RESET_LINK_TEMPLATE = "PASSWORD_RESET_LINK_TEMPLATE";
+
+    public readonly string PASSWORD_RESET_SUCCESSFUL_TEMPLATE = "PASSWORD_RESET_SUCCESSFUL_TEMPLATE";
 }
