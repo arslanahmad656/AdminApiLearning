@@ -33,12 +33,10 @@ public class PasswordResetService : IPasswordResetService
         }
         catch (HttpRequestException)
         {
-            // Re-throw network errors so they can be handled appropriately by the caller
             throw;
         }
         catch (TaskCanceledException)
         {
-            // Re-throw timeout errors so they can be handled appropriately by the caller
             throw;
         }
         catch
@@ -68,12 +66,10 @@ public class PasswordResetService : IPasswordResetService
         }
         catch (HttpRequestException)
         {
-            // Re-throw network errors so they can be handled appropriately by the caller
             throw;
         }
         catch (TaskCanceledException)
         {
-            // Re-throw timeout errors so they can be handled appropriately by the caller
             throw;
         }
         catch
