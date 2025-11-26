@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aro.Common.Application.Shared\Aro.Common.Application.Shared.csproj" />
+    <ProjectReference Include="..\Aro.Common.Application.Services\Aro.Common.Application.Services.csproj" />
   </ItemGroup>
 
 </Project>

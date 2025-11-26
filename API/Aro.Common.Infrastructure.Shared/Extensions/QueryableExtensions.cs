@@ -16,17 +16,6 @@ public static class QueryableExtensions
         return query;
     }
 
-    public static IQueryable<T> FilterByName<T>(this IQueryable<T> query, string nameFilter) where T : class
-    {
-        if (!string.IsNullOrWhiteSpace(nameFilter))
-        {
-            query = query.Where(e => EF.Functions.Like(
-                EF.Property<string>(e, "GroupName"),
-                $"{nameFilter}%"));
-        }
-        return query;
-    }
-
     public static IQueryable<T> IncludeElements<T>(this IQueryable<T> query, string include) where T : class
     {
         if (!string.IsNullOrWhiteSpace(include))

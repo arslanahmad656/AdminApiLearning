@@ -28,7 +28,7 @@ public class UserController(IMediator mediator, ILogManager<UserController> logg
     }
 
     [HttpGet("get-by-id/{userId:guid}")]
-    [AllowAnonymous]
+    [Permissions(PermissionCodes.GetUser)]
     public async Task<IActionResult> GetUserById(
         Guid userId,
         CancellationToken cancellationToken
@@ -43,7 +43,7 @@ public class UserController(IMediator mediator, ILogManager<UserController> logg
     }
 
     [HttpPost("get-by-email")]
-    [AllowAnonymous]
+    [Permissions(PermissionCodes.GetUser)]
     public async Task<IActionResult> GetUserByEmail(
         [FromBody] GetUserByEmailModel model,
         CancellationToken cancellationToken

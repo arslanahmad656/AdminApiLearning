@@ -1,7 +1,7 @@
 ﻿namespace Aro.Booking.Application.Mediator.Group.DTOs;
 
 public record GetGroupsRequest(
-    string? NameFilter,
+    char? Filter,
     string? Include,
     int Page,
     int PageSize,

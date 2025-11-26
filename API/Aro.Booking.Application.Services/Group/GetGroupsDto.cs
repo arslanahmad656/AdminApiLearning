@@ -1,7 +1,7 @@
 ﻿namespace Aro.Booking.Application.Services.Group;
 
 public record GetGroupsDto(
-    string NameFilter,
+    char? Filter,
     string Include,
     int Page,
     int PageSize,

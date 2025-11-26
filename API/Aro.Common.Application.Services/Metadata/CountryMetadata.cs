@@ -1,4 +1,4 @@
-﻿namespace Aro.Common.Application.Shared.Metadata;
+﻿namespace Aro.Common.Application.Services.Metadata;
 
 public class CountryMetadata
 {

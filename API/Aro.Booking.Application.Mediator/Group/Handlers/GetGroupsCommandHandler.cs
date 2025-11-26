@@ -11,7 +11,7 @@ public class GetGroupsCommandHandler(IGroupService groupService) : IRequestHandl
         var req = request.Data;
         var res = await groupService.GetGroups(
             new(
-                req.NameFilter ?? string.Empty,
+                req.Filter,
                 req.Include ?? string.Empty,
                 req.Page,
                 req.PageSize,

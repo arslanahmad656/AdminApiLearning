@@ -23,6 +23,8 @@ public partial class GroupService(
     private readonly IGroupRepository groupRepository = bookingRepository.GroupRepository;
     private readonly IUserRepository userRepository = commonRepository.UserRepository;
 
+    private readonly string alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
     public async Task<CreateGroupResponse> CreateGroup(CreateGroupDto group, CancellationToken cancellationToken = default)
     {
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateGroup], cancellationToken);
@@ -61,16 +63,24 @@ public partial class GroupService(
     {
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetGroups], cancellationToken);
 
-        var baseQuery = groupRepository.GetAll()
-            .FilterByName(query.NameFilter)
+        var baseQuery = groupRepository.GetAll();
+
+        if (query.Filter != null && alpha.Contains((char)query.Filter))
+        {
+            baseQuery = baseQuery.Where(e => EF.Functions.Like(
+                EF.Property<string>(e, "GroupName"), $"{query.Filter}%"));
+        }
+
+        baseQuery = baseQuery
             .IncludeElements(query.Include)
             .SortBy(query.SortBy, query.Ascending);
 
-        var totalCount = await baseQuery.CountAsync(cancellationToken);
+        var totalCount = await baseQuery
+            .CountAsync(cancellationToken)
+            .ConfigureAwait(false);
 
         var pagedQuery = baseQuery
             .Paginate(query.Page, query.PageSize);
-
 
         var groupDtos = await pagedQuery
             .Select(g => new GroupDto(
