@@ -18,8 +18,8 @@ public class ErrorHandlingService : IErrorHandlingService
 
         var message = ex switch
         {
-            HttpRequestException => ex.Message,
-            TaskCanceledException => ex.Message,
+            HttpRequestException => "No internet connection. Please check your network and try again.",
+            TaskCanceledException => "Request timed out. Please check your network and try again.",
             _ => defaultMessage
         };
 
