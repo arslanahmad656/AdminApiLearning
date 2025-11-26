@@ -1,0 +1,40 @@
+<div class="vstack gap-0 ps-3 pt-3">
+    @for (int i = 0; i < StepTitles.Count; i++)
+    {
+        var isActive = i == ActiveStepIndex;
+        var isComplete = AllStepsCompleted ? true : i < ActiveStepIndex;
+
+        <div class="hstack gap-3 align-items-center">
+
+            <div class="progress-circle @(isComplete ? "complete" : isActive ? "active": "")">
+                @if (isComplete)
+                {
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                         fill="currentColor" class="bi bi-check2" viewBox="0 0 16 16">
+                        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0" />
+                    </svg>
+                }
+                else
+                {
+                    <span>@(i + 1)</span>
+                }
+            </div>
+
+            <span class="d-sm-none d-md-block @(isComplete ? "fw-bold" : "")">
+                @StepTitles[i]
+            </span>
+        </div>
+
+        @if (i < StepTitles.Count - 1)
+        {
+            <div class="progress-line-vertical @(isComplete ? "full" : "")"></div>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public required List<string> StepTitles { get; set; }
+    [Parameter] public int ActiveStepIndex { get; set; }
+    [Parameter] public bool AllStepsCompleted { get; set; }
+
+}

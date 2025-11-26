@@ -1,42 +1,30 @@
 /* Home Page - Exact Figma Design Implementation */
 /* MacBook Pro 14" - 16 (1512px x 982px) */
 
-/* Base Container */
-.home-container {
-    position: relative;
-    width: 100%;
-    min-height: 982px;
-    background: #FFFFFF;
-}
-
 /* ============================================
    SIDEBAR - ARO MENU
    ============================================ */
+
+.custom-nav-item:disabled,
+.custom-nav-item[disabled] {
+    background-color: #5B5B5B;
+    color: white !important;
+}
+
 .aro-sidebar {
-    position: fixed;
-    width: 381px;
-    height: 100vh;
-    left: 0;
-    top: 0;
     background: #434343;
-    border: 1px solid #474747;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    z-index: 100;
+/*    border: 1px solid #474747;*/
 }
 
 /* Logo Section */
 .aro-logo {
-    position: relative;
-    padding: 36px 36px 40px 36px;
-    height: auto;
+    padding: 36px;
+
 }
 
-.aro-logo img {
-    width: 140px;
-    height: auto;
-}
+    .aro-logo img {
+        width: 140px;
+    }
 
 /* Menu Items Container */
 .sidebar-menu {
@@ -69,18 +57,18 @@
     box-sizing: border-box;
 }
 
-.menu-item:hover {
-    background-color: rgba(91, 91, 91, 0.5);
-}
+    .menu-item:hover {
+        background-color: rgba(91, 91, 91, 0.5);
+    }
 
-/* Active Menu Item - Exact Figma Styling */
-.menu-item.active {
-    background: #5B5B5B;
-    border-radius: 10px;
-    font-weight: 600;
-    margin: 0 16px;
-    padding: 16px 18px;
-}
+    /* Active Menu Item - Exact Figma Styling */
+    .menu-item.active {
+        background: #5B5B5B;
+        border-radius: 10px;
+        font-weight: 600;
+        margin: 0 16px;
+        padding: 16px 18px;
+    }
 
 /* Menu Item Icons */
 .menu-item-icon {
@@ -105,28 +93,9 @@
 /* ============================================
    TOP RIGHT SEARCH - Exact Figma Specifications
    ============================================ */
-.top-right-search {
-    position: absolute;
-    right: 36px;
-    top: 18px;
-    width: 51px;
-    height: 50px;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
-.top-right-search:hover {
-    opacity: 0.8;
-}
-
-.top-right-search img {
-    width: 51px;
-    height: 50px;
-    object-fit: contain;
-    display: block;
+.button-search {
+    border-radius: 30px;
 }
 
 /* ============================================
@@ -162,27 +131,27 @@
     gap: 12px;
 }
 
-.greeting-section h1 {
-    font-family: 'Inter', sans-serif;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 24px;
-    line-height: 29px;
-    color: #000000;
-    margin: 0;
-    padding: 0;
-}
+    .greeting-section h1 {
+        font-family: 'Inter', sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 29px;
+        color: #000000;
+        margin: 0;
+        padding: 0;
+    }
 
-.greeting-section p {
-    font-family: 'Inter', sans-serif;
-    font-style: normal;
-    font-weight: 400;
-    font-size: 16px;
-    line-height: 19px;
-    color: #000000;
-    margin: 0;
-    padding: 0;
-}
+    .greeting-section p {
+        font-family: 'Inter', sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 19px;
+        color: #000000;
+        margin: 0;
+        padding: 0;
+    }
 
 /* ============================================
    ADD GROUP BUTTON
@@ -191,13 +160,11 @@
     flex-shrink: 0;
 }
 
-.aro-button-primary {
+.aro-button {
     position: relative;
     width: 190px;
     height: 50px;
-    background: #F69126;
     border-radius: 6px;
-    border: none;
     font-family: 'Inter', sans-serif;
     font-style: normal;
     font-weight: 400;
@@ -214,73 +181,54 @@
     box-sizing: border-box;
 }
 
-.aro-button-primary:hover {
-    background: #FF931E;
+.aro-button-primary {
+    background: #F69126;
+    border: none;
 }
 
-.aro-button-primary:active {
-    background: #E58115;
+    .aro-button-primary:hover {
+        background: #FF931E;
+    }
+
+    .aro-button-primary:active {
+        background: #E58115;
+    }
+
+.aro-button-secondary {
+    background: #F6F6F6;
+    border: 0.1px solid black;
 }
 
 /* ============================================
-   RESPONSIVE DESIGN
+   GROUP TABLE
    ============================================ */
-@media (max-width: 1512px) {
-    .home-main-content {
-        padding: 100px 24px 24px 24px;
-    }
+
+.aro-status-button {
+    border-radius: 50px;
+    padding: 5px 15px 5px 15px;
 }
 
-@media (max-width: 1200px) {
-    .aro-sidebar {
-        width: 300px;
+    .aro-status-button.active {
+        background-color: #D8EDD9;
+        color: #1B4D19;
     }
 
-    .home-main-content {
-        margin-left: 300px;
+    .aro-status-button.inactive {
+        background-color: #FFD5E1;
+        color: #A40D37;
     }
+
+.pagination-button {
+    min-width: 32px;
+
 }
 
-@media (max-width: 968px) {
-    .aro-sidebar {
-        width: 250px;
+    .pagination-button.active {
+        color: white;
+        background-color: #F69126
     }
 
-    .home-main-content {
-        margin-left: 250px;
-        padding: 80px 20px 20px 20px;
+    .pagination-button:disabled {
+/*        color: black !important;*/
     }
 
-    .content-row {
-        flex-direction: column;
-        gap: 20px;
-    }
-
-    .aro-button-primary {
-        width: 100%;
-    }
-}
-
-@media (max-width: 768px) {
-    .aro-sidebar {
-        width: 220px;
-    }
-
-    .home-main-content {
-        margin-left: 220px;
-    }
-
-    .aro-logo img {
-        width: 100px;
-    }
-
-    .menu-item {
-        font-size: 14px;
-        padding: 12px 20px;
-    }
-
-    .menu-item.active {
-        margin: 0 10px;
-        padding: 12px 14px;
-    }
-}

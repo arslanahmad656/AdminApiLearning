@@ -6,28 +6,19 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="home-main-content">
-            <!-- Search Icon - Top Right Corner with Circle Background -->
-            <div class="top-right-search" @onclick="HandleSearch">
-                <img src="icons/searchicon.png" alt="Search" />
-            </div>
+        <div class="container-fluid min-vh-100">
+            <div class="vstack gap-5 p-3">
+                <div class="d-flex justify-content-end">
 
-            <!-- Content Card - White Box with Shadow (Figma Rectangle 1904) -->
-            <div class="content-card">
-                <div class="content-row">
-                    <!-- Greeting Section - Left Side -->
-                    <div class="greeting-section">
-                        <h1>Hi @GetFirstName(context.User.Identity?.Name)!</h1>
-                        <p>You don't have any groups added yet.</p>
-                    </div>
-
-                    <!-- Button Section - Right Side -->
-                    <div class="button-section">
-                        <button class="aro-button-primary" @onclick="HandleAddGroup">
-                            Add Group +
-                        </button>
-                    </div>
+                    <MudIconButton 
+                        Icon="@Icons.Material.Filled.Search"
+                        Variant="Variant.Text"
+                        Color="Color.Dark"
+                        Class="button-search shadow"
+                        @onclick="HandleSearch"></MudIconButton>
                 </div>
+
+                <GroupsTable />
             </div>
         </div>
     </Authorized>
@@ -39,7 +30,8 @@
 @code {
     [Inject] private NavigationManager? NavigationManager { get; set; }
 
-    private string GetFirstName(string? fullName)
+    @*
+    string GetFirstName(string? fullName)
     {
         if (string.IsNullOrWhiteSpace(fullName))
             return "Alex";
@@ -55,12 +47,7 @@
         var parts = fullName.Split(' ');
         return parts[0];
     }
-
-    private void HandleAddGroup()
-    {
-        // Navigate to add group page or show dialog
-        NavigationManager?.NavigateTo("/groups/add");
-    }
+    *@
 
     private void HandleSearch()
     {

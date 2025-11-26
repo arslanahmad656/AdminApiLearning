@@ -127,8 +127,8 @@ public partial class GroupService(
             response.Country,
             response.Logo,
             response.PrimaryContactId,
-            response.PrimaryContact.DisplayName,
-            response.PrimaryContact.Email,
+            response.PrimaryContact?.DisplayName,
+            response.PrimaryContact?.Email,
             response.IsActive
         );
 

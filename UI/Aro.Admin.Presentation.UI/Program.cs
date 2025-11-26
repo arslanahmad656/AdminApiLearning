@@ -1,5 +1,8 @@
 using Aro.Admin.Presentation.UI;
+using Aro.Admin.Presentation.UI.Models;
 using Aro.Admin.Presentation.UI.Services;
+using Aro.Admin.Presentation.UI.Validators;
+using FluentValidation;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -54,5 +57,15 @@ builder.Services.AddMudServices(config =>
     config.SnackbarConfiguration.ShowTransitionDuration = 300;
     config.SnackbarConfiguration.SnackbarVariant = MudBlazor.Variant.Filled;
 });
+
+// Register data services
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IGroupService, GroupService>();
+
+builder.Services.AddScoped<ICountryMetadataService, CountryMetadataService>();
+
+builder.Services.AddTransient<IValidator<GroupModel>, GroupModelFluentValidator>();
+builder.Services.AddTransient<IValidator<PrimaryContactModel>, PrimaryContactModelFluentValidator>();
+
 
 await builder.Build().RunAsync();

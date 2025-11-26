@@ -1,5 +1,4 @@
-﻿namespace Aro.Booking.Application.Services.Group;
-
+namespace Aro.Admin.Presentation.UI.Models;
 public record GroupDto(
     Guid Id,
     string GroupName,
@@ -10,8 +9,8 @@ public record GroupDto(
     string Country,
     byte[]? Logo,
     Guid PrimaryContactId,
-    string? PrimaryContactName,
-    string? PrimaryContactEmail,
+    string PrimaryContactName,
+    string PrimaryContactEmail,
     bool IsActive
 );
 

@@ -1,0 +1,12 @@
+﻿<div class="col-sm-4 col-lg-4">
+    <span class="text-body-secondary">@Label</span>
+</div>
+<div class="col-sm-8 col-lg-4">
+    @Value
+</div>
+<div class="w-100"></div>
+
+@code {
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string? Value { get; set; }
+}

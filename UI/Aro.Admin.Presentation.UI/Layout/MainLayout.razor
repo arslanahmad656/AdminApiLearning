@@ -10,22 +10,16 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="home-container">
-            <!-- ARO Sidebar - Exact Figma Design -->
-            <div class="aro-sidebar">
-                <!-- Logo Section -->
-                <div class="aro-logo">
-                    <img src="aro-logo.svg" alt="ARO Digital Strategy" />
+        <div class="container-fluid min-vh-100 gx-0">
+            <div class="row gx-0 min-vh-100">
+
+                <CollapsibleNavMenu />
+
+                <div class="col">
+                    @Body
                 </div>
 
-                <!-- Menu Items -->
-                <div class="sidebar-menu">
-                    <NavMenu />
-                </div>
             </div>
-
-            <!-- Main Content Body -->
-            @Body
         </div>
     </Authorized>
     <NotAuthorized>
