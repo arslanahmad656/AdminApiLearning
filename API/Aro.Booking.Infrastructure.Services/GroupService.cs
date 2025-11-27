@@ -23,8 +23,6 @@ public partial class GroupService(
     private readonly IGroupRepository groupRepository = bookingRepository.GroupRepository;
     private readonly IUserRepository userRepository = commonRepository.UserRepository;
 
-    private readonly string alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-
     public async Task<CreateGroupResponse> CreateGroup(CreateGroupDto group, CancellationToken cancellationToken = default)
     {
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateGroup], cancellationToken);
@@ -65,7 +63,7 @@ public partial class GroupService(
 
         var baseQuery = groupRepository.GetAll();
 
-        if (query.Filter != null && alpha.Contains((char)query.Filter))
+        if (query.Filter is char c && c is >= 'A' and <= 'Z' or >= 'a' and <= 'z')
         {
             baseQuery = baseQuery.Where(e => EF.Functions.Like(
                 EF.Property<string>(e, "GroupName"), $"{query.Filter}%"));

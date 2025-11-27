@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Linq.Expressions;
+using System.Reflection;
+using Microsoft.EntityFrameworkCore;
 
 namespace Aro.Common.Infrastructure.Shared.Extensions;
 
@@ -31,14 +33,22 @@ public static class QueryableExtensions
         return query;
     }
 
-    public static IQueryable<T> SortBy<T>(this IQueryable<T> query, string sortBy, bool ascending)
+    public static IQueryable<T> SortBy<T>(
+        this IQueryable<T> query,
+        string? propertyName,
+        bool ascending = true)
     {
-        if (!string.IsNullOrWhiteSpace(sortBy))
-        {
-            query = ascending
-                ? query.OrderBy(e => EF.Property<object>(e, sortBy))
-                : query.OrderByDescending(e => EF.Property<object>(e, sortBy));
-        }
-        return query;
+        if (string.IsNullOrWhiteSpace(propertyName))
+            return query;
+
+        var property = typeof(T).GetProperty(propertyName,
+            BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance) ?? throw new ArgumentException($"'{propertyName}' is not a valid property of {typeof(T).Name}");
+        var param = Expression.Parameter(typeof(T), "x");
+        var body = Expression.Property(param, property.Name);
+        var converted = Expression.Convert(body, typeof(object));
+        var keySelector = Expression.Lambda<Func<T, object>>(converted, param);
+
+        return ascending ? query.OrderBy(keySelector)
+                         : query.OrderByDescending(keySelector);
     }
 }

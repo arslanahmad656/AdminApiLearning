@@ -6,6 +6,6 @@ public record CreateUserRequest(
     string Password,
     string DisplayName,
     ICollection<string> AssignedRoles,
-    string CountryCode,
-    string PhoneNumber
+    string? CountryCode,
+    string? PhoneNumber
 );
