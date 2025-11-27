@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Aro.Common.Application.Shared\Aro.Common.Application.Shared.csproj" />
+  </ItemGroup>
+
 </Project>

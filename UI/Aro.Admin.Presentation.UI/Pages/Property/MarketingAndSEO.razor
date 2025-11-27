@@ -1,0 +1,376 @@
+﻿@page "/property/marketing-seo"
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@layout WizardLayout
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<div class="property-wizard-container">
+    <!-- Header Bar -->
+    <div class="wizard-header">
+        <h1 class="header-title">Create New Property</h1>
+        <div class="close-icon">
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                <line x1="1" y1="1" x2="16" y2="16" stroke="white" stroke-width="2" />
+                <line x1="16" y1="1" x2="1" y2="16" stroke="white" stroke-width="2" />
+            </svg>
+        </div>
+    </div>
+    <div class="wizard-body">
+        <!-- Sidebar Navigation -->
+        <div class="wizard-sidebar">
+            <div class="wizard-steps">
+                <div class="wizard-step completed">
+                    <div class="step-indicator">
+                        <div class="step-number completed-check">
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                                <path d="M1 5L6 10L15 1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="step-line completed"></div>
+                    </div>
+                    <div class="step-title">Property Information</div>
+                </div>
+                <div class="wizard-step completed">
+                    <div class="step-indicator">
+                        <div class="step-number completed-check">
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                                <path d="M1 5L6 10L15 1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="step-line completed"></div>
+                    </div>
+                    <div class="step-title">Address & Primary Contact</div>
+                </div>
+                <div class="wizard-step completed">
+                    <div class="step-indicator">
+                        <div class="step-number completed-check">
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                                <path d="M1 5L6 10L15 1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="step-line completed"></div>
+                    </div>
+                    <div class="step-title">Key Selling Points</div>
+                </div>
+                <div class="wizard-step completed">
+                    <div class="step-indicator">
+                        <div class="step-number completed-check">
+                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                                <path d="M1 5L6 10L15 1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="step-line completed"></div>
+                    </div>
+                    <div class="step-title">Media Files</div>
+                </div>
+                <div class="wizard-step active">
+                    <div class="step-indicator">
+                        <div class="step-number">5</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-title">Marketing & SEO</div>
+                </div>
+                <div class="wizard-step">
+                    <div class="step-indicator">
+                        <div class="step-number">6</div>
+                    </div>
+                    <div class="step-title">Review & Save</div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="wizard-content">
+            <div class="content-header">
+                <p class="step-label">Step 5</p>
+                <h2 class="content-title">Marketing & SEO</h2>
+            </div>
+
+
+            <!-- Marketing Form Fields -->
+            <EditForm Model="@seoModel" OnValidSubmit="@HandleNext">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <!-- H1 Input -->
+                <div class="form-group">
+                    <label for="h1">h1</label>
+                    <InputText id="h1" class="form-control" @bind-Value="seoModel.Heading" />
+                </div>
+
+                <!-- Meta Description -->
+                <div class="form-group mt-3">
+                    <label for="meta">Meta Description</label>
+                    <p class="character-label">@(seoModel.Description?.Length == null ? MaxDescriptionLength : (MaxDescriptionLength - seoModel.Description?.Length)?? 0) characters left</p>
+                    <InputTextArea id="meta" class="form-control" maxlength="@MaxDescriptionLength" rows="10" @bind-Value="seoModel.Description" />
+                </div>
+            </EditForm>
+
+            <!-- Footer Buttons (separated) -->
+            <WizardFooter OnBack="HandleBack"
+                          OnNext="HandleNext"
+                          BackDisabled="false"
+                          NextDisabled="false" />
+        </div>
+    </div>
+
+</div>
+@code {
+    // Max characters allowed in the meta description
+    private const int MaxDescriptionLength = 320;
+
+    // Data model to hold SEO info
+    private SeoModel seoModel = new();
+
+
+    private void HandleBack()
+    {
+        // Navigate back to Address & Primary Contact page
+        NavigationManager.NavigateTo("/property/media-files");
+    }
+
+    private void HandleNext()
+    {
+        // Navigate to Media Files page (Step 4)
+        // TODO: Implement save logic
+        //NavigationManager.NavigateTo("/property/media-files");
+    }
+    // Model for form binding and validation
+    public class SeoModel
+    {
+        [Required(ErrorMessage = "Heading is required")]
+        public string Heading { get; set; }
+
+        [Required(ErrorMessage = "Meta description is required")]
+        [MaxLength(MaxDescriptionLength, ErrorMessage = "Description is too long")]
+        public string Description { get; set; } 
+    }
+
+}
+<style>
+    /* Main Container */
+    .property-wizard-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: #FFFFFF;
+    }
+
+    /* Header Bar - Dark Gray */
+    .wizard-header {
+        background: #434343;
+        height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+    }
+
+    .header-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 29px;
+        color: #FFFFFF;
+        margin: 0;
+    }
+
+    .close-icon {
+        cursor: pointer;
+        padding: 8px;
+    }
+
+    /* Body Container */
+    .wizard-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    /* Left Sidebar - Light Gray */
+    .wizard-sidebar {
+        width: 246px;
+        background: #FFFF;
+        padding: 40px 20px;
+        border-right: 1px solid #B3B3B3;
+    }
+
+    .wizard-steps {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .wizard-step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 32px;
+        position: relative;
+    }
+
+        .wizard-step:last-child {
+            margin-bottom: 0;
+        }
+
+    .step-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 16px;
+        position: relative;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #D9D9D9;
+        border: 1px solid rgba(0, 0, 0, 0.47);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        color: #000000;
+        z-index: 2;
+    }
+
+    .wizard-step.completed .step-number {
+        background: #FF931E;
+        border: none;
+    }
+
+    .step-number.completed-check {
+        background: #FF931E;
+        border: none;
+    }
+
+    .wizard-step.active .step-number {
+        border: 1px solid #FF931E;
+    }
+
+    .step-line {
+        width: 2px;
+        height: 60px;
+        background: #D9D9D9;
+        position: absolute;
+        top: 50px;
+        left: 24px;
+        z-index: 1;
+    }
+
+        .step-line.completed {
+            background: #737373;
+            border: 1px solid #737373;
+        }
+
+    /*   .wizard-step.active .step-line {
+            background: #D9D9D9;
+        }  */
+
+    .wizard-step:last-child .step-line {
+        background: #FFFF;
+    }
+
+    .step-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 26px;
+        color: #000000;
+        padding-top: 12px;
+    }
+
+    .wizard-step.active .step-title {
+        font-weight: 600;
+    }
+
+    /* Main Content Area */
+
+    .wizard-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #EDEDED;
+        padding: 60px 80px;
+        overflow-y: auto;
+    }
+
+    /* Matches styling in other steps */
+    .instruction-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: #737373;
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 24px;
+        width:50%;
+    }
+
+        .form-group label {
+            font-size: 16px;
+            font-weight: 400;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+    .form-control {
+        font-size: 16px;
+        padding: 12px;
+        border: 1px solid #C3C3C3;
+        border-radius: 4px;
+        background-color: #F5F5F5;
+        resize: none;
+    }
+
+        .form-control:focus {
+            border-color: #FF931E;
+            outline: none;
+            box-shadow: 0 0 0 1px #FF931E;
+        }
+
+    .form-group p {
+        font-size: 12px;
+        color: #737373;
+        margin: 4px 0 8px 0;
+        text-align: left;
+    }
+
+    .content-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 100%;
+        color: #000000;
+        margin-bottom: 24px;
+    }
+
+    .character-label {
+        text-align: left;
+    }
+    /* Responsive Fix */
+    @@media (max-width: 768px) {
+        .wizard-content {
+            padding: 40px 20px;
+        }
+
+        .form-control {
+            font-size: 14px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+        }
+    }
+
+
+</style>
+
+

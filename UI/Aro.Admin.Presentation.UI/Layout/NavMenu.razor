@@ -1,23 +1,28 @@
 @inject NavigationManager NavigationManager
 
+<div class="sidebar-header">
+    <div class="hotel-selector">
+        <img src="icons/profile.png" alt="Brøchner hotels" class="hotel-logo" />
+        <span class="hotel-name">Brøchner hotels</span>
+    </div>
+</div>
+
 <div class="sidebar-menu-items">
     <!-- Group List Menu Item -->
     <a href="/" class="menu-item @GetActiveClass("/")">
-        <img src="icons/account_circle.png" alt="Group List" class="menu-item-icon" />
-        <span>Group List</span>
+        <img src="icons/cottage.png" alt="Group List" class="menu-item-icon" />
+        <span>Properties</span>
     </a>
-
     <!-- Users & Permissions Menu Item -->
     <a href="/users" class="menu-item @GetActiveClass("/users")">
         <img src="icons/key.png" alt="Users & Permissions" class="menu-item-icon" />
         <span>Users & Permissions</span>
     </a>
-
     <!-- Facilities & Services Menu Item -->
-    <a href="/facilities" class="menu-item @GetActiveClass("/facilities")">
+    @* <a href="/facilities" class="menu-item @GetActiveClass("/facilities")">
         <img src="icons/outpatient.png" alt="Facilities & Services" class="menu-item-icon" />
         <span>Facilities & Services</span>
-    </a>
+    </a> *@
 </div>
 
 @code {

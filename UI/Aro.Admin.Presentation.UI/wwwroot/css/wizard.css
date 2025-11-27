@@ -1,0 +1,17 @@
+/* Wizard Layout - Full screen, no navbar */
+.wizard-layout {
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: #FFFFFF;
+}
+
+/* Import Inter font if not already imported */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+/* Reset any inherited styles */
+.wizard-layout * {
+    box-sizing: border-box;
+}

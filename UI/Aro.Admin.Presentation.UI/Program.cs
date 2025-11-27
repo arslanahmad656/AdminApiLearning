@@ -1,7 +1,8 @@
 using Aro.Admin.Presentation.UI;
-using Aro.Admin.Presentation.UI.Models;
-using Aro.Admin.Presentation.UI.Services;
 using Aro.Admin.Presentation.UI.Validators;
+using Aro.UI.Application.DTOs;
+using Aro.UI.Application.Interfaces;
+using Aro.UI.Infrastructure.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -36,6 +37,12 @@ builder.Services.AddScoped(sp =>
 builder.Services.AddScoped<ITokenStorageService, TokenStorageService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IPasswordResetService, PasswordResetService>();
+
+// Register property services
+builder.Services.AddScoped<IPropertyService, PropertyService>();
+
+// Register error handling service
+builder.Services.AddScoped<IErrorHandlingService, ErrorHandlingService>();
 
 // Register custom AuthenticationStateProvider
 builder.Services.AddScoped<ApiAuthenticationStateProvider>();

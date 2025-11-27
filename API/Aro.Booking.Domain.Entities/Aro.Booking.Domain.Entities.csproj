@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Aro.Booking.Domain.Shared\Aro.Booking.Domain.Shared.csproj" />
     <ProjectReference Include="..\Aro.Common.Domain.Entities\Aro.Common.Domain.Entities.csproj" />
   </ItemGroup>
 

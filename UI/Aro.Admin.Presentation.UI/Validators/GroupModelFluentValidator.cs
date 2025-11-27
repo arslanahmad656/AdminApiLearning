@@ -1,5 +1,6 @@
-﻿using Aro.Admin.Presentation.UI.Models;
-using Aro.Admin.Presentation.UI.Services;
+﻿
+using Aro.UI.Application.DTOs;
+using Aro.UI.Infrastructure.Services;
 using FluentValidation;
 
 namespace Aro.Admin.Presentation.UI.Validators;

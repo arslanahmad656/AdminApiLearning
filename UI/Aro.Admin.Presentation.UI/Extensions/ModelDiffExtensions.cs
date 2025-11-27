@@ -1,4 +1,4 @@
-﻿using Aro.Admin.Presentation.UI.Models;
+﻿using Aro.UI.Application.DTOs;
 
 namespace Aro.Admin.Presentation.UI.Extensions;
 

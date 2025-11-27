@@ -1,4 +1,6 @@
 ﻿@page "/"
+
+
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Components.Authorization
 
@@ -18,7 +20,21 @@
                         @onclick="HandleSearch"></MudIconButton>
                 </div>
 
-                <GroupsTable />
+                @* 
+                <div class="top-right-section">
+                    <div class="top-right-profile">
+                        <img class="profile-img" Src="icons/profile.png" />
+                        <span class="property-name">Brochner hotels</span>
+                        <img src="icons/dropdown.png" alt="Dropdown" class="dropdown-icon"   />
+                    </div>
+
+                    <div class="top-right-icons" @onclick="HandleSettings">
+                        <img src="icons/settings.png" alt="Settings" />
+                    </div>
+                </div>
+                *@
+
+                <GroupList />
             </div>
         </div>
     </Authorized>
@@ -47,12 +63,30 @@
         var parts = fullName.Split(' ');
         return parts[0];
     }
-    *@
 
+    private void HandleAddGroup()
+    {
+        // Navigate to add group page or show dialog
+        NavigationManager?.NavigateTo("/groups/add");
+    }
+
+@* 
+    private void HandleAddGroup()
+    {
+        // Navigate to property information wizard
+        NavigationManager?.NavigateTo("/property/information");
+    }
+*@
     private void HandleSearch()
     {
         // Implement search functionality
-        // NavigationManager?.NavigateTo("/search");
+         // NavigationManager?.NavigateTo("/search");
+    }
+
+    private void HandleSettings()
+    {
+        // Implement search functionality
+        NavigationManager?.NavigateTo("/settings");
     }
 }
 

@@ -15,4 +15,16 @@ public class ISO8601DateFormatter(ILogManager<ISO8601DateFormatter> logger) : ID
         logger.LogDebug("Completed {MethodName}", nameof(Format));
         return formatted;
     }
+
+    public string FormatDate(DateOnly date)
+    {
+        var formatted = date.ToString("yyyy-MM-dd");
+        return formatted;
+    }
+
+    public string FormatTime(TimeOnly time)
+    {
+        var formatted = time.ToString("HH:mm:ss");
+        return formatted;
+    }
 }

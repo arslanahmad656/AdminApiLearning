@@ -1,4 +1,5 @@
 ﻿using Aro.Common.Application.Services;
+using Aro.Common.Application.Shared;
 
 namespace Aro.Common.Application.Services.LogManager;
 

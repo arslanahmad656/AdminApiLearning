@@ -7,5 +7,6 @@ public record PasswordResetSettings
     public bool EnforceSameIPandUserAgentForTokenUsage { get; init; }
     public bool UseStrictSecurityChecks { get; init; }
     public required string FrontendResetPasswordUrl { get; init; }
+    public required string FrontendLoginUrl { get; init; }
 
 }

@@ -7,5 +7,6 @@ public class EntityTypes
     public readonly string RefreshToken = "RefreshToken";
     public readonly string AccessToken = "AccessToken";
     public readonly string Group = "Group";
+    public readonly string Property = "Property";
     public readonly string PasswordResetLink = "PasswordResetLink";
 }

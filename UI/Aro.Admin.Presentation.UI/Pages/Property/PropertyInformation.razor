@@ -1,0 +1,709 @@
+@page "/property/information"
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+@using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@using MudBlazor
+@layout WizardLayout
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject IPropertyService PropertyService
+@inject ISnackbar Snackbar
+
+<div class="property-wizard-container">
+    <!-- Header Bar -->
+    <div class="wizard-header">
+        <h1 class="header-title">Create New Property</h1>
+        <div class="close-icon" @onclick="HandleClose">
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                <line x1="1" y1="1" x2="16" y2="16" stroke="white" stroke-width="2"/>
+                <line x1="16" y1="1" x2="1" y2="16" stroke="white" stroke-width="2"/>
+            </svg>
+        </div>
+    </div>
+
+    <div class="wizard-body">
+        <!-- Left Sidebar with Steps -->
+        <div class="wizard-sidebar">
+            <div class="wizard-steps">
+                <div class="wizard-step active">
+                    <div class="step-indicator">
+                        <div class="step-number">1</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-title">Property Information</div>
+                </div>
+                <div class="wizard-step">
+                    <div class="step-indicator">
+                        <div class="step-number">2</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-title">Address & Primary Contact</div>
+                </div>
+                <div class="wizard-step">
+                    <div class="step-indicator">
+                        <div class="step-number">3</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-title">Key Selling Points</div>
+                </div>
+                <div class="wizard-step">
+                    <div class="step-indicator">
+                        <div class="step-number">4</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-title">Media Files</div>
+                </div>
+
+                <div class="wizard-step">
+                    <div class="step-indicator">
+                        <div class="step-number">5</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-title">Marketing & SEO</div>
+                </div>
+                <div class="wizard-step">
+                    <div class="step-indicator">
+                        <div class="step-number">6</div>
+                    </div>
+                    <div class="step-title">Review & Save</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="wizard-content">
+            <div class="content-header">
+                <p class="step-label">Step 1</p>
+                <h2 class="content-title">Property Information</h2>
+            </div>
+
+            <MudForm @ref="form" Class="property-form">
+                <!-- Property Name -->
+                <div class="form-group">
+                    <label class="form-label">Property Name *</label>
+                    <MudTextField @bind-Value="model.PropertyName"
+                                  Variant="Variant.Outlined"
+                                  Class="form-input"
+                                  Placeholder="Danmark Hotel"
+                                  Required="true"
+                                  DisableUnderLine="true"
+                                  @onblur="SaveToLocalStorage" />
+                </div>
+
+                <!-- Property Type -->
+                <div class="form-group">
+                    <label class="form-label">Property Type *</label>
+                    <div class="property-types-container">
+                        <!-- Row 1 -->
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hotel" @bind="model.PropertyTypes.Hotel" @bind:after="SaveToLocalStorage" />
+                            <label for="hotel" class="property-type-label">Hotel</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="guesthouse" @bind="model.PropertyTypes.Guesthouse" @bind:after="SaveToLocalStorage" />
+                            <label for="guesthouse" class="property-type-label">Guesthouse</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="bnb" @bind="model.PropertyTypes.BnB" @bind:after="SaveToLocalStorage" />
+                            <label for="bnb" class="property-type-label">B&B</label>
+                        </div>
+                        <!-- Row 2 -->
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="apartment" @bind="model.PropertyTypes.Apartment" @bind:after="SaveToLocalStorage" />
+                            <label for="apartment" class="property-type-label">Apartment</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="villa" @bind="model.PropertyTypes.Villa" @bind:after="SaveToLocalStorage" />
+                            <label for="villa" class="property-type-label">Villa</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="hostel" @bind="model.PropertyTypes.Hostel" @bind:after="SaveToLocalStorage" />
+                            <label for="hostel" class="property-type-label">Hostel</label>
+                        </div>
+                        <!-- Row 3 -->
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="resort" @bind="model.PropertyTypes.Resort" @bind:after="SaveToLocalStorage" />
+                            <label for="resort" class="property-type-label">Resort</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="lodge" @bind="model.PropertyTypes.Lodge" @bind:after="SaveToLocalStorage" />
+                            <label for="lodge" class="property-type-label">Lodge</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Star Rating and Currency Row -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Star Rating *</label>
+                        <select class="form-select-custom" @bind="model.StarRating" @bind:after="SaveToLocalStorage" required>
+                            <option value="0">Select rating</option>
+                            <option value="1">1 star</option>
+                            <option value="2">2 star</option>
+                            <option value="3">3 star</option>
+                            <option value="4">4 star</option>
+                            <option value="5">5 star</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Currency *</label>
+                        <select class="form-select-custom" @bind="model.Currency" @bind:after="SaveToLocalStorage" required>
+                            <option value="">Select currency</option>
+                            <option value="AED">AED - UAE Dirham</option>
+                            <option value="AUD">AUD - Australian Dollar</option>
+                            <option value="CAD">CAD - Canadian Dollar</option>
+                            <option value="CHF">CHF - Swiss Franc</option>
+                            <option value="DKK">DKK - Danish Krone</option>
+                            <option value="EUR">EUR - Euro</option>
+                            <option value="GBP">GBP - British Pound</option>
+                            <option value="JPY">JPY - Japanese Yen</option>
+                            <option value="NOK">NOK - Norwegian Krone</option>
+                            <option value="SEK">SEK - Swedish Krona</option>
+                            <option value="USD">USD - US Dollar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group">
+                    <label class="form-label">Description *</label>
+                    <textarea class="form-textarea-native"
+                              @bind="model.Description"
+                              @onblur="SaveToLocalStorage"
+                              rows="5"
+                              required
+                              placeholder=""></textarea>
+                </div>
+            </MudForm>
+
+            <!-- Footer with Buttons -->
+            <WizardFooter OnBack="HandleBack"
+                          OnNext="HandleNext"
+                          BackDisabled="true"
+                          NextDisabled="@(!IsFormValid())" />
+        </div>
+    </div>
+</div>
+
+@code {
+    private MudForm? form;
+    private PropertyInformationModel model = new();
+    private const string LocalStorageKey = "PropertyInformation";
+    private bool isSubmitting = false;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "groupId")]
+    public Guid GroupId { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadFromLocalStorage();
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // If no GroupId from query params, try to get from localStorage
+        if (GroupId == Guid.Empty)
+        {
+            var groupIdStr = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "SelectedGroupId");
+            if (!string.IsNullOrEmpty(groupIdStr) && Guid.TryParse(groupIdStr, out var parsedGroupId))
+            {
+                GroupId = parsedGroupId;
+            }
+        }
+    }
+
+    private async Task LoadFromLocalStorage()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", LocalStorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                var savedModel = JsonSerializer.Deserialize<PropertyInformationModel>(json);
+                if (savedModel != null)
+                {
+                    model = savedModel;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading from localStorage: {ex.Message}");
+        }
+    }
+
+    private async Task SaveToLocalStorage()
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(model);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving to localStorage: {ex.Message}");
+        }
+    }
+
+    private bool IsFormValid()
+    {
+        return true;
+        //!string.IsNullOrWhiteSpace(model.PropertyName) &&
+               // model.PropertyTypes.HasAnySelected() &&
+               // model.StarRating > 0 &&
+               // !string.IsNullOrWhiteSpace(model.Currency) &&
+               // !string.IsNullOrWhiteSpace(model.Description);
+    }
+
+    private async Task HandleClose()
+    {
+        // Save before closing
+        await SaveToLocalStorage();
+        // Navigate back or show confirmation dialog
+        NavigationManager.NavigateTo("/");
+    }
+
+    private async Task HandleBack()
+    {
+        // Save data before going back
+        await SaveToLocalStorage();
+        // Handle back navigation
+        NavigationManager.NavigateTo("/");
+    }
+
+    private async Task HandleNext()
+    {
+        if (isSubmitting) return;
+
+        // await form!.Validate();
+
+        // if (!form.IsValid || !IsFormValid())
+        // {
+        //     Snackbar.Add("Please fill in all required fields", Severity.Warning);
+        //     return;
+        // }
+
+        // isSubmitting = true;
+
+        // try
+        // {
+        //     Save data to localStorage first
+        //     await SaveToLocalStorage();
+
+        //     Convert PropertyTypes boolean model to flags enum int
+        //     var propertyTypesFlags = model.PropertyTypes.ToFlagsInt();
+
+        //     Create API request with nullable GroupId
+        //     GroupId can be null for now - will be set later in the workflow
+        //     var request = new CreatePropertyRequest(
+        //         GroupId == Guid.Empty ? null : GroupId,
+        //         model.PropertyName,
+        //         propertyTypesFlags,
+        //         model.StarRating,
+        //         model.Currency,
+        //         model.Description
+        //     );
+
+        //     Call API
+        //     var response = await PropertyService.CreatePropertyAsync(request);
+
+        //     if (response != null)
+        //     {
+        //         Save property ID to localStorage for next steps
+        //         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "CreatedPropertyId", response.Id.ToString());
+
+        //         Snackbar.Add("Property information saved successfully!", Severity.Success);
+
+        //         Navigate to Address & Primary Contact page
+                 NavigationManager.NavigateTo("/property/address-contact");
+        //     }
+        //     else
+        //     {
+        //         Snackbar.Add("Failed to save property information. Please try again.", Severity.Error);
+        //     }
+        // }
+        // catch (Exception ex)
+        // {
+        //     Console.WriteLine($"Error saving property: {ex.Message}");
+        //     Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
+        // }
+        // finally
+        // {
+        //     isSubmitting = false;
+        // }
+    }
+
+    public class PropertyInformationModel
+    {
+        [Required(ErrorMessage = "Property name is required")]
+        public string PropertyName { get; set; } = string.Empty;
+
+        public PropertyTypeModel PropertyTypes { get; set; } = new();
+
+        [Required(ErrorMessage = "Star rating is required")]
+        public int StarRating { get; set; } = 0;
+
+        [Required(ErrorMessage = "Currency is required")]
+        public string Currency { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "Description is required")]
+        public string Description { get; set; } = string.Empty;
+    }
+
+    public class PropertyTypeModel
+    {
+        public bool Apartment { get; set; }
+        public bool BnB { get; set; }
+        public bool Guesthouse { get; set; }
+        public bool Hostel { get; set; }
+        public bool Hotel { get; set; }
+        public bool Lodge { get; set; }
+        public bool Resort { get; set; }
+        public bool Villa { get; set; }
+
+        public bool HasAnySelected()
+        {
+            return Apartment || BnB || Guesthouse || Hostel || Hotel || Lodge || Resort || Villa;
+        }
+
+        public int ToFlagsInt()
+        {
+            int flags = 0;
+
+            // Map boolean properties to flags enum using bitwise OR
+            // PropertyType flags: Apartment=1, BAndB=2, Guesthouse=4, Hostel=8, Hotel=16, Lodge=32, Resort=64
+            if (Apartment) flags |= 1;    // 1 << 0
+            if (BnB) flags |= 2;          // 1 << 1
+            if (Guesthouse) flags |= 4;   // 1 << 2
+            if (Hostel) flags |= 8;       // 1 << 3
+            if (Hotel) flags |= 16;       // 1 << 4
+            if (Lodge) flags |= 32;       // 1 << 5
+            if (Resort) flags |= 64;      // 1 << 6
+            // Note: Villa is not in the PropertyType enum, so we skip it
+
+            return flags;
+        }
+    }
+}
+
+<style>
+    /* Main Container */
+    .property-wizard-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: #FFFFFF;
+    }
+
+    /* Header Bar - Dark Gray */
+    .wizard-header {
+        background: #434343;
+        height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+    }
+
+    .header-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 29px;
+        color: #FFFFFF;
+        margin: 0;
+    }
+
+    .close-icon {
+        cursor: pointer;
+        padding: 8px;
+    }
+
+    /* Body Container */
+    .wizard-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    /* Left Sidebar - Light Gray */
+    .wizard-sidebar {
+        width: 246px;
+        background: #FFFF;
+        padding: 40px 20px;
+        border-right: 1px solid #B3B3B3;
+    }
+
+    .wizard-steps {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .wizard-step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 32px;
+        position: relative;
+    }
+
+    .wizard-step:last-child {
+        margin-bottom: 0;
+    }
+
+    .step-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 16px;
+        position: relative;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #D9D9D9;
+        border: 1px solid rgba(0, 0, 0, 0.47);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        color: #000000;
+        z-index: 2;
+    }
+
+    .wizard-step.active .step-number {
+        border: 1px solid rgba(0, 0, 0, 0.47);
+    }
+
+    .step-line {
+        width: 2px;
+        height: 60px;
+        background: #D9D9D9;
+        position: absolute;
+        top: 50px;
+        left: 24px;
+        z-index: 1;
+    }
+
+    .wizard-step.active .step-line {
+        background: #737373;
+        border: 1px solid #737373;
+    }
+
+    .wizard-step:last-child .step-line {
+        display: none;
+    }
+
+    .step-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 26px;
+        color: #000000;
+        padding-top: 12px;
+    }
+
+    .wizard-step.active .step-title {
+        font-weight: 600;
+    }
+
+    .wizard-step.active .step-number {
+        border: 1px solid #FF931E;
+    }
+
+    /* Main Content Area - Light Gray Background */
+    .wizard-content {
+        flex: 1;
+        background: #EDEDED;
+        padding: 60px 80px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .content-header {
+        margin-bottom: 40px;
+    }
+
+    .step-label {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 19px;
+        color: #000000;
+        margin: 0 0 8px 0;
+    }
+
+    .content-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 29px;
+        color: #000000;
+        margin: 0;
+    }
+
+    /* Form Styling */
+    .property-form {
+        max-width: 1000px;
+    }
+
+    .form-group {
+        margin-bottom: 40px;
+        color:#EDEDED;
+    }
+
+    .form-label {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 19px;
+        color: #000000;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    /* Property Name Input Field */
+    .property-form .form-input {
+        width: 100%;
+        max-width: 678px;
+    }
+
+    .property-form .form-input .mud-input-root {
+            background: ##EDEDED !important;
+        border: 1px solid #C3C3C3 !important;
+        border-radius: 0 !important;
+        height: 50px !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        font-weight: 400 !important;
+        font-size: 16px !important;
+        color: #000000 !important;
+    }
+
+    .property-form .form-input .mud-input-root-outlined {
+        border: 1px solid #C3C3C3 !important;
+    }
+
+    .property-form .form-input input {
+        padding: 0 18px !important;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+        font-weight: 400 !important;
+        font-size: 16px !important;
+        color: #000000 !important;
+    }
+
+    /* Property Types Container */
+    .property-types-container {
+        background: #EDEDED;
+        border: 1px solid #C3C3C3;
+        padding: 24px;
+        margin-top: 12px;
+        max-width: 767px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px 24px;
+    }
+
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        accent-color: #1C1B1F;
+        margin: 0;
+    }
+
+    .property-type-label {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #000000;
+        cursor: pointer;
+        margin: 0;
+    }
+
+    /* Form Row for Star Rating and Currency */
+    .form-row {
+        display: flex;
+        gap: 32px;
+        margin-bottom: 40px;
+    }
+
+    .form-row .form-group {
+        margin-bottom: 0;
+        flex: 0 0 auto;
+    }
+
+    /* Custom Select Dropdown */
+    .form-select-custom {
+        width: 265px;
+        height: 50px;
+        background: #EDEDED;
+        border: 1px solid #C3C3C3;
+        border-radius: 0;
+        padding: 0 18px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 100%;
+        color: #1C1B1F;
+        cursor: pointer;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231C1B1F' d='M10.293 3.293L6 7.586 1.707 3.293A1 1 0 00.293 4.707l5 5a1 1 0 001.414 0l5-5a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        padding-right: 40px;
+    }
+
+    .form-select-custom:hover {
+        border-color: #999;
+    }
+
+    .form-select-custom:focus {
+        outline: none;
+        border-color: #C3C3C3;
+        box-shadow: none;
+    }
+
+    /* Description Field - Native Textarea */
+    .form-textarea-native {
+        width: 100%;
+        max-width: 767px;
+        min-height: 170px;
+        background: #EDEDED;
+        border: 1px solid #C3C3C3;
+        border-radius: 0;
+        padding: 15px 18px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 1.5;
+        color: #000000;
+        resize: vertical;
+        box-sizing: border-box;
+    }
+
+    .form-textarea-native:focus {
+        outline: none;
+        border: 1px solid #C3C3C3;
+    }
+
+    .form-textarea-native::placeholder {
+        color: #999;
+    }
+</style>

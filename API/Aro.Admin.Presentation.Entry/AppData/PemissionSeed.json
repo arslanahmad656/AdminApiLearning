@@ -70,11 +70,27 @@
     },
     {
       "Name": "group.patch",
-      "Description": "Can patch groups"
+      "Description": "Can update groups"
     },
     {
       "Name": "group.delete",
       "Description": "Can delete groups"
+    },
+    {
+      "Name": "property.create",
+      "Description": "Can create properties"
+    },
+    {
+      "Name": "property.read",
+      "Description": "Can view property details"
+    },
+    {
+      "Name": "property.patch",
+      "Description": "Can update properties"
+    },
+    {
+      "Name": "property.delete",
+      "Description": "Can delete properties"
     }
   ],
 
@@ -100,7 +116,11 @@
         "group.create",
         "group.read",
         "group.patch",
-        "group.delete"
+        "group.delete",
+        "property.create",
+        "property.read",
+        "property.patch",
+        "property.delete"
       ]
     },
     {

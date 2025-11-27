@@ -1,5 +1,5 @@
 ﻿using Aro.Admin.Application.Services.Authentication;
-using Aro.Common.Application.Services;
+using Aro.Common.Application.Shared;
 
 namespace Aro.Admin.Application.Services.AccessToken;
 

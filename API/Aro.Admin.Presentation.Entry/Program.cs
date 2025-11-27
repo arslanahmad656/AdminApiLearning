@@ -6,6 +6,8 @@ try
 
     builder.InstallServices();
 
+    // Configure the HTTP request pipeline.
+
     var app = builder.Build();
 
     app.UseGlobalExceptionHandler();
@@ -14,8 +16,6 @@ try
     await app.MigrateDatabase().ConfigureAwait(false);
     await app.SeedDatabase(Path.Combine(@"AppData\PemissionSeed.json"), @"AppData\EmailTemplates").ConfigureAwait(false);
     await app.CreateBootstrapUser().ConfigureAwait(false);
-
-    // Configure the HTTP request pipeline.
 
     var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwaggerUI");
     if (enableSwagger)
@@ -32,6 +32,8 @@ try
 
     app.UseAuthentication();
     app.UseAuthorization();
+
+    app.EnableConfigurationSettings();
 
     app.MapControllers();
 

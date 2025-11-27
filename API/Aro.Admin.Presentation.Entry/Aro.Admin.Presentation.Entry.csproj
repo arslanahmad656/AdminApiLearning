@@ -47,4 +47,10 @@
 		</None>
 	</ItemGroup>
 
+	<ItemGroup>
+		<None Update="AppData\EmailTemplates\password-reset-success-email.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>

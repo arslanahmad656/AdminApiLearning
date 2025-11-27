@@ -50,4 +50,18 @@ public class ErrorCodes
     #region [GROUP]
     public readonly string GROUP_NOT_FOUND = nameof(GROUP_NOT_FOUND);
     #endregion
+
+    #region [PROPERTY]
+    public readonly string PROPERTY_NOT_FOUND = nameof(PROPERTY_NOT_FOUND);
+    public readonly string PROPERTY_ALREADY_EXISTS = nameof(PROPERTY_ALREADY_EXISTS);
+    #endregion
+
+    #region [FILE MANAGEMENT]
+    public readonly string GENERAL_FILE_ERROR = nameof(GENERAL_FILE_ERROR);
+    public readonly string FILE_NOT_FOUND = nameof(FILE_NOT_FOUND);
+    public readonly string FILE_CREATION_FAILED = nameof(FILE_CREATION_FAILED);
+    public readonly string FILE_DELETE_FAILED = nameof(FILE_DELETE_FAILED);
+    public readonly string FILE_READ_ERROR = nameof(FILE_READ_ERROR);
+    public readonly string FILE_UPDATE_ERROR = nameof(FILE_UPDATE_ERROR);
+    #endregion
 }
