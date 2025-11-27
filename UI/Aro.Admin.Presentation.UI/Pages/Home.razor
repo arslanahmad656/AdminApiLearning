@@ -1,6 +1,4 @@
 ﻿@page "/"
-
-
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Components.Authorization
 
@@ -9,13 +7,14 @@
 <AuthorizeView>
     <Authorized>
         <div class="home-main-content">
-            <!-- Search Icon - Top Right Corner with Circle Background -->
+            <!-- Top Right Icons -->
             <div class="top-right-section">
                 <div class="top-right-profile">
                     <img class="profile-img" Src="icons/profile.png" />
-                    <span class="property-name">Brochner hotels</span>
-                    <img src="icons/dropdown.png" alt="Dropdown" class="dropdown-icon"   />
+                    <span class="property-name">Brøchner hotels</span>
+                    <img src="icons/dropdown.png" alt="Dropdown" class="dropdown-icon" />
                 </div>
+
                 <div class="top-right-icons" @onclick="HandleSearch">
                     <img src="icons/searchicon.png" alt="Search" />
                 </div>
@@ -25,23 +24,72 @@
                 </div>
             </div>
 
-            <!-- Content Card - White Box with Shadow (Figma Rectangle 1904) -->
-            <div class="content-card">
-                <div class="content-row">
-                    <!-- Greeting Section - Left Side -->
-                    <div class="greeting-section">
-                        <h1>Hi @GetFirstName(context.User.Identity?.Name)!</h1>
-                        <p>You don't have any properties added yet.</p>
-                    </div>
+            <!-- If no properties -->
+            @if (!Properties.Any())
+            {
+                <div class="content-card">
+                    <div class="content-row">
+                        <div class="greeting-section">
+                            <h1>Hi @GetFirstName(context.User.Identity?.Name)!</h1>
+                            <p>You don't have any properties added yet.</p>
+                        </div>
 
-                    <!-- Button Section - Right Side -->
-                    <div class="button-section">
+                        <div class="button-section">
+                            <button class="aro-button-primary" @onclick="HandleAddGroup">
+                                Add Property +
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <!-- Property List View -->
+                <div class="properties-header">
+                    <h2>Properties</h2>
+                    <div class="properties-controls">
+                        <button class="sort-button">Sort by: <strong>A-Z</strong></button>
                         <button class="aro-button-primary" @onclick="HandleAddGroup">
                             Add Property +
                         </button>
                     </div>
                 </div>
-            </div>
+
+                @foreach (var property in Properties)
+                {
+                    <div class="property-card">
+                        <div class="property-info">
+                            <img src="@property.Favicon" alt="Favicon" class="property-favicon" />
+                            <div class="property-name-block">
+                                <div class="property-name-title">@property.Name</div>
+                                <div class="property-link">
+                                    <img src="icons/globe.png" alt="Web" />
+                                    <a href="@property.Website" target="_blank">@property.Website</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="property-meta">
+                            <div>@property.Address</div>
+                            <div class="owner-email">
+                                <img src="icons/email.png" />
+                                <span @onclick="() => CopyEmail(property.OwnerEmail)" class="clickable-email">
+                                    @property.OwnerName
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="booking-platforms">
+                            @foreach (var site in property.PublishedTo)
+                            {
+                                <div class="platform-chip">@site</div>
+                            }
+                        </div>
+
+                        <div class="status-tag">Active</div>
+                    </div>
+                }
+            }
         </div>
     </Authorized>
     <NotAuthorized>
@@ -52,38 +100,130 @@
 @code {
     [Inject] private NavigationManager? NavigationManager { get; set; }
 
+    private List<PropertyModel> Properties = new()
+    {
+        new()
+        {
+            Name = "Danmark hotel",
+            Favicon = "icons/favicon.png",
+            Website = "https://www.brochner-hotels.com/our-locations/hotel-danmark",
+            Address = "Vester Voldgade 89, 1552 Copenhagen",
+            OwnerName = "John Wavy",
+            OwnerEmail = "john.wavy@brochner-hotels.com",
+            PublishedTo = new() { "Booking engine", "Aró Analytics" }
+        }
+    };
+
+    private void HandleAddGroup() => NavigationManager?.NavigateTo("/property/information");
+    private void HandleSearch() => NavigationManager?.NavigateTo("/search");
+    private void HandleSettings() => NavigationManager?.NavigateTo("/settings");
+
+    private void CopyEmail(string email)
+    {
+        // Clipboard API can be used via JS interop if needed
+        Console.WriteLine($"Copied email: {email}");
+    }
+
     private string GetFirstName(string? fullName)
     {
-        if (string.IsNullOrWhiteSpace(fullName))
-            return "Alex";
-
-        // Try to extract first name from email or full name
-        if (fullName.Contains("@"))
-        {
-            var emailPart = fullName.Split('@')[0];
-            var nameParts = emailPart.Split('.');
-            return char.ToUpper(nameParts[0][0]) + nameParts[0].Substring(1);
-        }
-
-        var parts = fullName.Split(' ');
-        return parts[0];
+        if (string.IsNullOrWhiteSpace(fullName)) return "Alex";
+        if (fullName.Contains("@")) return fullName.Split('@')[0];
+        return fullName.Split(' ')[0];
     }
 
-    private void HandleAddGroup()
+    public class PropertyModel
     {
-        // Navigate to property information wizard
-        NavigationManager?.NavigateTo("/property/information");
-    }
-
-    private void HandleSearch()
-    {
-        // Implement search functionality
-         NavigationManager?.NavigateTo("/search");
-    }
-    private void HandleSettings()
-    {
-        // Implement search functionality
-        NavigationManager?.NavigateTo("/settings");
+        public string Name { get; set; } = "";
+        public string Favicon { get; set; } = "";
+        public string Website { get; set; } = "";
+        public string Address { get; set; } = "";
+        public string OwnerName { get; set; } = "";
+        public string OwnerEmail { get; set; } = "";
+        public List<string> PublishedTo { get; set; } = new();
     }
 }
+<style>
+        .property-card {
+        background: #fff;
+        padding: 20px;
+        margin-bottom: 24px;
+        border: 1px solid #E0E0E0;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        position: relative;
+    }
 
+    .property-info {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .property-favicon {
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+    }
+
+    .property-name-title {
+        font-weight: 600;
+        font-size: 18px;
+    }
+
+    .property-link a {
+        font-size: 14px;
+        color: #555;
+        text-decoration: none;
+    }
+
+    .owner-email {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #333;
+    }
+
+    .clickable-email {
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
+    .platform-chip {
+        background: #F6F6F6;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .status-tag {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        background: #D4F5D3;
+        color: #256029;
+        font-size: 13px;
+        padding: 4px 12px;
+        border-radius: 12px;
+    }
+
+    .properties-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+
+    .sort-button {
+        border: 1px solid #CCC;
+        background: white;
+        padding: 8px 16px;
+        font-size: 14px;
+        border-radius: 6px;
+        margin-right: 12px;
+    }
+</style>
