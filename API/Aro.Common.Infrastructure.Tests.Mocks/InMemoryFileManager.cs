@@ -9,7 +9,7 @@ public partial class InMemoryFileManager(string storage, string area, string? ro
     private readonly Dictionary<string, byte[]> Store = new();
     private readonly string Base = BuildBase(storage, area, root);
 
-    public Task<string> CreateFileAsync(string fileName, Stream content, string? root = null)
+    public Task<Uri> CreateFileAsync(string fileName, Stream content, string? root = null)
     {
         logger.LogInfo("Starting in-memory file creation. FileName: {FileName}, SubFolder: {SubFolder}", fileName, root ?? string.Empty);
         var key = BuildKey(fileName, root);
@@ -27,9 +27,10 @@ public partial class InMemoryFileManager(string storage, string area, string? ro
         using var ms = new MemoryStream();
         content.CopyTo(ms);
         Store[key] = ms.ToArray();
-        logger.LogInfo("Successfully created in-memory file. Key: {Key}, Size: {Size} bytes", key, ms.Length);
+        var uri = new Uri(key);
+        logger.LogInfo("Successfully created in-memory file. Uri: {Uri}, Size: {Size} bytes", uri, ms.Length);
 
-        return Task.FromResult(key);
+        return Task.FromResult(uri);
     }
 
     public Task<Stream> ReadFileAsync(string fileName, string? root = null)
@@ -51,7 +52,7 @@ public partial class InMemoryFileManager(string storage, string area, string? ro
         return Task.FromResult<Stream>(new MemoryStream(Store[key]));
     }
 
-    public Task<string> UpdateFileAsync(string fileName, Stream content, string? root = null)
+    public Task<Uri> UpdateFileAsync(string fileName, Stream content, string? root = null)
     {
         logger.LogInfo("Starting in-memory file update. FileName: {FileName}, SubFolder: {SubFolder}", fileName, root ?? string.Empty);
         var key = BuildKey(fileName, root);
@@ -69,9 +70,10 @@ public partial class InMemoryFileManager(string storage, string area, string? ro
         using var ms = new MemoryStream();
         content.CopyTo(ms);
         Store[key] = ms.ToArray();
-        logger.LogInfo("Successfully updated in-memory file. Key: {Key}, Size: {Size} bytes", key, ms.Length);
+        var uri = new Uri(key);
+        logger.LogInfo("Successfully updated in-memory file. Uri: {Uri}, Size: {Size} bytes", uri, ms.Length);
 
-        return Task.FromResult(key);
+        return Task.FromResult(uri);
     }
 
     public Task<bool> DeleteFileAsync(string fileName, string? root = null)
@@ -92,10 +94,48 @@ public partial class InMemoryFileManager(string storage, string area, string? ro
         return Task.FromResult(true);
     }
 
-    public string GetFileUrl(string fileName, string? root = null)
+    public Task<Stream> ReadFileByUriAsync(Uri uri)
+    {
+        logger.LogInfo("Starting in-memory file read by URI. Uri: {Uri}", uri);
+        
+        if (uri == null)
+        {
+            logger.LogWarn("Mock file read by URI failed - URI is null.");
+            throw new AroFileManagementException(
+                AroFileManagementErrorCode.FILE_READ_ERROR,
+                "URI cannot be null.");
+        }
+
+        var key = uri.ToString();
+        logger.LogDebug("Validating URI against base: {Base}", Base);
+
+        // Validate that the URI/key starts with the configured base
+        if (!key.StartsWith(Base, StringComparison.OrdinalIgnoreCase))
+        {
+            logger.LogWarn("Mock file read by URI failed - URI outside base. Base: {Base}, Uri: {Uri}", Base, uri);
+            throw new AroFileManagementException(
+                AroFileManagementErrorCode.FILE_NOT_FOUND,
+                $"Mock file '{uri}' does not exist.");
+        }
+
+        if (!Store.ContainsKey(key))
+        {
+            logger.LogWarn("Mock file read by URI failed - file not found. Uri: {Uri}", uri);
+            throw new AroFileManagementException(
+                AroFileManagementErrorCode.FILE_NOT_FOUND,
+                $"Mock file '{uri}' does not exist.");
+        }
+
+        logger.LogDebug("Retrieving file from memory store by URI. Uri: {Uri}, Size: {Size} bytes", uri, Store[key].Length);
+        logger.LogInfo("Successfully retrieved in-memory file by URI. Uri: {Uri}", uri);
+        return Task.FromResult<Stream>(new MemoryStream(Store[key]));
+    }
+
+    public Uri GetFileUrl(string fileName, string? root = null)
     {
         logger.LogDebug("Getting file URL. FileName: {FileName}, SubFolder: {SubFolder}", fileName, root ?? string.Empty);
-        var url = BuildKey(fileName, root);
+        var key = BuildKey(fileName, root);
+        var url = new Uri(key);
         logger.LogDebug("Generated file URL: {Url}", url);
         return url;
     }

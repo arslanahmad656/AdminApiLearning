@@ -9,4 +9,5 @@ public class EntityTypes
     public readonly string Group = "Group";
     public readonly string Property = "Property";
     public readonly string PasswordResetLink = "PasswordResetLink";
+    public readonly string FileResource = "FileResource";
 }

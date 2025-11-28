@@ -12,7 +12,7 @@ public partial class BlobFileManager(string storage, string area, string? root, 
     private readonly BlobContainerClient Container = InitializeContainer(storage, area, credential);
     private readonly string RootPrefix = root?.Trim('/') ?? string.Empty;
 
-    public async Task<string> CreateFileAsync(string fileName, Stream content, string? sub = null)
+    public async Task<Uri> CreateFileAsync(string fileName, Stream content, string? sub = null)
     {
         logger.LogInfo("Starting blob file creation. FileName: {FileName}, SubFolder: {SubFolder}, Container: {Container}", fileName, sub ?? string.Empty, Container.Name);
         try
@@ -33,7 +33,7 @@ public partial class BlobFileManager(string storage, string area, string? root, 
 
             logger.LogDebug("Uploading blob content. Path: {Path}", path);
             await blob.UploadAsync(content, overwrite: false);
-            var uri = blob.Uri.ToString();
+            var uri = blob.Uri;
             logger.LogInfo("Successfully created blob file. Uri: {Uri}", uri);
             return uri;
         }
@@ -91,7 +91,7 @@ public partial class BlobFileManager(string storage, string area, string? root, 
         }
     }
 
-    public async Task<string> UpdateFileAsync(string fileName, Stream content, string? sub = null)
+    public async Task<Uri> UpdateFileAsync(string fileName, Stream content, string? sub = null)
     {
         logger.LogInfo("Starting blob file update. FileName: {FileName}, SubFolder: {SubFolder}, Container: {Container}", fileName, sub ?? string.Empty, Container.Name);
         try
@@ -112,7 +112,7 @@ public partial class BlobFileManager(string storage, string area, string? root, 
 
             logger.LogDebug("Uploading blob content with overwrite. Path: {Path}", path);
             await blob.UploadAsync(content, overwrite: true);
-            var uri = blob.Uri.ToString();
+            var uri = blob.Uri;
             logger.LogInfo("Successfully updated blob file. Uri: {Uri}", uri);
             return uri;
         }
@@ -170,11 +170,81 @@ public partial class BlobFileManager(string storage, string area, string? root, 
         }
     }
 
-    public string GetFileUrl(string fileName, string? sub = null)
+    public async Task<Stream> ReadFileByUriAsync(Uri uri)
+    {
+        logger.LogInfo("Starting blob file read by URI. Uri: {Uri}", uri);
+        try
+        {
+            if (uri == null)
+            {
+                logger.LogWarn("Blob read by URI failed - URI is null.");
+                throw new AroFileManagementException(
+                    AroFileManagementErrorCode.FILE_READ_ERROR,
+                    "URI cannot be null.");
+            }
+
+            logger.LogDebug("Validating blob URI: {Uri}", uri);
+
+            // Validate that the URI belongs to the configured storage account and container
+            var expectedHost = $"{Container.AccountName}.blob.core.windows.net";
+            if (!uri.Host.Equals(expectedHost, StringComparison.OrdinalIgnoreCase))
+            {
+                logger.LogWarn("Blob read by URI failed - storage account mismatch. Expected: {Expected}, Actual: {Actual}", expectedHost, uri.Host);
+                throw new AroFileManagementException(
+                    AroFileManagementErrorCode.FILE_NOT_FOUND,
+                    $"Blob '{uri}' does not exist.");
+            }
+
+            // Extract container name from URI path (format: /containername/blobpath)
+            var pathSegments = uri.AbsolutePath.TrimStart('/').Split('/', 2);
+            if (pathSegments.Length == 0 || !pathSegments[0].Equals(Container.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                logger.LogWarn("Blob read by URI failed - container mismatch. Expected: {Expected}, Actual: {Actual}", Container.Name, pathSegments.Length > 0 ? pathSegments[0] : "(none)");
+                throw new AroFileManagementException(
+                    AroFileManagementErrorCode.FILE_NOT_FOUND,
+                    $"Blob '{uri}' does not exist.");
+            }
+
+            logger.LogDebug("URI validation successful. Retrieving blob client from URI.");
+            
+            // Use container's blob client with same credentials
+            var blobPath = pathSegments.Length > 1 ? pathSegments[1] : string.Empty;
+            var blob = Container.GetBlobClient(blobPath);
+            logger.LogDebug("Retrieved blob client. BlobPath: {BlobPath}", blobPath);
+
+            if (!await blob.ExistsAsync())
+            {
+                logger.LogWarn("Blob read by URI failed - blob not found. Uri: {Uri}", uri);
+                throw new AroFileManagementException(
+                    AroFileManagementErrorCode.FILE_NOT_FOUND,
+                    $"Blob '{uri}' does not exist.");
+            }
+
+            logger.LogDebug("Opening blob stream for reading by URI. Uri: {Uri}", uri);
+            var stream = await blob.OpenReadAsync();
+            logger.LogInfo("Successfully opened blob for reading by URI. Uri: {Uri}", uri);
+            return stream;
+        }
+        catch (AroFileManagementException ex)
+        {
+            logger.LogError(ex, "File management exception during blob read by URI. Uri: {Uri}", uri);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error during blob read by URI. Uri: {Uri}", uri);
+            throw new AroFileManagementException(
+                AroFileManagementErrorCode.FILE_READ_ERROR,
+                "Blob read by URI failed.",
+                ex);
+        }
+    }
+
+    public Uri GetFileUrl(string fileName, string? sub = null)
     {
         logger.LogDebug("Getting blob URL. FileName: {FileName}, SubFolder: {SubFolder}", fileName, sub ?? string.Empty);
         var path = BuildPath(fileName, sub);
-        var url = Container.GetBlobClient(path).Uri.ToString();
+        var url = Container.GetBlobClient(path).Uri;
         logger.LogDebug("Generated blob URL: {Url}", url);
         return url;
     }

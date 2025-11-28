@@ -8,7 +8,7 @@ public partial class LocalFileManager(string storage, string area, string? root,
 {
     private readonly string Root = BuildRoot(storage, area, root);
 
-    public Task<string> CreateFileAsync(string fileName, Stream content, string? root = null)
+    public Task<Uri> CreateFileAsync(string fileName, Stream content, string? root = null)
     {
         logger.LogInfo("Starting local file creation. FileName: {FileName}, SubFolder: {SubFolder}", fileName, root ?? string.Empty);
         try
@@ -27,9 +27,10 @@ public partial class LocalFileManager(string storage, string area, string? root,
             logger.LogDebug("Creating new file stream for path: {Path}", path);
             using var fs = new FileStream(path, FileMode.CreateNew);
             content.CopyTo(fs);
-            logger.LogInfo("Successfully created local file. Path: {Path}", path);
+            var uri = new Uri(path);
+            logger.LogInfo("Successfully created local file. Uri: {Uri}", uri);
 
-            return Task.FromResult(path);
+            return Task.FromResult(uri);
         }
         catch (AroFileManagementException ex)
         {
@@ -82,7 +83,7 @@ public partial class LocalFileManager(string storage, string area, string? root,
         }
     }
 
-    public Task<string> UpdateFileAsync(string fileName, Stream content, string? root = null)
+    public Task<Uri> UpdateFileAsync(string fileName, Stream content, string? root = null)
     {
         logger.LogInfo("Starting local file update. FileName: {FileName}, SubFolder: {SubFolder}", fileName, root ?? string.Empty);
         try
@@ -101,9 +102,10 @@ public partial class LocalFileManager(string storage, string area, string? root,
             logger.LogDebug("Opening file stream for updating. Path: {Path}", path);
             using var fs = new FileStream(path, FileMode.Create);
             content.CopyTo(fs);
-            logger.LogInfo("Successfully updated local file. Path: {Path}", path);
+            var uri = new Uri(path);
+            logger.LogInfo("Successfully updated local file. Uri: {Uri}", uri);
 
-            return Task.FromResult(path);
+            return Task.FromResult(uri);
         }
         catch (AroFileManagementException ex)
         {
@@ -156,10 +158,82 @@ public partial class LocalFileManager(string storage, string area, string? root,
         }
     }
 
-    public string GetFileUrl(string fileName, string? root = null)
+    public Task<Stream> ReadFileByUriAsync(Uri uri)
+    {
+        logger.LogInfo("Starting local file read by URI. Uri: {Uri}", uri);
+        try
+        {
+            if (uri == null)
+            {
+                logger.LogWarn("File read by URI failed - URI is null.");
+                throw new AroFileManagementException(
+                    AroFileManagementErrorCode.FILE_READ_ERROR,
+                    "URI cannot be null.");
+            }
+
+            logger.LogDebug("Extracting local path from URI: {Uri}", uri);
+            string normalizedPath;
+            try
+            {
+                // Handle both file:// URIs and absolute paths
+                normalizedPath = uri.IsAbsoluteUri && uri.IsFile 
+                    ? uri.LocalPath 
+                    : Path.GetFullPath(uri.ToString());
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarn("File read by URI failed - invalid path. Uri: {Uri}", uri);
+                throw new AroFileManagementException(
+                    AroFileManagementErrorCode.FILE_READ_ERROR,
+                    "Invalid file path.",
+                    ex);
+            }
+
+            logger.LogDebug("Normalized path: {NormalizedPath}", normalizedPath);
+
+            // Validate that the normalized path is within the configured root directory
+            var normalizedRoot = Path.GetFullPath(Root);
+            if (!normalizedPath.StartsWith(normalizedRoot, StringComparison.OrdinalIgnoreCase))
+            {
+                logger.LogWarn("File read by URI failed - path outside root directory. Root: {Root}, Path: {Path}", normalizedRoot, normalizedPath);
+                throw new AroFileManagementException(
+                    AroFileManagementErrorCode.FILE_NOT_FOUND,
+                    $"Local file '{uri}' not found.");
+            }
+
+            if (!File.Exists(normalizedPath))
+            {
+                logger.LogWarn("File read by URI failed - file not found. Path: {Path}", normalizedPath);
+                throw new AroFileManagementException(
+                    AroFileManagementErrorCode.FILE_NOT_FOUND,
+                    $"Local file '{uri}' not found.");
+            }
+
+            logger.LogDebug("Opening file stream for reading by URI. Path: {Path}", normalizedPath);
+            Stream fs = new FileStream(normalizedPath, FileMode.Open, FileAccess.Read);
+            logger.LogInfo("Successfully opened local file for reading by URI. Path: {Path}", normalizedPath);
+            return Task.FromResult(fs);
+        }
+        catch (AroFileManagementException ex)
+        {
+            logger.LogError(ex, "File management exception during local file read by URI. Uri: {Uri}", uri);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unexpected error during local file read by URI. Uri: {Uri}", uri);
+            throw new AroFileManagementException(
+                AroFileManagementErrorCode.FILE_READ_ERROR,
+                "Local read by URI failed.",
+                ex);
+        }
+    }
+
+    public Uri GetFileUrl(string fileName, string? root = null)
     {
         logger.LogDebug("Getting file URL. FileName: {FileName}, SubFolder: {SubFolder}", fileName, root ?? string.Empty);
-        var url = BuildPath(fileName, root);
+        var path = BuildPath(fileName, root);
+        var url = new Uri(path);
         logger.LogDebug("Generated file URL: {Url}", url);
         return url;
     }

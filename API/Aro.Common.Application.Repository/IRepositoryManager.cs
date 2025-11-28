@@ -13,4 +13,6 @@ public interface IRepositoryManager
     IRoleRepository RoleRepository { get; }
 
     IUserRoleRepository UserRoleRepository { get; }
+
+    IFileResourceRepository FileResourceRepository { get; }
 }

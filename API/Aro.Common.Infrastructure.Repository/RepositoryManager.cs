@@ -11,6 +11,7 @@ public class RepositoryManager(AroDbContext dbContext) : IRepositoryManager
     private readonly Lazy<RoleRepository> roleRepository = new(() => new RoleRepository(dbContext));
     private readonly Lazy<UserRepository> userRepository = new(() => new UserRepository(dbContext));
     private readonly Lazy<UserRoleRepository> userRoleRepository = new(() => new UserRoleRepository(dbContext));
+    private readonly Lazy<FileResourceRepository> fileResourceRepository = new(() => new FileResourceRepository(dbContext));
 
     public IAuditTrailRepository AuditTrailRepository => auditTrailRepository.Value;
 
@@ -23,4 +24,6 @@ public class RepositoryManager(AroDbContext dbContext) : IRepositoryManager
     public IUserRepository UserRepository => userRepository.Value;
 
     public IUserRoleRepository UserRoleRepository => userRoleRepository.Value;
+
+    public IFileResourceRepository FileResourceRepository => fileResourceRepository.Value;
 }

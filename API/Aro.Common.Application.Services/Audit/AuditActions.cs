@@ -24,6 +24,7 @@ public class AuditActions
     public readonly string UserCreated = "USER_CREATED";
     public readonly string GroupCreated = "GROUP_CREATED";
     public readonly string PropertyCreated = "PROPERTY_CREATED";
+    public readonly string FileCreated = "FILE_CREATED";
 
     #endregion
 
