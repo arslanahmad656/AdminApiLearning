@@ -11,6 +11,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.22" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.22" PrivateAssets="all" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageReference Include="FluentValidation" Version="12.1.0" />
+    <!-- 
+	<packagereference include="microsoft.aspnetcore.components.authorization" version="9.0.10" />
+    <packagereference include="microsoft.aspnetcore.components.webassembly" version="9.0.6" />
+    <packagereference include="microsoft.aspnetcore.components.webassembly.devserver" version="9.0.6" privateassets="all" />
+    <packagereference include="microsoft.extensions.http" version="9.0.10" />
+	-->
     <PackageReference Include="MudBlazor" Version="8.13.0" />
   </ItemGroup>
 

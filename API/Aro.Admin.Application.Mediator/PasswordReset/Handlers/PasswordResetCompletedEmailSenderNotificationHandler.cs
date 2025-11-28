@@ -18,7 +18,9 @@ public class PasswordResetCompletedEmailSenderNotificationHandler(IUserService u
 
         var data = notification.Data;
 
-        var user = await userService.GetUserById(data.UserId, false, false, cancellationToken).ConfigureAwait(false);
+        var response = await userService.GetUserById(data.UserId, false, false, cancellationToken).ConfigureAwait(false);
+        var user = response.User;
+
         var emailTemplate = await emailTemplateService.GetPasswordResetSuccesfulEmail(user.DisplayName, passwordResetSettings.FrontendLoginUrl, data.ResetAt, cancellationToken).ConfigureAwait(false);
         var emailParameters = new SendEmailParameters(user.Email, emailTemplate.Subject, emailTemplate.Body, emailTemplate.IsHtml);
 

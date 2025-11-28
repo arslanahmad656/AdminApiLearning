@@ -30,17 +30,32 @@ public partial class UserService(IRepositoryManager commonRepository, IUnitOfWor
 
         await ValidatePasswordComplexity(user.Password, cancellationToken).ConfigureAwait(false);
 
+        var userId = idGenerator.Generate();
+
+        ContactInfo? contactInfoEntity = null;
+
+        if (!string.IsNullOrWhiteSpace(user.CountryCode) || !string.IsNullOrWhiteSpace(user.PhoneNumber))
+        {
+            contactInfoEntity = new ContactInfo
+            {
+                Id = userId,
+                CountryCode = user.CountryCode,
+                PhoneNumber = user.PhoneNumber
+            };
+        }
+
         var now = DateTime.Now;
         var userEntity = new User
         {
-            Id = idGenerator.Generate(),
+            Id = userId,
             CreatedAt = now,
             DisplayName = user.DisplayName,
             Email = user.Email,
             IsActive = user.IsActive,
             PasswordHash = passwordHasher.Hash(user.Password),
             UpdatedAt = now,
-            IsSystem = user.IsSystemUser
+            IsSystem = user.IsSystemUser,
+            ContactInfo = contactInfoEntity
         };
         logger.LogDebug("Created user entity: {UserId}, email: {Email}, isActive: {IsActive}", userEntity.Id, userEntity.Email, userEntity.IsActive);
 
@@ -75,7 +90,8 @@ public partial class UserService(IRepositoryManager commonRepository, IUnitOfWor
         logger.LogDebug("Retrieved user query for ID: {UserId}", userId);
 
         var response = await GetUserFromQueryable(query, userId.ToString(), includeRoles, includePasswordHash, cancellationToken).ConfigureAwait(false);
-        logger.LogDebug("User retrieved successfully: {UserId}, email: {Email}", userId, response.Email);
+        var user = response.User;
+        logger.LogDebug("User retrieved successfully: {UserId}, email: {Email}", userId, user.Email);
 
         logger.LogDebug("Completed {MethodName}", nameof(GetUserById));
         return response;
@@ -93,7 +109,8 @@ public partial class UserService(IRepositoryManager commonRepository, IUnitOfWor
         logger.LogDebug("Retrieved user query for email: {Email}", email);
 
         var response = await GetUserFromQueryable(query, email, includeRoles, includePasswordHash, cancellationToken).ConfigureAwait(false);
-        logger.LogDebug("User retrieved successfully by email: {Email}, userId: {UserId}", email, response.Id);
+        var user = response.User;
+        logger.LogDebug("User retrieved successfully by email: {Email}, userId: {UserId}", email, user.Id);
 
         logger.LogDebug("Completed {MethodName}", nameof(GetUserByEmail));
         return response;
@@ -127,7 +144,18 @@ public partial class UserService(IRepositoryManager commonRepository, IUnitOfWor
 
         logger.LogDebug("Completed {MethodName}", nameof(GetUserByEmail));
 
-        var systemUser = new GetUserResponse(userEntity.Id, userEntity.Email, userEntity.IsActive, userEntity.DisplayName, userEntity.PasswordHash, userEntity.UserRoles.Select(ur => new GetRoleRespose(ur.RoleId, ur.Role.Name, ur.Role.Description, ur.Role.IsBuiltin)).ToList());
+        var systemUser = new GetUserResponse(new(
+            userEntity.Id,
+            userEntity.Email,
+            userEntity.IsActive,
+            userEntity.DisplayName,
+            userEntity.PasswordHash,
+            [.. userEntity.UserRoles.Select(ur => new GetRoleRespose(
+                ur.RoleId,
+                ur.Role.Name,
+                ur.Role.Description,
+                ur.Role.IsBuiltin))],
+            new ContactInfoDto(userEntity.ContactInfo.CountryCode, userEntity.ContactInfo.PhoneNumber)));
 
         return systemUser;
     }

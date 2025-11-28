@@ -1,4 +1,7 @@
-﻿using Aro.Admin.Application.Services.AccessToken;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Aro.Admin.Application.Services.AccessToken;
 using Aro.Admin.Application.Services.User;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Admin.Domain.Shared;
@@ -6,9 +9,6 @@ using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Application.Services.UniqueIdGenerator;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace Aro.Admin.Infrastructure.Services;
 
@@ -19,14 +19,16 @@ public class JwtTokenService(IUserService userService, IUniqueIdGenerator idGene
     public async Task<AccessTokenResponse> GenerateAccessToken(Guid userId, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Starting {MethodName}", nameof(GenerateAccessToken));
-        
+
         logger.LogDebug("Retrieving user information for token generation: {UserId}", userId);
-        var user = await userService.GetUserById(userId, true, true, cancellationToken).ConfigureAwait(false);
+        var res = await userService.GetUserById(userId, true, true, cancellationToken).ConfigureAwait(false);
+        var user = res.User;
+
         logger.LogDebug("User retrieved for token generation: {UserId}, email: {Email}", userId, user.Email);
 
         var jti = idGenerator.Generate().ToString();
         logger.LogDebug("Generated JTI for token: {Jti}", jti);
-        
+
         var claims = new List<Claim>
         {
             new(type: JwtRegisteredClaimNames.Sub, user.Id.ToString()),
@@ -46,7 +48,7 @@ public class JwtTokenService(IUserService userService, IUniqueIdGenerator idGene
 
         var expiry = DateTime.UtcNow.AddMinutes(jwtOptions.AccessTokenExpirationMinutes);
         logger.LogDebug("Calculated token expiry for user: {UserId}, expiry: {Expiry}", userId, expiry);
-        
+
         var token = new JwtSecurityToken
         (
             issuer: jwtOptions.Issuer,
@@ -66,7 +68,7 @@ public class JwtTokenService(IUserService userService, IUniqueIdGenerator idGene
 
         var response = new AccessTokenResponse(serializedToken, expiry, jti);
         logger.LogInfo("Access token generated successfully for user: {UserId}, jti: {Jti}, expiry: {Expiry}", userId, jti, expiry);
-        
+
         logger.LogDebug("Completed {MethodName}", nameof(GenerateAccessToken));
         return response;
     }

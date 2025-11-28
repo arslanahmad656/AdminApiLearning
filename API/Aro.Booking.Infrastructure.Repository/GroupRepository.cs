@@ -19,6 +19,4 @@ public class GroupRepository(AroDbContext dbContext) : RepositoryBase<Group>(dbC
 
     public new void Update(Group group) => base.Update(group);
 
-    public new void Delete(Group group) => base.Delete(group);
-
 }

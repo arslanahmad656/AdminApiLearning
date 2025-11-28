@@ -1,4 +1,6 @@
-﻿namespace Aro.Common.Presentation.Api;
+﻿
+
+namespace Aro.Common.Presentation.Api;
 
 public class AssemblyReference
 {

@@ -11,4 +11,5 @@ public class User : IEntity
     public string DisplayName { get; set; }
     public bool IsSystem { get; set; }
     public ICollection<UserRole> UserRoles { get; set; }
+    public ContactInfo ContactInfo { get; set; }
 }

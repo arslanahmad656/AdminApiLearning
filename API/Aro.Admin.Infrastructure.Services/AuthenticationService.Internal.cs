@@ -7,7 +7,9 @@ public partial class AuthenticationService
 {
     private async Task<CompositeToken> AuthenticateInternal(string email, string password, CancellationToken cancellationToken = default)
     {
-        var user = await userService.GetUserByEmail(email, false, true, cancellationToken).ConfigureAwait(false);
+        var res = await userService.GetUserByEmail(email, false, true, cancellationToken).ConfigureAwait(false);
+        var user = res.User;
+
         logger.LogDebug("Retrieved user for authentication, userId: {UserId}, email: {Email}", user.Id, email);
 
         var isPasswordCorrect = haser.Verify(password, user.PasswordHash);

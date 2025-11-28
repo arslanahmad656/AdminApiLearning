@@ -2,10 +2,12 @@
 
 public record CreateUserDto(
     string Email,
-    bool IsActive, 
-    bool IsSystemUser, 
-    string Password, 
-    string DisplayName, 
-    ICollection<string> AssignedRoles
+    bool IsActive,
+    bool IsSystemUser,
+    string Password,
+    string DisplayName,
+    ICollection<string> AssignedRoles,
+    string? CountryCode,
+    string? PhoneNumber
 );
 

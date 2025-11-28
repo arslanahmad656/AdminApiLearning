@@ -1,4 +1,5 @@
 ﻿using Aro.Admin.Application.Services.Role;
+using Aro.Admin.Application.Services.User;
 using Aro.Common.Domain.Entities;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Domain.Shared.Exceptions;
@@ -29,12 +30,23 @@ public partial class UserService
         var userEntity = await query.SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false)
             ?? throw new AroUserNotFoundException(identifier);
 
-        var response = new GetUserResponse(userEntity.Id, userEntity.Email, userEntity.IsActive, userEntity.DisplayName, userEntity.PasswordHash, userEntity.UserRoles.Select(ur => new GetRoleRespose(ur.Role.Id, ur.Role.Name, ur.Role.Description, ur.Role.IsBuiltin)).ToList());
+        var contactInfo = userEntity.ContactInfo != null
+            ? new ContactInfoDto(userEntity.ContactInfo.CountryCode, userEntity.ContactInfo.PhoneNumber)
+            : new ContactInfoDto(null, null);
 
-        if (!includePasswordHash)
-        {
-            response = response with { PasswordHash = string.Empty };
-        }
+        var response = new GetUserResponse(new(
+            userEntity.Id,
+            userEntity.Email,
+            userEntity.IsActive,
+            userEntity.DisplayName,
+            includePasswordHash ? userEntity.PasswordHash : string.Empty,
+            [.. userEntity.UserRoles.Select(ur => new GetRoleRespose(
+                ur.Role.Id,
+                ur.Role.Name,
+                ur.Role.Description,
+                ur.Role.IsBuiltin))],
+            contactInfo
+            ));
 
         return response;
     }

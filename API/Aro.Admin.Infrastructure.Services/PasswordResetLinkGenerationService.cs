@@ -15,11 +15,12 @@ public class PasswordResetLinkGenerationService(IUserService userService, IReque
 
     public async Task<Uri> GenerateLink(GenerateLinkParameters parameters, CancellationToken ct = default)
     {
-		try
-		{
+        try
+        {
             logger.LogInfo("Starting password reset link generation for user {Email}", parameters.Email);
 
-            var user = await userService.GetUserByEmail(parameters.Email, false, false, ct).ConfigureAwait(false);
+            var res = await userService.GetUserByEmail(parameters.Email, false, false, ct).ConfigureAwait(false);
+            var user = res.User;
 
             var ipAddress = requestInterpretorService.RetrieveIpAddress()
                 ?? throw new InvalidOperationException($"Could not retrieve IP address for password reset link generation for user with email {parameters.Email}.");
@@ -36,10 +37,10 @@ public class PasswordResetLinkGenerationService(IUserService userService, IReque
 
             return resetLink;
         }
-		catch (Exception ex)
-		{
+        catch (Exception ex)
+        {
             logger.LogError(ex, "Failed to generate password reset link for user {Email}", parameters.Email);
             throw new AroEmailException(errorCodes.EMAIL_LINK_GENERATION_ERROR, $"Error occurred while generating the password reset email link for user {parameters.Email}.", ex);
-		}
+        }
     }
 }

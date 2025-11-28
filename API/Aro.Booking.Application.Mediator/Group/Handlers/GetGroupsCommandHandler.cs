@@ -11,6 +11,7 @@ public class GetGroupsCommandHandler(IGroupService groupService) : IRequestHandl
         var req = request.Data;
         var res = await groupService.GetGroups(
             new(
+                req.Filter,
                 req.Include ?? string.Empty,
                 req.Page,
                 req.PageSize,
@@ -29,11 +30,13 @@ public class GetGroupsCommandHandler(IGroupService groupService) : IRequestHandl
                 g.Country,
                 g.Logo,
                 g.PrimaryContactId,
+                g.PrimaryContactName,
+                g.PrimaryContactEmail,
                 g.IsActive
             ))
             .ToList() ?? [];
 
-        var result = new DTOs.GetGroupsResponse(groupDtos);
+        var result = new DTOs.GetGroupsResponse(groupDtos, res.TotalCount);
 
         return result;
     }

@@ -159,7 +159,7 @@
             </MudGrid>
         </Authorized>
         <NotAuthorized>
-            <MudAlert Severity="Severity.Warning">
+            <MudAlert MudBlazor.Severity="MudBlazor.Severity.Warning">
                 Please log in to access the admin portal.
             </MudAlert>
         </NotAuthorized>
@@ -174,13 +174,13 @@
             await AuthService.LogoutAsync();
             AuthStateProvider.MarkUserAsLoggedOut();
 
-            Snackbar.Add("You have been logged out successfully.", Severity.Info);
+            Snackbar.Add("You have been logged out successfully.", MudBlazor.Severity.Info);
 
             NavigationManager.NavigateTo("/login");
         }
         catch (Exception ex)
         {
-            Snackbar.Add("An error occurred during logout.", Severity.Error);
+            Snackbar.Add("An error occurred during logout.", MudBlazor.Severity.Error);
         }
     }
 }

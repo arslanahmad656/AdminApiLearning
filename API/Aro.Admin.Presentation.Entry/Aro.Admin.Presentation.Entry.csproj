@@ -41,10 +41,16 @@
     <ProjectReference Include="..\Aro.Common.Presentation.Api\Aro.Common.Presentation.Api.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="AppData\EmailTemplates\password-reset-success-email.html">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="AppData\CountryMetadata.json">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="AppData\EmailTemplates\password-reset-success-email.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>

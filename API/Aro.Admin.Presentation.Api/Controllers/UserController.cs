@@ -21,9 +21,39 @@ public class UserController(IMediator mediator, ILogManager<UserController> logg
         logger.LogDebug("Starting CreateUser operation for email: {Email}, displayName: {DisplayName}, isActive: {IsActive}, assignedRoles: {AssignedRoles}",
             model.Email, model.DisplayName, model.IsActive, string.Join(", ", model.AssignedRoles));
 
-        var response = await mediator.Send(new CreateUserCommand(new(model.Email, model.IsActive, model.Password, model.DisplayName, model.AssignedRoles)), cancellationToken).ConfigureAwait(false);
+        var response = await mediator.Send(new CreateUserCommand(new(model.Email, model.IsActive, model.Password, model.DisplayName, model.AssignedRoles, model.CountryCode, model.PhoneNumber)), cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Completed CreateUser operation successfully");
+        return Ok(response);
+    }
+
+    [HttpGet("get-by-id/{userId:guid}")]
+    [Permissions(PermissionCodes.GetUser)]
+    public async Task<IActionResult> GetUserById(
+        Guid userId,
+        CancellationToken cancellationToken
+    )
+    {
+        //logger.LogDebug("Starting GetUserById operation.");
+
+        var response = await mediator.Send(new GetUserByIdQuery(new(userId)), cancellationToken).ConfigureAwait(false);
+
+        //logger.LogDebug("Completed GetUserById operation successfully.");
+        return Ok(response);
+    }
+
+    [HttpPost("get-by-email")]
+    [Permissions(PermissionCodes.GetUser)]
+    public async Task<IActionResult> GetUserByEmail(
+        [FromBody] GetUserByEmailModel model,
+        CancellationToken cancellationToken
+    )
+    {
+        //logger.LogDebug("Starting GetUserByEmail operation.");
+
+        var response = await mediator.Send(new GetUserByEmailQuery(new(model.Email)), cancellationToken).ConfigureAwait(false);
+
+        //logger.LogDebug("Completed GetUserByEmail operation successfully.");
         return Ok(response);
     }
 

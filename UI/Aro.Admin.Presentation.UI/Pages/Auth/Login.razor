@@ -20,7 +20,7 @@
         <div class="login-card">
             @if (showSuccessMessage)
             {
-                <MudAlert Severity="Severity.Success" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="@(() => showSuccessMessage = false)">
+                <MudAlert MudBlazor.Severity="MudBlazor.Severity.Success" Class="mb-4" ShowCloseIcon="true" CloseIconClicked="@(() => showSuccessMessage = false)">
                     New password has been set!
                 </MudAlert>
             }
@@ -127,14 +127,14 @@
             {
                 Snackbar.Clear();
                 await AuthStateProvider.MarkUserAsAuthenticated();
-                Snackbar.Add("Login successful! Welcome back.", Severity.Success);
+                Snackbar.Add("Login successful! Welcome back.", MudBlazor.Severity.Success);
                 await Task.Delay(500);
                 NavigationManager.NavigateTo("/");
             }
             else
             {
                 Snackbar.Clear();
-                Snackbar.Add("Invalid email or password. Please try again.", Severity.Error);
+                Snackbar.Add("Invalid email or password. Please try again.", MudBlazor.Severity.Error);
             }
         }
         catch (Exception ex)

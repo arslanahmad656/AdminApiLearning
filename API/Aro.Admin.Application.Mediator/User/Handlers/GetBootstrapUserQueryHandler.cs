@@ -1,6 +1,5 @@
 ﻿using Aro.Admin.Application.Mediator.User.DTOs;
 using Aro.Admin.Application.Mediator.User.Queries;
-using Aro.Admin.Application.Services;
 using Aro.Admin.Application.Services.User;
 using Aro.Common.Application.Services.RequestInterpretor;
 using Aro.Common.Application.Services.SystemContext;
@@ -23,7 +22,8 @@ public class GetBootstrapUserQueryHandler(IUserService userService, IRequestInte
 
     private async Task<GetBootstrapUserResponse> HandleInternal(GetBootstrapUserQuery request, CancellationToken cancellationToken)
     {
-        var systemUser = await userService.GetSystemUser(request.BootstrapPassword, cancellationToken).ConfigureAwait(false);
+        var res = await userService.GetSystemUser(request.BootstrapPassword, cancellationToken).ConfigureAwait(false);
+        var systemUser = res.User;
 
         return new GetBootstrapUserResponse
         {

@@ -10,5 +10,7 @@ public record GroupDto(
     string? Country,
     byte[]? Logo,
     Guid? PrimaryContactId,
+    string? PrimaryContactName,
+    string? PrimaryContactEmail,
     bool? IsActive
 );

@@ -356,6 +356,26 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.ToTable("AuditTrails", (string)null);
                 });
 
+            modelBuilder.Entity("Aro.Common.Domain.Entities.ContactInfo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContactInfos", (string)null);
+                });
+
             modelBuilder.Entity("Aro.Common.Domain.Entities.Permission", b =>
                 {
                     b.Property<Guid>("Id")
@@ -524,6 +544,16 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Navigation("PrimaryContact");
                 });
 
+            modelBuilder.Entity("Aro.Common.Domain.Entities.ContactInfo", b =>
+                {
+                    b.HasOne("Aro.Common.Domain.Entities.User", "User")
+                        .WithOne("ContactInfo")
+                        .HasForeignKey("Aro.Common.Domain.Entities.ContactInfo", "Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Aro.Booking.Domain.Entities.Property", b =>
                 {
                     b.HasOne("Aro.Booking.Domain.Entities.Group", "Group")
@@ -587,6 +617,8 @@ namespace Aro.Admin.Presentation.Entry.Migrations
 
             modelBuilder.Entity("Aro.Common.Domain.Entities.User", b =>
                 {
+                    b.Navigation("ContactInfo");
+
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618

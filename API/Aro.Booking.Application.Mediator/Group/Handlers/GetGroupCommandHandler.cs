@@ -26,6 +26,8 @@ public class GetGroupCommandHandler(IGroupService groupService) : IRequestHandle
                 g.Country,
                 g.Logo,
                 g.PrimaryContactId,
+                g.PrimaryContactName,
+                g.PrimaryContactEmail,
                 g.IsActive
             );
 

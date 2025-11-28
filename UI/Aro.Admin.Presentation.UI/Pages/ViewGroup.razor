@@ -1,0 +1,67 @@
+﻿@page "/group/view/{groupId:guid}"
+
+<div class="container-fluid min-vh-100">
+    <div class="vstack gap-5 p-3">
+        <div class="d-flex justify-content-end">
+            <div class="hstack gap-3">
+                <MudMenu Label="Brochner Hotels" EndIcon="@Icons.Material.Filled.ArrowDropDown">
+                    <MudMenuItem Label="Other hotel 1" />
+                    <MudMenuItem Label="Other hotel 2" />
+                </MudMenu>
+
+                <MudIconButton 
+                    Icon="@Icons.Material.Filled.Search"
+                    Variant="Variant.Text"
+                    Color="Color.Dark"
+                    Class="button-search shadow"
+                    @onclick="HandleSearch"></MudIconButton>
+
+                <MudMenu Icon="@Icons.Material.Filled.Settings"
+                         Variant="Variant.Text"
+                         Color="Color.Dark"
+                         Class="button-search shadow"
+                         @onclick="HandleSearch">
+                    <MudMenuItem OnClick="() => DoSomething(0)">Settings</MudMenuItem>
+                    <MudMenuItem OnClick="() => DoSomething(0)">Show / Edit client details</MudMenuItem>
+                    <MudMenuItem OnClick="() => DoSomething(0)">Remove Client</MudMenuItem>
+                    <MudMenuItem OnClick="() => DoSomething(0)">Remove Client</MudMenuItem>
+                </MudMenu>
+            </div>
+        </div>
+    
+        <div class="row">
+            <div class="col-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Properties</h5>
+                        <p class="card-text">No properties added yet</p>
+                        <button class="aro-button aro-button-primary" @onclick="HandleAddProperty">Add Client +</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid? GroupId { get; set; } = Guid.Empty;
+
+    [Inject] private NavigationManager? NavigationManager { get; set; }
+
+    private void HandleSearch()
+    {
+        // Implement search functionality
+        // NavigationManager?.NavigateTo("/search");
+    }
+    private void HandleAddProperty()
+    {
+        // Navigate to property information wizard
+        NavigationManager?.NavigateTo("/property/information");
+    }
+
+
+    private void DoSomething(int option)
+    {
+        
+    }
+}

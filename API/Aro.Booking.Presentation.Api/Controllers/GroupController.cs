@@ -1,7 +1,6 @@
 ﻿using Aro.Booking.Application.Mediator.Group.Commands;
 using Aro.Booking.Application.Mediator.Group.Queries;
 using Aro.Booking.Presentation.Api.DTOs;
-using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Presentation.Shared.Filters;
 using MediatR;
@@ -12,8 +11,8 @@ namespace Aro.Booking.Presentation.Api.Controllers;
 [ApiController]
 [Route("api/group")]
 public class GroupController(
-    IMediator mediator,
-    ILogManager<GroupController> logger
+    IMediator mediator
+    //ILogManager<GroupController> logger
     ) : ControllerBase
 {
     [HttpPost("create")]
@@ -56,6 +55,7 @@ public class GroupController(
 
         var response = await mediator.Send(new GetGroupsQuery(
             new(
+                query.Filter,
                 query.Include,
                 query.Page,
                 query.PageSize,

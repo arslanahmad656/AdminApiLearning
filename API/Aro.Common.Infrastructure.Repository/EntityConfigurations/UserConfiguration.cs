@@ -45,5 +45,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .WithOne(ur => ur.User)
             .HasForeignKey(ur => ur.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(u => u.ContactInfo)
+              .WithOne(c => c.User)
+              .HasForeignKey<ContactInfo>(c => c.Id)
+              .OnDelete(DeleteBehavior.Cascade)
+              .IsRequired(false);
     }
 }
