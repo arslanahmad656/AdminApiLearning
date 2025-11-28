@@ -39,7 +39,7 @@ public class FileResourceService(
             {
                 Id = fileResourceId,
                 Name = dto.FileName,
-                Uri = uri,
+                Uri = uri.ToString(),
                 Description = dto.Description ?? string.Empty,
                 Metadata = dto.Metadata ?? string.Empty,
                 CreatedOn = DateTime.UtcNow,
@@ -58,7 +58,7 @@ public class FileResourceService(
             return new CreateFileResourceResponseDto(
                 fileResourceId,
                 dto.FileName,
-                uri
+                uri.ToString()
             );
         }
         catch (AroFileManagementException ex)
@@ -228,7 +228,7 @@ public class FileResourceService(
             }
             catch (Exception ex)
             {
-                logger.LogWarn(ex, "Failed to backup file content. Proceeding with deletion. Uri: {Uri}", fileResource.Uri);
+                logger.LogWarn("Failed to backup file content. Proceeding with deletion. Uri: {Uri}, Error: {Error}", fileResource.Uri, ex.Message);
                 fileContentBackup?.Dispose();
                 fileContentBackup = null;
             }
@@ -340,7 +340,7 @@ public class FileResourceService(
             }
             catch (Exception ex)
             {
-                logger.LogWarn(ex, "Failed to backup file content. Proceeding with deletion. Uri: {Uri}", uri);
+                logger.LogWarn("Failed to backup file content. Proceeding with deletion. Uri: {Uri}, Error: {Error}", uri, ex.Message);
                 fileContentBackup?.Dispose();
                 fileContentBackup = null;
             }

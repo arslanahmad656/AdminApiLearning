@@ -2,17 +2,21 @@
 
 ## Created Files
 
-This console application was created to demonstrate three file manager implementations without modifying any existing code.
+This console application was created to demonstrate file management components without modifying any existing code.
 
 ### Project Structure
 
 ```
 Aro.FileManager.Demo/
-├── Program.cs                      # Main entry point - calls all three demos
+├── Program.cs                      # Main entry point - calls all demos
 ├── ConsoleLogger.cs                # Simple ILogManager<T> implementation for console output
 ├── LocalFileManagerDemo.cs         # Demonstrates LocalFileManager usage
 ├── InMemoryFileManagerDemo.cs      # Demonstrates InMemoryFileManager usage
 ├── BlobFileManagerDemo.cs          # Demonstrates BlobFileManager usage
+├── FileResourceServiceDemo.cs      # Demonstrates FileResourceService with DB integration
+├── MockRepositoryManager.cs        # Mock implementation for demo
+├── MockUnitOfWork.cs               # Mock implementation for demo
+├── MockUniqueIdGenerator.cs        # Mock implementation for demo
 ├── README.md                       # Detailed usage instructions
 ├── SUMMARY.md                      # This file
 └── Aro.FileManager.Demo.csproj     # Project file with all references
@@ -59,6 +63,16 @@ Demonstrates `BlobFileManager` with:
 - Working with virtual directories
 - Azure-specific error handling
 
+### FileResourceServiceDemo.cs
+Demonstrates `FileResourceService` with:
+- Creating file resources (storage + database)
+- Reading files by ID with DB verification
+- Reading files by URI with DB verification
+- Getting file metadata only (DB-only queries)
+- Deleting files by ID with compensating transactions
+- Deleting files by URI with compensating transactions
+- Proper error handling and verification
+
 ## Running the Demo
 
 ```bash
@@ -92,10 +106,12 @@ The application provides:
 
 ## Project References Added
 
-- `Aro.Common.Infrastructure.Services` - Contains LocalFileManager
+- `Aro.Common.Infrastructure.Services` - Contains LocalFileManager and FileResourceService
 - `Aro.Common.Infrastructure.Services.Azure` - Contains BlobFileManager
 - `Aro.Common.Infrastructure.Tests.Mocks` - Contains InMemoryFileManager
-- `Aro.Common.Application.Services` - Contains IFileManager interface
+- `Aro.Common.Application.Services` - Contains service interfaces
+- `Aro.Common.Application.Repository` - Contains repository interfaces
+- `Aro.Common.Domain.Entities` - Contains domain entities
 
 ## Testing Results
 
@@ -103,6 +119,7 @@ The application provides:
 ✅ LocalFileManager demo runs and cleans up
 ✅ InMemoryFileManager demo runs successfully
 ✅ BlobFileManager demo gracefully handles missing credentials
+✅ FileResourceService demo shows coordinated storage + DB operations
 ✅ No linter errors
 ✅ All file operations complete successfully
 
@@ -120,7 +137,8 @@ Or simply delete the `Aro.FileManager.Demo` folder.
 ## Notes
 
 - Each demo is completely independent
-- The order of execution is: Local → InMemory → Blob
+- The order of execution is: Local → InMemory → Blob → FileResourceService
+- FileResourceService demo uses mock implementations for repositories and database
 - All demos clean up after themselves
 - The project uses .NET 8.0 target framework
 - Logging output shows all internal file manager operations

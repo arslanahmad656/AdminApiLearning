@@ -1,6 +1,6 @@
 # ARO File Manager Demonstration
 
-This is a console application that demonstrates the usage of three different file manager implementations in the ARO system.
+This is a console application that demonstrates the usage of file management components in the ARO system.
 
 ## Overview
 
@@ -9,6 +9,7 @@ The application demonstrates:
 1. **LocalFileManager** - File system-based storage for local file operations
 2. **InMemoryFileManager** - RAM-based storage for testing and temporary data
 3. **BlobFileManager** - Azure Blob Storage integration for cloud-based file storage
+4. **FileResourceService** - Coordinated storage + database operations with transaction handling
 
 ## File Structure
 
@@ -17,6 +18,10 @@ The application demonstrates:
 - `LocalFileManagerDemo.cs` - Demonstrates local file system operations
 - `InMemoryFileManagerDemo.cs` - Demonstrates in-memory file operations
 - `BlobFileManagerDemo.cs` - Demonstrates Azure Blob Storage operations
+- `FileResourceServiceDemo.cs` - Demonstrates file resource service with DB integration
+- `MockRepositoryManager.cs` - Mock repository for demo purposes
+- `MockUnitOfWork.cs` - Mock unit of work for demo purposes
+- `MockUniqueIdGenerator.cs` - Mock ID generator for demo purposes
 
 ## How to Run
 
@@ -61,6 +66,17 @@ This demo will prompt you for:
 
 You can skip this demo by pressing Enter when prompted for the storage account name.
 
+### File Resource Service Demo
+
+This demo runs automatically with mock implementations and shows:
+- Creating file resources (storage + database)
+- Reading files by ID (DB verification + storage retrieval)
+- Reading files by URI (DB verification + storage retrieval)
+- Getting file metadata only (DB-only queries)
+- Deleting files by ID with compensating transactions
+- Deleting files by URI with compensating transactions
+- Proper error handling when files don't exist
+
 ## What Each Demo Shows
 
 ### Common Operations (All Managers)
@@ -80,6 +96,7 @@ Each demonstration shows:
 - **LocalFileManager**: Shows real file system paths and directory creation
 - **InMemoryFileManager**: Demonstrates multiple file creation and in-memory storage
 - **BlobFileManager**: Shows Azure blob URLs and cloud storage integration
+- **FileResourceService**: Shows coordinated storage and database operations with transaction handling
 
 ## Configuration
 
@@ -120,7 +137,12 @@ All demos automatically clean up after themselves:
 ## Dependencies
 
 The demo project references:
-- `Aro.Common.Infrastructure.Services` - LocalFileManager
+- `Aro.Common.Infrastructure.Services` - LocalFileManager and FileResourceService
+- `Aro.Common.Infrastructure.Services.Azure` - BlobFileManager
+- `Aro.Common.Infrastructure.Tests.Mocks` - InMemoryFileManager
+- `Aro.Common.Application.Services` - Service interfaces
+- `Aro.Common.Application.Repository` - Repository interfaces
+- `Aro.Common.Domain.Entities` - Domain entities
 - `Aro.Common.Infrastructure.Services.Azure` - BlobFileManager
 - `Aro.Common.Infrastructure.Tests.Mocks` - InMemoryFileManager
 - `Aro.Common.Application.Services` - IFileManager interface
