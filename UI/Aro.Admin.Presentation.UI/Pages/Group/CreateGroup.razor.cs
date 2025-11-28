@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
 
-namespace Aro.Admin.Presentation.UI.Pages
+namespace Aro.Admin.Presentation.UI.Pages.Group
 {
     public partial class CreateGroup
     {
@@ -121,7 +121,7 @@ namespace Aro.Admin.Presentation.UI.Pages
             }
             catch (Exception ex)
             {
-                Snackbar.Add($"Error loading group: {ex.Message}", MudBlazor.Severity.Error);
+                Snackbar.Add($"Error loading group: {ex.Message}", Severity.Error);
             }
         }
 
@@ -309,7 +309,7 @@ namespace Aro.Admin.Presentation.UI.Pages
                 _ = GetUserByEmail(primaryContactModel.Email!);
             }
 
-            var patch = ModelDiffExtensions.ToPatchGroupRequest(groupModel, existingGroupModel);
+            var patch = groupModel.ToPatchGroupRequest(existingGroupModel);
 
             if (patch == null)
             {
