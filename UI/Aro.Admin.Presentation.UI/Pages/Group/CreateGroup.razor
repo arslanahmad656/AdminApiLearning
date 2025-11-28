@@ -21,7 +21,7 @@
 <link href="css/creategroup.css" rel="stylesheet" />
 
 <div class="fullscreen-overlay">
-    <div class="row g-0">
+    <div class="row g-0 h-100">
         <!-- Top Title -->
         <div class="col-12 card-bg-dark">
             <div class="d-flex justify-content-between align-items-center p-3" data-bs-theme="dark">
@@ -38,7 +38,7 @@
         </div>
 
         <!-- Main content -->
-        <div class="col-sm-10 col-md-9 col-xl-10">
+        <div class="col-sm-10 col-md-9 col-xl-10 border border-primary h-100 overflow-x-hidden overflow-y-auto">
             <div class="p-5">
 
                 @if (ActiveStepIndex == 0)
@@ -290,7 +290,7 @@
             </div>
 
             <!-- BUTTONS -->
-            <div class="d-flex flex-row-reverse p-5 border-top">
+            <div class="d-flex flex-row-reverse p-5 border-top mb-5">
 
                 @if (ActiveStepIndex < StepTitles.Count - 1)
                 {

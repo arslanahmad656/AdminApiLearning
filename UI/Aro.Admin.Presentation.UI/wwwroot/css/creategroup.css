@@ -15,4 +15,10 @@
     height: 100vh;
     z-index: 9999;
     background: #fff; /* optional */
+    overflow: hidden
+}
+
+.fullscreen-overlay .row {
+    flex: 1;
+    overflow: hidden; /* prevents the row from scrolling */
 }
