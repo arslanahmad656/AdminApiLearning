@@ -31,7 +31,7 @@ public class LocalFileManagerDemo
             string content = "Hello from Local File Manager!\nThis is a test document.";
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
             {
-                string filePath = await fileManager.CreateFileAsync(fileName, stream);
+                var filePath = await fileManager.CreateFileAsync(fileName, stream);
                 Console.WriteLine($"   ✓ File created at: {filePath}\n");
             }
 
@@ -49,7 +49,7 @@ public class LocalFileManagerDemo
             string updatedContent = "Updated content from Local File Manager!\nThis file has been modified.";
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(updatedContent)))
             {
-                string updatedPath = await fileManager.UpdateFileAsync(fileName, stream);
+                var updatedPath = await fileManager.UpdateFileAsync(fileName, stream);
                 Console.WriteLine($"   ✓ File updated at: {updatedPath}\n");
             }
 
@@ -64,7 +64,7 @@ public class LocalFileManagerDemo
 
             // 5. GET FILE URL
             Console.WriteLine("5. Getting file URL...");
-            string fileUrl = fileManager.GetFileUrl(fileName);
+            var fileUrl = fileManager.GetFileUrl(fileName);
             Console.WriteLine($"   ✓ File URL: {fileUrl}\n");
 
             // 6. CREATE FILE IN SUBFOLDER
@@ -74,7 +74,7 @@ public class LocalFileManagerDemo
             string invoiceContent = "Invoice #001\nAmount: $100.00";
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(invoiceContent)))
             {
-                string invoicePath = await fileManager.CreateFileAsync(invoiceFileName, stream, subFolder);
+                var invoicePath = await fileManager.CreateFileAsync(invoiceFileName, stream, subFolder);
                 Console.WriteLine($"   ✓ Invoice created at: {invoicePath}\n");
             }
 

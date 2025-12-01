@@ -30,7 +30,7 @@ public class InMemoryFileManagerDemo
             string content = "Hello from In-Memory File Manager!\nThis file exists only in RAM.";
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
             {
-                string fileKey = await fileManager.CreateFileAsync(fileName, stream);
+                var fileKey = await fileManager.CreateFileAsync(fileName, stream);
                 Console.WriteLine($"   ✓ File created with key: {fileKey}\n");
             }
 
@@ -48,7 +48,7 @@ public class InMemoryFileManagerDemo
             string updatedContent = "Updated content in memory!\nThis demonstrates the update capability.";
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(updatedContent)))
             {
-                string updatedKey = await fileManager.UpdateFileAsync(fileName, stream);
+                var updatedKey = await fileManager.UpdateFileAsync(fileName, stream);
                 Console.WriteLine($"   ✓ File updated with key: {updatedKey}\n");
             }
 
@@ -63,7 +63,7 @@ public class InMemoryFileManagerDemo
 
             // 5. GET FILE URL
             Console.WriteLine("5. Getting file URL (mock URL for in-memory)...");
-            string fileUrl = fileManager.GetFileUrl(fileName);
+            var fileUrl = fileManager.GetFileUrl(fileName);
             Console.WriteLine($"   ✓ File URL: {fileUrl}\n");
 
             // 6. CREATE FILE IN SUBFOLDER
@@ -73,7 +73,7 @@ public class InMemoryFileManagerDemo
             string cacheContent = "{ \"id\": 1, \"name\": \"Test Data\", \"cached\": true }";
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(cacheContent)))
             {
-                string cacheKey = await fileManager.CreateFileAsync(cacheFileName, stream, subFolder);
+                var cacheKey = await fileManager.CreateFileAsync(cacheFileName, stream, subFolder);
                 Console.WriteLine($"   ✓ Cache file created with key: {cacheKey}\n");
             }
 

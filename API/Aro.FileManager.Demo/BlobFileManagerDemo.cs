@@ -102,7 +102,7 @@ public class BlobFileManagerDemo
             string content = "Hello from Blob File Manager!\nThis file is stored in Azure Blob Storage.";
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(content)))
             {
-                string blobUri = await fileManager.CreateFileAsync(fileName, stream);
+                var blobUri = await fileManager.CreateFileAsync(fileName, stream);
                 Console.WriteLine($"   ✓ Blob created at: {blobUri}\n");
             }
 
@@ -120,7 +120,7 @@ public class BlobFileManagerDemo
             string updatedContent = "Updated content in Azure Blob Storage!\nThis blob has been modified.";
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(updatedContent)))
             {
-                string updatedUri = await fileManager.UpdateFileAsync(fileName, stream);
+                var updatedUri = await fileManager.UpdateFileAsync(fileName, stream);
                 Console.WriteLine($"   ✓ Blob updated at: {updatedUri}\n");
             }
 
@@ -135,7 +135,7 @@ public class BlobFileManagerDemo
 
             // 5. GET FILE URL
             Console.WriteLine("5. Getting blob URL...");
-            string blobUrl = fileManager.GetFileUrl(fileName);
+            var blobUrl = fileManager.GetFileUrl(fileName);
             Console.WriteLine($"   ✓ Blob URL: {blobUrl}\n");
 
             // 6. CREATE FILE IN SUBFOLDER (using virtual directory in blob storage)
@@ -145,7 +145,7 @@ public class BlobFileManagerDemo
             string reportContent = "Monthly Report\nDate: November 2025\nStatus: Complete";
             using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(reportContent)))
             {
-                string reportUri = await fileManager.CreateFileAsync(reportFileName, stream, subFolder);
+                var reportUri = await fileManager.CreateFileAsync(reportFileName, stream, subFolder);
                 Console.WriteLine($"   ✓ Report blob created at: {reportUri}\n");
             }
 
