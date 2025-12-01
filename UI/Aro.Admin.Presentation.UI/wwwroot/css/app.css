@@ -67,7 +67,6 @@ a, .btn-link {
 }
 .sidebar-header {
     padding: 20px 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     margin-bottom: 8px;
 }
 
@@ -156,9 +155,6 @@ a, .btn-link {
     justify-content: flex-end;
     gap: 16px;
     padding: 10px;
-    background-color: white;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border-radius: 999px;
 }
 .property-name {
     font-weight: 500;

@@ -204,9 +204,10 @@
 
 
 
-    private void HandleClose()
+    private async Task HandleClose()
     {
         // Navigate back or show confirmation dialog
+        NavigationManager.NavigateTo("/");
     }
 
     private void HandleBack()
@@ -371,7 +372,7 @@
     /* Main Content Area */
     .wizard-content {
         flex: 1;
-        background: #EDEDED;
+        background: #F6F6F6;
         padding: 60px 80px;
         overflow-y: auto;
         display: flex;

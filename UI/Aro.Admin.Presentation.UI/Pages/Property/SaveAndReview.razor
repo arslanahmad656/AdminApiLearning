@@ -1,0 +1,480 @@
+﻿@page "/property/review-save"
+@layout WizardLayout
+@inject NavigationManager NavigationManager
+
+<div class="wizard-layout">
+    <!-- Header Bar -->
+    <div class="wizard-header">
+        <h1 class="header-title">Create New Property</h1>
+        <div class="close-icon" @onclick="HandleClose">
+            <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
+                <line x1="1" y1="1" x2="16" y2="16" stroke="white" stroke-width="2" />
+                <line x1="16" y1="1" x2="1" y2="16" stroke="white" stroke-width="2" />
+            </svg>
+        </div>
+    </div>
+    <div class="wizard-body">
+        <!-- Sidebar Steps -->
+        <div class="wizard-sidebar">
+            @for (int i = 0; i < Steps.Length; i++)
+            {
+                <div class="wizard-step @(i == 5 ? "active" : "completed")">
+                    <div class="step-indicator">
+                        <div class="step-number">
+                            @if (i < 5)
+                            {
+                                <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
+                                    <path d="M1 5L6 10L15 1" stroke="white" stroke-width="2" />
+                                </svg>
+                            }
+                            else
+                            {
+                                @($"{i + 1}")
+                            }
+                        </div>
+                        @if (i < Steps.Length - 1)
+                        {
+                            <div class="step-line"></div>
+                        }
+                    </div>
+                    <div class="step-title">@Steps[i]</div>
+                </div>
+            }
+        </div>
+
+        <!-- Review Content -->
+        <div class="wizard-content scrollable-content">
+            <p class="step-label">Step 6</p>
+            <h2 class="content-title">Review & Save</h2>
+
+            <!-- 1. Property Information -->
+            <h3 class="review-section-title">1. PROPERTY INFORMATION</h3>
+            <div class="review-grid">
+                <label>Property Name:</label> <div>@Model.PropertyName</div>
+                <label>Property Code:</label> <div>@Model.PropertyCode</div>
+                <label>Property Type:</label> <div>@Model.PropertyType</div>
+                <label>Star Rating:</label> <div>@Model.StarRating</div>
+                <label>Description:</label> <div>@Model.Description</div>
+            </div>
+
+            <!-- 2. Address & Contact -->
+            <h3 class="review-section-title">2. ADDRESS & PRIMARY CONTACT</h3>
+            <div class="review-grid">
+                <label>Address Line 1</label> <div>@Model.AddressLine1</div>
+                <label>Address Line 2</label> <div>@(string.IsNullOrWhiteSpace(Model.AddressLine2) ? "Not provided" : Model.AddressLine2)</div>
+                <label>City</label> <div>@Model.City</div>
+                <label>Country</label> <div>@Model.Country</div>
+                <label>Postal Code</label> <div>@Model.PostalCode</div>
+                <label>Phone Number</label> <div>@Model.PhoneNumber</div>
+                <label>Website URL</label> <div>@Model.WebsiteUrl</div>
+                <label>Primary Contact</label> <div>@Model.PrimaryContact</div>
+                <label>Primary Contact Name</label> <div>@Model.PrimaryContactName</div>
+                <label>Primary Contact Email</label> <div>@Model.PrimaryContactEmail</div>
+                <label>Role</label> <div>@Model.PrimaryContactRole</div>
+            </div>
+
+            <!-- 3. Key Selling Points -->
+            <h3 class="review-section-title">3. KEY SELLING POINTS</h3>
+            <ul>
+                @foreach (var point in Model.SellingPoints)
+                {
+                    <li>@point</li>
+                }
+            </ul>
+
+            <!-- 4. Media Files -->
+            <h3 class="review-section-title">4. MEDIA FILES</h3>
+            <div class="review-grid">
+                <label>Images</label> <div>@string.Join(", ", Model.Images)</div>
+                <label>Favicon</label> <div>@Model.Favicon</div>
+            </div>
+
+            <!-- 5. Marketing & SEO -->
+            <h3 class="review-section-title">5. MARKETING AND SEO</h3>
+            <div class="review-grid">
+                <label>H1</label> <div>@Model.H1</div>
+                <label>Meta Description</label> <div>@Model.MetaDescription</div>
+            </div>
+
+            <WizardFooter OnBack="GoBack"
+                          OnSave="SaveProperty"
+                          ShowSave="true"
+                          BackDisabled="false"
+                          SaveDisabled="false" />
+        </div>
+    </div>
+</div>
+
+@code {
+    private string[] Steps = new[]
+    {
+        "Property Information",
+        "Address & Primary Contact",
+        "Key Selling Points",
+        "Media Files",
+        "Marketing & SEO",
+        "Review & Save"
+    };
+
+    private ReviewModel Model = new()
+    {
+        PropertyName = "Danmark Hotel",
+        PropertyCode = "DKH",
+        PropertyType = "Hotel",
+        StarRating = "4-Star",
+        Description = "Description of the property goes here",
+        AddressLine1 = "Vester Voldgade 89, 1552 Copenhagen",
+        AddressLine2 = "",
+        City = "Copenhagen",
+        Country = "Denmark",
+        PostalCode = "7000",
+        PhoneNumber = "+45 3311 4806",
+        WebsiteUrl = "www.brochner-hotels.com/our-locations/hotel-danmark",
+        PrimaryContact = "Mr. Anders",
+        PrimaryContactName = "Anders Jensen",
+        PrimaryContactEmail = "anders@example.com",
+        PrimaryContactRole = "Manager",
+        SellingPoints = new() { "Free WiFi", "Central Location", "24/7 Reception" },
+        Images = new() { "banner1.jpg", "banner2.jpg" },
+        Favicon = "favicon.ico",
+        H1 = "Welcome to Danmark Hotel",
+        MetaDescription = "Stay at the heart of Copenhagen with top amenities and central access."
+    };
+
+    private void GoBack() => NavigationManager.NavigateTo("/property/marketing-seo");
+    private void SaveProperty() => Console.WriteLine("Save clicked");
+    private async Task HandleClose()
+    {
+        // Navigate back or show confirmation dialog
+        NavigationManager.NavigateTo("/");
+    }
+    public class ReviewModel
+    {
+        public string PropertyName { get; set; }
+        public string PropertyCode { get; set; }
+        public string PropertyType { get; set; }
+        public string StarRating { get; set; }
+        public string Description { get; set; }
+
+        public string AddressLine1 { get; set; }
+        public string AddressLine2 { get; set; }
+        public string City { get; set; }
+        public string Country { get; set; }
+        public string PostalCode { get; set; }
+        public string PhoneNumber { get; set; }
+        public string WebsiteUrl { get; set; }
+
+        public string PrimaryContact { get; set; }
+        public string PrimaryContactName { get; set; }
+        public string PrimaryContactEmail { get; set; }
+        public string PrimaryContactRole { get; set; }
+
+        public List<string> SellingPoints { get; set; } = new();
+        public List<string> Images { get; set; } = new();
+        public string Favicon { get; set; }
+
+        public string H1 { get; set; }
+        public string MetaDescription { get; set; }
+    }
+}
+<style>
+    /* Main Container */
+    .property-wizard-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: #FFFFFF;
+    }
+
+    /* Header Bar - Dark Gray */
+    .wizard-header {
+        background: #434343;
+        height: 72px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+    }
+
+    .header-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 29px;
+        color: #FFFFFF;
+        margin: 0;
+    }
+
+    .close-icon {
+        cursor: pointer;
+        padding: 8px;
+    }
+
+    /* Body Container */
+    .wizard-body {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+    }
+
+    /* Left Sidebar - Light Gray */
+    .wizard-sidebar {
+        width: 246px;
+        background: #FFFF;
+        padding: 40px 20px;
+        border-right: 1px solid #B3B3B3;
+    }
+
+    .wizard-steps {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .wizard-step {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 32px;
+        position: relative;
+    }
+
+        .wizard-step:last-child {
+            margin-bottom: 0;
+        }
+
+    .step-indicator {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-right: 16px;
+        position: relative;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: #D9D9D9;
+        border: 1px solid rgba(0, 0, 0, 0.47);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        color: #000000;
+        z-index: 2;
+    }
+
+    .wizard-step.completed .step-number {
+        background: #FF931E;
+        border: none;
+    }
+
+    .step-number.completed-check {
+        background: #FF931E;
+        border: none;
+    }
+
+    .wizard-step.active .step-number {
+        border: 1px solid #FF931E;
+    }
+
+    .step-line {
+        width: 2px;
+        height: 60px;
+        background: #D9D9D9;
+        position: absolute;
+        top: 50px;
+        left: 24px;
+        z-index: 1;
+    }
+
+        .step-line.completed {
+            background: #737373;
+            border: 1px solid #737373;
+        }
+
+    /*   .wizard-step.active .step-line {
+                    background: #D9D9D9;
+                }  */
+
+    .wizard-step:last-child .step-line {
+        background: #FFFF;
+    }
+
+    .step-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 26px;
+        color: #000000;
+        padding-top: 12px;
+    }
+
+    .wizard-step.active .step-title {
+        font-weight: 600;
+    }
+
+    /* Main Content Area */
+
+    .wizard-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #F6F6F6;
+        padding: 60px 80px;
+        overflow-y: auto;
+    }
+
+    /* Matches styling in other steps */
+    .instruction-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: #737373;
+        margin-bottom: 24px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 24px;
+        width: 50%;
+    }
+
+        .form-group label {
+            font-size: 16px;
+            font-weight: 400;
+            color: #000;
+            margin-bottom: 8px;
+        }
+
+    .step-label {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 19px;
+        color: #000000;
+        margin: 0 0 8px 0;
+    }
+
+    .form-control {
+        font-size: 16px;
+        padding: 12px;
+        border: 1px solid #C3C3C3;
+        border-radius: 4px;
+        background-color: #F6F6F6;
+        resize: none;
+    }
+
+        .form-control:focus {
+            border-color: black;
+            outline: none;
+            background-color: #F6F6F6;
+            box-shadow: none;
+        }
+
+    .form-group p {
+        font-size: 12px;
+        color: #737373;
+        margin: 4px 0 8px 0;
+        text-align: left;
+    }
+
+    .content-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 29px;
+        color: #000000;
+        margin-bottom: 20px;
+    }
+
+    .character-label {
+        text-align: left;
+    }
+    /* Responsive Fix */
+    @@media (max-width: 768px) {
+        .wizard-content {
+            padding: 40px 20px;
+        }
+
+        .form-control {
+            font-size: 14px;
+        }
+
+        .form-group label {
+            font-size: 14px;
+        }
+    }
+
+    .review-section {
+        margin-bottom: 48px;
+    }
+
+    .review-grid {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        row-gap: 12px;
+        column-gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .review-section-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        margin-top: 30px;
+        color: #000000;
+        margin-bottom: 20px;
+    }
+
+    .review-grid label {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        color: #707070;
+    }
+    .wizard-footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        margin-top: 40px;
+    }
+
+    /* .btn-back {
+        border: 1px solid #ccc;
+        padding: 10px 20px;
+        background: white;
+        cursor: pointer;
+    }
+
+    .btn-save {
+        background: #FF931E;
+        color: white;
+        padding: 10px 24px;
+        border: none;
+        cursor: pointer;
+    } */
+
+    .scrollable-content {
+        max-height: calc(130vh - 380px); /* Adjust based on your header/footer */
+        overflow-y: auto;
+        padding-right: 40px;
+        scrollbar-width: thin;
+        scrollbar-color: #aaa transparent;
+    }
+
+        /* Optional: Custom scrollbar for WebKit */
+        /* .scrollable-content::-webkit-scrollbar {
+            width: 8px;
+        } */
+
+        /* .scrollable-content::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 4px;
+        } */
+
+        /* .scrollable-content::-webkit-scrollbar-track {
+            background-color: transparent;
+        } */
+</style>
