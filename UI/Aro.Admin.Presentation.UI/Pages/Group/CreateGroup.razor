@@ -1,0 +1,329 @@
+﻿@page "/groups/add"
+@page "/group/edit/{groupId:guid}"
+
+@attribute [Authorize]
+@using Aro.Admin.Presentation.UI.Validators
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components
+@using System.ComponentModel.DataAnnotations
+
+@inject IGroupService GroupService
+@inject IUserService UserService
+@inject ICountryMetadataService CountryMetadataService
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+@inject IValidator<GroupModel> groupValidator
+@inject IValidator<PrimaryContactModel> primaryContactValidator
+
+<PageTitle>@(IsCreateMode ? "Add Group" : "Edit Group")</PageTitle>
+
+<link href="css/creategroup.css" rel="stylesheet" />
+
+<div class="fullscreen-overlay">
+    <div class="row g-0 h-100">
+        <!-- Top Title -->
+        <div class="col-12 card-bg-dark">
+            <div class="d-flex justify-content-between align-items-center p-3" data-bs-theme="dark">
+                <h5>@(IsCreateMode ? "Add New Group" : "Edit Group")</h5>
+                <button class="btn-close" aria-label="Close" @onclick="HandleExitGroupCreation"></button>
+            </div>
+        </div>
+
+        <!-- Left panel bubbles -->
+        <div class="col-sm-2 col-md-3 col-xl-2 border-end">
+            <ProgressBubbles StepTitles="StepTitles"
+                             ActiveStepIndex="ActiveStepIndex"
+                             AllStepsCompleted="GroupCreationComplete" />
+        </div>
+
+        <!-- Main content -->
+        <div class="col-sm-10 col-md-9 col-xl-10 border border-primary h-100 overflow-x-hidden overflow-y-auto">
+            <div class="p-5">
+
+                @if (ActiveStepIndex == 0)
+                {
+                    <!-- STEP 1: GENERAL INFORMATION -->
+                    <div class="d-flex flex-column mb-3">
+                        <div class="p-2">Step 1</div>
+                        <h3 class="p-2">General Information</h3>
+                    </div>
+
+                    <MudForm @ref="groupForm"
+                             Model="groupModel"
+                             Validation="@(groupValidator.GetValidateValue())">
+
+                        <div class="row gy-3">
+
+                            <!-- Group Name -->
+                            <div class="col-sm-8 col-xl-4">
+                                <MudTextField @bind-Value="groupModel.GroupName"
+                                              For="@(() => groupModel.GroupName)"
+                                              Immediate="true"
+                                              Validation="@(groupValidator.GetValidateValue())"
+                                              Label="Group Name"
+                                              Required="true"
+                                              Variant="Variant.Outlined"
+                                              ShrinkLabel />
+                            </div>
+                            <div class="w-100"></div>
+
+                            <!-- Address 1 -->
+                            <div class="col-sm-10 col-xl-6">
+                                <MudTextField @bind-Value="groupModel.AddressLine1"
+                                              For="@(() => groupModel.AddressLine1)"
+                                              Immediate="true"
+                                              Validation="@(groupValidator.GetValidateValue())"
+                                              Label="Address Line 1"
+                                              Required="true"
+                                              Variant="Variant.Outlined"
+                                              ShrinkLabel />
+                            </div>
+                            <div class="w-100"></div>
+
+                            <!-- Address 2 -->
+                            <div class="col-sm-10 col-xl-6">
+                                <MudTextField @bind-Value="groupModel.AddressLine2"
+                                              For="@(() => groupModel.AddressLine2)"
+                                              Immediate="true"
+                                              Validation="@(groupValidator.GetValidateValue())"
+                                              Label="Address Line 2"
+                                              Variant="Variant.Outlined"
+                                              ShrinkLabel />
+                            </div>
+                            <div class="w-100"></div>
+
+                            <!-- City & Country -->
+                            <div class="col-sm-6 col-xl-2">
+                                <MudTextField @bind-Value="groupModel.City"
+                                              For="@(() => groupModel.City)"
+                                              Immediate="true"
+                                              Validation="@(groupValidator.GetValidateValue())"
+                                              Label="City"
+                                              Required="true"
+                                              Variant="Variant.Outlined"
+                                              ShrinkLabel />
+                            </div>
+
+                            <div class="col-sm-6 col-xl-4">
+                                <MudSelect @bind-Value="groupModel.Country"
+                                           For="@(() => groupModel.Country)"
+                                           Immediate="true"
+                                           Validation="@(groupValidator.GetValidateValue())"
+                                           Label="Country"
+                                           Required="true"
+                                           Variant="Variant.Outlined">
+
+                                    @if (countryNames != null)
+                                    {
+                                        @foreach (var c in countryNames)
+                                        {
+                                            <MudSelectItem Value="@c">@c</MudSelectItem>
+                                        }
+                                    }
+                                </MudSelect>
+                            </div>
+
+                            <div class="w-100"></div>
+
+                            <!-- Postal & Logo -->
+                            <div class="col-sm-6 col-xl-2">
+                                <MudTextField @bind-Value="groupModel.PostalCode"
+                                              For="@(() => groupModel.PostalCode)"
+                                              Label="Postal Code"
+                                              Required="true"
+                                              Variant="Variant.Outlined"
+                                              ShrinkLabel />
+                            </div>
+
+                            <div class="col-sm-6 col-xl-4">
+                                <MudFileUpload T="IBrowserFile"
+                                               Accept=".png,.jpg,.jpeg"
+                                               MaximumFileCount="1"
+                                               FilesChanged="OnFileChanged">
+                                    <ActivatorContent>
+                                        <MudTextField @bind-Value="_fileName"
+                                                      Label="Upload Image"
+                                                      Placeholder="@FileUploadMessage"
+                                                      ReadOnly
+                                                      Variant="Variant.Outlined"
+                                                      Adornment="Adornment.Start"
+                                                      AdornmentIcon="@Icons.Material.Filled.Image"
+                                                      ShrinkLabel />
+                                    </ActivatorContent>
+                                </MudFileUpload>
+                            </div>
+                        </div>
+                    </MudForm>
+                }
+                else if (ActiveStepIndex == 1)
+                {
+                    <!-- STEP 2: PRIMARY CONTACT -->
+                    <div class="d-flex flex-column mb-3">
+                        <div class="p-2">Step 2</div>
+                        <h3 class="p-2">Primary Contact Details</h3>
+                    </div>
+
+                    <MudForm @ref="primaryContactForm"
+                             Model="@primaryContactModel"
+                             Validation="@(primaryContactValidator.GetValidateValue())">
+
+                        <div class="row">
+                            @if (IsCreateMode)
+                            {
+                                <!-- Name -->
+                                <div class="col-sm-8 col-xl-4">
+                                    <MudTextField @bind-Value="primaryContactModel.Name"
+                                                  For="@(() => primaryContactModel.Name)"
+                                                  Immediate="true"
+                                                  Validation="@(primaryContactValidator.GetValidateValue())"
+                                                  Label="Name"
+                                                  Required="true"
+                                                  Variant="Variant.Outlined"
+                                                  ShrinkLabel />
+                                </div>
+                                <div class="w-100"></div>
+
+                                <!-- Email -->
+                                <div class="col-sm-10 col-xl-6">
+                                    <MudTextField @bind-Value="primaryContactModel.Email"
+                                                  For="@(() => primaryContactModel.Email)"
+                                                  Validation="@(primaryContactValidator.GetValidateValue())"
+                                                  Label="Email"
+                                                  Required="true"
+                                                  Variant="Variant.Outlined"
+                                                  ShrinkLabel />
+                                </div>
+                                <div class="w-100"></div>
+
+                                <!-- Phone -->
+                                <div class="col-sm-6 col-xl-2">
+                                    <MudSelect @bind-Value="primaryContactModel.CountryCode"
+                                               For="@(() => primaryContactModel.CountryCode)"
+                                               Immediate="true"
+                                               Validation="@(primaryContactValidator.GetValidateValue())"
+                                               Label="Country Code"
+                                               Required="true"
+                                               Variant="Variant.Outlined">
+
+                                        @if (countryCodes != null)
+                                        {
+                                            @foreach (var c in countryCodes)
+                                            {
+                                                <MudSelectItem Value="@c">+@c</MudSelectItem>
+                                            }
+                                        }
+                                    </MudSelect>
+
+                                </div>
+
+                                <div class="col-sm-6 col-xl-4">
+                                    <MudTextField @bind-Value="primaryContactModel.PhoneNumber"
+                                                  For="@(() => primaryContactModel.PhoneNumber)"
+                                                  Label="Phone Number"
+                                                  Required="true"
+                                                  Variant="Variant.Outlined"
+                                                  ShrinkLabel />
+                                </div>
+                            }
+                            else
+                            {
+                                <!-- Email -->
+                                <div class="col-sm-10 col-xl-6">
+                                    <MudTextField @bind-Value="primaryContactModel.Email"
+                                                  For="@(() => primaryContactModel.Email)"
+                                                  Validation="@(primaryContactValidator.GetValidateValue())"
+                                                  Label="Email"
+                                                  Required="true"
+                                                  Variant="Variant.Outlined"
+                                                  ShrinkLabel />
+                                </div>
+                            }
+
+                        </div>
+                    </MudForm>
+                }
+                else if (ActiveStepIndex == 2)
+                {
+                    <!-- STEP 3: REVIEW -->
+                    <div class="d-flex flex-column mb-3">
+                        <div class="p-2">Step 3</div>
+                        <h3 class="p-2">@(IsCreateMode ? "Review & Save" : "Review & Update")</h3>
+                    </div>
+
+                    <div class="row gy-2">
+
+                        <!-- GENERAL INFO SUMMARY -->
+                        <div class="col-12">
+                            <h6>1. GENERAL INFORMATION</h6>
+                        </div>
+
+                        <SummaryRow Label="Group Name" Value="@groupModel.GroupName" />
+                        <SummaryRow Label="Address Line 1" Value="@groupModel.AddressLine1" />
+                        <SummaryRow Label="Address Line 2" Value="@groupModel.AddressLine2" />
+                        <SummaryRow Label="City" Value="@groupModel.City" />
+                        <SummaryRow Label="Country" Value="@groupModel.Country" />
+                        <SummaryRow Label="Postal Code" Value="@groupModel.PostalCode" />
+
+                        <div class="col-sm-4 col-lg-4"><span class="text-body-secondary">Logo</span></div>
+                        <div class="col-sm-8 col-lg-4">
+                            @if (!string.IsNullOrEmpty(logoPreview))
+                            {
+                                <img src="@logoPreview" class="img-thumbnail" style="max-height:120px;" />
+                            }
+                            else
+                            {
+                                <span>@FileUploadMessage</span>
+                            }
+                        </div>
+
+                        <!-- CONTACT SUMMARY -->
+                        <div class="col-12 mt-5">
+                            <h6>2. PRIMARY CONTACT DETAILS</h6>
+                        </div>
+
+                        <SummaryRow Label="Name" Value="@primaryContactModel.Name" />
+                        <SummaryRow Label="Contact Email" Value="@primaryContactModel.Email" />
+                        <SummaryRow Label="Phone Number" Value="@($"+{primaryContactModel.CountryCode} {primaryContactModel.PhoneNumber}")" />
+                    </div>
+                }
+            </div>
+
+            <!-- BUTTONS -->
+            <div class="d-flex flex-row-reverse p-5 border-top mb-5">
+
+                @if (ActiveStepIndex < StepTitles.Count - 1)
+                {
+                    <button class="aro-button aro-button-primary me-3" @onclick="MoveNext">
+                        Next
+                        <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                }
+                else
+                {
+                    @if (GroupCreationComplete)
+                    {
+                        <button class="aro-button aro-button-primary me-3" @onclick="SwitchToEditView">
+                            Edit Details
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="aro-button aro-button-primary me-3" @onclick="HandleGroupCreation">
+                            @(IsCreateMode ? "Save" : "Update")
+                        </button>
+                    }
+                }
+
+                @if (ActiveStepIndex > 0 && !GroupCreationComplete)
+                {
+                    <button class="aro-button aro-button-secondary me-3" @onclick="GoToPreviousPage">
+                        <i class="bi bi-arrow-left me-2"></i> Back
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+

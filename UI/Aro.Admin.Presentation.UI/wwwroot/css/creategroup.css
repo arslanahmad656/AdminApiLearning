@@ -7,45 +7,18 @@
     border: 1px solid red;
 }*/
 
-.progress-circle {
-    width: 50px;
-    height: 50px;
-    flex: 0 0 auto;
-    background: #D9D9D9;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: Inter, sans-serif;
-    font-size: 16px;
-    font-weight: 400;
-    color: black;
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    background: #fff; /* optional */
+    overflow: hidden
 }
 
-    .progress-circle.active {
-        border: 2px solid black;
-    }
-
-    .progress-circle.complete {
-        background: #FF931E;
-    }
-
-.progress-line-vertical {
-    width: 26px;
-    height: 25px;
-    border-right: 1px solid #D9D9D9;
+.fullscreen-overlay .row {
+    flex: 1;
+    overflow: hidden; /* prevents the row from scrolling */
 }
-
-    .progress-line-vertical.full {
-        border-right: 2px solid black;
-    }
-
-.progress-line-horizontal {
-    width: 25px;
-    height: 26px;
-    border-top: 1px solid #D9D9D9;
-}
-
-    .progress-line-horizontal.full {
-        border-top: 2px solid black;
-    }
