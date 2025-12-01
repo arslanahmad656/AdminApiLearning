@@ -7,33 +7,41 @@
                 disabled="@BackDisabled">
             ← Back
         </button>
+
+        @if (ShowSave)
+        {
+            <button class="next-button"
+                    @onclick="OnSave"
+                    disabled="@SaveDisabled">
+                Save
+            </button>
+        }
+        else{
         <button class="next-button"
                 @onclick="OnNext"
                 disabled="@NextDisabled">
             Next →
         </button>
+        }
     </div>
 </div>
 
 @code {
-    [Parameter]
-    public EventCallback OnBack { get; set; }
+    [Parameter] public EventCallback OnBack { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnSave { get; set; }
 
-    [Parameter]
-    public EventCallback OnNext { get; set; }
-
-    [Parameter]
-    public bool BackDisabled { get; set; } = false;
-
-    [Parameter]
-    public bool NextDisabled { get; set; } = false;
+    [Parameter] public bool BackDisabled { get; set; } = false;
+    [Parameter] public bool NextDisabled { get; set; } = false;
+    [Parameter] public bool SaveDisabled { get; set; } = false;
+    [Parameter] public bool ShowSave { get; set; } = false;
 }
 
 <style>
     /* Footer */
     .wizard-footer {
-        background: #EDEDED;
-        border-top: 1px solid #E0E0E0;
+        background: #F6F6F6;
+        border-top: 1px solid #F6F6F6;
         padding: 25px 80px;
         margin-top: auto;
         margin-left: -80px;
@@ -72,10 +80,10 @@
         background: #FFFFFF;
     }
 
-    .back-button:hover:not(:disabled) {
-        background: #F5F5F5;
-        border-color: #4A4A4A;
-    }
+        .back-button:hover:not(:disabled) {
+            background: #F5F5F5;
+            border-color: #4A4A4A;
+        }
 
     .next-button {
         background: #FF931E;
@@ -83,15 +91,15 @@
         border: none;
     }
 
-    .next-button:hover:not(:disabled) {
-        background: #E58520;
-    }
+        .next-button:hover:not(:disabled) {
+            background: #E58520;
+        }
 
-    .next-button:disabled {
-        background: #E0E0E0;
-        color: #9E9E9E;
-        cursor: not-allowed;
-    }
+        .next-button:disabled {
+            background: #E0E0E0;
+            color: #9E9E9E;
+            cursor: not-allowed;
+        }
 
     .back-button:disabled {
         border: 1px solid #E0E0E0;
