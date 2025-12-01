@@ -54,5 +54,15 @@ public class PropertyConfiguration : IEntityTypeConfiguration<Property>
             .WithMany()
             .HasForeignKey(p => p.GroupId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.Contact)
+            .WithMany()
+            .HasForeignKey(p => p.ContactId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.Address)
+            .WithMany()
+            .HasForeignKey(p => p.AddressId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

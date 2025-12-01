@@ -27,23 +27,29 @@ public partial class GroupService(
     {
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateGroup], cancellationToken);
 
-        var query = userRepository.GetById(group.PrimaryContactId);
+        var query = userRepository.GetById(group.ContactId);
         _ = await query
             .SingleOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false) ??
-            throw new AroUserNotFoundException(group.PrimaryContactId.ToString());
+            throw new AroUserNotFoundException(group.ContactId.ToString());
 
         var GroupEntity = new Group
         {
             Id = idGenerator.Generate(),
             GroupName = group.GroupName,
-            AddressLine1 = group.AddressLine1,
-            AddressLine2 = group.AddressLine2,
-            City = group.City,
-            Country = group.Country,
-            PostalCode = group.PostalCode,
+            Address = new()
+            {
+                AddressLine1 = group.AddressLine1,
+                AddressLine2 = group.AddressLine2,
+                City = group.City,
+                Country = group.Country,
+                PostalCode = group.PostalCode,
+            },
             Logo = group.Logo,
-            PrimaryContactId = group.PrimaryContactId,
+            Contact = new ()
+            {
+                UserId = group.ContactId
+            },
             IsActive = group.IsActive
         };
 
@@ -84,15 +90,15 @@ public partial class GroupService(
             .Select(g => new GroupDto(
                 g.Id,
                 g.GroupName,
-                g.AddressLine1,
-                g.AddressLine2,
-                g.City,
-                g.PostalCode,
-                g.Country,
+                g.Address.AddressLine1,
+                g.Address.AddressLine2,
+                g.Address.City,
+                g.Address.PostalCode,
+                g.Address.Country,
                 g.Logo,
-                g.PrimaryContactId,
-                g.PrimaryContact.DisplayName,
-                g.PrimaryContact.Email,
+                g.Contact.Id,
+                g.Contact.User.DisplayName,
+                g.Contact.User.Email,
                 g.IsActive
             ))
             .ToListAsync(cancellationToken);
@@ -118,15 +124,15 @@ public partial class GroupService(
         var groupDto = new GroupDto(
             response.Id,
             response.GroupName,
-            response.AddressLine1,
-            response.AddressLine2,
-            response.City,
-            response.PostalCode,
-            response.Country,
+            response.Address.AddressLine1,
+            response.Address.AddressLine2,
+            response.Address.City,
+            response.Address.PostalCode,
+            response.Address.Country,
             response.Logo,
-            response.PrimaryContactId,
-            response.PrimaryContact?.DisplayName,
-            response.PrimaryContact?.Email,
+            response.Contact.UserId,
+            response.Contact?.User?.DisplayName,
+            response.Contact?.User?.Email,
             response.IsActive
         );
 
@@ -145,31 +151,31 @@ public partial class GroupService(
             .ConfigureAwait(false)
             ?? throw new AroGroupNotFoundException(group.Id.ToString());
 
-        if (group.PrimaryContactId.HasValue)
+        if (group.ContactId.HasValue)
         {
             _ = await userRepository
-                .GetById(group.PrimaryContactId.Value)
+                .GetById(group.ContactId.Value)
                 .SingleOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false)
-                ?? throw new AroUserNotFoundException(group.PrimaryContactId.Value.ToString());
+                ?? throw new AroUserNotFoundException(group.ContactId.Value.ToString());
 
-            existingGroup.PrimaryContactId = group.PrimaryContactId.Value;
+            existingGroup.ContactId = group.ContactId.Value;
         }
 
         if (!string.IsNullOrEmpty(group.GroupName))
             existingGroup.GroupName = group.GroupName;
 
         if (!string.IsNullOrEmpty(group.AddressLine1))
-            existingGroup.AddressLine1 = group.AddressLine1;
+            existingGroup.Address.AddressLine1 = group.AddressLine1;
 
         if (!string.IsNullOrEmpty(group.AddressLine2))
-            existingGroup.AddressLine2 = group.AddressLine2;
+            existingGroup.Address.AddressLine2 = group.AddressLine2;
 
         if (!string.IsNullOrEmpty(group.City))
-            existingGroup.City = group.City;
+            existingGroup.Address.City = group.City;
 
         if (!string.IsNullOrEmpty(group.Country))
-            existingGroup.Country = group.Country;
+            existingGroup.Address.Country = group.Country;
 
         if (group.IsActive.HasValue)
             existingGroup.IsActive = group.IsActive.Value;
@@ -186,7 +192,7 @@ public partial class GroupService(
             group.PostalCode,
             group.Country,
             group.Logo,
-            group.PrimaryContactId,
+            group.ContactId,
             group.IsActive
             );
     }

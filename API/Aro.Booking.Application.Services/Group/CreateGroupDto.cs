@@ -8,7 +8,7 @@ public record CreateGroupDto(
     string PostalCode,
     string Country,
     byte[]? Logo,
-    Guid PrimaryContactId,
+    Guid ContactId,
     bool IsActive
 );
 

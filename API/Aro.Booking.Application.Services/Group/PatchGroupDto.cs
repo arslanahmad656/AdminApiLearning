@@ -9,7 +9,7 @@ public record PatchGroupDto(
     string? PostalCode,
     string? Country,
     byte[]? Logo,
-    Guid? PrimaryContactId,
+    Guid? ContactId,
     bool? IsActive
 );
 

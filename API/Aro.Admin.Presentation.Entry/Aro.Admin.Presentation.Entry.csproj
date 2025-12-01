@@ -37,6 +37,7 @@
     <ProjectReference Include="..\Aro.Booking.Infrastructure.Services\Aro.Booking.Infrastructure.Services.csproj" />
     <ProjectReference Include="..\Aro.Booking.Presentation.Api\Aro.Booking.Presentation.Api.csproj" />
     <ProjectReference Include="..\Aro.Common.Infrastructure.Repository\Aro.Common.Infrastructure.Repository.csproj" />
+    <ProjectReference Include="..\Aro.Common.Infrastructure.Services.Azure\Aro.Common.Infrastructure.Services.Azure.csproj" />
     <ProjectReference Include="..\Aro.Common.Infrastructure.Services\Aro.Common.Infrastructure.Services.csproj" />
     <ProjectReference Include="..\Aro.Common.Presentation.Api\Aro.Common.Presentation.Api.csproj" />
   </ItemGroup>
@@ -51,6 +52,10 @@
 		<None Update="AppData\EmailTemplates\password-reset-success-email.html">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Options\" />
 	</ItemGroup>
 
 </Project>

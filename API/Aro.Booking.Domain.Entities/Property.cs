@@ -15,5 +15,9 @@ public class Property : IEntity
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public bool IsActive { get; set; } = true;
+    public Guid? AddressId { get; set; }
+    public Guid? ContactId { get; set; }
     public Group Group { get; set; }
+    public Address Address { get; set; }
+    public Contact Contact { get; set; }
 }

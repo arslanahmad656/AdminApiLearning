@@ -1,4 +1,5 @@
 ﻿using Aro.Common.Application.Services.FileManager;
+using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Domain.Shared.Exceptions;
 using Aro.Common.Infrastructure.Services.Azure.FileManager.Options;
@@ -18,25 +19,26 @@ public static class BlobFileManagerExtensions
                                        .Get<AzureSettings>() 
                                        ?? throw new AroInvalidOperationException(new ErrorCodes().UNKNOWN_ERROR, $"Could not get the app settings against AzureSettings section.");
 
-        services.AddSingleton<TokenCredential>(_ =>
+        var blobOptions = configuration
+                                       .GetSection("AzureBlobStorage")
+                                       .Get<AzureBlobStorageOptions>()
+                                       ?? throw new AroInvalidOperationException(new ErrorCodes().UNKNOWN_ERROR, $"Could not get the app settings against AzureBlobStorage section.");
+
+        var options = new DefaultAzureCredentialOptions
         {
-            var options = new DefaultAzureCredentialOptions
-            {
-                Diagnostics =
+            Diagnostics =
                 {
                     IsLoggingEnabled = true,
                     IsAccountIdentifierLoggingEnabled = true,
                     IsLoggingContentEnabled = true
                 }
-            };
+        };
 
-            DefaultAzureCredential creds = azureSettings.EnableCredentialLogging
-                ? new (options)
-                : new ();
+        DefaultAzureCredential credentials = azureSettings.EnableCredentialLogging
+            ? new(options)
+            : new();
 
-            return creds;
-        });
-        services.AddSingleton<IFileManagerFactory, BlobFileManagerFactory>();
+        services.AddSingleton<IFileManager>(sp => new BlobFileManager(blobOptions.StorageAccount, blobOptions.ContainerName, blobOptions.SubFolder, credentials, sp.GetRequiredService<ILogManager<BlobFileManager>>()));
         return services;
     }
 }

@@ -16,31 +16,17 @@ public class GroupConfiguration : IEntityTypeConfiguration<Group>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(u => u.AddressLine1)
-            .IsRequired()
-            .HasMaxLength(256);
-
-        builder.Property(u => u.AddressLine2)
-            .HasMaxLength(256);
-
-        builder.Property(u => u.City)
-            .IsRequired()
-            .HasMaxLength(100);
-
-        builder.Property(u => u.Country)
-            .IsRequired()
-            .HasMaxLength(100);
-
-        builder.Property(u => u.PostalCode)
-            .IsRequired()
-            .HasMaxLength(20);
-
         builder.Property(u => u.Logo)
             .HasColumnType("varbinary(max)");
 
-        builder.HasOne(g => g.PrimaryContact)
+        builder.HasOne(g => g.Contact)
             .WithMany()
-            .HasForeignKey(g => g.PrimaryContactId)
+            .HasForeignKey(g => g.ContactId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(g => g.Address)
+            .WithMany()
+            .HasForeignKey(g => g.AddressId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.Property(u => u.IsActive)
