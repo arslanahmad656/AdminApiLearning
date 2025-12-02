@@ -162,23 +162,12 @@ public partial class GroupService(
             existingGroup.ContactId = group.ContactId.Value;
         }
 
-        if (!string.IsNullOrEmpty(group.GroupName))
-            existingGroup.GroupName = group.GroupName;
-
-        if (!string.IsNullOrEmpty(group.AddressLine1))
-            existingGroup.Address.AddressLine1 = group.AddressLine1;
-
-        if (!string.IsNullOrEmpty(group.AddressLine2))
-            existingGroup.Address.AddressLine2 = group.AddressLine2;
-
-        if (!string.IsNullOrEmpty(group.City))
-            existingGroup.Address.City = group.City;
-
-        if (!string.IsNullOrEmpty(group.Country))
-            existingGroup.Address.Country = group.Country;
-
-        if (group.IsActive.HasValue)
-            existingGroup.IsActive = group.IsActive.Value;
+        group.GroupName.PatchIfNotNull(v => existingGroup.GroupName = v);
+        group.AddressLine1.PatchIfNotNull(v => existingGroup.AddressLine1 = v);
+        group.AddressLine2.PatchIfNotNull(v => existingGroup.AddressLine2 = v);
+        group.City.PatchIfNotNull(v => existingGroup.City = v);
+        group.Country.PatchIfNotNull(v => existingGroup.Country = v);
+        group.IsActive.PatchIfNotNull(v => existingGroup.IsActive = v);
 
         groupRepository.Update(existingGroup);
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);

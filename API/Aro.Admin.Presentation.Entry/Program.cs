@@ -14,7 +14,7 @@ try
     app.UseRequestLogging();
 
     await app.MigrateDatabase().ConfigureAwait(false);
-    await app.SeedDatabase(Path.Combine(@"AppData\PemissionSeed.json"), @"AppData\EmailTemplates").ConfigureAwait(false);
+    await app.SeedDatabase(Path.Combine(@"AppData\PermissionSeed.json"), @"AppData\EmailTemplates").ConfigureAwait(false);
     await app.CreateBootstrapUser().ConfigureAwait(false);
 
     var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwaggerUI");

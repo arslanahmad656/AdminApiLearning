@@ -91,13 +91,45 @@
     {
       "Name": "property.delete",
       "Description": "Can delete properties"
+    },
+    {
+      "Name": "room.create",
+      "Description": "Can create rooms"
+    },
+    {
+      "Name": "room.read",
+      "Description": "Can view room details"
+    },
+    {
+      "Name": "room.patch",
+      "Description": "Can update rooms"
+    },
+    {
+      "Name": "room.delete",
+      "Description": "Can delete rooms"
+    },
+    {
+      "Name": "amenity.create",
+      "Description": "Can create amenities"
+    },
+    {
+      "Name": "amenity.read",
+      "Description": "Can view amenity details"
+    },
+    {
+      "Name": "amenity.patch",
+      "Description": "Can update amenities"
+    },
+    {
+      "Name": "amenity.delete",
+      "Description": "Can delete amenities"
     }
   ],
 
   "Roles": [
     {
       "Name": "SystemAdmin",
-      "Description": "Full system control, can manage users, roles, and properties.",
+      "Description": "Full system control, can manage users, roles, groups, properties, rooms & amenities.",
       "Permissions": [
         "user.create",
         "user.read",
@@ -120,7 +152,15 @@
         "property.create",
         "property.read",
         "property.patch",
-        "property.delete"
+        "property.delete",
+        "room.create",
+        "room.read",
+        "room.patch",
+        "room.delete",
+        "amenity.create",
+        "amenity.read",
+        "amenity.patch",
+        "amenity.delete"
       ]
     },
     {

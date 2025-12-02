@@ -9,5 +9,7 @@ public class EntityTypes
     public readonly string Group = "Group";
     public readonly string Property = "Property";
     public readonly string PasswordResetLink = "PasswordResetLink";
+    public readonly string Room = "Room";
+    public readonly string Amenity = "Amenity";
     public readonly string FileResource = "FileResource";
 }

@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="AppData\PemissionSeed.json" />
+    <Content Remove="AppData\PermissionSeed.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="AppData\PemissionSeed.json">
+    <None Include="AppData\PermissionSeed.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
