@@ -3,9 +3,10 @@
 public interface IRepositoryManager
 {
     IAddressRepository AddressRepository { get; }
-    IContactRepository ContactRepository { get; }
+    //IContactRepository ContactRepository { get; }
     IGroupRepository GroupRepository { get; }
     IPropertyRepository PropertyRepository { get; }
+    IPropertyFilesRepository PropertyFilesRepository { get; }
     IRoomRepository RoomRepository { get; }
     IAmenityRepository AmenityRepository { get; }
 }

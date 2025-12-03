@@ -74,4 +74,8 @@ public class ErrorCodes
     public readonly string FILE_READ_ERROR = nameof(FILE_READ_ERROR);
     public readonly string FILE_UPDATE_ERROR = nameof(FILE_UPDATE_ERROR);
     #endregion
+
+    #region [ROLE]
+    public readonly string ROLE_NOT_FOUND = nameof(ROLE_NOT_FOUND);
+    #endregion
 }

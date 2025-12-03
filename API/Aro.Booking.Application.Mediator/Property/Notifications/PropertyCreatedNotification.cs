@@ -5,9 +5,6 @@ namespace Aro.Booking.Application.Mediator.Property.Notifications;
 
 public record PropertyCreatedNotification(
     Guid PropertyId,
-    Guid? GroupId,
-    string PropertyName,
-    PropertyTypes PropertyTypes,
-    int StarRating,
-    string Currency
+    Guid GroupId,
+    string PropertyName
 ) : INotification;

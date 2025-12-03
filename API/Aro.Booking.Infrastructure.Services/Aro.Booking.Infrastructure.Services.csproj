@@ -11,6 +11,7 @@
     <ProjectReference Include="..\Aro.Booking.Application.Services\Aro.Booking.Application.Services.csproj" />
     <ProjectReference Include="..\Aro.Booking.Domain.Shared\Aro.Booking.Domain.Shared.csproj" />
     <ProjectReference Include="..\Aro.Common.Infrastructure.Services\Aro.Common.Infrastructure.Services.csproj" />
+    <ProjectReference Include="..\Aro.Common.Infrastructure.Shared\Aro.Common.Infrastructure.Shared.csproj" />
   </ItemGroup>
 
 </Project>

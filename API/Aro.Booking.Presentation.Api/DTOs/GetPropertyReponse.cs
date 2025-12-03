@@ -1,9 +1,8 @@
-using Aro.Booking.Domain.Shared;
-using static Aro.Booking.Application.Services.Property.CreatePropertyDto;
+﻿using Aro.Booking.Domain.Shared;
 
-namespace Aro.Booking.Application.Services.Property;
+namespace Aro.Booking.Presentation.Api.DTOs;
 
-public record CreatePropertyDto(
+public record GetPropertyResponse(
     Guid GroupId,
     string PropertyName,
     List<PropertyTypes> PropertyTypes,
@@ -18,19 +17,11 @@ public record CreatePropertyDto(
     string PostalCode,
     string PhoneNumber,
     string Website,
-    bool SetContactSameAsGroupContact,
+    bool SetContactSameAsPrimaryContact,
     string ContactName,
     string ContactEmail,
     List<string> KeySellingPoints,
     string MarketingTitle,
     string MarketingDescription,
-    List<FileData> Files
-)
-{
-    public record FileData(
-        string FileName,
-        Stream Content
-    );
-}
-
-
+    Dictionary<string, List<string>> FileUrls
+);

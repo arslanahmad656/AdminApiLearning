@@ -3,14 +3,24 @@ using Aro.Booking.Domain.Shared;
 namespace Aro.Booking.Application.Services.Property;
 
 public record GetPropertyResponse(
-    Guid Id,
-    Guid? GroupId,
+    Guid PropertyId,
+    Guid GroupId,
     string PropertyName,
-    PropertyTypes PropertyTypes,
+    List<PropertyTypes> PropertyTypes,
     int StarRating,
     string Currency,
     string Description,
-    DateTime CreatedAt,
-    DateTime? UpdatedAt,
-    bool IsActive
+    string AddressLine1,
+    string AddressLine2,
+    string City,
+    string Country,
+    string PostalCode,
+    string PhoneNumber,
+    string Website,
+    string ContactName,
+    string ContactEmail,
+    List<string> KeySellingPoints,
+    string MarketingTitle,
+    string MarketingDescription,
+    Dictionary<string, Guid> FileIds
 );

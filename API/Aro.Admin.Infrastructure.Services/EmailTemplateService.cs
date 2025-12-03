@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public partial class EmailTemplateService(Application.Repository.IRepositoryManager repositoryManager, IUnitOfWork unitOfWork, ILogManager<EmailTemplateService> logger, ErrorCodes errorCodes, SharedKeys sharedKeys, IDateFormatter dateFormatter) : IEmailTemplateService
+public partial class EmailTemplateService(Application.Repository.IRepositoryManager repositoryManager, IUnitOfWork unitOfWork, ILogManager<EmailTemplateService> logger, ErrorCodes errorCodes, SharedKeys sharedKeys, IMultiFormatter dateFormatter) : IEmailTemplateService
 {
     public async Task<EmailTemplateDto> GetPasswordResetLinkEmail(string name, string resetUrl, int tokenExpiryMinutes, CancellationToken cancellationToken = default)
     {

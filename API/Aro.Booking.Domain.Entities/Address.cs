@@ -10,6 +10,8 @@ public class Address : IEntity
     public string City { get; set; }
     public string PostalCode { get; set; }
     public string Country { get; set; }
+    public string PhoneNumber { get; set; }
+    public string Website { get; set; }
 
     public ICollection<Group> Groups { get; set; }
     public ICollection<Property> Properties { get; set; }

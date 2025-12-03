@@ -17,10 +17,7 @@ public class PropertyCreatedNotificationHandler(
         {
             notification.PropertyId,
             notification.GroupId,
-            notification.PropertyName,
-            notification.PropertyTypes,
-            notification.StarRating,
-            notification.Currency
+            notification.PropertyName
         };
 
         await auditService.Log(

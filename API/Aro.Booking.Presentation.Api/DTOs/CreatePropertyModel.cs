@@ -1,21 +1,35 @@
 using Aro.Booking.Domain.Shared;
+using Microsoft.AspNetCore.Http;
 
 namespace Aro.Booking.Presentation.Api.DTOs;
 
-/// <summary>
-/// Represents the data model for creating a new property.
-/// </summary>
-/// <param name="GroupId">The unique identifier of the group this property belongs to. Can be null if not associated with a group.</param>
-/// <param name="PropertyName">The name of the property.</param>
-/// <param name="PropertyTypes">The type(s) of the property. Multiple types can be combined as this is a flags enum.</param>
-/// <param name="StarRating">The star rating of the property.</param>
-/// <param name="Currency">The currency code used by the property.</param>
-/// <param name="Description">A description of the property.</param>
 public record CreatePropertyModel(
-    Guid? GroupId,
+    Guid GroupId,
     string PropertyName,
-    PropertyTypes PropertyTypes,
+    List<PropertyTypes> PropertyTypes,
     int StarRating,
     string Currency,
-    string Description
+    string Description,
+    bool SetAddressSameAsGroupAddress,
+    string AddressLine1,
+    string AddressLine2,
+    string City,
+    string Country,
+    string PostalCode,
+    string PhoneNumber,
+    string Website,
+    bool SetContactSameAsPrimaryContact,
+    string ContactName,
+    string ContactEmail,
+    List<string> KeySellingPoints,
+    string MarketingTitle,
+    string MarketingDescription,
+    CreatePropertyFilesModel Files
 );
+
+public record CreatePropertyFilesModel
+{
+    public IFormFile Favicon { get; init; }
+    public IFormFile Banner1 { get; set; }
+    public IFormFile Banner2 { get; set; }
+}
