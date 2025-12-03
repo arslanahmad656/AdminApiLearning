@@ -322,10 +322,10 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     GroupName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Logo = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    ContactId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PrimaryContactId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AddressId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AddressId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ContactId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    ContactId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -345,13 +345,13 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         name: "FK_Groups_Contacts_ContactId",
                         column: x => x.ContactId,
                         principalTable: "Contacts",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Groups_Users_PrimaryContactId",
+                        column: x => x.PrimaryContactId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Groups_Contacts_ContactId1",
-                        column: x => x.ContactId1,
-                        principalTable: "Contacts",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -511,9 +511,9 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                 column: "ContactId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Groups_ContactId1",
+                name: "IX_Groups_PrimaryContactId",
                 table: "Groups",
-                column: "ContactId1");
+                column: "PrimaryContactId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_IdempotencyRecords_ExpiresAt",

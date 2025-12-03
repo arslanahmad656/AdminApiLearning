@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Aro.Admin.Presentation.Entry.Migrations
 {
     [DbContext(typeof(AroDbContext))]
-    [Migration("20251203104736_Migration2")]
-    partial class Migration2
+    [Migration("20251203122706_Migration1")]
+    partial class Migration1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -744,7 +744,7 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         .WithMany("Groups")
                         .HasForeignKey("ContactId");
 
-                    b.HasOne("Aro.Common.Domain.Entities.ContactInfo", "PrimaryContact")
+                    b.HasOne("Aro.Common.Domain.Entities.User", "PrimaryContact")
                         .WithMany()
                         .HasForeignKey("PrimaryContactId")
                         .OnDelete(DeleteBehavior.Restrict)
