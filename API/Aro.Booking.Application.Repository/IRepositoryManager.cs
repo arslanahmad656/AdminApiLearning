@@ -6,4 +6,6 @@ public interface IRepositoryManager
     IContactRepository ContactRepository { get; }
     IGroupRepository GroupRepository { get; }
     IPropertyRepository PropertyRepository { get; }
+    IRoomRepository RoomRepository { get; }
+    IAmenityRepository AmenityRepository { get; }
 }

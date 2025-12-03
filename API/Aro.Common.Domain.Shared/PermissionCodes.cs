@@ -32,6 +32,22 @@ public class PermissionCodes
     public const string DeleteProperty = "property.delete";
     #endregion
 
+    #region [Rooms]
+    public const string CreateRoom = "room.create";
+    public const string GetRooms = "room.read";
+    public const string GetRoom = "room.read";
+    public const string PatchRoom = "room.patch";
+    public const string DeleteRoom = "room.delete";
+    #endregion
+
+    #region [Amenities]
+    public const string CreateAmenity = "amenity.create";
+    public const string GetAmenities = "amenity.read";
+    public const string GetAmenity = "amenity.read";
+    public const string PatchAmenity = "amenity.patch";
+    public const string DeleteAmenity = "amenity.delete";
+    #endregion
+
     #region [Miscs]
     public const string MigrateDabase = "database.migrate";
     public const string SeedApplication = "application.seed";

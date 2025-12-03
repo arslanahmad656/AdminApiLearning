@@ -37,6 +37,7 @@ public partial class GroupService(
         {
             Id = idGenerator.Generate(),
             GroupName = group.GroupName,
+            PrimaryContactId = group.ContactId,
             Address = new()
             {
                 AddressLine1 = group.AddressLine1,
@@ -46,10 +47,6 @@ public partial class GroupService(
                 PostalCode = group.PostalCode,
             },
             Logo = group.Logo,
-            Contact = new ()
-            {
-                UserId = group.ContactId
-            },
             IsActive = group.IsActive
         };
 
@@ -96,9 +93,9 @@ public partial class GroupService(
                 g.Address.PostalCode,
                 g.Address.Country,
                 g.Logo,
-                g.Contact.Id,
-                g.Contact.User.DisplayName,
-                g.Contact.User.Email,
+                g.PrimaryContact.Id,
+                g.PrimaryContact.DisplayName,
+                g.PrimaryContact.Email,
                 g.IsActive
             ))
             .ToListAsync(cancellationToken);
@@ -130,9 +127,9 @@ public partial class GroupService(
             response.Address.PostalCode,
             response.Address.Country,
             response.Logo,
-            response.Contact.UserId,
-            response.Contact?.User?.DisplayName,
-            response.Contact?.User?.Email,
+            response.PrimaryContact.Id,
+            response.PrimaryContact?.DisplayName,
+            response.PrimaryContact?.Email,
             response.IsActive
         );
 
@@ -159,26 +156,15 @@ public partial class GroupService(
                 .ConfigureAwait(false)
                 ?? throw new AroUserNotFoundException(group.ContactId.Value.ToString());
 
-            existingGroup.ContactId = group.ContactId.Value;
+            existingGroup.PrimaryContactId = group.ContactId.Value;
         }
 
-        if (!string.IsNullOrEmpty(group.GroupName))
-            existingGroup.GroupName = group.GroupName;
-
-        if (!string.IsNullOrEmpty(group.AddressLine1))
-            existingGroup.Address.AddressLine1 = group.AddressLine1;
-
-        if (!string.IsNullOrEmpty(group.AddressLine2))
-            existingGroup.Address.AddressLine2 = group.AddressLine2;
-
-        if (!string.IsNullOrEmpty(group.City))
-            existingGroup.Address.City = group.City;
-
-        if (!string.IsNullOrEmpty(group.Country))
-            existingGroup.Address.Country = group.Country;
-
-        if (group.IsActive.HasValue)
-            existingGroup.IsActive = group.IsActive.Value;
+        group.GroupName.PatchIfNotNull(v => existingGroup.GroupName = v);
+        group.AddressLine1.PatchIfNotNull(v => existingGroup.Address.AddressLine1 = v);
+        group.AddressLine2.PatchIfNotNull(v => existingGroup.Address.AddressLine2 = v);
+        group.City.PatchIfNotNull(v => existingGroup.Address.City = v);
+        group.Country.PatchIfNotNull(v => existingGroup.Address.Country = v);
+        group.IsActive.PatchIfNotNull(v => existingGroup.IsActive = v);
 
         groupRepository.Update(existingGroup);
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);

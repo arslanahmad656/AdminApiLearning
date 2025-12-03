@@ -24,6 +24,8 @@ public class AuditActions
     public readonly string UserCreated = "USER_CREATED";
     public readonly string GroupCreated = "GROUP_CREATED";
     public readonly string PropertyCreated = "PROPERTY_CREATED";
+    public readonly string RoomCreated = "ROOM_CREATED";
+    public readonly string AmenityCreated = "AMENITY_CREATED";
     public readonly string FileCreated = "FILE_CREATED";
 
     #endregion
@@ -31,12 +33,16 @@ public class AuditActions
     #region [Entity Patches]
 
     public readonly string GroupPatched = "GROUP_PATCHED";
+    public readonly string RoomPatched = "ROOM_PATCHED";
+    public readonly string AmenityPatched = "AMENITY_PATCHED";
 
     #endregion
 
     #region [Entity Deleted]
 
     public readonly string GroupDeleted = "GROUP_DELETED";
+    public readonly string RoomDeleted = "ROOM_DELETED";
+    public readonly string AmenityDeleted = "AMENITY_DELETED";
 
     #endregion
 }

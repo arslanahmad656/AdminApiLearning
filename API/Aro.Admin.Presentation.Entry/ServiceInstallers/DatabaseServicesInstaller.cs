@@ -4,10 +4,11 @@ using Aro.Admin.Application.Services.PermissionSeeder;
 using Aro.Admin.Application.Services.Role;
 using Aro.Admin.Application.Services.SystemSettings;
 using Aro.Admin.Application.Services.User;
-using Aro.Admin.Infrastructure.Repository;
 using Aro.Admin.Infrastructure.Services;
+using Aro.Booking.Application.Services.Amenity;
 using Aro.Booking.Application.Services.Group;
 using Aro.Booking.Application.Services.Property;
+using Aro.Booking.Application.Services.Room;
 using Aro.Booking.Infrastructure.Services;
 using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.Audit;
@@ -49,5 +50,7 @@ internal class DatabaseServicesInstaller : IServiceInstaller
         builder.Services.AddScoped<IEmailTemplateSeeder, EmailTemplateSeeder>();
         builder.Services.AddScoped<IGroupService, GroupService>();
         builder.Services.AddScoped<IPropertyService, PropertyService>();
+        builder.Services.AddScoped<IRoomService, RoomService>();
+        builder.Services.AddScoped<IAmenityService, AmenityService>();
     }
 }

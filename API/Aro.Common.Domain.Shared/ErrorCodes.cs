@@ -56,6 +56,16 @@ public class ErrorCodes
     public readonly string PROPERTY_ALREADY_EXISTS = nameof(PROPERTY_ALREADY_EXISTS);
     #endregion
 
+    #region [ROOM]
+    public readonly string ROOM_NOT_FOUND = nameof(ROOM_NOT_FOUND);
+    public readonly string ROOM_ALREADY_EXISTS = nameof(ROOM_ALREADY_EXISTS);
+    #endregion
+
+    #region [AMENITY]
+    public readonly string AMENITY_NOT_FOUND = nameof(AMENITY_NOT_FOUND);
+    public readonly string AMENITY_ALREADY_EXISTS = nameof(AMENITY_ALREADY_EXISTS);
+    #endregion
+
     #region [FILE MANAGEMENT]
     public readonly string GENERAL_FILE_ERROR = nameof(GENERAL_FILE_ERROR);
     public readonly string FILE_NOT_FOUND = nameof(FILE_NOT_FOUND);

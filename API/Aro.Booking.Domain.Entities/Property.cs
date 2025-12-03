@@ -20,4 +20,5 @@ public class Property : IEntity
     public Group Group { get; set; }
     public Address Address { get; set; }
     public Contact Contact { get; set; }
+    public ICollection<Room> Rooms { get; set; }
 }

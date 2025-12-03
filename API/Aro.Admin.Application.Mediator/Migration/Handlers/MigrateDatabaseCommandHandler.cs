@@ -9,7 +9,7 @@ public class MigrateDatabaseCommandHandler(IMigrationService migrationService, I
 {
     public async Task Handle(MigrateDatabaseCommand request, CancellationToken cancellationToken)
     {
-        await migrationService.Migrate(cancellationToken).ConfigureAwait(false);
+        await migrationService.Migrate(request.dropFirst, cancellationToken).ConfigureAwait(false);
 
         await mediator.Publish(new DatabaseMigratedNotification(), cancellationToken).ConfigureAwait(false);
     }
