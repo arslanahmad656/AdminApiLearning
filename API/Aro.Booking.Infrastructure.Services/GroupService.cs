@@ -163,10 +163,10 @@ public partial class GroupService(
         }
 
         group.GroupName.PatchIfNotNull(v => existingGroup.GroupName = v);
-        group.AddressLine1.PatchIfNotNull(v => existingGroup.AddressLine1 = v);
-        group.AddressLine2.PatchIfNotNull(v => existingGroup.AddressLine2 = v);
-        group.City.PatchIfNotNull(v => existingGroup.City = v);
-        group.Country.PatchIfNotNull(v => existingGroup.Country = v);
+        group.AddressLine1.PatchIfNotNull(v => existingGroup.Address.AddressLine1 = v);
+        group.AddressLine2.PatchIfNotNull(v => existingGroup.Address.AddressLine2 = v);
+        group.City.PatchIfNotNull(v => existingGroup.Address.City = v);
+        group.Country.PatchIfNotNull(v => existingGroup.Address.Country = v);
         group.IsActive.PatchIfNotNull(v => existingGroup.IsActive = v);
 
         groupRepository.Update(existingGroup);
