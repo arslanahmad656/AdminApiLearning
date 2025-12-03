@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Aro.Admin.Presentation.Entry.Migrations
 {
     [DbContext(typeof(AroDbContext))]
-    [Migration("20251108003229_002_Post_Restructuring")]
-    partial class _002_Post_Restructuring
+    [Migration("20251203110748_Migration4")]
+    partial class Migration4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -209,7 +209,7 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Aro.Booking.Domain.Entities.Group", b =>
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Address", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -234,6 +234,64 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("PostalCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Addresses", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Amenity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Amenities", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Contact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("Contacts", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Group", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AddressId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ContactId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("GroupName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -247,19 +305,160 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Property<byte[]>("Logo")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("PostalCode")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<Guid>("PrimaryContactId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("AddressId1");
+
+                    b.HasIndex("ContactId");
+
                     b.HasIndex("PrimaryContactId");
 
                     b.ToTable("Groups", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Property", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AddressId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("AddressId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ContactId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ContactId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)")
+                        .HasComment("ISO 4217 currency code (e.g., USD, EUR, GBP)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("GroupId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("PropertyName")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<int>("PropertyTypes")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StarRating")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AddressId");
+
+                    b.HasIndex("AddressId1");
+
+                    b.HasIndex("ContactId");
+
+                    b.HasIndex("ContactId1");
+
+                    b.HasIndex("GroupId");
+
+                    b.HasIndex("GroupId1");
+
+                    b.HasIndex("PropertyName", "GroupId")
+                        .IsUnique();
+
+                    b.ToTable("Properties", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Room", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("BedConfig")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(800)
+                        .HasColumnType("nvarchar(800)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaxAdults")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxChildren")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaxOccupancy")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("RoomCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("RoomName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("RoomSize")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PropertyId");
+
+                    b.ToTable("Rooms", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.RoomAmenity", b =>
+                {
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AmenityId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("RoomId", "AmenityId");
+
+                    b.HasIndex("AmenityId");
+
+                    b.ToTable("RoomAmenities", (string)null);
                 });
 
             modelBuilder.Entity("Aro.Common.Domain.Entities.AuditTrail", b =>
@@ -305,6 +504,60 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.HasIndex("EntityType", "EntityId");
 
                     b.ToTable("AuditTrails", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Common.Domain.Entities.ContactInfo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CountryCode")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ContactInfos", (string)null);
+                });
+
+            modelBuilder.Entity("Aro.Common.Domain.Entities.FileResource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedOn")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Uri")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("FileResources", (string)null);
                 });
 
             modelBuilder.Entity("Aro.Common.Domain.Entities.Permission", b =>
@@ -464,15 +717,119 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Contact", b =>
+                {
+                    b.HasOne("Aro.Common.Domain.Entities.User", "User")
+                        .WithOne()
+                        .HasForeignKey("Aro.Booking.Domain.Entities.Contact", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Aro.Booking.Domain.Entities.Group", b =>
                 {
+                    b.HasOne("Aro.Booking.Domain.Entities.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Aro.Booking.Domain.Entities.Address", null)
+                        .WithMany("Groups")
+                        .HasForeignKey("AddressId1");
+
+                    b.HasOne("Aro.Booking.Domain.Entities.Contact", null)
+                        .WithMany("Groups")
+                        .HasForeignKey("ContactId");
+
                     b.HasOne("Aro.Common.Domain.Entities.User", "PrimaryContact")
                         .WithMany()
                         .HasForeignKey("PrimaryContactId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.Navigation("Address");
+
                     b.Navigation("PrimaryContact");
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Property", b =>
+                {
+                    b.HasOne("Aro.Booking.Domain.Entities.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Aro.Booking.Domain.Entities.Address", null)
+                        .WithMany("Properties")
+                        .HasForeignKey("AddressId1");
+
+                    b.HasOne("Aro.Booking.Domain.Entities.Contact", "Contact")
+                        .WithMany()
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Aro.Booking.Domain.Entities.Contact", null)
+                        .WithMany("Properties")
+                        .HasForeignKey("ContactId1");
+
+                    b.HasOne("Aro.Booking.Domain.Entities.Group", "Group")
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Aro.Booking.Domain.Entities.Group", null)
+                        .WithMany("Properties")
+                        .HasForeignKey("GroupId1");
+
+                    b.Navigation("Address");
+
+                    b.Navigation("Contact");
+
+                    b.Navigation("Group");
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Room", b =>
+                {
+                    b.HasOne("Aro.Booking.Domain.Entities.Property", "Property")
+                        .WithMany("Rooms")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Property");
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.RoomAmenity", b =>
+                {
+                    b.HasOne("Aro.Booking.Domain.Entities.Amenity", "Amenity")
+                        .WithMany("RoomAmenities")
+                        .HasForeignKey("AmenityId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Aro.Booking.Domain.Entities.Room", "Room")
+                        .WithMany("RoomAmenities")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Amenity");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("Aro.Common.Domain.Entities.ContactInfo", b =>
+                {
+                    b.HasOne("Aro.Common.Domain.Entities.User", "User")
+                        .WithOne("ContactInfo")
+                        .HasForeignKey("Aro.Common.Domain.Entities.ContactInfo", "Id")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Aro.Common.Domain.Entities.RolePermission", b =>
@@ -513,6 +870,40 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Address", b =>
+                {
+                    b.Navigation("Groups");
+
+                    b.Navigation("Properties");
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Amenity", b =>
+                {
+                    b.Navigation("RoomAmenities");
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Contact", b =>
+                {
+                    b.Navigation("Groups");
+
+                    b.Navigation("Properties");
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Group", b =>
+                {
+                    b.Navigation("Properties");
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Property", b =>
+                {
+                    b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("Aro.Booking.Domain.Entities.Room", b =>
+                {
+                    b.Navigation("RoomAmenities");
+                });
+
             modelBuilder.Entity("Aro.Common.Domain.Entities.Permission", b =>
                 {
                     b.Navigation("RolePermissions");
@@ -527,6 +918,8 @@ namespace Aro.Admin.Presentation.Entry.Migrations
 
             modelBuilder.Entity("Aro.Common.Domain.Entities.User", b =>
                 {
+                    b.Navigation("ContactInfo");
+
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618

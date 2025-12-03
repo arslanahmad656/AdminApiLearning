@@ -29,7 +29,6 @@ public class GetRoomsCommandHandler(IRoomService roomService) : IRequestHandler<
                 r.MaxAdults,
                 r.MaxChildren,
                 r.RoomSizeSQM,
-                r.RoomSizeSQFT,
                 (DTOs.BedConfiguration)r.BedConfig,
                 r.AmenityIds,
                 r.IsActive

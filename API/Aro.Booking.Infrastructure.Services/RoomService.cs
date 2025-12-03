@@ -43,8 +43,7 @@ public partial class RoomService(
             MaxOccupancy = room.MaxOccupancy,
             MaxAdults = room.MaxAdults,
             MaxChildren = room.MaxChildren,
-            RoomSizeSQM = room.RoomSizeSQM ?? 0,
-            RoomSizeSQFT = room.RoomSizeSQFT ?? 0,
+            RoomSize = room.RoomSizeSQM ?? 0,
             BedConfig = (Domain.Entities.BedConfiguration)room.BedConfig,
             IsActive = room.IsActive,
             RoomAmenities = []
@@ -102,8 +101,7 @@ public partial class RoomService(
                 r.MaxOccupancy,
                 r.MaxAdults,
                 r.MaxChildren,
-                r.RoomSizeSQM,
-                r.RoomSizeSQFT,
+                r.RoomSize,
                 (Aro.Booking.Application.Services.Room.BedConfiguration)r.BedConfig,
                 r.RoomAmenities.Select(ra => ra.AmenityId).ToList(),
                 r.IsActive
@@ -136,8 +134,7 @@ public partial class RoomService(
             response.MaxOccupancy,
             response.MaxAdults,
             response.MaxChildren,
-            response.RoomSizeSQM,
-            response.RoomSizeSQFT,
+            response.RoomSize,
             (Aro.Booking.Application.Services.Room.BedConfiguration)response.BedConfig,
             [.. response.RoomAmenities.Select(ra => ra.AmenityId)],
             response.IsActive
@@ -166,8 +163,7 @@ public partial class RoomService(
         _room.MaxOccupancy.PatchIfNotNull(v => existingRoom.MaxOccupancy = v);
         _room.MaxAdults.PatchIfNotNull(v => existingRoom.MaxAdults = v);
         _room.MaxChildren.PatchIfNotNull(v => existingRoom.MaxChildren = v);
-        _room.RoomSizeSQM.PatchIfNotNull(v => existingRoom.RoomSizeSQM = v);
-        _room.RoomSizeSQFT.PatchIfNotNull(v => existingRoom.RoomSizeSQFT = v);
+        _room.RoomSizeSQM.PatchIfNotNull(v => existingRoom.RoomSize = v);
         _room.BedConfig.PatchIfNotNull(v => existingRoom.BedConfig = (Domain.Entities.BedConfiguration)v);
         _room.IsActive.PatchIfNotNull(v => existingRoom.IsActive = v);
 

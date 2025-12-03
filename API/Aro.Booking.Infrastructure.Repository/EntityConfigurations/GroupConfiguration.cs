@@ -19,9 +19,14 @@ public class GroupConfiguration : IEntityTypeConfiguration<Group>
         builder.Property(u => u.Logo)
             .HasColumnType("varbinary(max)");
 
-        builder.HasOne(g => g.Contact)
+        //builder.HasOne(g => g.Contact)
+        //    .WithMany()
+        //    .HasForeignKey(g => g.ContactId)
+        //    .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(g => g.PrimaryContact)
             .WithMany()
-            .HasForeignKey(g => g.ContactId)
+            .HasForeignKey(g => g.PrimaryContactId)
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(g => g.Address)

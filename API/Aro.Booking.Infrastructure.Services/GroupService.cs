@@ -37,6 +37,7 @@ public partial class GroupService(
         {
             Id = idGenerator.Generate(),
             GroupName = group.GroupName,
+            PrimaryContactId = group.ContactId,
             Address = new()
             {
                 AddressLine1 = group.AddressLine1,
@@ -46,10 +47,6 @@ public partial class GroupService(
                 PostalCode = group.PostalCode,
             },
             Logo = group.Logo,
-            Contact = new ()
-            {
-                UserId = group.ContactId
-            },
             IsActive = group.IsActive
         };
 
@@ -96,9 +93,9 @@ public partial class GroupService(
                 g.Address.PostalCode,
                 g.Address.Country,
                 g.Logo,
-                g.Contact.Id,
-                g.Contact.User.DisplayName,
-                g.Contact.User.Email,
+                g.PrimaryContact.Id,
+                g.PrimaryContact.DisplayName,
+                g.PrimaryContact.Email,
                 g.IsActive
             ))
             .ToListAsync(cancellationToken);
@@ -130,9 +127,9 @@ public partial class GroupService(
             response.Address.PostalCode,
             response.Address.Country,
             response.Logo,
-            response.Contact.UserId,
-            response.Contact?.User?.DisplayName,
-            response.Contact?.User?.Email,
+            response.PrimaryContact.Id,
+            response.PrimaryContact?.DisplayName,
+            response.PrimaryContact?.Email,
             response.IsActive
         );
 
@@ -159,7 +156,7 @@ public partial class GroupService(
                 .ConfigureAwait(false)
                 ?? throw new AroUserNotFoundException(group.ContactId.Value.ToString());
 
-            existingGroup.ContactId = group.ContactId.Value;
+            existingGroup.PrimaryContactId = group.ContactId.Value;
         }
 
         group.GroupName.PatchIfNotNull(v => existingGroup.GroupName = v);

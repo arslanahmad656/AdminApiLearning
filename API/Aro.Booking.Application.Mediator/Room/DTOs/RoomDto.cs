@@ -9,7 +9,6 @@ public record RoomDto(
     int MaxAdults,
     int MaxChildren,
     int? RoomSizeSQM,
-    int? RoomSizeSQFT,
     BedConfiguration BedConfig,
     List<Guid>? AmenityIds,
     bool IsActive

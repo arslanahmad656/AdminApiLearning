@@ -8,10 +8,12 @@ public class Group : IEntity
     public string GroupName { get; set; }
     public byte[] Logo { get; set; }
     public bool IsActive { get; set; }
-    public Guid ContactId { get; set; }
+    //public Guid ContactId { get; set; }
+    public Guid PrimaryContactId { get; set; }
     public Guid AddressId { get; set; }
-    public Contact Contact { get; set; }
+    //public Contact Contact { get; set; }
     public Address Address { get; set; }
+    public User PrimaryContact { get; set; }
 
     public ICollection<Property> Properties { get; set; }
 }

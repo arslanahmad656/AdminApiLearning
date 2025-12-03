@@ -11,9 +11,10 @@ public class Room : IEntity
     public int MaxOccupancy { get; set; }
     public int MaxAdults { get; set; }
     public int MaxChildren { get; set; }
-    public int RoomSizeSQM { get; set; }
-    public int RoomSizeSQFT { get; set; }
+    public int RoomSize { get; set; }
+    public Guid PropertyId { get; set; }
     public BedConfiguration BedConfig { get; set; }
     public bool IsActive { get; set; }
+    public Property Property { get; set; }
     public ICollection<RoomAmenity> RoomAmenities { get; set; } = [];
 }

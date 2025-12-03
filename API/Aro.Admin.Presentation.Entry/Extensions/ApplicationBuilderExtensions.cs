@@ -55,7 +55,7 @@ public static class ApplicationBuilderExtensions
         await mediator.Send(new SeedApplicationCommand(jsonPath, emailTemplatesDirectory));
     }
 
-    public static async Task MigrateDatabase(this IApplicationBuilder app)
+    public static async Task MigrateDatabase(this IApplicationBuilder app, IConfiguration configuration)
     {
         using var scope = app.ApplicationServices.CreateScope();
         var logger = scope.ServiceProvider.GetRequiredService<ILogManager>();
@@ -67,26 +67,27 @@ public static class ApplicationBuilderExtensions
 
         logger.LogDebug("Checking if database is already migrated.");
         var systemSettingService = scope.ServiceProvider.GetRequiredService<ISystemSettingsService>();
-        var alreadyMigrated = false;
-        try
-        {
-            alreadyMigrated = await systemSettingService.IsMigrationComplete().ConfigureAwait(false);
-        }
-        catch
-        {
-            // intentionally empty to catch the case: for the first time when the app is launched, the db won't probably exist, in that case we assume that db needs to be created and migrated.
-        }
-        if (alreadyMigrated)
-        {
-            logger.LogWarn("Database is already migrated. No futher action required.");
-            return;
-        }
+        //var alreadyMigrated = false;  // no need to check this since EF Core handles this automatically and incrementally.
+        //try
+        //{
+        //    alreadyMigrated = await systemSettingService.IsMigrationComplete().ConfigureAwait(false);
+        //}
+        //catch
+        //{
+        //    // intentionally empty to catch the case: for the first time when the app is launched, the db won't probably exist, in that case we assume that db needs to be created and migrated.
+        //}
+        //if (alreadyMigrated)
+        //{
+        //    logger.LogWarn("Database is already migrated. No futher action required.");
+        //    return;
+        //}
 
         logger.LogDebug($"Database needs to be migrated. Applying the migrations now.");
 
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-        await mediator.Send(new MigrateDatabaseCommand()).ConfigureAwait(false);
+        var dropFirst = configuration.GetValue<bool>("MigrationOptions:DropDatabaseFirst");
+        await mediator.Send(new MigrateDatabaseCommand(dropFirst)).ConfigureAwait(false);
 
         logger.LogDebug("Database migrations completed.");
     }

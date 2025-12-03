@@ -4,5 +4,5 @@ namespace Aro.Admin.Application.Services.Migration;
 
 public interface IMigrationService : IService
 {
-    Task Migrate(CancellationToken cancellationToken);
+    Task Migrate(bool dropFirst, CancellationToken cancellationToken);
 }

@@ -26,18 +26,22 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
         builder.Property(r => r.MaxOccupancy).IsRequired();
         builder.Property(r => r.MaxAdults).IsRequired();
         builder.Property(r => r.MaxChildren).IsRequired();
-
-        builder.Property(r => r.RoomSizeSQM);
-        builder.Property(r => r.RoomSizeSQFT);
+        builder.Property(r => r.RoomSize).IsRequired();
+        builder.Property(r => r.PropertyId).IsRequired();
 
         builder.Property(r => r.BedConfig)
             .IsRequired()
-            .HasConversion<int>(); // Store enum as integer
+            .HasConversion<int>();
 
         builder
             .HasMany(r => r.RoomAmenities)
             .WithOne(ra => ra.Room)
             .HasForeignKey(ra => ra.RoomId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(r => r.Property)
+            .WithMany(p => p.Rooms)
+            .HasForeignKey(r => r.PropertyId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
