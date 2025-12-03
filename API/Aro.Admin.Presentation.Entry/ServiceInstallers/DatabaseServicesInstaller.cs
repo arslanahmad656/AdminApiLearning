@@ -25,7 +25,8 @@ internal class DatabaseServicesInstaller : IServiceInstaller
     {
         builder.Services.AddDbContext<AroDbContext>(options =>
         {
-            options.UseSqlServer(builder.Configuration.GetConnectionString("sqlConnection"), b => b.MigrationsAssembly(this.GetType().Assembly));
+            var connectionString = builder.Configuration.GetConnectionString("sqlConnection");
+            options.UseSqlServer(connectionString, b => b.MigrationsAssembly(this.GetType().Assembly));
             var enableSensitiveData = builder.Configuration.GetValue<bool>("EnableEfCoreParameterValuesLogging");
 
             if (enableSensitiveData)
