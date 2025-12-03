@@ -4,6 +4,8 @@
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Components.Authorization
 
+@inject ISnackbar Snackbar
+
 <PageTitle>ARO Admin - Home</PageTitle>
 
 <AuthorizeView>
@@ -17,7 +19,9 @@
                         Variant="Variant.Text"
                         Color="Color.Dark"
                         Class="button-search shadow"
-                        @onclick="HandleSearch"></MudIconButton>
+                        @onclick="HandleSearch"
+                        title="Search button"
+                        Disabled />
                 </div>
 
                 @* 
@@ -63,24 +67,11 @@
         var parts = fullName.Split(' ');
         return parts[0];
     }
+    *@
 
-    private void HandleAddGroup()
-    {
-        // Navigate to add group page or show dialog
-        NavigationManager?.NavigateTo("/groups/add");
-    }
-
-@* 
-    private void HandleAddGroup()
-    {
-        // Navigate to property information wizard
-        NavigationManager?.NavigateTo("/property/information");
-    }
-*@
     private void HandleSearch()
     {
-        // Implement search functionality
-         // NavigationManager?.NavigateTo("/search");
+        Snackbar.Add($"Search functionality has not yet been implemented.");
     }
 
     private void HandleSettings()
