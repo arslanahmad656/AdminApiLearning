@@ -4,6 +4,7 @@
 @using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
 @using MudBlazor
+@using Aro.UI.Application.DTOs
 @layout WizardLayout
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
@@ -82,10 +83,9 @@
                 <!-- Property Name -->
                 <div class="form-group">
                     <label class="form-label">Property Name *</label>
-                    <MudTextField @bind-Value="model.PropertyName"
+                    <MudTextField @bind-Value="wizardModel.PropertyName"
                                   Variant="Variant.Outlined"
                                   Class="form-input"
-                                  Placeholder="Danmark Hotel"
                                   Required="true"
                                   DisableUnderLine="true"
                                   @onblur="SaveToLocalStorage" />
@@ -97,37 +97,33 @@
                     <div class="property-types-container">
                         <!-- Row 1 -->
                         <div class="checkbox-item">
-                            <input type="checkbox" id="hotel" @bind="model.PropertyTypes.Hotel" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="hotel" @bind="wizardModel.PropertyTypes.Hotel" @bind:after="SaveToLocalStorage" />
                             <label for="hotel" class="property-type-label">Hotel</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="guesthouse" @bind="model.PropertyTypes.Guesthouse" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="guesthouse" @bind="wizardModel.PropertyTypes.Guesthouse" @bind:after="SaveToLocalStorage" />
                             <label for="guesthouse" class="property-type-label">Guesthouse</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="bnb" @bind="model.PropertyTypes.BnB" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="bnb" @bind="wizardModel.PropertyTypes.BnB" @bind:after="SaveToLocalStorage" />
                             <label for="bnb" class="property-type-label">B&B</label>
                         </div>
                         <!-- Row 2 -->
                         <div class="checkbox-item">
-                            <input type="checkbox" id="apartment" @bind="model.PropertyTypes.Apartment" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="apartment" @bind="wizardModel.PropertyTypes.Apartment" @bind:after="SaveToLocalStorage" />
                             <label for="apartment" class="property-type-label">Apartment</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="villa" @bind="model.PropertyTypes.Villa" @bind:after="SaveToLocalStorage" />
-                            <label for="villa" class="property-type-label">Villa</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="hostel" @bind="model.PropertyTypes.Hostel" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="hostel" @bind="wizardModel.PropertyTypes.Hostel" @bind:after="SaveToLocalStorage" />
                             <label for="hostel" class="property-type-label">Hostel</label>
                         </div>
                         <!-- Row 3 -->
                         <div class="checkbox-item">
-                            <input type="checkbox" id="resort" @bind="model.PropertyTypes.Resort" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="resort" @bind="wizardModel.PropertyTypes.Resort" @bind:after="SaveToLocalStorage" />
                             <label for="resort" class="property-type-label">Resort</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="lodge" @bind="model.PropertyTypes.Lodge" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="lodge" @bind="wizardModel.PropertyTypes.Lodge" @bind:after="SaveToLocalStorage" />
                             <label for="lodge" class="property-type-label">Lodge</label>
                         </div>
                     </div>
@@ -137,7 +133,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Star Rating *</label>
-                        <select class="form-select-custom" @bind="model.StarRating" @bind:after="SaveToLocalStorage" required>
+                        <select class="form-select-custom" @bind="wizardModel.StarRating" @bind:after="SaveToLocalStorage" required>
                             <option value="0">Select rating</option>
                             <option value="1">1 star</option>
                             <option value="2">2 star</option>
@@ -148,7 +144,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Currency *</label>
-                        <select class="form-select-custom" @bind="model.Currency" @bind:after="SaveToLocalStorage" required>
+                        <select class="form-select-custom" @bind="wizardModel.Currency" @bind:after="SaveToLocalStorage" required>
                             <option value="">Select currency</option>
                             <option value="AED">AED - UAE Dirham</option>
                             <option value="AUD">AUD - Australian Dollar</option>
@@ -169,11 +165,10 @@
                 <div class="form-group">
                     <label class="form-label">Description *</label>
                     <textarea class="form-textarea-native"
-                              @bind="model.Description"
+                              @bind="wizardModel.Description"
                               @onblur="SaveToLocalStorage"
                               rows="5"
-                              required
-                              placeholder=""></textarea>
+                              required></textarea>
                 </div>
             </MudForm>
 
@@ -188,8 +183,7 @@
 
 @code {
     private MudForm? form;
-    private PropertyInformationModel model = new();
-    private const string LocalStorageKey = "PropertyInformation";
+    private PropertyWizardModel wizardModel = new();
     private bool isSubmitting = false;
 
     [Parameter]
@@ -222,19 +216,25 @@
     {
         try
         {
-            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", LocalStorageKey);
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
             if (!string.IsNullOrEmpty(json))
             {
-                var savedModel = JsonSerializer.Deserialize<PropertyInformationModel>(json);
+                var savedModel = JsonSerializer.Deserialize<PropertyWizardModel>(json);
                 if (savedModel != null)
                 {
-                    model = savedModel;
+                    wizardModel = savedModel;
                 }
             }
+
+            // Set GroupId if available
+            if (GroupId != Guid.Empty)
+            {
+                wizardModel.GroupId = GroupId;
+            }
         }
-        catch (Exception ex)
+        catch
         {
-            Console.WriteLine($"Error loading from localStorage: {ex.Message}");
+            // Silent fail
         }
     }
 
@@ -242,38 +242,38 @@
     {
         try
         {
-            var json = JsonSerializer.Serialize(model);
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", LocalStorageKey, json);
+            wizardModel.CurrentStep = 1;
+            if (GroupId != Guid.Empty)
+            {
+                wizardModel.GroupId = GroupId;
+            }
+            var json = JsonSerializer.Serialize(wizardModel);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", PropertyWizardModel.LocalStorageKey, json);
         }
-        catch (Exception ex)
+        catch
         {
-            Console.WriteLine($"Error saving to localStorage: {ex.Message}");
+            // Silent fail
         }
     }
 
     private bool IsFormValid()
     {
-        return true;
-        //!string.IsNullOrWhiteSpace(model.PropertyName) &&
-        // model.PropertyTypes.HasAnySelected() &&
-        // model.StarRating > 0 &&
-        // !string.IsNullOrWhiteSpace(model.Currency) &&
-        // !string.IsNullOrWhiteSpace(model.Description);
+        return !string.IsNullOrWhiteSpace(wizardModel.PropertyName) &&
+               wizardModel.PropertyTypes.HasAnySelected() &&
+               wizardModel.StarRating > 0 &&
+               !string.IsNullOrWhiteSpace(wizardModel.Currency) &&
+               !string.IsNullOrWhiteSpace(wizardModel.Description);
     }
 
     private async Task HandleClose()
     {
-        // Save before closing
         await SaveToLocalStorage();
-        // Navigate back or show confirmation dialog
         NavigationManager.NavigateTo("/");
     }
 
     private async Task HandleBack()
     {
-        // Save data before going back
         await SaveToLocalStorage();
-        // Handle back navigation
         NavigationManager.NavigateTo("/");
     }
 
@@ -281,115 +281,12 @@
     {
         if (isSubmitting) return;
 
-        // await form!.Validate();
-
-        // if (!form.IsValid || !IsFormValid())
-        // {
-        //     Snackbar.Add("Please fill in all required fields", Severity.Warning);
-        //     return;
-        // }
-
-        // isSubmitting = true;
-
-        // try
-        // {
-        //     Save data to localStorage first
-        //     await SaveToLocalStorage();
-
-        //     Convert PropertyTypes boolean model to flags enum int
-        //     var propertyTypesFlags = model.PropertyTypes.ToFlagsInt();
-
-        //     Create API request with nullable GroupId
-        //     GroupId can be null for now - will be set later in the workflow
-        //     var request = new CreatePropertyRequest(
-        //         GroupId == Guid.Empty ? null : GroupId,
-        //         model.PropertyName,
-        //         propertyTypesFlags,
-        //         model.StarRating,
-        //         model.Currency,
-        //         model.Description
-        //     );
-
-        //     Call API
-        //     var response = await PropertyService.CreatePropertyAsync(request);
-
-        //     if (response != null)
-        //     {
-        //         Save property ID to localStorage for next steps
-        //         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "CreatedPropertyId", response.Id.ToString());
-
-        //         Snackbar.Add("Property information saved successfully!", Severity.Success);
-
-        //         Navigate to Address & Primary Contact page
+        await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/address-contact");
-        //     }
-        //     else
-        //     {
-        //         Snackbar.Add("Failed to save property information. Please try again.", Severity.Error);
-        //     }
-        // }
-        // catch (Exception ex)
-        // {
-        //     Console.WriteLine($"Error saving property: {ex.Message}");
-        //     Snackbar.Add($"An error occurred: {ex.Message}", Severity.Error);
-        // }
-        // finally
-        // {
-        //     isSubmitting = false;
-        // }
     }
 
-    public class PropertyInformationModel
-    {
-        [Required(ErrorMessage = "Property name is required")]
-        public string PropertyName { get; set; } = string.Empty;
-
-        public PropertyTypeModel PropertyTypes { get; set; } = new();
-
-        [Required(ErrorMessage = "Star rating is required")]
-        public int StarRating { get; set; } = 0;
-
-        [Required(ErrorMessage = "Currency is required")]
-        public string Currency { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Description is required")]
-        public string Description { get; set; } = string.Empty;
-    }
-
-    public class PropertyTypeModel
-    {
-        public bool Apartment { get; set; }
-        public bool BnB { get; set; }
-        public bool Guesthouse { get; set; }
-        public bool Hostel { get; set; }
-        public bool Hotel { get; set; }
-        public bool Lodge { get; set; }
-        public bool Resort { get; set; }
-        public bool Villa { get; set; }
-
-        public bool HasAnySelected()
-        {
-            return Apartment || BnB || Guesthouse || Hostel || Hotel || Lodge || Resort || Villa;
-        }
-
-        public int ToFlagsInt()
-        {
-            int flags = 0;
-
-            // Map boolean properties to flags enum using bitwise OR
-            // PropertyType flags: Apartment=1, BAndB=2, Guesthouse=4, Hostel=8, Hotel=16, Lodge=32, Resort=64
-            if (Apartment) flags |= 1;    // 1 << 0
-            if (BnB) flags |= 2;          // 1 << 1
-            if (Guesthouse) flags |= 4;   // 1 << 2
-            if (Hostel) flags |= 8;       // 1 << 3
-            if (Hotel) flags |= 16;       // 1 << 4
-            if (Lodge) flags |= 32;       // 1 << 5
-            if (Resort) flags |= 64;      // 1 << 6
-            // Note: Villa is not in the PropertyType enum, so we skip it
-
-            return flags;
-        }
-    }
+    // Shorthand property for binding in the form
+    private PropertyTypesModel model => wizardModel.PropertyTypes;
 }
 
 <style>

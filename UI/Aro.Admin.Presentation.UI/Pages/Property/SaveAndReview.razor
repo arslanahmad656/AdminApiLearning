@@ -1,6 +1,14 @@
-﻿@page "/property/review-save"
+@page "/property/review-save"
+@using System.Text.Json
+@using Microsoft.JSInterop
+@using Aro.UI.Application.DTOs
+@using Aro.UI.Application.Interfaces
 @layout WizardLayout
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject IPropertyService PropertyService
+@inject ISnackbar Snackbar
+@inject IErrorHandlingService ErrorHandler
 
 <div class="wizard-layout">
     <!-- Header Bar -->
@@ -50,33 +58,32 @@
             <!-- 1. Property Information -->
             <h3 class="review-section-title">1. PROPERTY INFORMATION</h3>
             <div class="review-grid">
-                <label>Property Name:</label> <div>@Model.PropertyName</div>
-                <label>Property Code:</label> <div>@Model.PropertyCode</div>
-                <label>Property Type:</label> <div>@Model.PropertyType</div>
-                <label>Star Rating:</label> <div>@Model.StarRating</div>
-                <label>Description:</label> <div>@Model.Description</div>
+                <label>Property Name:</label> <div>@wizardModel.PropertyName</div>
+                <label>Property Type:</label> <div>@GetPropertyTypesDisplay()</div>
+                <label>Star Rating:</label> <div>@wizardModel.StarRating-Star</div>
+                <label>Currency:</label> <div>@wizardModel.Currency</div>
+                <label>Description:</label> <div>@wizardModel.Description</div>
             </div>
 
             <!-- 2. Address & Contact -->
             <h3 class="review-section-title">2. ADDRESS & PRIMARY CONTACT</h3>
             <div class="review-grid">
-                <label>Address Line 1</label> <div>@Model.AddressLine1</div>
-                <label>Address Line 2</label> <div>@(string.IsNullOrWhiteSpace(Model.AddressLine2) ? "Not provided" : Model.AddressLine2)</div>
-                <label>City</label> <div>@Model.City</div>
-                <label>Country</label> <div>@Model.Country</div>
-                <label>Postal Code</label> <div>@Model.PostalCode</div>
-                <label>Phone Number</label> <div>@Model.PhoneNumber</div>
-                <label>Website URL</label> <div>@Model.WebsiteUrl</div>
-                <label>Primary Contact</label> <div>@Model.PrimaryContact</div>
-                <label>Primary Contact Name</label> <div>@Model.PrimaryContactName</div>
-                <label>Primary Contact Email</label> <div>@Model.PrimaryContactEmail</div>
-                <label>Role</label> <div>@Model.PrimaryContactRole</div>
+                <label>Address Line 1</label> <div>@wizardModel.AddressLine1</div>
+                <label>Address Line 2</label> <div>@(string.IsNullOrWhiteSpace(wizardModel.AddressLine2) ? "Not provided" : wizardModel.AddressLine2)</div>
+                <label>City</label> <div>@wizardModel.City</div>
+                <label>Country</label> <div>@wizardModel.Country</div>
+                <label>Postal Code</label> <div>@wizardModel.PostalCode</div>
+                <label>Phone Number</label> <div>@wizardModel.PhoneNumber</div>
+                <label>Website URL</label> <div>@wizardModel.Website</div>
+                <label>Primary Contact Name</label> <div>@wizardModel.ContactName</div>
+                <label>Primary Contact Email</label> <div>@wizardModel.ContactEmail</div>
+                <label>Role</label> <div>Property Manager</div>
             </div>
 
             <!-- 3. Key Selling Points -->
             <h3 class="review-section-title">3. KEY SELLING POINTS</h3>
             <ul>
-                @foreach (var point in Model.SellingPoints)
+                @foreach (var point in wizardModel.KeySellingPoints ?? new List<string>())
                 {
                     <li>@point</li>
                 }
@@ -85,22 +92,23 @@
             <!-- 4. Media Files -->
             <h3 class="review-section-title">4. MEDIA FILES</h3>
             <div class="review-grid">
-                <label>Images</label> <div>@string.Join(", ", Model.Images)</div>
-                <label>Favicon</label> <div>@Model.Favicon</div>
+                <label>Banner 1</label> <div>@(wizardModel.Banner1?.FileName ?? "Not uploaded")</div>
+                <label>Banner 2</label> <div>@(wizardModel.Banner2?.FileName ?? "Not uploaded")</div>
+                <label>Favicon</label> <div>@(wizardModel.Favicon?.FileName ?? "Not uploaded")</div>
             </div>
 
-            <!-- 5. Marketing & SEO -->
-            <h3 class="review-section-title">5. MARKETING AND SEO</h3>
+            <!-- 5. Meta Title & Description -->
+            <h3 class="review-section-title">5. META TITLE & DESCRIPTION</h3>
             <div class="review-grid">
-                <label>H1</label> <div>@Model.H1</div>
-                <label>Meta Description</label> <div>@Model.MetaDescription</div>
+                <label>Meta Title</label> <div>@wizardModel.MarketingTitle</div>
+                <label>Meta Description</label> <div>@wizardModel.MarketingDescription</div>
             </div>
 
             <WizardFooter OnBack="GoBack"
                           OnSave="SaveProperty"
                           ShowSave="true"
                           BackDisabled="false"
-                          SaveDisabled="false" />
+                          SaveDisabled="@isSaving" />
         </div>
     </div>
 </div>
@@ -112,69 +120,89 @@
         "Address & Primary Contact",
         "Key Selling Points",
         "Media Files",
-        "Marketing & SEO",
+        "Meta Title & Description",
         "Review & Save"
     };
 
-    private ReviewModel Model = new()
+    private PropertyWizardModel wizardModel = new();
+    private bool isSaving = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        PropertyName = "Danmark Hotel",
-        PropertyCode = "DKH",
-        PropertyType = "Hotel",
-        StarRating = "4-Star",
-        Description = "Description of the property goes here",
-        AddressLine1 = "Vester Voldgade 89, 1552 Copenhagen",
-        AddressLine2 = "",
-        City = "Copenhagen",
-        Country = "Denmark",
-        PostalCode = "7000",
-        PhoneNumber = "+45 3311 4806",
-        WebsiteUrl = "www.brochner-hotels.com/our-locations/hotel-danmark",
-        PrimaryContact = "Mr. Anders",
-        PrimaryContactName = "Anders Jensen",
-        PrimaryContactEmail = "anders@example.com",
-        PrimaryContactRole = "Manager",
-        SellingPoints = new() { "Free WiFi", "Central Location", "24/7 Reception" },
-        Images = new() { "banner1.jpg", "banner2.jpg" },
-        Favicon = "favicon.ico",
-        H1 = "Welcome to Danmark Hotel",
-        MetaDescription = "Stay at the heart of Copenhagen with top amenities and central access."
-    };
+        if (firstRender)
+        {
+            await LoadFromLocalStorage();
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadFromLocalStorage()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                var savedModel = JsonSerializer.Deserialize<PropertyWizardModel>(json);
+                if (savedModel != null)
+                {
+                    wizardModel = savedModel;
+                }
+            }
+        }
+        catch
+        {
+            // Silent fail - localStorage errors are not critical
+        }
+    }
+
+    private string GetPropertyTypesDisplay()
+    {
+        var types = wizardModel.PropertyTypes.ToList();
+        return types.Any() ? string.Join(", ", types) : "Not selected";
+    }
 
     private void GoBack() => NavigationManager.NavigateTo("/property/marketing-seo");
-    private void SaveProperty() => Console.WriteLine("Save clicked");
+
+    private async Task SaveProperty()
+    {
+        if (isSaving) return;
+        isSaving = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await PropertyService.CreatePropertyAsync(wizardModel);
+
+            if (response != null)
+            {
+                // Clear localStorage after successful save
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", PropertyWizardModel.LocalStorageKey);
+
+                Snackbar.Add("Property created successfully!", MudBlazor.Severity.Success);
+
+                // Navigate to property list or dashboard
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                Snackbar.Add("Failed to create property. Please try again.", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorHandler.ShowError(ex, "An error occurred while creating the property. Please try again.");
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
+    }
+
     private async Task HandleClose()
     {
-        // Navigate back or show confirmation dialog
         NavigationManager.NavigateTo("/");
-    }
-    public class ReviewModel
-    {
-        public string PropertyName { get; set; }
-        public string PropertyCode { get; set; }
-        public string PropertyType { get; set; }
-        public string StarRating { get; set; }
-        public string Description { get; set; }
-
-        public string AddressLine1 { get; set; }
-        public string AddressLine2 { get; set; }
-        public string City { get; set; }
-        public string Country { get; set; }
-        public string PostalCode { get; set; }
-        public string PhoneNumber { get; set; }
-        public string WebsiteUrl { get; set; }
-
-        public string PrimaryContact { get; set; }
-        public string PrimaryContactName { get; set; }
-        public string PrimaryContactEmail { get; set; }
-        public string PrimaryContactRole { get; set; }
-
-        public List<string> SellingPoints { get; set; } = new();
-        public List<string> Images { get; set; } = new();
-        public string Favicon { get; set; }
-
-        public string H1 { get; set; }
-        public string MetaDescription { get; set; }
     }
 }
 <style>

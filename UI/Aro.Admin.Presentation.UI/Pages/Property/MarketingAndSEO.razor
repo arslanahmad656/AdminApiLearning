@@ -1,7 +1,10 @@
-﻿@page "/property/marketing-seo"
+@page "/property/marketing-seo"
 @using System.ComponentModel.DataAnnotations
+@using System.Text.Json
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using Aro.UI.Application.DTOs
 @layout WizardLayout
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
@@ -70,7 +73,7 @@
                         <div class="step-number">5</div>
                         <div class="step-line"></div>
                     </div>
-                    <div class="step-title">Marketing & SEO</div>
+                    <div class="step-title">Meta Title & Description</div>
                 </div>
                 <div class="wizard-step">
                     <div class="step-indicator">
@@ -86,26 +89,27 @@
         <div class="wizard-content">
             <div class="content-header">
                 <p class="step-label">Step 5</p>
-                <h2 class="content-title">Marketing & SEO</h2>
+                <h2 class="content-title">Meta Title & Description</h2>
             </div>
 
 
             <!-- Marketing Form Fields -->
-            <EditForm Model="@seoModel" OnValidSubmit="@HandleNext">
+            <EditForm Model="@wizardModel" OnValidSubmit="@HandleNext">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
-                <!-- H1 Input -->
+                <!-- Meta Title Input -->
                 <div class="form-group">
-                    <label for="h1">h1</label>
-                    <InputText id="h1" class="form-control" @bind-Value="seoModel.Heading" />
+                    <label for="metaTitle">Meta Title</label>
+                    <p class="character-label @(GetTitleRemainingChars() == 0 ? "zero" : "")">@GetTitleRemainingChars() characters left</p>
+                    <InputText id="metaTitle" class="form-control" maxlength="@MaxTitleLength" @bind-Value="wizardModel.MarketingTitle" @onblur="SaveToLocalStorage" />
                 </div>
 
                 <!-- Meta Description -->
                 <div class="form-group mt-3">
                     <label for="meta">Meta Description</label>
-                    <p class="character-label">@(seoModel.Description?.Length == null ? MaxDescriptionLength : (MaxDescriptionLength - seoModel.Description?.Length) ?? 0) characters left</p>
-                    <InputTextArea id="meta" class="form-control" maxlength="@MaxDescriptionLength" rows="10" @bind-Value="seoModel.Description" />
+                    <p class="character-label @(GetDescriptionRemainingChars() == 0 ? "zero" : "")">@GetDescriptionRemainingChars() characters left</p>
+                    <InputTextArea id="meta" class="form-control" maxlength="@MaxDescriptionLength" rows="10" @bind-Value="wizardModel.MarketingDescription" @onblur="SaveToLocalStorage" />
                 </div>
             </EditForm>
 
@@ -119,36 +123,67 @@
 
 </div>
 @code {
-    // Max characters allowed in the meta description
-    private const int MaxDescriptionLength = 320;
+    private const int MaxTitleLength = 60;
+    private const int MaxDescriptionLength = 160;
+    private PropertyWizardModel wizardModel = new();
 
-    // Data model to hold SEO info
-    private SeoModel seoModel = new();
+    private int GetTitleRemainingChars() => MaxTitleLength - (wizardModel.MarketingTitle?.Length ?? 0);
+    private int GetDescriptionRemainingChars() => MaxDescriptionLength - (wizardModel.MarketingDescription?.Length ?? 0);
 
-
-    private void HandleBack()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        // Navigate back to Address & Primary Contact page
+        if (firstRender)
+        {
+            await LoadFromLocalStorage();
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadFromLocalStorage()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                var savedModel = JsonSerializer.Deserialize<PropertyWizardModel>(json);
+                if (savedModel != null)
+                {
+                    wizardModel = savedModel;
+                }
+            }
+        }
+        catch
+        {
+            // Silent fail - localStorage errors are not critical
+        }
+    }
+
+    private async Task SaveToLocalStorage()
+    {
+        try
+        {
+            wizardModel.CurrentStep = 5;
+            var json = JsonSerializer.Serialize(wizardModel);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", PropertyWizardModel.LocalStorageKey, json);
+        }
+        catch
+        {
+            // Silent fail - localStorage errors are not critical
+        }
+    }
+
+    private async Task HandleBack()
+    {
+        await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/media-files");
     }
 
-    private void HandleNext()
+    private async Task HandleNext()
     {
-        // Navigate to Media Files page (Step 4)
-        // TODO: Implement save logic
+        await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/review-save");
     }
-    // Model for form binding and validation
-    public class SeoModel
-    {
-        [Required(ErrorMessage = "Heading is required")]
-        public string Heading { get; set; }
-
-        [Required(ErrorMessage = "Meta description is required")]
-        [MaxLength(MaxDescriptionLength, ErrorMessage = "Description is too long")]
-        public string Description { get; set; }
-    }
-
 }
 <style>
     /* Main Container */
@@ -364,6 +399,11 @@
 
     .character-label {
         text-align: left;
+    }
+
+    .character-label.zero {
+        color: #FF4D4F;
+        font-weight: bold;
     }
     /* Responsive Fix */
     @@media (max-width: 768px) {

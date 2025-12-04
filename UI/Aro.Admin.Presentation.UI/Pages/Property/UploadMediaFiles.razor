@@ -1,7 +1,10 @@
 @page "/property/media-files"
 @using System.ComponentModel.DataAnnotations
+@using System.Text.Json
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.JSInterop
+@using Aro.UI.Application.DTOs
 @layout WizardLayout
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
@@ -148,17 +151,107 @@
     private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
     private const long MaxFaviconSize = 50 * 1024; // 50KB
 
-
+    private PropertyWizardModel wizardModel = new();
     private List<ImageModel> uploadedImages = new();
     private string? faviconFileName = string.Empty;
     private InputFile? fileInput;
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadFromLocalStorage();
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadFromLocalStorage()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                var savedModel = JsonSerializer.Deserialize<PropertyWizardModel>(json);
+                if (savedModel != null)
+                {
+                    wizardModel = savedModel;
+                    // Restore uploaded images from wizardModel
+                    uploadedImages.Clear();
+                    if (wizardModel.Banner1 != null && !string.IsNullOrEmpty(wizardModel.Banner1.Base64Data))
+                    {
+                        uploadedImages.Add(new ImageModel
+                        {
+                            Id = "banner1",
+                            Name = wizardModel.Banner1.FileName,
+                            Url = wizardModel.Banner1.Base64Data
+                        });
+                    }
+                    if (wizardModel.Banner2 != null && !string.IsNullOrEmpty(wizardModel.Banner2.Base64Data))
+                    {
+                        uploadedImages.Add(new ImageModel
+                        {
+                            Id = "banner2",
+                            Name = wizardModel.Banner2.FileName,
+                            Url = wizardModel.Banner2.Base64Data
+                        });
+                    }
+                    if (wizardModel.Favicon != null)
+                    {
+                        faviconFileName = wizardModel.Favicon.FileName;
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Silent fail - localStorage errors are not critical
+        }
+    }
+
+    private async Task SaveToLocalStorage()
+    {
+        try
+        {
+            // Sync banner images to wizardModel
+            wizardModel.Banner1 = uploadedImages.Count > 0 ? new PropertyFileModel
+            {
+                FileName = uploadedImages[0].Name,
+                ContentType = GetContentTypeFromDataUrl(uploadedImages[0].Url),
+                Base64Data = uploadedImages[0].Url
+            } : null;
+
+            wizardModel.Banner2 = uploadedImages.Count > 1 ? new PropertyFileModel
+            {
+                FileName = uploadedImages[1].Name,
+                ContentType = GetContentTypeFromDataUrl(uploadedImages[1].Url),
+                Base64Data = uploadedImages[1].Url
+            } : null;
+
+            wizardModel.CurrentStep = 4;
+            var json = JsonSerializer.Serialize(wizardModel);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", PropertyWizardModel.LocalStorageKey, json);
+        }
+        catch
+        {
+            // Silent fail - localStorage errors are not critical
+        }
+    }
+
+    private string GetContentTypeFromDataUrl(string dataUrl)
+    {
+        if (string.IsNullOrEmpty(dataUrl) || !dataUrl.StartsWith("data:"))
+            return "image/jpeg";
+        var endIndex = dataUrl.IndexOf(";");
+        if (endIndex > 5)
+            return dataUrl.Substring(5, endIndex - 5);
+        return "image/jpeg";
+    }
 
     private async Task TriggerFileUpload()
     {
         await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('fileInput').click()");
     }
-
 
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
@@ -183,18 +276,29 @@
             uploadedImages.Add(newImage);
         }
 
+        await SaveToLocalStorage();
         StateHasChanged();
     }
 
     private async Task HandleFaviconSelected(InputFileChangeEventArgs e)
     {
         var file = e.File;
-        if (file is not null || file.ContentType != "image/png")
+        if (file is not null && file.ContentType == "image/png")
         {
+            var buffer = new byte[file.Size];
+            await file.OpenReadStream(MaxFaviconSize).ReadAsync(buffer);
+            var imageDataUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+
+            wizardModel.Favicon = new PropertyFileModel
+            {
+                FileName = file.Name,
+                ContentType = file.ContentType,
+                Base64Data = imageDataUrl
+            };
             faviconFileName = file.Name;
+            await SaveToLocalStorage();
             StateHasChanged();
         }
-        // Process or store favicon file if needed
     }
 
     private void SelectImage(ImageModel image)
@@ -202,25 +306,22 @@
         // Implement rename functionality or other logic
     }
 
-
-
     private async Task HandleClose()
     {
-        // Navigate back or show confirmation dialog
+        await SaveToLocalStorage();
         NavigationManager.NavigateTo("/");
     }
 
-    private void HandleBack()
+    private async Task HandleBack()
     {
-        // Navigate back to Facilities & Services page
+        await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/key-selling-points");
     }
 
-    private void HandleNext()
+    private async Task HandleNext()
     {
-        // Navigate to Property Rules page (Step 5)
-        // TODO: Implement save logic
-         NavigationManager.NavigateTo("/property/marketing-seo");
+        await SaveToLocalStorage();
+        NavigationManager.NavigateTo("/property/marketing-seo");
     }
 
     public class ImageModel

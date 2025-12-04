@@ -1,8 +1,14 @@
 @page "/property/address-contact"
 @using System.ComponentModel.DataAnnotations
+@using System.Text.Json
 @using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
+@using Aro.UI.Application.DTOs
+@using Aro.UI.Infrastructure.Services
 @layout WizardLayout
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject IGroupService GroupService
 
 <div class="property-wizard-container">
     <!-- Header Bar -->
@@ -78,7 +84,7 @@
             <MudForm @ref="form" Class="address-form">
                 <!-- Set the same as Primary Checkbox - Simple inline -->
                 <div class="checkbox-simple">
-                    <input type="checkbox" id="sameAsPrimary" @bind="model.SameAsPrimary" @bind:after="OnSameAsPrimaryChanged" />
+                    <input type="checkbox" id="sameAsPrimary" @bind="wizardModel.SetAddressSameAsGroupAddress" @bind:after="OnSameAsPrimaryChanged" />
                     <label for="sameAsPrimary" class="checkbox-label-simple">Set the same as the group address</label>
                 </div>
 
@@ -88,26 +94,28 @@
                         <div class="label-group">
                             <label class="form-label">Address Line 1 *</label>
                         </div>
-                        <MudTextField @bind-Value="model.AddressLine1"
+                        <MudTextField @bind-Value="wizardModel.AddressLine1"
                                       Variant="Variant.Text"
-                                      Class="form-input"
-                                      Placeholder="Vester Voldgade 89, 1552 Copenhagen"
+                                      Class="@($"form-input {(IsAddressLine1Invalid ? "input-error" : "")}")"
                                       Required="true"
-                                      HelperText=""
-                                      HelperTextOnFocus="false"
-                                      DisableUnderLine="true" />
+                                      Immediate="true"
+                                      Error="@IsAddressLine1Invalid"
+                                      ErrorText="Address Line 1 is required"
+                                      DisableUnderLine="true"
+                                      @onblur="SaveToLocalStorage" />
                     </div>
                     <div class="address-column-right">
                         <div class="label-group-right">
-                            <label class="form-label">Address Line 2 *</label>
+                            <label class="form-label">Address Line 2</label>
                         </div>
-                        <MudTextField @bind-Value="model.AddressLine2"
+                        <MudTextField @bind-Value="wizardModel.AddressLine2"
                                       Variant="Variant.Text"
                                       Class="form-input secondary-input"
-                                      Placeholder="Vester Voldgade 89, 1552 Copenhagen"
                                       HelperText=""
                                       HelperTextOnFocus="false"
-                                      DisableUnderLine="true" />
+                                      Immediate="true"
+                                      DisableUnderLine="true"
+                                      @onblur="SaveToLocalStorage" />
                     </div>
                 </div>
 
@@ -115,23 +123,24 @@
                 <div class="form-row-three-col">
                     <div class="form-group">
                         <label class="form-label">City *</label>
-                        <MudTextField @bind-Value="model.City"
+                        <MudTextField @bind-Value="wizardModel.City"
                                       Variant="Variant.Text"
-                                      Class="form-input"
-                                      Placeholder="Copenhagen"
+                                      Class="@($"form-input {(IsCityInvalid ? "input-error" : "")}")"
                                       Required="true"
-                                      HelperText=""
-                                      HelperTextOnFocus="false"
-                                      DisableUnderLine="true" />
+                                      Immediate="true"
+                                      Error="@IsCityInvalid"
+                                      ErrorText="City is required"
+                                      DisableUnderLine="true"
+                                      @onblur="SaveToLocalStorage" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Country *</label>
-                        <div class="country-select-wrapper">
+                        <div class="@($"country-select-wrapper {(IsCountryInvalid ? "input-error-border" : "")}")">
                             <div class="country-flag">
                                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='20' viewBox='0 0 30 20'%3E%3Crect width='30' height='20' fill='%23C8102E'/%3E%3Crect x='0' y='8' width='30' height='4' fill='white'/%3E%3Crect x='8' y='0' width='4' height='20' fill='white'/%3E%3C/svg%3E"
                                      alt="Denmark Flag" class="flag-icon" />
                             </div>
-                            <select class="form-select-country" @bind="model.Country" required>
+                            <select class="form-select-country" value="@wizardModel.Country" @onchange="OnCountryChanged" required>
                                 <option value="">Select country</option>
                                 <option value="Denmark">Denmark</option>
                                 <option value="Sweden">Sweden</option>
@@ -145,17 +154,22 @@
                                 <option value="Netherlands">Netherlands</option>
                             </select>
                         </div>
+                        @if (IsCountryInvalid)
+                        {
+                            <div class="validation-error-text">Country is required</div>
+                        }
                     </div>
                     <div class="form-group">
                         <label class="form-label">Postal Code *</label>
-                        <MudTextField @bind-Value="model.PostalCode"
+                        <MudTextField @bind-Value="wizardModel.PostalCode"
                                       Variant="Variant.Text"
-                                      Class="form-input"
-                                      Placeholder="7000"
+                                      Class="@($"form-input {(IsPostalCodeInvalid ? "input-error" : "")}")"
                                       Required="true"
-                                      HelperText=""
-                                      HelperTextOnFocus="false"
-                                      DisableUnderLine="true" />
+                                      Immediate="true"
+                                      Error="@IsPostalCodeInvalid"
+                                      ErrorText="Postal Code is required"
+                                      DisableUnderLine="true"
+                                      @onblur="SaveToLocalStorage" />
                     </div>
                 </div>
 
@@ -163,7 +177,7 @@
                 <div class="form-row-two-col-custom">
                     <div class="form-group">
                         <label class="form-label">Phone Number *</label>
-                        <div class="phone-input-wrapper">
+                        <div class="@($"phone-input-wrapper {(IsPhoneNumberInvalid ? "input-error-border" : "")}")">
                             <div class="phone-country-flag">
                                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='20' viewBox='0 0 30 20'%3E%3Crect width='30' height='20' fill='%23C8102E'/%3E%3Crect x='0' y='8' width='30' height='4' fill='white'/%3E%3Crect x='8' y='0' width='4' height='20' fill='white'/%3E%3C/svg%3E"
                                      alt="Denmark Flag" class="flag-icon-small" />
@@ -171,21 +185,27 @@
                             <div class="phone-divider"></div>
                             <input type="tel"
                                    class="phone-number-input"
-                                   @bind="model.PhoneNumber"
-                                   placeholder="+45 3311 4806"
+                                   @bind="wizardModel.PhoneNumber"
+                                   @bind:event="oninput"
+                                   @onblur="SaveToLocalStorage"
                                    required />
                         </div>
+                        @if (IsPhoneNumberInvalid)
+                        {
+                            <div class="validation-error-text">Phone Number is required</div>
+                        }
                     </div>
                     <div class="form-group">
                         <label class="form-label">Website URL *</label>
-                        <MudTextField @bind-Value="model.WebsiteUrl"
+                        <MudTextField @bind-Value="wizardModel.Website"
                                       Variant="Variant.Text"
-                                      Class="form-input"
-                                      Placeholder="www.brochner-hotels.com/our-locations/hotel-danmark"
+                                      Class="@($"form-input {(IsWebsiteInvalid ? "input-error" : "")}")"
                                       Required="true"
-                                      HelperText=""
-                                      HelperTextOnFocus="false"
-                                      DisableUnderLine="true" />
+                                      Immediate="true"
+                                      Error="@IsWebsiteInvalid"
+                                      ErrorText="Website URL is required"
+                                      DisableUnderLine="true"
+                                      @onblur="SaveToLocalStorage" />
                     </div>
                 </div>
 
@@ -196,7 +216,7 @@
 
                 <!-- Set the same as client primary contact Checkbox - Simple inline -->
                 <div class="checkbox-simple">
-                    <input type="checkbox" id="sameAsClient" @bind="model.SameAsClientContact" @bind:after="OnSameAsClientChanged" />
+                    <input type="checkbox" id="sameAsClient" @bind="wizardModel.SetContactSameAsPrimaryContact" @bind:after="OnSameAsClientChanged" />
                     <label for="sameAsClient" class="checkbox-label-simple">Set the same as the group primary contact</label>
                 </div>
 
@@ -204,25 +224,27 @@
                 <div class="form-row-three-col">
                     <div class="form-group">
                         <label class="form-label">Primary contact name *</label>
-                        <MudTextField @bind-Value="model.ContactName"
+                        <MudTextField @bind-Value="wizardModel.ContactName"
                                       Variant="Variant.Text"
-                                      Class="form-input"
-                                      Placeholder="John Wavy"
+                                      Class="@($"form-input {(IsContactNameInvalid ? "input-error" : "")}")"
                                       Required="true"
-                                      HelperText=""
-                                      HelperTextOnFocus="false"
-                                      DisableUnderLine="true" />
+                                      Immediate="true"
+                                      Error="@IsContactNameInvalid"
+                                      ErrorText="Contact Name is required"
+                                      DisableUnderLine="true"
+                                      @onblur="SaveToLocalStorage" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Primary contact email *</label>
-                        <MudTextField @bind-Value="model.ContactEmail"
+                        <MudTextField @bind-Value="wizardModel.ContactEmail"
                                       Variant="Variant.Text"
-                                      Class="form-input"
-                                      Placeholder="JohnWavy@hoteldanmark.dk"
+                                      Class="@($"form-input {(IsContactEmailInvalid ? "input-error" : "")}")"
                                       Required="true"
-                                      HelperText=""
-                                      HelperTextOnFocus="false"
-                                      DisableUnderLine="true" />
+                                      Immediate="true"
+                                      Error="@IsContactEmailInvalid"
+                                      ErrorText="Contact Email is required"
+                                      DisableUnderLine="true"
+                                      @onblur="SaveToLocalStorage" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Role</label>
@@ -249,110 +271,163 @@
 
 @code {
     private MudForm? form;
-    private AddressContactModel model = new()
+    private PropertyWizardModel wizardModel = new();
+    private bool showValidation = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        AddressLine1 = "Vester Voldgade 89, 1552 Copenhagen",
-        AddressLine2 = "Vester Voldgade 89, 1552 Copenhagen",
-        City = "Copenhagen",
-        Country = "Denmark",
-        PostalCode = "7000",
-        PhoneNumber = "+45 3311 4806",
-        WebsiteUrl = "www.brochner-hotels.com/our-locations/hotel-danmark",
-        ContactName = "John Wavy",
-        ContactEmail = "JohnWavy@hoteldanmark.dk"
-    };
+        if (firstRender)
+        {
+            await LoadFromLocalStorage();
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadFromLocalStorage()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                var savedModel = JsonSerializer.Deserialize<PropertyWizardModel>(json);
+                if (savedModel != null)
+                {
+                    wizardModel = savedModel;
+                }
+            }
+        }
+        catch
+        {
+            // Silent fail
+        }
+    }
+
+    private async Task SaveToLocalStorage()
+    {
+        try
+        {
+            wizardModel.CurrentStep = 2;
+            var json = JsonSerializer.Serialize(wizardModel);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", PropertyWizardModel.LocalStorageKey, json);
+            StateHasChanged(); // Trigger re-render to update button state
+        }
+        catch
+        {
+            // Silent fail
+        }
+    }
 
     private bool IsFormValid()
     {
-        return !string.IsNullOrWhiteSpace(model.AddressLine1) &&
-               !string.IsNullOrWhiteSpace(model.City) &&
-               !string.IsNullOrWhiteSpace(model.Country) &&
-               !string.IsNullOrWhiteSpace(model.PostalCode) &&
-               !string.IsNullOrWhiteSpace(model.PhoneNumber) &&
-               !string.IsNullOrWhiteSpace(model.WebsiteUrl) &&
-               !string.IsNullOrWhiteSpace(model.ContactName) &&
-               !string.IsNullOrWhiteSpace(model.ContactEmail);
+        return !string.IsNullOrWhiteSpace(wizardModel.AddressLine1) &&
+               !string.IsNullOrWhiteSpace(wizardModel.City) &&
+               !string.IsNullOrWhiteSpace(wizardModel.Country) &&
+               !string.IsNullOrWhiteSpace(wizardModel.PostalCode) &&
+               !string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) &&
+               !string.IsNullOrWhiteSpace(wizardModel.Website) &&
+               !string.IsNullOrWhiteSpace(wizardModel.ContactName) &&
+               !string.IsNullOrWhiteSpace(wizardModel.ContactEmail);
     }
 
-    private void OnSameAsPrimaryChanged()
+    // Validation helper methods for red border
+    private bool IsAddressLine1Invalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.AddressLine1);
+    private bool IsCityInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.City);
+    private bool IsCountryInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.Country);
+    private bool IsPostalCodeInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.PostalCode);
+    private bool IsPhoneNumberInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.PhoneNumber);
+    private bool IsWebsiteInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.Website);
+    private bool IsContactNameInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.ContactName);
+    private bool IsContactEmailInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.ContactEmail);
+
+    private async Task OnSameAsPrimaryChanged()
     {
-        if (model.SameAsPrimary)
+        if (wizardModel.SetAddressSameAsGroupAddress && wizardModel.GroupId.HasValue)
         {
-            // TODO: Load from Group Address
-            // For now, using placeholder data
+            // Clear existing address fields first
+            wizardModel.AddressLine1 = string.Empty;
+            wizardModel.AddressLine2 = string.Empty;
+            wizardModel.City = string.Empty;
+            wizardModel.Country = string.Empty;
+            wizardModel.PostalCode = string.Empty;
+
+            try
+            {
+                // Include both Address and PrimaryContact to avoid null reference in API
+                var groupResponse = await GroupService.GetGroup(new GetGroupRequest(wizardModel.GroupId.Value, "Address,PrimaryContact"));
+                if (groupResponse?.Group != null)
+                {
+                    wizardModel.AddressLine1 = groupResponse.Group.AddressLine1 ?? string.Empty;
+                    wizardModel.AddressLine2 = groupResponse.Group.AddressLine2 ?? string.Empty;
+                    wizardModel.City = groupResponse.Group.City ?? string.Empty;
+                    wizardModel.Country = groupResponse.Group.Country ?? string.Empty;
+                    wizardModel.PostalCode = groupResponse.Group.PostalCode ?? string.Empty;
+                }
+            }
+            catch
+            {
+                // Silent fail
+            }
         }
+        await SaveToLocalStorage();
     }
 
-    private void OnSameAsClientChanged()
+    private async Task OnSameAsClientChanged()
     {
-        if (model.SameAsClientContact)
+        if (wizardModel.SetContactSameAsPrimaryContact && wizardModel.GroupId.HasValue)
         {
-            // TODO: Load from Group Primary Contact
-            // For now, using placeholder data
+            // Clear existing contact fields first
+            wizardModel.ContactName = string.Empty;
+            wizardModel.ContactEmail = string.Empty;
+
+            try
+            {
+                // Include both Address and PrimaryContact to avoid null reference in API
+                var groupResponse = await GroupService.GetGroup(new GetGroupRequest(wizardModel.GroupId.Value, "Address,PrimaryContact"));
+                if (groupResponse?.Group != null)
+                {
+                    wizardModel.ContactName = groupResponse.Group.PrimaryContactName ?? string.Empty;
+                    wizardModel.ContactEmail = groupResponse.Group.PrimaryContactEmail ?? string.Empty;
+                }
+            }
+            catch
+            {
+                // Silent fail
+            }
         }
+        await SaveToLocalStorage();
     }
 
-    private void HandleClose()
+    private async Task OnCountryChanged(ChangeEventArgs e)
     {
-        // Navigate back or show confirmation dialog
+        wizardModel.Country = e.Value?.ToString() ?? string.Empty;
+        await SaveToLocalStorage();
     }
 
-    private void HandleBack()
+    private async Task HandleClose()
     {
-        // Navigate back to Property Information page
+        await SaveToLocalStorage();
+        NavigationManager.NavigateTo("/");
+    }
+
+    private async Task HandleBack()
+    {
+        await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/information");
     }
 
     private async Task HandleNext()
     {
-        await form!.Validate();
+        showValidation = true;
 
-        if (!form.IsValid)
+        if (!IsFormValid())
         {
+            StateHasChanged();
             return;
         }
 
-        // Save data and navigate to next step (Facilities & Services)
-        // TODO: Implement save logic (API call to save address and contact)
-
-        // Navigate to Facilities & Services page
+        await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/key-selling-points");
-    }
-
-    public class AddressContactModel
-    {
-        public bool SameAsPrimary { get; set; }
-
-        [Required(ErrorMessage = "Address line 1 is required")]
-        public string AddressLine1 { get; set; } = string.Empty;
-
-        public string AddressLine2 { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "City is required")]
-        public string City { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Country is required")]
-        public string Country { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Postal code is required")]
-        public string PostalCode { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Phone number is required")]
-        public string PhoneNumber { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Website URL is required")]
-        public string WebsiteUrl { get; set; } = string.Empty;
-
-        public bool SameAsClientContact { get; set; }
-
-        [Required(ErrorMessage = "Contact name is required")]
-        public string ContactName { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Contact email is required")]
-        [EmailAddress(ErrorMessage = "Invalid email address")]
-        public string ContactEmail { get; set; } = string.Empty;
-
-        public string Role { get; set; } = "Property Manager";
     }
 }
 
@@ -814,6 +889,30 @@
         line-height: 17px;
         color: #707070;
         margin: 8px 0 0 0;
+    }
+
+    /* Validation Error Styles */
+    .input-error input.mud-input-slot,
+    .input-error textarea.mud-input-slot {
+        border: 2px solid #d32f2f !important;
+        background-color: #fff8f8 !important;
+    }
+
+    .input-error-border {
+        border: 2px solid #d32f2f !important;
+        background-color: #fff8f8 !important;
+    }
+
+    .validation-error-text {
+        color: #d32f2f;
+        font-size: 12px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        margin-top: 4px;
+    }
+
+    /* Override MudBlazor error text color */
+    .mud-input-error .mud-input-helper-text {
+        color: #d32f2f !important;
     }
 
 </style>

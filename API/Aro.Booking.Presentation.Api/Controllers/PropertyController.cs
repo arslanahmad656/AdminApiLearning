@@ -117,4 +117,17 @@ public class PropertyController(
         string contentType = "image/jpeg";
         return File(response.Image, contentType);
     }
+
+    [HttpGet("bygroup/{groupId:Guid}")]
+    public async Task<IActionResult> GetPropertiesByGroupId(Guid groupId)
+    {
+        logger.LogDebug("Starting GetPropertiesByGroupId operation for GroupId: {GroupId}", groupId);
+
+        var response = await mediator.Send(new GetPropertiesByGroupIdQuery(
+            new GetPropertiesByGroupIdRequest(groupId))).ConfigureAwait(false);
+
+        logger.LogDebug("Completed GetPropertiesByGroupId operation, found {Count} properties", response.Count);
+
+        return Ok(response);
+    }
 }
