@@ -11,21 +11,7 @@
 
 <div class="view-group-container">
     <!-- Top Header Bar -->
-    <div class="top-right-section">
-        <div class="top-right-profile">
-            <img class="profile-img" src="icons/profile.png" />
-            <span class="property-name">Brøchner hotels</span>
-            <img src="icons/dropdown.png" alt="Dropdown" class="dropdown-icon" />
-        </div>
-
-        <div class="top-right-icons" @onclick="HandleSearch">
-            <img src="icons/searchicon.png" alt="Search" />
-        </div>
-
-        <div class="top-right-icons" @onclick="HandleSettings">
-            <img src="icons/settings.png" alt="Settings" />
-        </div>
-    </div>
+    <TopHeaderBar GroupName="Brøchner hotels" />
 
     @if (isLoading)
     {
@@ -220,15 +206,6 @@
         NavigationManager?.NavigateTo("/property/information");
     }
 
-    private void HandleSearch()
-    {
-        Snackbar.Add("Search functionality has not yet been implemented.", MudBlazor.Severity.Info);
-    }
-
-    private void HandleSettings()
-    {
-        NavigationManager?.NavigateTo("/settings");
-    }
 }
 
 <style>
@@ -237,18 +214,6 @@
         background-color: #F5F5F5;
         min-height: calc(100vh - 72px);
     }
-
-    /* Top Header Bar Styles - Using global styles from app.css */
-    /* Adding margin-bottom only since global styles don't include it */
-    .top-right-section {
-        margin-bottom: 24px;
-    }
-
-    /* Dropdown icon spacing */
-    .dropdown-icon {
-        margin-left: 4px;
-    }
-
 
     .loading-container {
         display: flex;

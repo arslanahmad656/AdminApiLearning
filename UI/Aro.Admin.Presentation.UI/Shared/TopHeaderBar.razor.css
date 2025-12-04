@@ -1,0 +1,11 @@
+/* TopHeaderBar component styles */
+/* Main styles are in app.css (.top-right-section, .top-right-icons, .top-right-profile, etc.) */
+
+/* Component-specific overrides */
+.top-right-section {
+    margin-bottom: 24px;
+}
+
+.dropdown-icon {
+    margin-left: 4px;
+}
