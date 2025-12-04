@@ -2,9 +2,11 @@
 @using System.Text.Json
 @using Aro.UI.Application.DTOs
 @using Aro.UI.Application.Interfaces
+@using Microsoft.Extensions.Configuration
 @inject IJSRuntime JSRuntime
 @inject IAuthenticationService AuthService
 @inject IPropertyService PropertyService
+@inject IConfiguration Configuration
 
 <div class="view-group-container">
     @if (isLoading)
@@ -153,7 +155,13 @@
 
     private string GetPropertyImageUrl(Guid groupId, Guid propertyId, Guid imageId)
     {
-        return $"api/property/image/{groupId}/{propertyId}/{imageId}";
+        var apiBaseAddress = Configuration["ApiBaseAddress"] ?? "https://localhost:7225/";
+        // Ensure the base address ends with a slash
+        if (!apiBaseAddress.EndsWith("/"))
+        {
+            apiBaseAddress += "/";
+        }
+        return $"{apiBaseAddress}api/property/image/{groupId}/{propertyId}/{imageId}";
     }
 
     private void OpenWebsite(string? website)
