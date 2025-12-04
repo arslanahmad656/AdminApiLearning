@@ -9,7 +9,8 @@ public class CreatePropertyModelValidator : AbstractValidator<CreatePropertyMode
     {
         RuleFor(p => p.PropertyName)
             .NotEmpty()
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(100);
 
         RuleFor(p => p.PropertyTypes)
             .NotNull()
@@ -27,18 +28,21 @@ public class CreatePropertyModelValidator : AbstractValidator<CreatePropertyMode
 
         RuleFor(p => p.Description)
             .NotNull()
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(500);
 
         RuleFor(p => p.KeySellingPoints)
             .Must(points => points != null && points.Count <= 4);
 
         RuleFor(p => p.MarketingTitle)
             .NotNull()
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(60);
 
         RuleFor(p => p.MarketingDescription)
             .NotNull()
-            .NotEmpty();
+            .NotEmpty()
+            .MaximumLength(160);
 
         RuleFor(p => p.Files)
             .NotNull();
