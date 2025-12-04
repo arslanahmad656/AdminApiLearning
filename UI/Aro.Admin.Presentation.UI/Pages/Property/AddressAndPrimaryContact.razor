@@ -106,7 +106,7 @@
                     </div>
                     <div class="address-column-right">
                         <div class="label-group-right">
-                            <label class="form-label">Address Line 2</label>
+                            <label class="form-label">Address Line 2 *</label>
                         </div>
                         <MudTextField @bind-Value="wizardModel.AddressLine2"
                                       Variant="Variant.Text"
@@ -223,7 +223,7 @@
                 <!-- Primary Contact Name, Email, Role Row -->
                 <div class="form-row-three-col">
                     <div class="form-group">
-                        <label class="form-label">Primary contact name *</label>
+                        <label class="form-label">Name *</label>
                         <MudTextField @bind-Value="wizardModel.ContactName"
                                       Variant="Variant.Text"
                                       Class="@($"form-input {(IsContactNameInvalid ? "input-error" : "")}")"
@@ -235,7 +235,7 @@
                                       @onblur="SaveToLocalStorage" />
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Primary contact email *</label>
+                        <label class="form-label">Email *</label>
                         <MudTextField @bind-Value="wizardModel.ContactEmail"
                                       Variant="Variant.Text"
                                       Class="@($"form-input {(IsContactEmailInvalid ? "input-error" : "")}")"

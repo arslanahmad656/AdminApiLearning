@@ -83,48 +83,53 @@
                 <!-- Property Name -->
                 <div class="form-group">
                     <label class="form-label">Property Name *</label>
+                    @if (isPropertyNameFocused)
+                    {
+                        <p class="char-count @(GetPropertyNameRemainingChars() == 0 ? "zero" : "")">@GetPropertyNameRemainingChars() characters left</p>
+                    }
                     <MudTextField @bind-Value="wizardModel.PropertyName"
                                   Variant="Variant.Outlined"
                                   Class="form-input"
                                   Required="true"
+                                  MaxLength="100"
+                                  Immediate="true"
                                   DisableUnderLine="true"
-                                  @onblur="SaveToLocalStorage" />
+                                  @onfocus="() => isPropertyNameFocused = true"
+                                  @onblur="OnPropertyNameBlur" />
                 </div>
 
                 <!-- Property Type -->
                 <div class="form-group">
                     <label class="form-label">Property Type *</label>
                     <div class="property-types-container">
-                        <!-- Row 1 -->
+                        <!-- Alphabetical order: Apartment, B&B, Guesthouse, Hostel, Hotel, Lodge, Resort -->
                         <div class="checkbox-item">
-                            <input type="checkbox" id="hotel" @bind="wizardModel.PropertyTypes.Hotel" @bind:after="SaveToLocalStorage" />
-                            <label for="hotel" class="property-type-label">Hotel</label>
+                            <input type="checkbox" id="apartment" @bind="wizardModel.PropertyTypes.Apartment" @bind:after="SaveToLocalStorage" />
+                            <label for="apartment" class="property-type-label">Apartment</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="bnb" @bind="wizardModel.PropertyTypes.BnB" @bind:after="SaveToLocalStorage" />
+                            <label for="bnb" class="property-type-label">B&B</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="guesthouse" @bind="wizardModel.PropertyTypes.Guesthouse" @bind:after="SaveToLocalStorage" />
                             <label for="guesthouse" class="property-type-label">Guesthouse</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="bnb" @bind="wizardModel.PropertyTypes.BnB" @bind:after="SaveToLocalStorage" />
-                            <label for="bnb" class="property-type-label">B&B</label>
-                        </div>
-                        <!-- Row 2 -->
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="apartment" @bind="wizardModel.PropertyTypes.Apartment" @bind:after="SaveToLocalStorage" />
-                            <label for="apartment" class="property-type-label">Apartment</label>
-                        </div>
-                        <div class="checkbox-item">
                             <input type="checkbox" id="hostel" @bind="wizardModel.PropertyTypes.Hostel" @bind:after="SaveToLocalStorage" />
                             <label for="hostel" class="property-type-label">Hostel</label>
                         </div>
-                        <!-- Row 3 -->
                         <div class="checkbox-item">
-                            <input type="checkbox" id="resort" @bind="wizardModel.PropertyTypes.Resort" @bind:after="SaveToLocalStorage" />
-                            <label for="resort" class="property-type-label">Resort</label>
+                            <input type="checkbox" id="hotel" @bind="wizardModel.PropertyTypes.Hotel" @bind:after="SaveToLocalStorage" />
+                            <label for="hotel" class="property-type-label">Hotel</label>
                         </div>
                         <div class="checkbox-item">
                             <input type="checkbox" id="lodge" @bind="wizardModel.PropertyTypes.Lodge" @bind:after="SaveToLocalStorage" />
                             <label for="lodge" class="property-type-label">Lodge</label>
+                        </div>
+                        <div class="checkbox-item">
+                            <input type="checkbox" id="resort" @bind="wizardModel.PropertyTypes.Resort" @bind:after="SaveToLocalStorage" />
+                            <label for="resort" class="property-type-label">Resort</label>
                         </div>
                     </div>
                 </div>
@@ -164,10 +169,17 @@
                 <!-- Description -->
                 <div class="form-group">
                     <label class="form-label">Description *</label>
+                    @if (isDescriptionFocused)
+                    {
+                        <p class="char-count @(GetDescriptionRemainingChars() == 0 ? "zero" : "")">@GetDescriptionRemainingChars() characters left</p>
+                    }
                     <textarea class="form-textarea-native"
                               @bind="wizardModel.Description"
-                              @onblur="SaveToLocalStorage"
+                              @bind:event="oninput"
+                              @onfocus="() => isDescriptionFocused = true"
+                              @onblur="OnDescriptionBlur"
                               rows="5"
+                              maxlength="@MaxDescriptionLength"
                               required></textarea>
                 </div>
             </MudForm>
@@ -185,10 +197,29 @@
     private MudForm? form;
     private PropertyWizardModel wizardModel = new();
     private bool isSubmitting = false;
+    private const int MaxPropertyNameLength = 100;
+    private const int MaxDescriptionLength = 500;
+    private bool isPropertyNameFocused = false;
+    private bool isDescriptionFocused = false;
 
     [Parameter]
     [SupplyParameterFromQuery(Name = "groupId")]
     public Guid GroupId { get; set; }
+
+    private int GetPropertyNameRemainingChars() => MaxPropertyNameLength - (wizardModel.PropertyName?.Length ?? 0);
+    private int GetDescriptionRemainingChars() => MaxDescriptionLength - (wizardModel.Description?.Length ?? 0);
+
+    private async Task OnPropertyNameBlur()
+    {
+        isPropertyNameFocused = false;
+        await SaveToLocalStorage();
+    }
+
+    private async Task OnDescriptionBlur()
+    {
+        isDescriptionFocused = false;
+        await SaveToLocalStorage();
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -280,6 +311,7 @@
     private async Task HandleNext()
     {
         if (isSubmitting) return;
+        if (!IsFormValid()) return;
 
         await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/address-contact");
@@ -603,4 +635,17 @@
         .form-textarea-native::placeholder {
             color: #999;
         }
+
+    /* Character Count */
+    .char-count {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 12px;
+        color: #737373;
+        margin: 0 0 8px 0;
+    }
+
+    .char-count.zero {
+        color: #FF4D4F;
+        font-weight: bold;
+    }
 </style>
