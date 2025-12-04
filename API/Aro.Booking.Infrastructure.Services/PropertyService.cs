@@ -275,7 +275,6 @@ public class PropertyService(
 
         var response = new List<GetPropertyResponse>();
 
-        // Process sequentially to avoid DbContext threading issues
         foreach (var property in properties)
         {
             logger.LogDebug("Fetching the images info for property id {PropertyId}", property.Id);
@@ -298,8 +297,8 @@ public class PropertyService(
                 property.Address?.City ?? string.Empty,
                 property.Address?.Country ?? string.Empty,
                 property.Address?.PostalCode ?? string.Empty,
-                property.Address?.PhoneNumber,
-                property.Address?.Website,
+                property.Address?.PhoneNumber ?? string.Empty,
+                property.Address?.Website ?? string.Empty,
                 property.Contact?.DisplayName ?? string.Empty,
                 property.Contact?.Email ?? string.Empty,
                 property.KeySellingPoints?.Split(Constants.DatabaseStringSplitter).ToList() ?? new List<string>(),
