@@ -10,13 +10,14 @@
         <div class="h-stack">
             @foreach (char letter in alpha)
             {
-                var isActive = selectedLetter == letter;
+                var letterString = letter.ToString();
+                var isActive = selectedLetter == letterString;
 
                 <MudButton
                 Variant="Variant.Text"
                 Class="@(isActive ? "border" : "")"
                 Style="min-width: calc(100% / 26)"
-                @onclick="() => SetOption(letter)">
+                    @onclick="() => SetOption(letterString)">
                     @letter
                 </MudButton>
             }
@@ -203,7 +204,7 @@
 @code {
     [Inject] private NavigationManager? NavigationManager { get; set; }
 
-    private char selectedLetter = '\0';
+    private string selectedLetter = string.Empty;
 
     private string searchString1 = "";
     private string infoFormat = "Showing entries {first_item}-{last_item}, Total entries: {all_items}";
@@ -305,11 +306,11 @@
         NavigationManager?.NavigateTo($"/group/view/{groupId}");
     }
 
-    private async Task SetOption(char letter)
+    private async Task SetOption(string letter)
     {
         if (selectedLetter == letter)
         {
-            selectedLetter = '\0';
+            selectedLetter = string.Empty;
         } 
         else
         {

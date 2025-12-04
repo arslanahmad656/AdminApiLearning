@@ -1,0 +1,91 @@
+﻿<button 
+    class="aro-button @(IsPrimary ? "aro-button-primary" : "aro-button-secondary")"
+    @onclick="HandleClick">
+        <div class="hstack gap-2">
+            <MudIcon 
+                Icon="@Icons.Material.Filled.ArrowBack" 
+                Size="Size.Small" 
+                Class="@(!IsBack ? "d-none": "")" />
+
+            <span class="align-baseline">@Label</span>
+
+            <MudIcon 
+                Icon="@Icons.Material.Filled.ArrowForward" 
+                Size="Size.Small" 
+                Class="@(!IsNext ? "d-none": "")"/>
+        </div>
+</button>
+
+<style>
+    .aro-button {
+        position: relative;
+        width: 190px;
+        height: 50px;
+        border-radius: 6px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 19px;
+        color: #1C1B1F;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    .aro-button-primary {
+        background: #F69126;
+        border: none;
+    }
+
+        .aro-button-primary:hover {
+            background: #FF931E;
+        }
+
+        .aro-button-primary:active {
+            background: #E58115;
+        }
+
+    .aro-button-secondary {
+        background: #F6F6F6;
+        border: 0.1px solid black;
+    }
+</style>
+
+@code {
+    [Parameter] public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter] public string Label { get; set; } = string.Empty;
+    [Parameter] public bool IsNext { get; set; }
+    [Parameter] public bool IsBack { get; set; }
+    [Parameter] public bool IsPrimary { get; set; } = true;
+
+    private bool _inProgress = false;
+
+    private async Task HandleClick(MouseEventArgs args)
+    {
+        if (_inProgress)
+            return;
+
+        try
+        {
+            _inProgress = true;
+
+            if (OnClick.HasDelegate)
+            {
+                await OnClick.InvokeAsync(args);
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+        finally
+        {
+            _inProgress = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

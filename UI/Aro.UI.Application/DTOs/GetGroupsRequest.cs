@@ -1,6 +1,6 @@
 namespace Aro.UI.Application.DTOs;
 public record GetGroupsRequest(
-    char Filter,
+    string Filter,
     string Include,
     int Page,
     int PageSize,
