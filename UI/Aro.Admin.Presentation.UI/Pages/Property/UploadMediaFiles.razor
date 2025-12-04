@@ -306,9 +306,9 @@
         // Implement rename functionality or other logic
     }
 
-    private async Task HandleClose()
+    private void HandleClose()
     {
-        await SaveToLocalStorage();
+        // Don't save on close - user is canceling
         NavigationManager.NavigateTo("/");
     }
 

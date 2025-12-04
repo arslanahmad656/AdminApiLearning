@@ -104,31 +104,31 @@
                     <div class="property-types-container">
                         <!-- Alphabetical order: Apartment, B&B, Guesthouse, Hostel, Hotel, Lodge, Resort -->
                         <div class="checkbox-item">
-                            <input type="checkbox" id="apartment" @bind="wizardModel.PropertyTypes.Apartment" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="apartment" @bind="wizardModel.PropertyTypes.Apartment" />
                             <label for="apartment" class="property-type-label">Apartment</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="bnb" @bind="wizardModel.PropertyTypes.BnB" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="bnb" @bind="wizardModel.PropertyTypes.BnB" />
                             <label for="bnb" class="property-type-label">B&B</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="guesthouse" @bind="wizardModel.PropertyTypes.Guesthouse" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="guesthouse" @bind="wizardModel.PropertyTypes.Guesthouse" />
                             <label for="guesthouse" class="property-type-label">Guesthouse</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="hostel" @bind="wizardModel.PropertyTypes.Hostel" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="hostel" @bind="wizardModel.PropertyTypes.Hostel" />
                             <label for="hostel" class="property-type-label">Hostel</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="hotel" @bind="wizardModel.PropertyTypes.Hotel" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="hotel" @bind="wizardModel.PropertyTypes.Hotel" />
                             <label for="hotel" class="property-type-label">Hotel</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="lodge" @bind="wizardModel.PropertyTypes.Lodge" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="lodge" @bind="wizardModel.PropertyTypes.Lodge" />
                             <label for="lodge" class="property-type-label">Lodge</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="resort" @bind="wizardModel.PropertyTypes.Resort" @bind:after="SaveToLocalStorage" />
+                            <input type="checkbox" id="resort" @bind="wizardModel.PropertyTypes.Resort" />
                             <label for="resort" class="property-type-label">Resort</label>
                         </div>
                     </div>
@@ -138,7 +138,7 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label class="form-label">Star Rating *</label>
-                        <select class="form-select-custom" @bind="wizardModel.StarRating" @bind:after="SaveToLocalStorage" required>
+                        <select class="form-select-custom" @bind="wizardModel.StarRating" required>
                             <option value="0">Select rating</option>
                             <option value="1">1 star</option>
                             <option value="2">2 star</option>
@@ -149,7 +149,7 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Currency *</label>
-                        <select class="form-select-custom" @bind="wizardModel.Currency" @bind:after="SaveToLocalStorage" required>
+                        <select class="form-select-custom" @bind="wizardModel.Currency" required>
                             <option value="">Select currency</option>
                             <option value="AED">AED - UAE Dirham</option>
                             <option value="AUD">AUD - Australian Dollar</option>
@@ -209,16 +209,14 @@
     private int GetPropertyNameRemainingChars() => MaxPropertyNameLength - (wizardModel.PropertyName?.Length ?? 0);
     private int GetDescriptionRemainingChars() => MaxDescriptionLength - (wizardModel.Description?.Length ?? 0);
 
-    private async Task OnPropertyNameBlur()
+    private void OnPropertyNameBlur()
     {
         isPropertyNameFocused = false;
-        await SaveToLocalStorage();
     }
 
-    private async Task OnDescriptionBlur()
+    private void OnDescriptionBlur()
     {
         isDescriptionFocused = false;
-        await SaveToLocalStorage();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -296,15 +294,15 @@
                !string.IsNullOrWhiteSpace(wizardModel.Description);
     }
 
-    private async Task HandleClose()
+    private void HandleClose()
     {
-        await SaveToLocalStorage();
+        // Don't save on close - user is canceling
         NavigationManager.NavigateTo("/");
     }
 
-    private async Task HandleBack()
+    private void HandleBack()
     {
-        await SaveToLocalStorage();
+        // Don't save on back from first step - user is canceling
         NavigationManager.NavigateTo("/");
     }
 
@@ -511,7 +509,7 @@
         .property-form .form-input .mud-input-root {
             background: #F6F6F6 !important;
             border: 1px solid #C3C3C3 !important;
-            border-radius: 0 !important;
+            border-radius: 6px !important;
             height: 50px !important;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
             font-weight: 400 !important;
@@ -535,6 +533,7 @@
     .property-types-container {
         background: #F6F6F6;
         border: 1px solid #C3C3C3;
+        border-radius: 6px;
         padding: 24px;
         margin-top: 12px;
         max-width: 767px;
@@ -584,7 +583,7 @@
         height: 50px;
         background: #F6F6F6;
         border: 1px solid #C3C3C3;
-        border-radius: 0;
+        border-radius: 6px;
         padding: 0 18px;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         font-size: 16px;
@@ -616,7 +615,7 @@
         min-height: 170px;
         background: #F6F6F6;
         border: 1px solid #C3C3C3;
-        border-radius: 0;
+        border-radius: 6px;
         padding: 15px 18px;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         font-weight: 400;

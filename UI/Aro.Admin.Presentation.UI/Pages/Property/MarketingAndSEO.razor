@@ -102,24 +102,32 @@
                 <div class="form-group">
                     <label for="metaTitle">Meta Title</label>
                     <div class="input-wrapper">
-                        <InputText id="metaTitle" class="form-control" maxlength="@MaxTitleLength" @bind-Value="wizardModel.MarketingTitle" @onfocus="() => isTitleFocused = true" @onblur="OnTitleBlur" />
-                        @if (isTitleFocused)
-                        {
-                            <span class="char-count-corner @(GetTitleRemainingChars() == 0 ? "zero" : "")">@GetTitleRemainingChars() characters left</span>
-                        }
+                        <InputText id="metaTitle" class="form-control form-control-with-icon" maxlength="@MaxTitleLength" @bind-Value="wizardModel.MarketingTitle" @onfocus="() => isTitleFocused = true" @onblur="() => OnTitleBlur()" />
+                        <span class="input-info-icon" title="Enter a concise title for search engines">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="8" cy="8" r="7.5" stroke="#737373"/>
+                                <path d="M8 7V11" stroke="#737373" stroke-linecap="round"/>
+                                <circle cx="8" cy="5" r="0.5" fill="#737373" stroke="#737373"/>
+                            </svg>
+                        </span>
                     </div>
+                    <span class="char-count-helper">Max @MaxTitleLength characters.</span>
                 </div>
 
                 <!-- Meta Description -->
                 <div class="form-group mt-3">
-                    <label for="meta">Meta Description</label>
+                    <label for="meta">Meta description</label>
                     <div class="input-wrapper">
-                        <InputTextArea id="meta" class="form-control" maxlength="@MaxDescriptionLength" rows="10" @bind-Value="wizardModel.MarketingDescription" @onfocus="() => isDescriptionFocused = true" @onblur="OnDescriptionBlur" />
-                        @if (isDescriptionFocused)
-                        {
-                            <span class="char-count-corner @(GetDescriptionRemainingChars() == 0 ? "zero" : "")">@GetDescriptionRemainingChars() characters left</span>
-                        }
+                        <InputTextArea id="meta" class="form-control form-control-textarea" maxlength="@MaxDescriptionLength" rows="8" @bind-Value="wizardModel.MarketingDescription" @onfocus="() => isDescriptionFocused = true" @onblur="() => OnDescriptionBlur()" />
+                        <span class="input-info-icon textarea-icon" title="Enter a description for search engines">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="8" cy="8" r="7.5" stroke="#737373"/>
+                                <path d="M8 7V11" stroke="#737373" stroke-linecap="round"/>
+                                <circle cx="8" cy="5" r="0.5" fill="#737373" stroke="#737373"/>
+                            </svg>
+                        </span>
                     </div>
+                    <span class="char-count-helper">Max @MaxDescriptionLength characters.</span>
                 </div>
             </EditForm>
 
@@ -142,16 +150,16 @@
     private int GetTitleRemainingChars() => MaxTitleLength - (wizardModel.MarketingTitle?.Length ?? 0);
     private int GetDescriptionRemainingChars() => MaxDescriptionLength - (wizardModel.MarketingDescription?.Length ?? 0);
 
-    private async Task OnTitleBlur()
+    private void OnTitleBlur()
     {
         isTitleFocused = false;
-        await SaveToLocalStorage();
+        // Don't save on every blur - save only on navigation
     }
 
-    private async Task OnDescriptionBlur()
+    private void OnDescriptionBlur()
     {
         isDescriptionFocused = false;
-        await SaveToLocalStorage();
+        // Don't save on every blur - save only on navigation
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -391,15 +399,30 @@
 
     .form-control {
         font-size: 16px;
-        padding: 12px;
+        padding: 12px 18px;
         border: 1px solid #C3C3C3;
-        border-radius: 4px;
+        border-radius: 8px;
         background-color: #F6F6F6;
         resize: none;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        line-height: 19px;
+        color: #000000;
+    }
+
+    .form-control-with-icon {
+        padding-right: 48px;
+        height: 50px;
+    }
+
+    .form-control-textarea {
+        padding-right: 48px;
+        min-height: 230px;
+        line-height: 25px;
     }
 
         .form-control:focus {
-            border-color: black;
+            border-color: #C3C3C3;
             outline: none;
             background-color: #F6F6F6;
             box-shadow: none;
@@ -421,34 +444,38 @@
         margin-bottom: 20px;
     }
 
-    .character-label {
-        text-align: left;
-    }
-
-    .character-label.zero {
-        color: #FF4D4F;
-        font-weight: bold;
-    }
-
-    /* Input wrapper for character count positioning */
+    /* Input wrapper for icon positioning */
     .input-wrapper {
         position: relative;
         width: 100%;
     }
 
-    .char-count-corner {
+    /* Info icon inside input */
+    .input-info-icon {
         position: absolute;
-        bottom: 8px;
-        right: 12px;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        font-size: 12px;
-        color: #737373;
-        pointer-events: none;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
     }
 
-    .char-count-corner.zero {
-        color: #FF4D4F;
-        font-weight: bold;
+    .input-info-icon.textarea-icon {
+        top: 18px;
+        transform: none;
+    }
+
+    /* Character count helper text below input */
+    .char-count-helper {
+        display: block;
+        text-align: right;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        color: #5C5C5C;
+        margin-top: 8px;
     }
 
     /* Responsive Fix */

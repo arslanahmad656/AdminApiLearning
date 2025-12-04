@@ -250,7 +250,7 @@
         }
     }
 
-    private async Task HandleDrop(int dropIndex)
+    private void HandleDrop(int dropIndex)
     {
         if (dragIndex == null || dragIndex == dropIndex)
         {
@@ -268,30 +268,30 @@
 
         dragIndex = null;
         dragOverIndex = null;
-        await SaveToLocalStorage();
+        // Don't save on every drag - save only on navigation
     }
 
-    private async Task AddSellingPoint()
+    private void AddSellingPoint()
     {
         if (keySellingPoints.Count < 4)
         {
             keySellingPoints.Add(new SellingPointItem { Text = "" });
-            await SaveToLocalStorage();
+            // Don't save on every add - save only on navigation
         }
     }
 
-    private async Task Remove(int index)
+    private void Remove(int index)
     {
         if (index >= 0 && index < keySellingPoints.Count)
         {
             keySellingPoints.RemoveAt(index);
-            await SaveToLocalStorage();
+            // Don't save on every remove - save only on navigation
         }
     }
 
-    private async Task HandleClose()
+    private void HandleClose()
     {
-        await SaveToLocalStorage();
+        // Don't save on close - user is canceling
         NavigationManager.NavigateTo("/");
     }
 

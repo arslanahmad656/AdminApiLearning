@@ -9,6 +9,7 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @inject IGroupService GroupService
+@inject ICountryMetadataService CountryMetadataService
 
 <div class="property-wizard-container">
     <!-- Header Bar -->
@@ -101,8 +102,7 @@
                                       Immediate="true"
                                       Error="@IsAddressLine1Invalid"
                                       ErrorText="Address Line 1 is required"
-                                      DisableUnderLine="true"
-                                      @onblur="SaveToLocalStorage" />
+                                      DisableUnderLine="true" />
                     </div>
                     <div class="address-column-right">
                         <div class="label-group-right">
@@ -114,8 +114,7 @@
                                       HelperText=""
                                       HelperTextOnFocus="false"
                                       Immediate="true"
-                                      DisableUnderLine="true"
-                                      @onblur="SaveToLocalStorage" />
+                                      DisableUnderLine="true" />
                     </div>
                 </div>
 
@@ -130,8 +129,7 @@
                                       Immediate="true"
                                       Error="@IsCityInvalid"
                                       ErrorText="City is required"
-                                      DisableUnderLine="true"
-                                      @onblur="SaveToLocalStorage" />
+                                      DisableUnderLine="true" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Country *</label>
@@ -140,18 +138,15 @@
                                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='20' viewBox='0 0 30 20'%3E%3Crect width='30' height='20' fill='%23C8102E'/%3E%3Crect x='0' y='8' width='30' height='4' fill='white'/%3E%3Crect x='8' y='0' width='4' height='20' fill='white'/%3E%3C/svg%3E"
                                      alt="Denmark Flag" class="flag-icon" />
                             </div>
-                            <select class="form-select-country" value="@wizardModel.Country" @onchange="OnCountryChanged" required>
+                            <select class="form-select-country" @bind="wizardModel.Country" required>
                                 <option value="">Select country</option>
-                                <option value="Denmark">Denmark</option>
-                                <option value="Sweden">Sweden</option>
-                                <option value="Norway">Norway</option>
-                                <option value="Finland">Finland</option>
-                                <option value="Germany">Germany</option>
-                                <option value="United Kingdom">United Kingdom</option>
-                                <option value="France">France</option>
-                                <option value="Spain">Spain</option>
-                                <option value="Italy">Italy</option>
-                                <option value="Netherlands">Netherlands</option>
+                                @if (countryNames != null)
+                                {
+                                    @foreach (var country in countryNames)
+                                    {
+                                        <option value="@country">@country</option>
+                                    }
+                                }
                             </select>
                         </div>
                         @if (IsCountryInvalid)
@@ -168,8 +163,7 @@
                                       Immediate="true"
                                       Error="@IsPostalCodeInvalid"
                                       ErrorText="Postal Code is required"
-                                      DisableUnderLine="true"
-                                      @onblur="SaveToLocalStorage" />
+                                      DisableUnderLine="true" />
                     </div>
                 </div>
 
@@ -187,7 +181,6 @@
                                    class="phone-number-input"
                                    @bind="wizardModel.PhoneNumber"
                                    @bind:event="oninput"
-                                   @onblur="SaveToLocalStorage"
                                    required />
                         </div>
                         @if (IsPhoneNumberInvalid)
@@ -204,8 +197,7 @@
                                       Immediate="true"
                                       Error="@IsWebsiteInvalid"
                                       ErrorText="Website URL is required"
-                                      DisableUnderLine="true"
-                                      @onblur="SaveToLocalStorage" />
+                                      DisableUnderLine="true" />
                     </div>
                 </div>
 
@@ -231,8 +223,7 @@
                                       Immediate="true"
                                       Error="@IsContactNameInvalid"
                                       ErrorText="Contact Name is required"
-                                      DisableUnderLine="true"
-                                      @onblur="SaveToLocalStorage" />
+                                      DisableUnderLine="true" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email *</label>
@@ -243,8 +234,7 @@
                                       Immediate="true"
                                       Error="@IsContactEmailInvalid"
                                       ErrorText="Contact Email is required"
-                                      DisableUnderLine="true"
-                                      @onblur="SaveToLocalStorage" />
+                                      DisableUnderLine="true" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Role</label>
@@ -273,11 +263,16 @@
     private MudForm? form;
     private PropertyWizardModel wizardModel = new();
     private bool showValidation = false;
+    private IEnumerable<string>? countryNames;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            // Load country names from service
+            await CountryMetadataService.InitializeAsync();
+            countryNames = CountryMetadataService.GetAllCountryNames();
+
             await LoadFromLocalStorage();
             StateHasChanged();
         }
@@ -362,6 +357,8 @@
                     wizardModel.City = groupResponse.Group.City ?? string.Empty;
                     wizardModel.Country = groupResponse.Group.Country ?? string.Empty;
                     wizardModel.PostalCode = groupResponse.Group.PostalCode ?? string.Empty;
+                    // Force UI to re-render with new values
+                    StateHasChanged();
                 }
             }
             catch
@@ -369,7 +366,7 @@
                 // Silent fail
             }
         }
-        await SaveToLocalStorage();
+        // Don't save on every checkbox change - save only on navigation
     }
 
     private async Task OnSameAsClientChanged()
@@ -395,18 +392,12 @@
                 // Silent fail
             }
         }
-        await SaveToLocalStorage();
+        // Don't save on every checkbox change - save only on navigation
     }
 
-    private async Task OnCountryChanged(ChangeEventArgs e)
+    private void HandleClose()
     {
-        wizardModel.Country = e.Value?.ToString() ?? string.Empty;
-        await SaveToLocalStorage();
-    }
-
-    private async Task HandleClose()
-    {
-        await SaveToLocalStorage();
+        // Don't save on close - user is canceling
         NavigationManager.NavigateTo("/");
     }
 
@@ -699,7 +690,7 @@
     .address-form .form-input textarea.mud-input-slot {
         background: #F6F6F6 !important;
         border: 1px solid #C3C3C3 !important;
-        border-radius: 0px !important;
+        border-radius: 6px !important;
         height: 50px !important;
         box-shadow: none !important;
         padding: 0 18px !important;
@@ -747,6 +738,7 @@
         align-items: center;
         background: #F6F6F6;
         border: 1px solid #C3C3C3;
+        border-radius: 6px;
         height: 50px;
     }
 
@@ -799,6 +791,7 @@
         align-items: center;
         background: #F6F6F6;
         border: 1px solid #C3C3C3;
+        border-radius: 6px;
         height: 50px;
     }
 
@@ -864,6 +857,7 @@
     .role-display {
         background: #F6F6F6;
         border: 1px solid #C3C3C3;
+        border-radius: 6px;
         height: 50px;
         display: flex;
         align-items: center;
