@@ -24,134 +24,172 @@
     <div class="row g-0 h-100">
         <!-- Top Title -->
         <div class="col-12 card-bg-dark">
-            <div class="d-flex justify-content-between align-items-center p-3" data-bs-theme="dark">
-                <h5>@(IsCreateMode ? "Add New Group" : "Edit Group")</h5>
-                <button class="btn-close" aria-label="Close" @onclick="HandleExitGroupCreation"></button>
-            </div>
+
+			<WizardHeader 
+                HeaderTitle="@(IsCreateMode ? "Add New Group" : "Edit Group")"
+				ReturnTo="/" />
         </div>
 
         <!-- Left panel bubbles -->
-        <div class="col-sm-2 col-md-3 col-xl-2 border-end">
-            <ProgressBubbles StepTitles="StepTitles"
-                             ActiveStepIndex="ActiveStepIndex"
-                             AllStepsCompleted="GroupCreationComplete" />
+        <div class="col-sm-2 col-md-3 col-xl-2 border-end" style="border: #B3B3B3">
+
+			<WizardSteps 
+                StepTitles="StepTitles"
+				ActiveStepIndex="ActiveStepIndex"
+				AllStepsCompleted="GroupCreationComplete" />
         </div>
 
         <!-- Main content -->
-        <div class="col-sm-10 col-md-9 col-xl-10 border border-primary h-100 overflow-x-hidden overflow-y-auto">
+        <div class="col-sm-10 col-md-9 col-xl-10 h-100 overflow-y-auto" style="background-color: #F6F6F6">
             <div class="p-5">
 
                 @if (ActiveStepIndex == 0)
                 {
                     <!-- STEP 1: GENERAL INFORMATION -->
-                    <div class="d-flex flex-column mb-3">
-                        <div class="p-2">Step 1</div>
-                        <h3 class="p-2">General Information</h3>
+                    <div class="vstack gap-2 mb-5">
+                        <h3 class="fs-6">Step 1</h3>
+                        <h2 class="fs-4">General Information</h2>
                     </div>
 
                     <MudForm @ref="groupForm"
                              Model="groupModel"
                              Validation="@(groupValidator.GetValidateValue())">
 
-                        <div class="row gy-3">
+                        <div class="row gy-2">
 
                             <!-- Group Name -->
                             <div class="col-sm-8 col-xl-4">
-                                <MudTextField @bind-Value="groupModel.GroupName"
-                                              For="@(() => groupModel.GroupName)"
-                                              Immediate="true"
-                                              Validation="@(groupValidator.GetValidateValue())"
-                                              Label="Group Name"
-                                              Required="true"
-                                              Variant="Variant.Outlined"
-                                              ShrinkLabel />
+                                <div class="form-group">
+                                    <label for="groupName" class="form-label">Group Name *</label>
+                                    <MudTextField @bind-Value="groupModel.GroupName"
+                                                  For="@(() => groupModel.GroupName)"
+                                                  id="groupName"
+                                                  Immediate="true"
+                                                  Validation="@(groupValidator.GetValidateValue())"
+                                                  Required="true"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Dense" />
+                                </div>
+
+
                             </div>
                             <div class="w-100"></div>
 
                             <!-- Address 1 -->
                             <div class="col-sm-10 col-xl-6">
-                                <MudTextField @bind-Value="groupModel.AddressLine1"
-                                              For="@(() => groupModel.AddressLine1)"
-                                              Immediate="true"
-                                              Validation="@(groupValidator.GetValidateValue())"
-                                              Label="Address Line 1"
-                                              Required="true"
-                                              Variant="Variant.Outlined"
-                                              ShrinkLabel />
+                                <div class="form-group">
+                                    <label for="addressLine1" class="form-label">Address Line 1 *</label>
+                                    <MudTextField @bind-Value="groupModel.AddressLine1"
+                                                  For="@(() => groupModel.AddressLine1)"
+                                                  id="addressLine1"
+                                                  Immediate="true"
+                                                  Validation="@(groupValidator.GetValidateValue())"
+                                                  Required="true"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Dense" />
+                                </div>
+
+
+
                             </div>
                             <div class="w-100"></div>
 
                             <!-- Address 2 -->
                             <div class="col-sm-10 col-xl-6">
-                                <MudTextField @bind-Value="groupModel.AddressLine2"
-                                              For="@(() => groupModel.AddressLine2)"
-                                              Immediate="true"
-                                              Validation="@(groupValidator.GetValidateValue())"
-                                              Label="Address Line 2"
-                                              Variant="Variant.Outlined"
-                                              ShrinkLabel />
+                                <div class="form-group">
+                                    <label for="addressLine2" class="form-label">Address Line 2</label>
+                                    <MudTextField @bind-Value="groupModel.AddressLine2"
+                                                  For="@(() => groupModel.AddressLine2)"
+                                                  id="addressLine2"
+                                                  Immediate="true"
+                                                  Validation="@(groupValidator.GetValidateValue())"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Dense" />
+                                </div>
+
+
                             </div>
                             <div class="w-100"></div>
 
                             <!-- City & Country -->
                             <div class="col-sm-6 col-xl-2">
-                                <MudTextField @bind-Value="groupModel.City"
-                                              For="@(() => groupModel.City)"
-                                              Immediate="true"
-                                              Validation="@(groupValidator.GetValidateValue())"
-                                              Label="City"
-                                              Required="true"
-                                              Variant="Variant.Outlined"
-                                              ShrinkLabel />
+                                <div class="form-group">
+                                    <label for="city" class="form-label">City *</label>
+                                    <MudTextField @bind-Value="groupModel.City"
+                                                  For="@(() => groupModel.City)"
+                                                  id="city"
+                                                  Immediate="true"
+                                                  Validation="@(groupValidator.GetValidateValue())"
+                                                  Required="true"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Dense" />
+                                </div>
+
+
                             </div>
 
                             <div class="col-sm-6 col-xl-4">
-                                <MudSelect @bind-Value="groupModel.Country"
-                                           For="@(() => groupModel.Country)"
-                                           Immediate="true"
-                                           Validation="@(groupValidator.GetValidateValue())"
-                                           Label="Country"
-                                           Required="true"
-                                           Variant="Variant.Outlined">
+                                <div class="form-group">
+                                    <label for="country" class="form-label">Country *</label>
+                                    <MudSelect @bind-Value="groupModel.Country"
+                                               For="@(() => groupModel.Country)"
+                                               id="country"
+                                               Immediate="true"
+                                               Validation="@(groupValidator.GetValidateValue())"
+                                               Required="true"
+                                               Variant="Variant.Outlined"
+                                               Margin="Margin.Dense">
 
-                                    @if (countryNames != null)
-                                    {
-                                        @foreach (var c in countryNames)
+                                        @if (countryNames != null)
                                         {
-                                            <MudSelectItem Value="@c">@c</MudSelectItem>
+                                            @foreach (var c in countryNames)
+                                            {
+                                                <MudSelectItem Value="@c">@c</MudSelectItem>
+                                            }
                                         }
-                                    }
-                                </MudSelect>
+                                    </MudSelect>
+                                </div>
+
                             </div>
 
                             <div class="w-100"></div>
 
                             <!-- Postal & Logo -->
                             <div class="col-sm-6 col-xl-2">
-                                <MudTextField @bind-Value="groupModel.PostalCode"
-                                              For="@(() => groupModel.PostalCode)"
-                                              Label="Postal Code"
-                                              Required="true"
-                                              Variant="Variant.Outlined"
-                                              ShrinkLabel />
+                                <div class="form-group">
+                                    <label for="postalCode" class="form-label">Postal Code *</label>
+                                    <MudTextField @bind-Value="groupModel.PostalCode"
+                                                  For="@(() => groupModel.PostalCode)"
+                                                  id="postalCode"
+                                                  Required="true"
+                                                  Variant="Variant.Outlined"
+                                                  Margin="Margin.Dense" />
+                                </div>
+
                             </div>
 
                             <div class="col-sm-6 col-xl-4">
-                                <MudFileUpload T="IBrowserFile"
-                                               Accept=".png,.jpg,.jpeg"
-                                               MaximumFileCount="1"
-                                               FilesChanged="OnFileChanged">
-                                    <ActivatorContent>
-                                        <MudTextField @bind-Value="_fileName"
-                                                      Label="Upload Image"
-                                                      Placeholder="@FileUploadMessage"
-                                                      ReadOnly
-                                                      Variant="Variant.Outlined"
-                                                      Adornment="Adornment.Start"
-                                                      AdornmentIcon="@Icons.Material.Filled.Image"
-                                                      ShrinkLabel />
-                                    </ActivatorContent>
-                                </MudFileUpload>
+                                <div class="form-group">
+                                    <label for="fileInput" class="form-label">Upload Image</label>
+                                    <MudFileUpload T="IBrowserFile"
+                                                   Accept=".png,.jpg,.jpeg"
+                                                   MaximumFileCount="1"
+                                                   FilesChanged="OnFileChanged">
+                                        <ActivatorContent>
+
+                                            <MudTextField @bind-Value="_fileName"
+                                                          id="fileInput"
+                                                          Placeholder="Select file..."
+                                                          ReadOnly
+                                                          Variant="Variant.Outlined"
+                                                          Adornment="Adornment.Start"
+                                                          AdornmentIcon="@Icons.Material.Filled.Image"
+                                                          Margin="Margin.Dense" />
+                                        </ActivatorContent>
+                                    </MudFileUpload>
+                                </div>
+
+
                             </div>
                         </div>
                     </MudForm>
@@ -159,52 +197,61 @@
                 else if (ActiveStepIndex == 1)
                 {
                     <!-- STEP 2: PRIMARY CONTACT -->
-                    <div class="d-flex flex-column mb-3">
-                        <div class="p-2">Step 2</div>
-                        <h3 class="p-2">Primary Contact Details</h3>
+                    <div class="vstack gap-2 mb-5">
+                        <h3 class="fs-6">Step 2</h3>
+                        <h2 class="fs-4">Primary Contact Details</h2>
                     </div>
 
                     <MudForm @ref="primaryContactForm"
                              Model="@primaryContactModel"
                              Validation="@(primaryContactValidator.GetValidateValue())">
 
-                        <div class="row">
-                            @if (IsCreateMode)
-                            {
-                                <!-- Name -->
-                                <div class="col-sm-8 col-xl-4">
+                        <div class="row gy-2">
+                            <!-- Name -->
+                            <div class="col-sm-8 col-xl-4 @(!IsCreateMode ? "d-none": "")">
+                                <div class="form-group">
+                                    <label for="name" class="form-label">Name *</label>
                                     <MudTextField @bind-Value="primaryContactModel.Name"
-                                                  For="@(() => primaryContactModel.Name)"
-                                                  Immediate="true"
-                                                  Validation="@(primaryContactValidator.GetValidateValue())"
-                                                  Label="Name"
-                                                  Required="true"
-                                                  Variant="Variant.Outlined"
-                                                  ShrinkLabel />
+                                                    For="@(() => primaryContactModel.Name)"
+                                                    id="name"
+                                                    Immediate="true"
+                                                    Validation="@(primaryContactValidator.GetValidateValue())"
+                                                    Required="true"
+                                                    Variant="Variant.Outlined"
+                                                    Margin="Margin.Dense" />
                                 </div>
-                                <div class="w-100"></div>
 
-                                <!-- Email -->
-                                <div class="col-sm-10 col-xl-6">
+                            </div>
+                            <div class="w-100"></div>
+
+                            <!-- Email -->
+                            <div class="col-sm-10 col-xl-6">
+                                <div class="form-group">
+                                    <label for="email" class="form-label">Contact Email *</label>
                                     <MudTextField @bind-Value="primaryContactModel.Email"
-                                                  For="@(() => primaryContactModel.Email)"
-                                                  Validation="@(primaryContactValidator.GetValidateValue())"
-                                                  Label="Email"
-                                                  Required="true"
-                                                  Variant="Variant.Outlined"
-                                                  ShrinkLabel />
+                                                    For="@(() => primaryContactModel.Email)"
+                                                    id="email"
+                                                    Validation="@(primaryContactValidator.GetValidateValue())"
+                                                    Required="true"
+                                                    Variant="Variant.Outlined"
+                                                    Margin="Margin.Dense" />
                                 </div>
-                                <div class="w-100"></div>
 
-                                <!-- Phone -->
-                                <div class="col-sm-6 col-xl-2">
+                            </div>
+                            <div class="w-100"></div>
+
+                            <!-- Phone -->
+                            <div class="col-sm-6 col-xl-2 @(!IsCreateMode ? "d-none": "")">
+                                <div class="form-group">
+                                    <label for="countryCode" class="form-label">Country Code *</label>
                                     <MudSelect @bind-Value="primaryContactModel.CountryCode"
-                                               For="@(() => primaryContactModel.CountryCode)"
-                                               Immediate="true"
-                                               Validation="@(primaryContactValidator.GetValidateValue())"
-                                               Label="Country Code"
-                                               Required="true"
-                                               Variant="Variant.Outlined">
+                                                For="@(() => primaryContactModel.CountryCode)"
+												id="countryCode"
+                                                Immediate="true"
+                                                Validation="@(primaryContactValidator.GetValidateValue())"
+                                                Required="true"
+                                                Variant="Variant.Outlined"
+                                                Margin="Margin.Dense">
 
                                         @if (countryCodes != null)
                                         {
@@ -217,28 +264,21 @@
 
                                 </div>
 
-                                <div class="col-sm-6 col-xl-4">
+
+                            </div>
+
+                            <div class="col-sm-6 col-xl-4 @(!IsCreateMode ? "d-none": "")">
+                                <div class="form-group">
+									<label for="phoneNumber" class="form-label">Phone Number *</label>
                                     <MudTextField @bind-Value="primaryContactModel.PhoneNumber"
-                                                  For="@(() => primaryContactModel.PhoneNumber)"
-                                                  Label="Phone Number"
-                                                  Required="true"
-                                                  Variant="Variant.Outlined"
-                                                  ShrinkLabel />
+                                                    For="@(() => primaryContactModel.PhoneNumber)"
+                                                    id="phoneNumber"
+                                                    Required="true"
+                                                    Variant="Variant.Outlined"
+                                                    Margin="Margin.Dense" />
                                 </div>
-                            }
-                            else
-                            {
-                                <!-- Email -->
-                                <div class="col-sm-10 col-xl-6">
-                                    <MudTextField @bind-Value="primaryContactModel.Email"
-                                                  For="@(() => primaryContactModel.Email)"
-                                                  Validation="@(primaryContactValidator.GetValidateValue())"
-                                                  Label="Email"
-                                                  Required="true"
-                                                  Variant="Variant.Outlined"
-                                                  ShrinkLabel />
-                                </div>
-                            }
+
+                            </div>
 
                         </div>
                     </MudForm>
@@ -246,9 +286,9 @@
                 else if (ActiveStepIndex == 2)
                 {
                     <!-- STEP 3: REVIEW -->
-                    <div class="d-flex flex-column mb-3">
-                        <div class="p-2">Step 3</div>
-                        <h3 class="p-2">@(IsCreateMode ? "Review & Save" : "Review & Update")</h3>
+                    <div class="vstack gap-2 mb-5">
+                        <h3 class="fs-6">Step 3</h3>
+                        <h2 class="fs-4">@(IsCreateMode ? "Review & Save" : "Review & Update")</h2>
                     </div>
 
                     <div class="row gy-2">
@@ -291,36 +331,38 @@
 
             <!-- BUTTONS -->
             <div class="d-flex flex-row-reverse p-5 border-top mb-5">
-
-                @if (ActiveStepIndex < StepTitles.Count - 1)
-                {
-                    <button class="aro-button aro-button-primary me-3" @onclick="MoveNext">
-                        Next
-                        <i class="bi bi-arrow-right ms-2"></i>
-                    </button>
-                }
-                else
-                {
-                    @if (GroupCreationComplete)
+                <div class="hstack gap-2">
+                    @if (ActiveStepIndex > 0 && !GroupCreationComplete)
                     {
-                        <button class="aro-button aro-button-primary me-3" @onclick="SwitchToEditView">
-                            Edit Details
-                        </button>
+                        <AroButton IsPrimary="false"
+                                   IsBack
+                                   Label="Back"
+                                   OnClick="@GoToPreviousPage" />
+                    }
+
+                    @if (ActiveStepIndex < StepTitles.Count - 1)
+                    {
+                        <AroButton IsNext
+                                   Label="Next"
+                                   OnClick="@MoveNext" />
                     }
                     else
                     {
-                        <button class="aro-button aro-button-primary me-3" @onclick="HandleGroupCreation">
-                            @(IsCreateMode ? "Save" : "Update")
-                        </button>
+                        @if (GroupCreationComplete)
+                        {
+                            <AroButton Label="Edit Details"
+                                       OnClick="@SwitchToEditView" />
+                        }
+                        else
+                        {
+                            <AroButton Label="@(IsCreateMode ? "Save" : "Update")"
+                                       OnClick="@HandleGroupCreation" />
+                        }
                     }
-                }
 
-                @if (ActiveStepIndex > 0 && !GroupCreationComplete)
-                {
-                    <button class="aro-button aro-button-secondary me-3" @onclick="GoToPreviousPage">
-                        <i class="bi bi-arrow-left me-2"></i> Back
-                    </button>
-                }
+                </div>
+
+
             </div>
         </div>
     </div>
