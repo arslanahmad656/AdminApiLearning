@@ -9,6 +9,8 @@ public class PropertyRepository(AroDbContext dbContext) : RepositoryBase<Propert
 {
     public IQueryable<Property> GetById(Guid id) => FindByCondition(filter: p => p.Id == id);
 
+    public IQueryable<Property> GetByGroupAndId(Guid groupId, Guid propertyId) => FindByCondition(filter: p => p.GroupId == groupId && p.Id == propertyId);
+
     public IQueryable<Property> GetByGroupId(Guid groupId) => FindByCondition(filter: p => p.GroupId == groupId && p.IsActive);
 
     public IQueryable<Property> GetByNameAndGroupId(string propertyName, Guid? groupId) =>

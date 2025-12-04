@@ -1,4 +1,5 @@
 using Aro.Booking.Domain.Entities;
+using Aro.Common.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -63,6 +64,11 @@ public class PropertyConfiguration : IEntityTypeConfiguration<Property>
         builder.HasOne(p => p.Address)
             .WithMany()
             .HasForeignKey(p => p.AddressId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(p => p.Files)
+            .WithOne()
+            .HasForeignKey(pf => pf.PropertyId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

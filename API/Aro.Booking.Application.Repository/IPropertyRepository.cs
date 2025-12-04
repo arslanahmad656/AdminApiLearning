@@ -6,6 +6,8 @@ public interface IPropertyRepository
 {
     IQueryable<Property> GetById(Guid id);
 
+    IQueryable<Property> GetByGroupAndId(Guid groupId, Guid propertyId);
+
     IQueryable<Property> GetByGroupId(Guid groupId);
 
     IQueryable<Property> GetByNameAndGroupId(string propertyName, Guid? groupId);

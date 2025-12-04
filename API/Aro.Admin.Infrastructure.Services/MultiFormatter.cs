@@ -3,7 +3,7 @@ using Aro.Common.Application.Services.LogManager;
 
 namespace Aro.Admin.Infrastructure.Services;
 
-public class ISO8601DateFormatter(ILogManager<ISO8601DateFormatter> logger) : IDateFormatter
+public class MultiFormatter(ILogManager<MultiFormatter> logger) : IMultiFormatter
 {
     public string Format(DateTimeOffset date)
     {
@@ -25,6 +25,12 @@ public class ISO8601DateFormatter(ILogManager<ISO8601DateFormatter> logger) : ID
     public string FormatTime(TimeOnly time)
     {
         var formatted = time.ToString("HH:mm:ss");
+        return formatted;
+    }
+
+    public string FormatGuidCompact(Guid guid)
+    {
+        var formatted = guid.ToString("N");
         return formatted;
     }
 }

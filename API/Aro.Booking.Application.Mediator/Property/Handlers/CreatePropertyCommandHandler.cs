@@ -19,31 +19,38 @@ public class CreatePropertyCommandHandler(IPropertyService propertyService, IMed
                 request.Request.PropertyTypes,
                 request.Request.StarRating,
                 request.Request.Currency,
-                request.Request.Description
+                request.Request.Description,
+                request.Request.SetAddressSameAsGroupAddress,
+                request.Request.AddressLine1,
+                request.Request.AddressLine2,
+                request.Request.City,
+                request.Request.Country,
+                request.Request.PostalCode,
+                request.Request.PhoneNumber,
+                request.Request.Website,
+                request.Request.SetContactSameAsGroupContact,
+                request.Request.ContactName,
+                request.Request.ContactEmail,
+                request.Request.KeySellingPoints,
+                request.Request.MarketingTitle,
+                request.Request.MarketingDescription,
+                request.Request.Files.Select(f => new CreatePropertyDto.FileData(f.FileName, f.Content)).ToList()
             ),
             cancellationToken
         ).ConfigureAwait(false);
 
         await mediator.Publish(
             new PropertyCreatedNotification(
-                serviceResponse.Id,
+                serviceResponse.PropertyId,
                 serviceResponse.GroupId,
-                serviceResponse.PropertyName,
-                serviceResponse.PropertyTypes,
-                serviceResponse.StarRating,
-                serviceResponse.Currency
+                serviceResponse.PropertyName
             ),
             cancellationToken
         ).ConfigureAwait(false);
 
         return new DTOs.CreatePropertyResponse(
-            serviceResponse.Id,
-            serviceResponse.GroupId,
-            serviceResponse.PropertyName,
-            serviceResponse.PropertyTypes,
-            serviceResponse.StarRating,
-            serviceResponse.Currency,
-            serviceResponse.Description
+            serviceResponse.PropertyId,
+            serviceResponse.GroupId
         );
     }
 }

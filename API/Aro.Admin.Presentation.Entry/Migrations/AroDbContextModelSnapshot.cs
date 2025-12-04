@@ -231,10 +231,16 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PostalCode")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("Website")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -257,23 +263,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.ToTable("Amenities", (string)null);
                 });
 
-            modelBuilder.Entity("Aro.Booking.Domain.Entities.Contact", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("Contacts", (string)null);
-                });
-
             modelBuilder.Entity("Aro.Booking.Domain.Entities.Group", b =>
                 {
                     b.Property<Guid>("Id")
@@ -284,9 +273,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("AddressId1")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ContactId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("GroupName")
@@ -311,8 +297,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
 
                     b.HasIndex("AddressId1");
 
-                    b.HasIndex("ContactId");
-
                     b.HasIndex("PrimaryContactId");
 
                     b.ToTable("Groups", (string)null);
@@ -330,10 +314,7 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Property<Guid?>("AddressId1")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ContactId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("ContactId1")
+                    b.Property<Guid>("ContactId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -361,6 +342,15 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
+                    b.Property<string>("KeySellingPoints")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MarketingDescription")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MarketingTitle")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PropertyName")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -382,8 +372,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.HasIndex("AddressId1");
 
                     b.HasIndex("ContactId");
-
-                    b.HasIndex("ContactId1");
 
                     b.HasIndex("GroupId");
 
@@ -576,6 +564,28 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.ToTable("Permissions", (string)null);
                 });
 
+            modelBuilder.Entity("Aro.Common.Domain.Entities.PropertyFiles", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PropertyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileId");
+
+                    b.HasIndex("PropertyId", "FileId")
+                        .IsUnique();
+
+                    b.ToTable("PropertyFiles", (string)null);
+                });
+
             modelBuilder.Entity("Aro.Common.Domain.Entities.Role", b =>
                 {
                     b.Property<Guid>("Id")
@@ -714,17 +724,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Aro.Booking.Domain.Entities.Contact", b =>
-                {
-                    b.HasOne("Aro.Common.Domain.Entities.User", "User")
-                        .WithOne()
-                        .HasForeignKey("Aro.Booking.Domain.Entities.Contact", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Aro.Booking.Domain.Entities.Group", b =>
                 {
                     b.HasOne("Aro.Booking.Domain.Entities.Address", "Address")
@@ -736,10 +735,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.HasOne("Aro.Booking.Domain.Entities.Address", null)
                         .WithMany("Groups")
                         .HasForeignKey("AddressId1");
-
-                    b.HasOne("Aro.Booking.Domain.Entities.Contact", null)
-                        .WithMany("Groups")
-                        .HasForeignKey("ContactId");
 
                     b.HasOne("Aro.Common.Domain.Entities.User", "PrimaryContact")
                         .WithMany()
@@ -763,14 +758,11 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         .WithMany("Properties")
                         .HasForeignKey("AddressId1");
 
-                    b.HasOne("Aro.Booking.Domain.Entities.Contact", "Contact")
+                    b.HasOne("Aro.Common.Domain.Entities.User", "Contact")
                         .WithMany()
                         .HasForeignKey("ContactId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("Aro.Booking.Domain.Entities.Contact", null)
-                        .WithMany("Properties")
-                        .HasForeignKey("ContactId1");
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.HasOne("Aro.Booking.Domain.Entities.Group", "Group")
                         .WithMany()
@@ -829,6 +821,21 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Aro.Common.Domain.Entities.PropertyFiles", b =>
+                {
+                    b.HasOne("Aro.Common.Domain.Entities.FileResource", null)
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Aro.Booking.Domain.Entities.Property", null)
+                        .WithMany("Files")
+                        .HasForeignKey("PropertyId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Aro.Common.Domain.Entities.RolePermission", b =>
                 {
                     b.HasOne("Aro.Common.Domain.Entities.Permission", "Permission")
@@ -879,13 +886,6 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Navigation("RoomAmenities");
                 });
 
-            modelBuilder.Entity("Aro.Booking.Domain.Entities.Contact", b =>
-                {
-                    b.Navigation("Groups");
-
-                    b.Navigation("Properties");
-                });
-
             modelBuilder.Entity("Aro.Booking.Domain.Entities.Group", b =>
                 {
                     b.Navigation("Properties");
@@ -893,6 +893,8 @@ namespace Aro.Admin.Presentation.Entry.Migrations
 
             modelBuilder.Entity("Aro.Booking.Domain.Entities.Property", b =>
                 {
+                    b.Navigation("Files");
+
                     b.Navigation("Rooms");
                 });
 

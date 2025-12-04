@@ -1,7 +1,10 @@
 using Aro.Booking.Application.Mediator.Property.Commands;
+using Aro.Booking.Application.Mediator.Property.DTOs;
+using Aro.Booking.Application.Mediator.Property.Queries;
 using Aro.Booking.Presentation.Api.DTOs;
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
+using Aro.Common.Infrastructure.Shared.Extensions;
 using Aro.Common.Presentation.Shared.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -17,14 +20,41 @@ public class PropertyController(
 {
     [HttpPost("create")]
     [Permissions(PermissionCodes.CreateProperty)]
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> CreateProperty(
-        [FromBody] CreatePropertyModel model,
+        [FromForm] CreatePropertyModel model,
         CancellationToken cancellationToken
         )
     {
         logger.LogDebug("Starting CreateProperty operation for property: {PropertyName}",
             model.PropertyName);
 
+        // TODO: refactor the following if branches to a method
+        var fileData = new List<CreatePropertyRequest.FileData>();
+        if (model.Files.Favicon is not null)
+        {
+            var favicon = new MemoryStream();
+            await model.Files.Favicon.CopyToAsync(favicon, cancellationToken).ConfigureAwait(false);
+            favicon.Position = 0;
+            fileData.Add(new(nameof(model.Files.Favicon), favicon));
+        }
+
+        if (model.Files.Banner1 is not null)
+        {
+            var banner1 = new MemoryStream();
+            await model.Files.Banner1.CopyToAsync(banner1, cancellationToken).ConfigureAwait(false);
+            banner1.Position = 0;
+            fileData.Add(new(nameof(model.Files.Banner1), banner1));
+        }
+
+        if (model.Files.Banner2 is not null)
+        {
+            var banner2 = new MemoryStream();
+            await model.Files.Banner2.CopyToAsync(banner2, cancellationToken).ConfigureAwait(false);
+            banner2.Position = 0;
+            fileData.Add(new(nameof(model.Files.Banner2), banner2));
+        }
+        
         var response = await mediator.Send(new CreatePropertyCommand(
             new(
                 model.GroupId,
@@ -32,12 +62,71 @@ public class PropertyController(
                 model.PropertyTypes,
                 model.StarRating,
                 model.Currency,
-                model.Description
+                model.Description,
+                model.SetAddressSameAsGroupAddress,
+                model.AddressLine1,
+                model.AddressLine2,
+                model.City,
+                model.Country,
+                model.PostalCode,
+                model.PhoneNumber,
+                model.Website,
+                model.SetContactSameAsPrimaryContact,
+                model.ContactName,
+                model.ContactEmail,
+                model.KeySellingPoints,
+                model.MarketingTitle,
+                model.MarketingDescription,
+                fileData
             )
         ), cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Completed CreateProperty operation successfully with Id: {PropertyId}",
-            response.Id);
+            response.PropertyId);
+
+        return Ok(response);
+    }
+
+    [HttpGet("getbyid/{groupId:Guid}/{propertyId:Guid}")]
+    public async Task<IActionResult> GetProperty(Guid groupId, Guid propertyId)
+    {
+        logger.LogDebug("Starting GetProperty operation for PropertyId: {PropertyId} in GroupId: {GroupId}",
+            propertyId, groupId);
+        var response = await mediator.Send(new GetPropertyByGroupAndPropertyIdQuery(
+            new(
+                groupId,
+                propertyId
+            )
+        )).ConfigureAwait(false);
+
+        logger.LogDebug("Completed GetProperty operation successfully with Id: {PropertyId}",
+            response.PropertyId);
+
+        return Ok(response);
+    }
+
+    [HttpGet("image/{groupId:Guid}/{propertyId:Guid}/{imageId:Guid}")]
+    public async Task<IActionResult> GetImage(Guid groupId, Guid propertyId, Guid imageId)
+    {
+        logger.LogDebug("Starting GetImage operation for ImageId: {ImageId} in PropertyId: {PropertyId}, GroupId: {GroupId}",
+            imageId, propertyId, groupId);
+
+        var response = await mediator.Send(new GetPropertyImageQuery(
+            new GetPropertyImageRequest(groupId, propertyId, imageId))).ConfigureAwait(false);
+
+        string contentType = "image/jpeg";
+        return File(response.Image, contentType);
+    }
+
+    [HttpGet("bygroup/{groupId:Guid}")]
+    public async Task<IActionResult> GetPropertiesByGroupId(Guid groupId)
+    {
+        logger.LogDebug("Starting GetPropertiesByGroupId operation for GroupId: {GroupId}", groupId);
+
+        var response = await mediator.Send(new GetPropertiesByGroupIdQuery(
+            new GetPropertiesByGroupIdRequest(groupId))).ConfigureAwait(false);
+
+        logger.LogDebug("Completed GetPropertiesByGroupId operation, found {Count} properties", response.Count);
 
         return Ok(response);
     }

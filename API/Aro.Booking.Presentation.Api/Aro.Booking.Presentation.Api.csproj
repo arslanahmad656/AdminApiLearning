@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Aro.Booking.Application.Mediator\Aro.Booking.Application.Mediator.csproj" />
     <ProjectReference Include="..\Aro.Booking.Domain.Shared\Aro.Booking.Domain.Shared.csproj" />
+    <ProjectReference Include="..\Aro.Common.Infrastructure.Shared\Aro.Common.Infrastructure.Shared.csproj" />
     <ProjectReference Include="..\Aro.Common.Presentation.Shared\Aro.Common.Presentation.Shared.csproj" />
   </ItemGroup>
 

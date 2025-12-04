@@ -1,6 +1,14 @@
-﻿@page "/property/review-save"
+@page "/property/review-save"
+@using System.Text.Json
+@using Microsoft.JSInterop
+@using Aro.UI.Application.DTOs
+@using Aro.UI.Application.Interfaces
 @layout WizardLayout
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+@inject IPropertyService PropertyService
+@inject ISnackbar Snackbar
+@inject IErrorHandlingService ErrorHandler
 
 <div class="wizard-layout">
     <!-- Header Bar -->
@@ -50,57 +58,100 @@
             <!-- 1. Property Information -->
             <h3 class="review-section-title">1. PROPERTY INFORMATION</h3>
             <div class="review-grid">
-                <label>Property Name:</label> <div>@Model.PropertyName</div>
-                <label>Property Code:</label> <div>@Model.PropertyCode</div>
-                <label>Property Type:</label> <div>@Model.PropertyType</div>
-                <label>Star Rating:</label> <div>@Model.StarRating</div>
-                <label>Description:</label> <div>@Model.Description</div>
+                <div class="review-label">Property Name</div>
+                <div class="review-value">@wizardModel.PropertyName</div>
+
+                <div class="review-label">Property Code</div>
+                <div class="review-value">Auto-generated on save</div>
+
+                <div class="review-label">Property Type</div>
+                <div class="review-value">@GetPropertyTypesDisplay()</div>
+
+                <div class="review-label">Star Rating</div>
+                <div class="review-value">@(wizardModel.StarRating > 0 ? $"{wizardModel.StarRating}-Star" : "Not selected")</div>
+
+                <div class="review-label">Description</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.Description) ? "Not provided" : wizardModel.Description)</div>
             </div>
 
-            <!-- 2. Address & Contact -->
+            <!-- 2. Address & Primary Contact -->
             <h3 class="review-section-title">2. ADDRESS & PRIMARY CONTACT</h3>
             <div class="review-grid">
-                <label>Address Line 1</label> <div>@Model.AddressLine1</div>
-                <label>Address Line 2</label> <div>@(string.IsNullOrWhiteSpace(Model.AddressLine2) ? "Not provided" : Model.AddressLine2)</div>
-                <label>City</label> <div>@Model.City</div>
-                <label>Country</label> <div>@Model.Country</div>
-                <label>Postal Code</label> <div>@Model.PostalCode</div>
-                <label>Phone Number</label> <div>@Model.PhoneNumber</div>
-                <label>Website URL</label> <div>@Model.WebsiteUrl</div>
-                <label>Primary Contact</label> <div>@Model.PrimaryContact</div>
-                <label>Primary Contact Name</label> <div>@Model.PrimaryContactName</div>
-                <label>Primary Contact Email</label> <div>@Model.PrimaryContactEmail</div>
-                <label>Role</label> <div>@Model.PrimaryContactRole</div>
+                <div class="review-label">Address Line 1</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.AddressLine1) ? "Not provided" : wizardModel.AddressLine1)</div>
+
+                <div class="review-label">Address Line 2</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.AddressLine2) ? "Not provided" : wizardModel.AddressLine2)</div>
+
+                <div class="review-label">City</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.City) ? "Not provided" : wizardModel.City)</div>
+
+                <div class="review-label">Country</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.Country) ? "Not provided" : wizardModel.Country)</div>
+
+                <div class="review-label">Postal Code</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.PostalCode) ? "Not provided" : wizardModel.PostalCode)</div>
+
+                <div class="review-label">Phone Number</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) ? "Not provided" : wizardModel.PhoneNumber)</div>
+
+                <div class="review-label">Website URL</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.Website) ? "Not provided" : wizardModel.Website)</div>
+
+                <div class="review-label">Primary Contact Name</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.ContactName) ? "Not provided" : wizardModel.ContactName)</div>
+
+                <div class="review-label">Primary Contact Email</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.ContactEmail) ? "Not provided" : wizardModel.ContactEmail)</div>
+
+                <div class="review-label">Role</div>
+                <div class="review-value">Property Manager</div>
             </div>
 
             <!-- 3. Key Selling Points -->
             <h3 class="review-section-title">3. KEY SELLING POINTS</h3>
-            <ul>
-                @foreach (var point in Model.SellingPoints)
-                {
-                    <li>@point</li>
-                }
-            </ul>
+            <div class="review-grid">
+                <div class="review-label">Key Selling Points</div>
+                <div class="review-value">
+                    @if (wizardModel.KeySellingPoints != null && wizardModel.KeySellingPoints.Any())
+                    {
+                        @string.Join(", ", wizardModel.KeySellingPoints)
+                    }
+                    else
+                    {
+                        <span>Not provided</span>
+                    }
+                </div>
+            </div>
 
             <!-- 4. Media Files -->
             <h3 class="review-section-title">4. MEDIA FILES</h3>
             <div class="review-grid">
-                <label>Images</label> <div>@string.Join(", ", Model.Images)</div>
-                <label>Favicon</label> <div>@Model.Favicon</div>
+                <div class="review-label">Banner 1</div>
+                <div class="review-value">@(wizardModel.Banner1?.FileName ?? "Not uploaded")</div>
+
+                <div class="review-label">Banner 2</div>
+                <div class="review-value">@(wizardModel.Banner2?.FileName ?? "Not uploaded")</div>
+
+                <div class="review-label">Favicon</div>
+                <div class="review-value">@(wizardModel.Favicon?.FileName ?? "Not uploaded")</div>
             </div>
 
-            <!-- 5. Marketing & SEO -->
-            <h3 class="review-section-title">5. MARKETING AND SEO</h3>
+            <!-- 5. Meta Title & Description -->
+            <h3 class="review-section-title">5. META TITLE & DESCRIPTION</h3>
             <div class="review-grid">
-                <label>H1</label> <div>@Model.H1</div>
-                <label>Meta Description</label> <div>@Model.MetaDescription</div>
+                <div class="review-label">Meta Title</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.MarketingTitle) ? "Not provided" : wizardModel.MarketingTitle)</div>
+
+                <div class="review-label">Meta Description</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.MarketingDescription) ? "Not provided" : wizardModel.MarketingDescription)</div>
             </div>
 
             <WizardFooter OnBack="GoBack"
                           OnSave="SaveProperty"
                           ShowSave="true"
                           BackDisabled="false"
-                          SaveDisabled="false" />
+                          SaveDisabled="@isSaving" />
         </div>
     </div>
 </div>
@@ -112,69 +163,89 @@
         "Address & Primary Contact",
         "Key Selling Points",
         "Media Files",
-        "Marketing & SEO",
+        "Meta Title & Description",
         "Review & Save"
     };
 
-    private ReviewModel Model = new()
+    private PropertyWizardModel wizardModel = new();
+    private bool isSaving = false;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        PropertyName = "Danmark Hotel",
-        PropertyCode = "DKH",
-        PropertyType = "Hotel",
-        StarRating = "4-Star",
-        Description = "Description of the property goes here",
-        AddressLine1 = "Vester Voldgade 89, 1552 Copenhagen",
-        AddressLine2 = "",
-        City = "Copenhagen",
-        Country = "Denmark",
-        PostalCode = "7000",
-        PhoneNumber = "+45 3311 4806",
-        WebsiteUrl = "www.brochner-hotels.com/our-locations/hotel-danmark",
-        PrimaryContact = "Mr. Anders",
-        PrimaryContactName = "Anders Jensen",
-        PrimaryContactEmail = "anders@example.com",
-        PrimaryContactRole = "Manager",
-        SellingPoints = new() { "Free WiFi", "Central Location", "24/7 Reception" },
-        Images = new() { "banner1.jpg", "banner2.jpg" },
-        Favicon = "favicon.ico",
-        H1 = "Welcome to Danmark Hotel",
-        MetaDescription = "Stay at the heart of Copenhagen with top amenities and central access."
-    };
+        if (firstRender)
+        {
+            await LoadFromLocalStorage();
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadFromLocalStorage()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                var savedModel = JsonSerializer.Deserialize<PropertyWizardModel>(json);
+                if (savedModel != null)
+                {
+                    wizardModel = savedModel;
+                }
+            }
+        }
+        catch
+        {
+            // Silent fail - localStorage errors are not critical
+        }
+    }
+
+    private string GetPropertyTypesDisplay()
+    {
+        var types = wizardModel.PropertyTypes.ToList();
+        return types.Any() ? string.Join(", ", types) : "Not selected";
+    }
 
     private void GoBack() => NavigationManager.NavigateTo("/property/marketing-seo");
-    private void SaveProperty() => Console.WriteLine("Save clicked");
+
+    private async Task SaveProperty()
+    {
+        if (isSaving) return;
+        isSaving = true;
+        StateHasChanged();
+
+        try
+        {
+            var response = await PropertyService.CreatePropertyAsync(wizardModel);
+
+            if (response != null)
+            {
+                // Clear localStorage after successful save
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", PropertyWizardModel.LocalStorageKey);
+
+                Snackbar.Add("Property created successfully!", MudBlazor.Severity.Success);
+
+                // Navigate to property list or dashboard
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                Snackbar.Add("Failed to create property. Please try again.", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorHandler.ShowError(ex, "An error occurred while creating the property. Please try again.");
+        }
+        finally
+        {
+            isSaving = false;
+            StateHasChanged();
+        }
+    }
+
     private async Task HandleClose()
     {
-        // Navigate back or show confirmation dialog
         NavigationManager.NavigateTo("/");
-    }
-    public class ReviewModel
-    {
-        public string PropertyName { get; set; }
-        public string PropertyCode { get; set; }
-        public string PropertyType { get; set; }
-        public string StarRating { get; set; }
-        public string Description { get; set; }
-
-        public string AddressLine1 { get; set; }
-        public string AddressLine2 { get; set; }
-        public string City { get; set; }
-        public string Country { get; set; }
-        public string PostalCode { get; set; }
-        public string PhoneNumber { get; set; }
-        public string WebsiteUrl { get; set; }
-
-        public string PrimaryContact { get; set; }
-        public string PrimaryContactName { get; set; }
-        public string PrimaryContactEmail { get; set; }
-        public string PrimaryContactRole { get; set; }
-
-        public List<string> SellingPoints { get; set; } = new();
-        public List<string> Images { get; set; } = new();
-        public string Favicon { get; set; }
-
-        public string H1 { get; set; }
-        public string MetaDescription { get; set; }
     }
 }
 <style>
@@ -413,26 +484,38 @@
 
     .review-grid {
         display: grid;
-        grid-template-columns: 200px 1fr;
-        row-gap: 12px;
-        column-gap: 20px;
-        margin-bottom: 40px;
+        grid-template-columns: 180px 1fr;
+        row-gap: 16px;
+        column-gap: 40px;
+        margin-bottom: 32px;
     }
 
     .review-section-title {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         font-weight: 400;
         font-size: 16px;
-        margin-top: 30px;
+        margin-top: 32px;
         color: #000000;
         margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
-    .review-grid label {
+    .review-label {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         font-weight: 400;
         font-size: 16px;
         color: #707070;
+        line-height: 24px;
+    }
+
+    .review-value {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        color: #000000;
+        line-height: 24px;
+        word-break: break-word;
     }
     .wizard-footer {
         display: flex;
