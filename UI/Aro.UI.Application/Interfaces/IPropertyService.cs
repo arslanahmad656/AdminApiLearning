@@ -4,10 +4,14 @@ namespace Aro.UI.Application.Interfaces;
 
 public interface IPropertyService
 {
-    Task<CreatePropertyResponse?> CreatePropertyAsync(CreatePropertyRequest request);
+    /// <summary>
+    /// Creates a new property with all wizard data including file uploads.
+    /// Sends multipart/form-data to the API.
+    /// </summary>
+    Task<CreatePropertyResponse?> CreatePropertyAsync(PropertyWizardModel wizardData);
 
     /// <summary>
-    /// Saves property data for any wizard step (create draft or update existing)
+    /// Gets all properties for a specific group.
     /// </summary>
-    Task<SavePropertyResponse?> SavePropertyAsync(SavePropertyRequest request);
+    Task<List<PropertyListItemResponse>> GetPropertiesByGroupIdAsync(Guid groupId);
 }

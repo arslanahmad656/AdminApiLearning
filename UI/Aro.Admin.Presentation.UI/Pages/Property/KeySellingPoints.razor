@@ -1,9 +1,13 @@
 @page "/property/key-selling-points"
 @using System.ComponentModel.DataAnnotations
+@using System.Text.Json
 @using Microsoft.AspNetCore.Components
+@using Microsoft.JSInterop
 @using MudBlazor.Components
+@using Aro.UI.Application.DTOs
 @layout WizardLayout
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 
 <div class="property-wizard-container">
@@ -104,7 +108,8 @@
                                class="selling-point-input"
                                maxlength="30"
                                @bind="keySellingPoints[index].Text"
-                               placeholder="@keySellingPlaceHolder[index]" />
+                               @onfocus="() => SetActiveIndex(index)"
+                               @onblur="ClearActiveIndex" />
 
                         <button type="button" class="delete-btn" @onclick="() => Remove(index)">
                             <img width="18" height="18" src="icons/delete.png" />
@@ -116,9 +121,9 @@
                     </div>
                 </div>
 
-                @if (remainingChars == 0)
+                @if (activeInputIndex == index)
                 {
-                    <div class="char-count zero">0 characters left</div>
+                    <div class="char-count @(remainingChars == 0 ? "zero" : "")">@remainingChars characters left</div>
                 }
             }
             @if (keySellingPoints.Count < 4)
@@ -139,8 +144,7 @@
 </div>
 
 @code {
-    private string searchQuery = "";
-    private bool isOutdoorExpanded = false;
+    private PropertyWizardModel wizardModel = new();
 
     private List<SellingPointItem> keySellingPoints = new()
     {
@@ -150,17 +154,82 @@
         new SellingPointItem { Text = "" }
     };
 
-    private List<string> keySellingPlaceHolder = new()
-    {
-        "eg. Free Cancellation",
-        "eg. Super fast Wi-Fi",
-        "eg. No booking deposit",
-        "eg. City Centre location"
-    };
-
     // Drag state
     private int? dragIndex = null;
     private int? dragOverIndex = null;
+
+    // Active input tracking for character count display
+    private int? activeInputIndex = null;
+
+    private void SetActiveIndex(int index)
+    {
+        activeInputIndex = index;
+    }
+
+    private void ClearActiveIndex()
+    {
+        activeInputIndex = null;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadFromLocalStorage();
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadFromLocalStorage()
+    {
+        try
+        {
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            if (!string.IsNullOrEmpty(json))
+            {
+                var savedModel = JsonSerializer.Deserialize<PropertyWizardModel>(json);
+                if (savedModel != null)
+                {
+                    wizardModel = savedModel;
+                    // Sync keySellingPoints from wizardModel
+                    if (wizardModel.KeySellingPoints != null && wizardModel.KeySellingPoints.Any())
+                    {
+                        keySellingPoints = wizardModel.KeySellingPoints
+                            .Select(p => new SellingPointItem { Text = p })
+                            .ToList();
+                        // Pad to 4 items if less
+                        while (keySellingPoints.Count < 4)
+                        {
+                            keySellingPoints.Add(new SellingPointItem { Text = "" });
+                        }
+                    }
+                }
+            }
+        }
+        catch
+        {
+            // Silent fail - localStorage errors are not critical
+        }
+    }
+
+    private async Task SaveToLocalStorage()
+    {
+        try
+        {
+            // Sync wizardModel.KeySellingPoints from keySellingPoints (non-empty only)
+            wizardModel.KeySellingPoints = keySellingPoints
+                .Where(p => !string.IsNullOrWhiteSpace(p.Text))
+                .Select(p => p.Text)
+                .ToList();
+            wizardModel.CurrentStep = 3;
+            var json = JsonSerializer.Serialize(wizardModel);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", PropertyWizardModel.LocalStorageKey, json);
+        }
+        catch
+        {
+            // Silent fail - localStorage errors are not critical
+        }
+    }
 
     private void HandleDragStart(int index)
     {
@@ -192,7 +261,6 @@
         var draggedItem = keySellingPoints[dragIndex.Value];
         keySellingPoints.RemoveAt(dragIndex.Value);
 
-        // Adjust index if dragging down
         if (dropIndex > dragIndex.Value)
             dropIndex--;
 
@@ -200,83 +268,45 @@
 
         dragIndex = null;
         dragOverIndex = null;
+        // Don't save on every drag - save only on navigation
     }
 
     private void AddSellingPoint()
     {
         if (keySellingPoints.Count < 4)
+        {
             keySellingPoints.Add(new SellingPointItem { Text = "" });
+            // Don't save on every add - save only on navigation
+        }
     }
 
     private void Remove(int index)
     {
         if (index >= 0 && index < keySellingPoints.Count)
+        {
             keySellingPoints.RemoveAt(index);
-    }
-
-    private List<FacilityModel> indoorFacilities = new()
-    {
-        new() { Id = "heated-pool", Name = "Heated pool", IsSelected = true },
-        new() { Id = "public-bath", Name = "Public bath", IsSelected = false },
-        new() { Id = "spa-wellness", Name = "Spa and wellness", IsSelected = false },
-        new() { Id = "kitchen", Name = "Kitchen", IsSelected = true },
-        new() { Id = "superfast-wifi", Name = "Superfast WiFi", IsSelected = false },
-        new() { Id = "fitness-gym", Name = "Fitness centre/ Gym", IsSelected = false },
-        new() { Id = "laundry", Name = "Laundry", IsSelected = true },
-        new() { Id = "luggage-storage", Name = "Luggage storage", IsSelected = false },
-        new() { Id = "bar", Name = "Bar", IsSelected = false },
-        new() { Id = "restaurants", Name = "Restaurants", IsSelected = true },
-        new() { Id = "event-spaces", Name = "Event spaces", IsSelected = false },
-        new() { Id = "elevators", Name = "Elevators", IsSelected = false },
-        new() { Id = "wheelchair-ramps", Name = "Wheelchair ramps", IsSelected = true },
-        new() { Id = "indoor-parking", Name = "Indoor parking", IsSelected = false },
-        new() { Id = "meeting-rooms", Name = "Meeting rooms", IsSelected = false }
-    };
-
-    private List<FacilityModel> outdoorFacilities = new()
-    {
-        new() { Id = "outdoor-pool", Name = "Outdoor pool", IsSelected = false },
-        new() { Id = "garden", Name = "Garden", IsSelected = false },
-        new() { Id = "terrace", Name = "Terrace", IsSelected = false },
-        new() { Id = "bbq", Name = "BBQ facilities", IsSelected = false },
-        new() { Id = "outdoor-parking", Name = "Outdoor parking", IsSelected = false },
-        new() { Id = "playground", Name = "Playground", IsSelected = false }
-    };
-
-    private IEnumerable<FacilityModel> filteredIndoorFacilities =>
-        string.IsNullOrWhiteSpace(searchQuery)
-            ? indoorFacilities
-            : indoorFacilities.Where(f => f.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase));
-
-    private void ToggleOutdoorFacilities()
-    {
-        isOutdoorExpanded = !isOutdoorExpanded;
+            // Don't save on every remove - save only on navigation
+        }
     }
 
     private void HandleClose()
     {
-        // Navigate back or show confirmation dialog
+        // Don't save on close - user is canceling
+        NavigationManager.NavigateTo("/");
     }
 
-    private void HandleBack()
+    private async Task HandleBack()
     {
-        // Navigate back to Address & Primary Contact page
+        await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/address-contact");
     }
 
-    private void HandleNext()
+    private async Task HandleNext()
     {
-        // Navigate to Media Files page (Step 4)
-        // TODO: Implement save logic
+        await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/media-files");
     }
 
-    public class FacilityModel
-    {
-        public string Id { get; set; } = string.Empty;
-        public string Name { get; set; } = string.Empty;
-        public bool IsSelected { get; set; }
-    }
     public class SellingPointItem
     {
         public string Text { get; set; } = string.Empty;
@@ -663,15 +693,19 @@
         background: #f2f2f2;
     }
 
-    .char-count.zero {
+    .char-count {
         font-size: 12px;
-        color: #FF4D4F;
+        color: #737373;
         margin: 0 0 10px 5px;
         padding-right: 10px;
         display: flex;
         justify-content: end;
         width: 50%;
         font-family: 'Inter', sans-serif;
+    }
+
+    .char-count.zero {
+        color: #FF4D4F;
         font-weight: bold;
     }
 </style>

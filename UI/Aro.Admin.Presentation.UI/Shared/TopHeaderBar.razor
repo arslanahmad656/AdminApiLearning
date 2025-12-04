@@ -1,0 +1,93 @@
+@using Aro.UI.Application.Interfaces
+@inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
+
+<div class="top-right-section">
+    <div class="top-right-profile" @onclick="HandleProfileClick">
+        @if (!string.IsNullOrEmpty(ProfileImageUrl))
+        {
+            <img class="profile-img" src="@ProfileImageUrl" alt="Profile" />
+        }
+        else
+        {
+            <img class="profile-img" src="icons/profile.png" alt="Profile" />
+        }
+        <span class="property-name">@GroupName</span>
+        <img src="icons/dropdown.png" alt="Dropdown" class="dropdown-icon" />
+    </div>
+
+    <div class="top-right-icons" @onclick="HandleSearchClick">
+        <img src="icons/searchicon.png" alt="Search" />
+    </div>
+
+    <div class="top-right-icons" @onclick="HandleSettingsClick">
+        <img src="icons/settings.png" alt="Settings" />
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// The name of the group/organization to display
+    /// </summary>
+    [Parameter]
+    public string GroupName { get; set; } = "Brøchner hotels";
+
+    /// <summary>
+    /// Optional profile image URL. If not provided, uses default profile icon.
+    /// </summary>
+    [Parameter]
+    public string? ProfileImageUrl { get; set; }
+
+    /// <summary>
+    /// Event callback when search icon is clicked
+    /// </summary>
+    [Parameter]
+    public EventCallback OnSearchClick { get; set; }
+
+    /// <summary>
+    /// Event callback when settings icon is clicked
+    /// </summary>
+    [Parameter]
+    public EventCallback OnSettingsClick { get; set; }
+
+    /// <summary>
+    /// Event callback when profile/group selector is clicked
+    /// </summary>
+    [Parameter]
+    public EventCallback OnProfileClick { get; set; }
+
+    private async Task HandleSearchClick()
+    {
+        if (OnSearchClick.HasDelegate)
+        {
+            await OnSearchClick.InvokeAsync();
+        }
+        else
+        {
+            // Default behavior
+            Snackbar.Add("Search functionality has not yet been implemented.", MudBlazor.Severity.Info);
+        }
+    }
+
+    private async Task HandleSettingsClick()
+    {
+        if (OnSettingsClick.HasDelegate)
+        {
+            await OnSettingsClick.InvokeAsync();
+        }
+        else
+        {
+            // Default behavior - navigate to settings
+            NavigationManager.NavigateTo("/settings");
+        }
+    }
+
+    private async Task HandleProfileClick()
+    {
+        if (OnProfileClick.HasDelegate)
+        {
+            await OnProfileClick.InvokeAsync();
+        }
+        // No default behavior for profile click - can be used to show group selector dropdown
+    }
+}

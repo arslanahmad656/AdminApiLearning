@@ -265,21 +265,27 @@ public class PropertyService(
 
         var properties = await repositoryManager.PropertyRepository
             .GetByGroupId(groupId)
+            .Include(p => p.Address)
+            .Include(p => p.Contact)
             .OrderBy(p => p.PropertyName)
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
 
         logger.LogDebug("Retrieved {Count} properties for group '{GroupId}'", properties.Count, groupId);
 
-        var tasks = properties.Select(async property =>
+        var response = new List<GetPropertyResponse>();
+
+        // Process sequentially to avoid DbContext threading issues
+        foreach (var property in properties)
         {
-            logger.LogWarn("Fetching the images info for property id {PropertyId}", property.Id);
+            logger.LogDebug("Fetching the images info for property id {PropertyId}", property.Id);
             var images = await repositoryManager.PropertyFilesRepository
                 .GetByPropertyId(property.Id)
-                .ToListAsync(cancellationToken: cancellationToken);
-            logger.LogWarn("Fetched the images info.");
+                .ToListAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+            logger.LogDebug("Fetched the images info.");
 
-            var res = new GetPropertyResponse(
+            var propertyResponse = new GetPropertyResponse(
                 property.Id,
                 property.GroupId,
                 property.PropertyName,
@@ -287,26 +293,23 @@ public class PropertyService(
                 property.StarRating,
                 property.Currency,
                 property.Description,
-                property.Address.AddressLine1,
-                property.Address.AddressLine2,
-                property.Address.City,
-                property.Address.Country,
-                property.Address.PostalCode,
-                property.Address.PhoneNumber,
-                property.Address.Website,
-                property.Contact.DisplayName,
-                property.Contact.Email,
-                property.KeySellingPoints.Split(Constants.DatabaseStringSplitter).ToList(),
+                property.Address?.AddressLine1 ?? string.Empty,
+                property.Address?.AddressLine2 ?? string.Empty,
+                property.Address?.City ?? string.Empty,
+                property.Address?.Country ?? string.Empty,
+                property.Address?.PostalCode ?? string.Empty,
+                property.Address?.PhoneNumber,
+                property.Address?.Website,
+                property.Contact?.DisplayName ?? string.Empty,
+                property.Contact?.Email ?? string.Empty,
+                property.KeySellingPoints?.Split(Constants.DatabaseStringSplitter).ToList() ?? new List<string>(),
                 property.MarketingTitle,
                 property.MarketingDescription,
-                images.ToDictionary(i => i.File.Metadata, i => i.File.Id)
+                images.ToDictionary(i => i.File?.Metadata ?? string.Empty, i => i.File?.Id ?? Guid.Empty)
             );
 
-            return res;
-        }).ToList();
-
-        await Task.WhenAll(tasks).ConfigureAwait(false);
-        var response = tasks.Select(t => t.GetAwaiter().GetResult()).ToList();
+            response.Add(propertyResponse);
+        }
 
         return response;
     }
