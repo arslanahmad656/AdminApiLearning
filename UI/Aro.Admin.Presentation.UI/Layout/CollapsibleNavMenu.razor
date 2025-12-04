@@ -4,14 +4,14 @@
     {
         <div class="col-1 mh-100 aro-sidebar p-3 d-sm-none d-md-block border-end border-white">
             <div class="d-flex justify-content-center p-4">
-                <MudIconButton Icon="@Icons.Material.Filled.Menu" onclick="ToggleSidebar" Class="text-white"></MudIconButton>
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" @onclick="ToggleSidebar" Class="text-white"></MudIconButton>
             </div>
         </div>
 
         <div class="col-12 aro-sidebar d-none d-sm-block d-md-none border-bottom border-white">
             <div class="d-flex justify-content-between p-4 ">
                 <img src="aro-logo.svg" style="width: 150px" alt="ARO Digital Strategy" />
-                <MudIconButton Icon="@Icons.Material.Filled.Menu" onclick="ToggleSidebar" Class="text-white"></MudIconButton>
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" @onclick="ToggleSidebar" Class="text-white"></MudIconButton>
             </div>
         </div>
     }
