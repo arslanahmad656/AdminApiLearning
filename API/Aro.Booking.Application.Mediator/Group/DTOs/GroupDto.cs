@@ -12,5 +12,7 @@ public record GroupDto(
     Guid? PrimaryContactId,
     string? PrimaryContactName,
     string? PrimaryContactEmail,
+    string? PrimaryContactCountryCode,
+    string? PrimaryContactPhoneNumber,
     bool? IsActive
 );

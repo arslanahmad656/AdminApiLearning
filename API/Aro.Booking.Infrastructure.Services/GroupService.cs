@@ -96,6 +96,8 @@ public partial class GroupService(
                 g.PrimaryContact.Id,
                 g.PrimaryContact.DisplayName,
                 g.PrimaryContact.Email,
+                g.PrimaryContact.ContactInfo != null ? g.PrimaryContact.ContactInfo.CountryCode : null,
+                g.PrimaryContact.ContactInfo != null ? g.PrimaryContact.ContactInfo.PhoneNumber : null,
                 g.IsActive
             ))
             .ToListAsync(cancellationToken);
@@ -130,6 +132,8 @@ public partial class GroupService(
             response.PrimaryContact.Id,
             response.PrimaryContact?.DisplayName,
             response.PrimaryContact?.Email,
+            response.PrimaryContact?.ContactInfo?.CountryCode,
+            response.PrimaryContact?.ContactInfo?.PhoneNumber,
             response.IsActive
         );
 

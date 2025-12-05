@@ -28,6 +28,8 @@ public class GetGroupCommandHandler(IGroupService groupService) : IRequestHandle
                 g.PrimaryContactId,
                 g.PrimaryContactName,
                 g.PrimaryContactEmail,
+                g.PrimaryContactCountryCode,
+                g.PrimaryContactPhoneNumber,
                 g.IsActive
             );
 

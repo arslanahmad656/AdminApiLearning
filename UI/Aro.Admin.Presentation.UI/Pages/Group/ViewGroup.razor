@@ -182,8 +182,14 @@
         // Store GroupId in localStorage for property wizard
         if (GroupId.HasValue && GroupId.Value != Guid.Empty)
         {
+            // Store the selected group ID for the wizard pages to use
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", GroupId.Value.ToString());
+
+            // Get the group-specific storage key
+            var storageKey = PropertyWizardModel.GetLocalStorageKey(GroupId.Value);
+
             // Create a new wizard model with the GroupId or update existing
-            var existingJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            var existingJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey);
             PropertyWizardModel wizardModel;
 
             if (!string.IsNullOrEmpty(existingJson))
@@ -199,7 +205,7 @@
             wizardModel.CurrentStep = 1;
 
             var json = JsonSerializer.Serialize(wizardModel);
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", PropertyWizardModel.LocalStorageKey, json);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, json);
         }
 
         // Navigate to property information wizard

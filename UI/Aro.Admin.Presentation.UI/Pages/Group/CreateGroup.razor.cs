@@ -287,8 +287,8 @@ namespace Aro.Admin.Presentation.UI.Pages.Group
                 groupModel.AddressLine1,
                 groupModel.AddressLine2,
                 groupModel.City,
-                groupModel.Country,
                 groupModel.PostalCode,
+                groupModel.Country,
                 (Guid)groupModel.PrimaryContactId,
                 true
             ));
