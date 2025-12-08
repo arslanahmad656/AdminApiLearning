@@ -169,6 +169,7 @@
 
     private PropertyWizardModel wizardModel = new();
     private bool isSaving = false;
+    private Guid? _currentGroupId = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -179,23 +180,47 @@
         }
     }
 
+    private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId);
+
     private async Task LoadFromLocalStorage()
     {
         try
         {
-            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            // FIRST: Always try to get GroupId from SelectedGroupId in localStorage
+            var groupIdStr = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "SelectedGroupId");
+            if (!string.IsNullOrEmpty(groupIdStr) && Guid.TryParse(groupIdStr, out var parsedGroupId))
+            {
+                _currentGroupId = parsedGroupId;
+            }
+
+            // Now load the wizard data with the correct storage key
+            var storageKey = GetStorageKey();
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey);
             if (!string.IsNullOrEmpty(json))
             {
                 var savedModel = JsonSerializer.Deserialize<PropertyWizardModel>(json);
                 if (savedModel != null)
                 {
                     wizardModel = savedModel;
+
+                    // Sync _currentGroupId from wizardModel if still not set
+                    if (!_currentGroupId.HasValue && wizardModel.GroupId.HasValue && wizardModel.GroupId.Value != Guid.Empty)
+                    {
+                        _currentGroupId = wizardModel.GroupId;
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", _currentGroupId.Value.ToString());
+                    }
                 }
             }
+
+            // Ensure wizardModel.GroupId is set
+            if (_currentGroupId.HasValue && _currentGroupId.Value != Guid.Empty)
+            {
+                wizardModel.GroupId = _currentGroupId;
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            // Silent fail - localStorage errors are not critical
+            Console.WriteLine($"Error loading from localStorage: {ex.Message}");
         }
     }
 
@@ -220,7 +245,7 @@
             if (response != null)
             {
                 // Clear localStorage after successful save
-                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", PropertyWizardModel.LocalStorageKey);
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", GetStorageKey());
 
                 Snackbar.Add("Property created successfully!", MudBlazor.Severity.Success);
 

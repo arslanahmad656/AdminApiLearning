@@ -201,6 +201,7 @@
     private const int MaxDescriptionLength = 500;
     private bool isPropertyNameFocused = false;
     private bool isDescriptionFocused = false;
+    private Guid? _currentGroupId = null;
 
     [Parameter]
     [SupplyParameterFromQuery(Name = "groupId")]
@@ -228,42 +229,54 @@
         }
     }
 
-    protected override async Task OnInitializedAsync()
-    {
-        // If no GroupId from query params, try to get from localStorage
-        if (GroupId == Guid.Empty)
-        {
-            var groupIdStr = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "SelectedGroupId");
-            if (!string.IsNullOrEmpty(groupIdStr) && Guid.TryParse(groupIdStr, out var parsedGroupId))
-            {
-                GroupId = parsedGroupId;
-            }
-        }
-    }
+    private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId);
 
     private async Task LoadFromLocalStorage()
     {
         try
         {
-            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            // FIRST: Always try to get GroupId from SelectedGroupId in localStorage
+            var groupIdStr = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "SelectedGroupId");
+            if (!string.IsNullOrEmpty(groupIdStr) && Guid.TryParse(groupIdStr, out var parsedGroupId))
+            {
+                _currentGroupId = parsedGroupId;
+            }
+            // SECOND: If not in localStorage, check query param
+            else if (GroupId != Guid.Empty)
+            {
+                _currentGroupId = GroupId;
+                // Save it to localStorage for subsequent pages
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", GroupId.ToString());
+            }
+
+            // Now load the wizard data with the correct storage key
+            var storageKey = GetStorageKey();
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey);
             if (!string.IsNullOrEmpty(json))
             {
                 var savedModel = JsonSerializer.Deserialize<PropertyWizardModel>(json);
                 if (savedModel != null)
                 {
                     wizardModel = savedModel;
+
+                    // Sync _currentGroupId from wizardModel if still not set
+                    if (!_currentGroupId.HasValue && wizardModel.GroupId.HasValue && wizardModel.GroupId.Value != Guid.Empty)
+                    {
+                        _currentGroupId = wizardModel.GroupId;
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", _currentGroupId.Value.ToString());
+                    }
                 }
             }
 
-            // Set GroupId if available
-            if (GroupId != Guid.Empty)
+            // Ensure wizardModel.GroupId is set
+            if (_currentGroupId.HasValue && _currentGroupId.Value != Guid.Empty)
             {
-                wizardModel.GroupId = GroupId;
+                wizardModel.GroupId = _currentGroupId;
             }
         }
-        catch
+        catch (Exception ex)
         {
-            // Silent fail
+            Console.WriteLine($"Error loading from localStorage: {ex.Message}");
         }
     }
 
@@ -271,17 +284,27 @@
     {
         try
         {
-            wizardModel.CurrentStep = 1;
-            if (GroupId != Guid.Empty)
+            // Ensure GroupId is preserved
+            if (_currentGroupId.HasValue && _currentGroupId.Value != Guid.Empty)
             {
-                wizardModel.GroupId = GroupId;
+                wizardModel.GroupId = _currentGroupId;
             }
+
+            // Always ensure SelectedGroupId is saved for subsequent pages
+            if (wizardModel.GroupId.HasValue && wizardModel.GroupId.Value != Guid.Empty)
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", wizardModel.GroupId.Value.ToString());
+                _currentGroupId = wizardModel.GroupId;
+            }
+
+            wizardModel.CurrentStep = 1;
+            var storageKey = GetStorageKey();
             var json = JsonSerializer.Serialize(wizardModel);
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", PropertyWizardModel.LocalStorageKey, json);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, json);
         }
-        catch
+        catch (Exception ex)
         {
-            // Silent fail
+            Console.WriteLine($"Error saving to localStorage: {ex.Message}");
         }
     }
 

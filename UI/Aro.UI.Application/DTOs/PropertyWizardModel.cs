@@ -6,7 +6,19 @@ namespace Aro.UI.Application.DTOs;
 /// </summary>
 public class PropertyWizardModel
 {
-    public const string LocalStorageKey = "PropertyWizardData";
+    public const string LocalStorageKeyPrefix = "PropertyWizardData";
+
+    /// <summary>
+    /// Gets the localStorage key for a specific group.
+    /// Returns "PropertyWizardData_{groupId}" for group-specific data,
+    /// or "PropertyWizardData" for data without a group.
+    /// </summary>
+    public static string GetLocalStorageKey(Guid? groupId)
+    {
+        return groupId.HasValue && groupId.Value != Guid.Empty
+            ? $"{LocalStorageKeyPrefix}_{groupId.Value}"
+            : LocalStorageKeyPrefix;
+    }
 
     // Group association
     public Guid? GroupId { get; set; }
@@ -25,6 +37,7 @@ public class PropertyWizardModel
     public string City { get; set; } = string.Empty;
     public string Country { get; set; } = string.Empty;
     public string PostalCode { get; set; } = string.Empty;
+    public string PhoneCountryCode { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string Website { get; set; } = string.Empty;
     public bool SetContactSameAsPrimaryContact { get; set; }

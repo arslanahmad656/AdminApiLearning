@@ -96,6 +96,8 @@ public partial class GroupService(
                 g.PrimaryContact.Id,
                 g.PrimaryContact.DisplayName,
                 g.PrimaryContact.Email,
+                g.PrimaryContact.ContactInfo != null ? g.PrimaryContact.ContactInfo.CountryCode : null,
+                g.PrimaryContact.ContactInfo != null ? g.PrimaryContact.ContactInfo.PhoneNumber : null,
                 g.IsActive
             ))
             .ToListAsync(cancellationToken);
@@ -121,15 +123,17 @@ public partial class GroupService(
         var groupDto = new GroupDto(
             response.Id,
             response.GroupName,
-            response.Address.AddressLine1,
-            response.Address.AddressLine2,
-            response.Address.City,
-            response.Address.PostalCode,
-            response.Address.Country,
+            response.Address?.AddressLine1 ?? string.Empty,
+            response.Address?.AddressLine2,
+            response.Address?.City ?? string.Empty,
+            response.Address?.PostalCode ?? string.Empty,
+            response.Address?.Country ?? string.Empty,
             response.Logo,
-            response.PrimaryContact.Id,
+            response.PrimaryContact?.Id ?? Guid.Empty,
             response.PrimaryContact?.DisplayName,
             response.PrimaryContact?.Email,
+            response.PrimaryContact?.ContactInfo?.CountryCode,
+            response.PrimaryContact?.ContactInfo?.PhoneNumber,
             response.IsActive
         );
 

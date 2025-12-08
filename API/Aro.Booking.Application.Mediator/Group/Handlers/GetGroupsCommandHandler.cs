@@ -32,6 +32,8 @@ public class GetGroupsCommandHandler(IGroupService groupService) : IRequestHandl
                 g.PrimaryContactId,
                 g.PrimaryContactName,
                 g.PrimaryContactEmail,
+                g.PrimaryContactCountryCode,
+                g.PrimaryContactPhoneNumber,
                 g.IsActive
             ))
             .ToList() ?? [];

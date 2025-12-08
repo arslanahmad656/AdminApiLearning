@@ -1,6 +1,7 @@
 @page "/property/address-contact"
 @using System.ComponentModel.DataAnnotations
 @using System.Text.Json
+@using System.Text.RegularExpressions
 @using Microsoft.AspNetCore.Components
 @using Microsoft.JSInterop
 @using Aro.UI.Application.DTOs
@@ -106,7 +107,7 @@
                     </div>
                     <div class="address-column-right">
                         <div class="label-group-right">
-                            <label class="form-label">Address Line 2 *</label>
+                            <label class="form-label">Address Line 2</label>
                         </div>
                         <MudTextField @bind-Value="wizardModel.AddressLine2"
                                       Variant="Variant.Text"
@@ -135,19 +136,24 @@
                         <label class="form-label">Country *</label>
                         <div class="@($"country-select-wrapper {(IsCountryInvalid ? "input-error-border" : "")}")">
                             <div class="country-flag">
-                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='20' viewBox='0 0 30 20'%3E%3Crect width='30' height='20' fill='%23C8102E'/%3E%3Crect x='0' y='8' width='30' height='4' fill='white'/%3E%3Crect x='8' y='0' width='4' height='20' fill='white'/%3E%3C/svg%3E"
-                                     alt="Denmark Flag" class="flag-icon" />
+                                <img src="@GetCountryFlagUrl(wizardModel.Country)" alt="Country Flag" class="flag-icon" />
                             </div>
-                            <select class="form-select-country" @bind="wizardModel.Country" required>
-                                <option value="">Select country</option>
+                            <MudSelect T="string"
+                                       Value="wizardModel.Country"
+                                       ValueChanged="OnCountryChanged"
+                                       Placeholder="Select country"
+                                       Variant="Variant.Text"
+                                       Class="country-mud-select"
+                                       DisableUnderLine="true"
+                                       Dense="true">
                                 @if (countryNames != null)
                                 {
                                     @foreach (var country in countryNames)
                                     {
-                                        <option value="@country">@country</option>
+                                        <MudSelectItem Value="@country">@country</MudSelectItem>
                                     }
                                 }
-                            </select>
+                            </MudSelect>
                         </div>
                         @if (IsCountryInvalid)
                         {
@@ -173,19 +179,29 @@
                         <label class="form-label">Phone Number *</label>
                         <div class="@($"phone-input-wrapper {(IsPhoneNumberInvalid ? "input-error-border" : "")}")">
                             <div class="phone-country-flag">
-                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='20' viewBox='0 0 30 20'%3E%3Crect width='30' height='20' fill='%23C8102E'/%3E%3Crect x='0' y='8' width='30' height='4' fill='white'/%3E%3Crect x='8' y='0' width='4' height='20' fill='white'/%3E%3C/svg%3E"
-                                     alt="Denmark Flag" class="flag-icon-small" />
+                                <img src="@GetFlagUrlByCountryCode(wizardModel.PhoneCountryCode, wizardModel.Country)" alt="Country Flag" class="flag-icon-small" />
                             </div>
+                            <select class="phone-country-code-select" @bind="wizardModel.PhoneCountryCode">
+                                <option value="">--</option>
+                                @if (countryCodes != null)
+                                {
+                                    @foreach (var countryCode in countryCodes)
+                                    {
+                                        <option value="@countryCode">+@countryCode</option>
+                                    }
+                                }
+                            </select>
                             <div class="phone-divider"></div>
                             <input type="tel"
                                    class="phone-number-input"
-                                   @bind="wizardModel.PhoneNumber"
-                                   @bind:event="oninput"
+                                   value="@wizardModel.PhoneNumber"
+                                   @oninput="OnPhoneNumberInput"
+                                   placeholder="Enter phone number"
                                    required />
                         </div>
                         @if (IsPhoneNumberInvalid)
                         {
-                            <div class="validation-error-text">Phone Number is required</div>
+                            <div class="validation-error-text">@GetPhoneNumberErrorMessage()</div>
                         }
                     </div>
                     <div class="form-group">
@@ -196,7 +212,8 @@
                                       Required="true"
                                       Immediate="true"
                                       Error="@IsWebsiteInvalid"
-                                      ErrorText="Website URL is required"
+                                      ErrorText="@GetWebsiteErrorMessage()"
+                                      Placeholder="https://example.com"
                                       DisableUnderLine="true" />
                     </div>
                 </div>
@@ -233,7 +250,8 @@
                                       Required="true"
                                       Immediate="true"
                                       Error="@IsContactEmailInvalid"
-                                      ErrorText="Contact Email is required"
+                                      ErrorText="@GetEmailErrorMessage()"
+                                      Placeholder="example@domain.com"
                                       DisableUnderLine="true" />
                     </div>
                     <div class="form-group">
@@ -264,37 +282,64 @@
     private PropertyWizardModel wizardModel = new();
     private bool showValidation = false;
     private IEnumerable<string>? countryNames;
+    private IEnumerable<string>? countryCodes;
+    private Guid? _currentGroupId = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Load country names from service
+            // Load country names and codes from service
             await CountryMetadataService.InitializeAsync();
             countryNames = CountryMetadataService.GetAllCountryNames();
+            countryCodes = CountryMetadataService.GetAllCountryCodes();
 
             await LoadFromLocalStorage();
             StateHasChanged();
         }
     }
 
+    private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId);
+
     private async Task LoadFromLocalStorage()
     {
         try
         {
-            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            // FIRST: Always try to get GroupId from SelectedGroupId in localStorage
+            var groupIdStr = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "SelectedGroupId");
+            if (!string.IsNullOrEmpty(groupIdStr) && Guid.TryParse(groupIdStr, out var parsedGroupId))
+            {
+                _currentGroupId = parsedGroupId;
+            }
+
+            // Now load the wizard data with the correct storage key
+            var storageKey = GetStorageKey();
+            var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey);
             if (!string.IsNullOrEmpty(json))
             {
                 var savedModel = JsonSerializer.Deserialize<PropertyWizardModel>(json);
                 if (savedModel != null)
                 {
                     wizardModel = savedModel;
+
+                    // Sync _currentGroupId from wizardModel if still not set
+                    if (!_currentGroupId.HasValue && wizardModel.GroupId.HasValue && wizardModel.GroupId.Value != Guid.Empty)
+                    {
+                        _currentGroupId = wizardModel.GroupId;
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", _currentGroupId.Value.ToString());
+                    }
                 }
             }
+
+            // Ensure wizardModel.GroupId is set
+            if (_currentGroupId.HasValue && _currentGroupId.Value != Guid.Empty)
+            {
+                wizardModel.GroupId = _currentGroupId;
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            // Silent fail
+            Console.WriteLine($"Error loading from localStorage: {ex.Message}");
         }
     }
 
@@ -302,16 +347,35 @@
     {
         try
         {
+            // Ensure GroupId is preserved
+            if (_currentGroupId.HasValue && _currentGroupId.Value != Guid.Empty)
+            {
+                wizardModel.GroupId = _currentGroupId;
+            }
+
+            // Always ensure SelectedGroupId is saved for subsequent pages
+            if (wizardModel.GroupId.HasValue && wizardModel.GroupId.Value != Guid.Empty)
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", wizardModel.GroupId.Value.ToString());
+                _currentGroupId = wizardModel.GroupId;
+            }
+
             wizardModel.CurrentStep = 2;
+            var storageKey = GetStorageKey();
             var json = JsonSerializer.Serialize(wizardModel);
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", PropertyWizardModel.LocalStorageKey, json);
-            StateHasChanged(); // Trigger re-render to update button state
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, json);
+            StateHasChanged();
         }
-        catch
+        catch (Exception ex)
         {
-            // Silent fail
+            Console.WriteLine($"Error saving to localStorage: {ex.Message}");
         }
     }
+
+    // Regex patterns for validation
+    private static readonly Regex PhoneNumberRegex = new Regex(@"^\d+$", RegexOptions.Compiled);
+    private static readonly Regex EmailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex UrlRegex = new Regex(@"^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#\[\]@!$&'()*+,;=]*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private bool IsFormValid()
     {
@@ -320,20 +384,82 @@
                !string.IsNullOrWhiteSpace(wizardModel.Country) &&
                !string.IsNullOrWhiteSpace(wizardModel.PostalCode) &&
                !string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) &&
+               IsValidPhoneNumber(wizardModel.PhoneNumber) &&
                !string.IsNullOrWhiteSpace(wizardModel.Website) &&
+               IsValidUrl(wizardModel.Website) &&
                !string.IsNullOrWhiteSpace(wizardModel.ContactName) &&
-               !string.IsNullOrWhiteSpace(wizardModel.ContactEmail);
+               !string.IsNullOrWhiteSpace(wizardModel.ContactEmail) &&
+               IsValidEmail(wizardModel.ContactEmail);
     }
+
+    // Format validation methods
+    private bool IsValidPhoneNumber(string? phone) => !string.IsNullOrWhiteSpace(phone) && PhoneNumberRegex.IsMatch(phone);
+    private bool IsValidEmail(string? email) => !string.IsNullOrWhiteSpace(email) && EmailRegex.IsMatch(email);
+    private bool IsValidUrl(string? url) => !string.IsNullOrWhiteSpace(url) && UrlRegex.IsMatch(url);
 
     // Validation helper methods for red border
     private bool IsAddressLine1Invalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.AddressLine1);
     private bool IsCityInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.City);
     private bool IsCountryInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.Country);
     private bool IsPostalCodeInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.PostalCode);
-    private bool IsPhoneNumberInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.PhoneNumber);
-    private bool IsWebsiteInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.Website);
+    private bool IsPhoneNumberInvalid => showValidation && (string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) || !IsValidPhoneNumber(wizardModel.PhoneNumber));
+    private bool IsWebsiteInvalid => showValidation && (string.IsNullOrWhiteSpace(wizardModel.Website) || !IsValidUrl(wizardModel.Website));
     private bool IsContactNameInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.ContactName);
-    private bool IsContactEmailInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.ContactEmail);
+    private bool IsContactEmailInvalid => showValidation && (string.IsNullOrWhiteSpace(wizardModel.ContactEmail) || !IsValidEmail(wizardModel.ContactEmail));
+
+    // Error message methods
+    private string GetPhoneNumberErrorMessage()
+    {
+        if (string.IsNullOrWhiteSpace(wizardModel.PhoneNumber))
+            return "Phone Number is required";
+        if (!IsValidPhoneNumber(wizardModel.PhoneNumber))
+            return "Phone Number must contain only numeric values";
+        return string.Empty;
+    }
+
+    private string GetWebsiteErrorMessage()
+    {
+        if (string.IsNullOrWhiteSpace(wizardModel.Website))
+            return "Website URL is required";
+        if (!IsValidUrl(wizardModel.Website))
+            return "Please enter a valid URL (e.g., https://example.com)";
+        return string.Empty;
+    }
+
+    private string GetEmailErrorMessage()
+    {
+        if (string.IsNullOrWhiteSpace(wizardModel.ContactEmail))
+            return "Email is required";
+        if (!IsValidEmail(wizardModel.ContactEmail))
+            return "Please enter a valid email address";
+        return string.Empty;
+    }
+
+    // Phone number input handler - only allows numeric values
+    private void OnPhoneNumberInput(ChangeEventArgs e)
+    {
+        var input = e.Value?.ToString() ?? string.Empty;
+        // Remove all non-numeric characters
+        var numericOnly = new string(input.Where(char.IsDigit).ToArray());
+        wizardModel.PhoneNumber = numericOnly;
+    }
+
+    private void OnCountryChanged(string newCountry)
+    {
+        wizardModel.Country = newCountry;
+
+        // Auto-update phone country code based on selected country
+        if (!string.IsNullOrWhiteSpace(newCountry))
+        {
+            var country = CountryMetadataService.GetByName(newCountry);
+            if (country != null && !string.IsNullOrWhiteSpace(country.PhoneCountryCode))
+            {
+                wizardModel.PhoneCountryCode = country.PhoneCountryCode;
+            }
+        }
+
+        StateHasChanged();
+    }
 
     private async Task OnSameAsPrimaryChanged()
     {
@@ -348,8 +474,8 @@
 
             try
             {
-                // Include both Address and PrimaryContact to avoid null reference in API
-                var groupResponse = await GroupService.GetGroup(new GetGroupRequest(wizardModel.GroupId.Value, "Address,PrimaryContact"));
+                // Include Address, PrimaryContact, and PrimaryContact.ContactInfo to get all data
+                var groupResponse = await GroupService.GetGroup(new GetGroupRequest(wizardModel.GroupId.Value, "Address,PrimaryContact,PrimaryContact.ContactInfo"));
                 if (groupResponse?.Group != null)
                 {
                     wizardModel.AddressLine1 = groupResponse.Group.AddressLine1 ?? string.Empty;
@@ -376,15 +502,20 @@
             // Clear existing contact fields first
             wizardModel.ContactName = string.Empty;
             wizardModel.ContactEmail = string.Empty;
+            wizardModel.PhoneCountryCode = string.Empty;
+            wizardModel.PhoneNumber = string.Empty;
 
             try
             {
-                // Include both Address and PrimaryContact to avoid null reference in API
-                var groupResponse = await GroupService.GetGroup(new GetGroupRequest(wizardModel.GroupId.Value, "Address,PrimaryContact"));
+                // Include Address, PrimaryContact, and PrimaryContact.ContactInfo to get phone data
+                var groupResponse = await GroupService.GetGroup(new GetGroupRequest(wizardModel.GroupId.Value, "Address,PrimaryContact,PrimaryContact.ContactInfo"));
                 if (groupResponse?.Group != null)
                 {
                     wizardModel.ContactName = groupResponse.Group.PrimaryContactName ?? string.Empty;
                     wizardModel.ContactEmail = groupResponse.Group.PrimaryContactEmail ?? string.Empty;
+                    wizardModel.PhoneCountryCode = groupResponse.Group.PrimaryContactCountryCode ?? string.Empty;
+                    wizardModel.PhoneNumber = groupResponse.Group.PrimaryContactPhoneNumber ?? string.Empty;
+                    StateHasChanged();
                 }
             }
             catch
@@ -419,6 +550,47 @@
 
         await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/key-selling-points");
+    }
+
+    private string GetCountryFlagUrl(string? countryName)
+    {
+        if (string.IsNullOrWhiteSpace(countryName))
+        {
+            // Return a placeholder/default flag (globe icon as SVG)
+            return GetPlaceholderFlagSvg();
+        }
+
+        var country = CountryMetadataService.GetByName(countryName);
+        if (country != null && !string.IsNullOrWhiteSpace(country.ISO2))
+        {
+            // Use flagcdn.com for country flags based on ISO2 code
+            return $"https://flagcdn.com/w40/{country.ISO2.ToLowerInvariant()}.png";
+        }
+
+        // Fallback placeholder
+        return GetPlaceholderFlagSvg();
+    }
+
+    private string GetFlagUrlByCountryCode(string? phoneCountryCode, string? fallbackCountryName)
+    {
+        // First try to get flag by phone country code
+        if (!string.IsNullOrWhiteSpace(phoneCountryCode))
+        {
+            var countries = CountryMetadataService.GetAll();
+            var country = countries.FirstOrDefault(c => c.PhoneCountryCode == phoneCountryCode);
+            if (country != null && !string.IsNullOrWhiteSpace(country.ISO2))
+            {
+                return $"https://flagcdn.com/w40/{country.ISO2.ToLowerInvariant()}.png";
+            }
+        }
+
+        // Fallback to country name
+        return GetCountryFlagUrl(fallbackCountryName);
+    }
+
+    private string GetPlaceholderFlagSvg()
+    {
+        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='20' viewBox='0 0 30 20'%3E%3Crect width='30' height='20' fill='%23E0E0E0' rx='2'/%3E%3Ccircle cx='15' cy='10' r='7' fill='none' stroke='%23999' stroke-width='1'/%3E%3Cpath d='M8 10h14M15 3v14M9 5c3 2 6 2 9 0M9 15c3-2 6-2 9 0' fill='none' stroke='%23999' stroke-width='0.8'/%3E%3C/svg%3E";
     }
 }
 
@@ -777,6 +949,81 @@
             outline: none;
         }
 
+    /* MudSelect styling for country dropdown */
+    .country-mud-select {
+        flex: 1;
+        height: 100%;
+        margin: 0 !important;
+    }
+
+        .country-mud-select .mud-input-control {
+            margin: 0 !important;
+            height: 100% !important;
+        }
+
+        .country-mud-select .mud-input {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .country-mud-select .mud-input-slot {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 12px !important;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
+            font-size: 16px !important;
+            font-weight: 400 !important;
+            color: #000000 !important;
+            height: 48px !important;
+            min-height: 48px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .country-mud-select .mud-select-input {
+            padding: 0 12px !important;
+            min-height: 48px !important;
+            height: 48px !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .country-mud-select .mud-input-control-input-container {
+            margin: 0 !important;
+            padding: 0 !important;
+            height: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+        }
+
+        .country-mud-select .mud-input-underline::before,
+        .country-mud-select .mud-input-underline::after {
+            display: none !important;
+        }
+
+        .country-mud-select .mud-input-adornment {
+            color: #000000 !important;
+        }
+
+        .country-mud-select .mud-select {
+            height: 100% !important;
+        }
+
+        .country-mud-select .mud-select .mud-input-control {
+            height: 100% !important;
+        }
+
+        .country-mud-select .mud-input-text {
+            display: flex !important;
+            align-items: center !important;
+            height: 100% !important;
+            margin-top: 0 !important;
+            padding-top: 0 !important;
+        }
+
     /* Custom Two Column Row for Phone and Website */
     .form-row-two-col-custom {
         display: grid;
@@ -812,6 +1059,27 @@
         height: 48px;
         background: #C3C3C3;
     }
+
+    .phone-country-code-select {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #000000;
+        padding: 0 4px 0 8px;
+        white-space: nowrap;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        min-width: 65px;
+        height: 100%;
+    }
+
+        .phone-country-code-select:focus {
+            outline: none;
+        }
 
     .phone-number-input {
         flex: 1;

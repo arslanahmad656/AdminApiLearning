@@ -2,16 +2,41 @@
 @using System.Text.Json
 @using Aro.UI.Application.DTOs
 @using Aro.UI.Application.Interfaces
+@using Aro.UI.Infrastructure.Services
 @using Microsoft.Extensions.Configuration
 @inject IJSRuntime JSRuntime
 @inject IAuthenticationService AuthService
 @inject IPropertyService PropertyService
+@inject IGroupService GroupService
 @inject IConfiguration Configuration
 @inject ISnackbar Snackbar
 
 <div class="view-group-container">
-    <!-- Top Header Bar -->
-    <TopHeaderBar GroupName="Brøchner hotels" />
+    <!-- Top Header Bar (Inlined) -->
+    <div class="top-right-section">
+        <div class="top-right-profile">
+            @if (!string.IsNullOrEmpty(groupImageUrl))
+            {
+                <img class="profile-img" src="@groupImageUrl" alt="Group Logo" />
+            }
+            else
+            {
+                <div class="group-logo-placeholder">
+                    @(groupName?.Length > 0 ? groupName.Substring(0, 1).ToUpper() : "G")
+                </div>
+            }
+            <span class="group-name-text">@(string.IsNullOrEmpty(groupName) ? "Loading..." : groupName)</span>
+            <img src="icons/dropdown.png" alt="Dropdown" class="dropdown-icon" />
+        </div>
+
+        <div class="top-right-icons">
+            <img src="icons/searchicon.png" alt="Search" />
+        </div>
+
+        <div class="top-right-icons" @onclick="HandleSettingsClick">
+            <img src="icons/settings.png" alt="Settings" />
+        </div>
+    </div>
 
     @if (isLoading)
     {
@@ -42,16 +67,23 @@
         <div class="properties-header">
             <h1 class="properties-title">Properties</h1>
             <div class="header-actions">
-                <div class="sort-dropdown">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <mask id="mask0_478_810" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="24" height="24">
-                            <rect width="24" height="24" fill="#D9D9D9"/>
-                        </mask>
-                        <g mask="url(#mask0_478_810)">
-                            <path d="M11.0001 20C10.7167 20 10.4792 19.9042 10.2876 19.7125C10.0959 19.5208 10.0001 19.2833 10.0001 19V13L4.20008 5.6C3.95008 5.26667 3.91258 4.91667 4.08758 4.55C4.26258 4.18333 4.56675 4 5.00008 4H19.0001C19.4334 4 19.7376 4.18333 19.9126 4.55C20.0876 4.91667 20.0501 5.26667 19.8001 5.6L14.0001 13V19C14.0001 19.2833 13.9042 19.5208 13.7126 19.7125C13.5209 19.9042 13.2834 20 13.0001 20H11.0001ZM12.0001 12.3L16.9501 6H7.05008L12.0001 12.3Z" fill="#1C1B1F"/>
-                        </g>
+                <div class="sort-dropdown" @onclick="ToggleSortDropdown">
+                    <img src="icons/filter.svg" alt="Filter" width="24" height="24" loading="lazy" />
+                    <span>Sort by: <strong>@GetSortLabel()</strong></span>
+                    <svg class="dropdown-arrow @(isSortDropdownOpen ? "open" : "")" width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1.5L6 6.5L11 1.5" stroke="#1C1B1F" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <span>Sort by: <strong>A-Z</strong></span>
+                    @if (isSortDropdownOpen)
+                    {
+                        <div class="sort-dropdown-menu">
+                            <div class="sort-option @(currentSortOption == SortOption.AZ ? "active" : "")" @onclick="() => ApplySort(SortOption.AZ)" @onclick:stopPropagation="true">
+                                A-Z
+                            </div>
+                            <div class="sort-option @(currentSortOption == SortOption.ZA ? "active" : "")" @onclick="() => ApplySort(SortOption.ZA)" @onclick:stopPropagation="true">
+                                Z-A
+                            </div>
+                        </div>
+                    }
                 </div>
                 <button class="add-property-button" @onclick="HandleAddProperty">
                     Add Property +
@@ -59,10 +91,9 @@
             </div>
         </div>
 
-        <!-- Properties Cards -->
-        @foreach (var property in properties)
-        {
-            <div class="property-card">
+        <!-- Properties Cards with Virtualization for performance -->
+        <Virtualize Items="@properties" Context="property" OverscanCount="2">
+            <div class="property-card" @key="property.PropertyId">
                 <div class="property-card-header">
                     <div class="property-info">
                         <div class="property-logo">
@@ -78,15 +109,8 @@
                             }
                         </div>
                         <h3 class="property-name">@property.PropertyName</h3>
-                        <button class="website-button" @onclick="() => OpenWebsite(property.Website)">
-                            <svg width="25" height="25" viewBox="0 0 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <mask id="mask0_1095_2491" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="-1" width="25" height="26">
-                                    <rect y="-0.00012207" width="24.5784" height="24.5784" fill="#D9D9D9"/>
-                                </mask>
-                                <g mask="url(#mask0_1095_2491)">
-                                    <path d="M21.4548 22.9141L18.4337 19.893V22.1717H16.3855V16.3855H22.1717V18.4337H19.8674L22.8885 21.4548L21.4548 22.9141ZM12.2891 22.5301C10.8724 22.5301 9.54109 22.2613 8.29511 21.7236C7.04912 21.186 5.96528 20.4563 5.04359 19.5346C4.1219 18.6129 3.39223 17.5291 2.85457 16.2831C2.31692 15.0371 2.0481 13.7058 2.0481 12.2891C2.0481 10.8724 2.31692 9.54109 2.85457 8.2951C3.39223 7.04912 4.1219 5.96528 5.04359 5.04359C5.96528 4.1219 7.04912 3.39223 8.29511 2.85457C9.54109 2.31692 10.8724 2.0481 12.2891 2.0481C13.7058 2.0481 15.0371 2.31692 16.2831 2.85457C17.5291 3.39223 18.6129 4.1219 19.5346 5.04359C20.4563 5.96528 21.186 7.04912 21.7236 8.2951C22.2613 9.54109 22.5301 10.8724 22.5301 12.2891C22.5301 12.6305 22.513 12.9718 22.4789 13.3132C22.4448 13.6546 22.3935 13.9959 22.3253 14.3373H20.2259C20.3112 13.9959 20.3752 13.6546 20.4179 13.3132C20.4606 12.9718 20.4819 12.6305 20.4819 12.2891C20.4819 11.9477 20.4606 11.6064 20.4179 11.265C20.3752 10.9236 20.3112 10.5823 20.2259 10.2409H16.7439C16.7951 10.5823 16.8335 10.9236 16.8591 11.265C16.8847 11.6064 16.8975 11.9477 16.8975 12.2891C16.8975 12.6305 16.8847 12.9718 16.8591 13.3132C16.8335 13.6546 16.7951 13.9959 16.7439 14.3373H14.6957C14.7469 13.9959 14.7853 13.6546 14.8109 13.3132C14.8365 12.9718 14.8493 12.6305 14.8493 12.2891C14.8493 11.9477 14.8365 11.6064 14.8109 11.265C14.7853 10.9236 14.7469 10.5823 14.6957 10.2409H9.88246C9.83126 10.5823 9.79285 10.9236 9.76725 11.265C9.74165 11.6064 9.72885 11.9477 9.72885 12.2891C9.72885 12.6305 9.74165 12.9718 9.76725 13.3132C9.79285 13.6546 9.83126 13.9959 9.88246 14.3373H13.3132V16.3855H10.3433C10.5481 17.1194 10.8127 17.8235 11.137 18.4977C11.4613 19.1719 11.8453 19.8162 12.2891 20.4307C12.6305 20.4307 12.9718 20.4094 13.3132 20.3667C13.6546 20.324 13.9959 20.2856 14.3373 20.2515V22.3509C13.9959 22.385 13.6546 22.4234 13.3132 22.4661C12.9718 22.5088 12.6305 22.5301 12.2891 22.5301ZM4.35232 14.3373H7.83426C7.78306 13.9959 7.74465 13.6546 7.71905 13.3132C7.69345 12.9718 7.68065 12.6305 7.68065 12.2891C7.68065 11.9477 7.69345 11.6064 7.71905 11.265C7.74465 10.9236 7.78306 10.5823 7.83426 10.2409H4.35232C4.26698 10.5823 4.20297 10.9236 4.1603 11.265C4.11763 11.6064 4.0963 11.9477 4.0963 12.2891C4.0963 12.6305 4.11763 12.9718 4.1603 13.3132C4.20297 13.6546 4.26698 13.9959 4.35232 14.3373ZM5.22281 8.19269H8.2439C8.39752 7.56117 8.58953 6.94244 8.81996 6.33651C9.05038 5.73059 9.31921 5.13746 9.62644 4.55714C8.68768 4.86437 7.84279 5.32948 7.09179 5.95248C6.34078 6.57547 5.71779 7.32221 5.22281 8.19269ZM9.62644 20.021C9.31921 19.4407 9.05038 18.8476 8.81996 18.2417C8.58953 17.6357 8.39752 17.017 8.2439 16.3855H5.22281C5.71779 17.256 6.34078 18.0027 7.09179 18.6257C7.84279 19.2487 8.68768 19.7138 9.62644 20.021ZM10.3433 8.19269H14.2349C14.0301 7.45876 13.7655 6.75469 13.4412 6.08049C13.1169 5.40629 12.7329 4.76196 12.2891 4.1475C11.8453 4.76196 11.4613 5.40629 11.137 6.08049C10.8127 6.75469 10.5481 7.45876 10.3433 8.19269ZM16.3343 8.19269H19.3554C18.8604 7.32221 18.2374 6.57547 17.4864 5.95248C16.7354 5.32948 15.8905 4.86437 14.9518 4.55714C15.259 5.13746 15.5278 5.73059 15.7582 6.33651C15.9887 6.94244 16.1807 7.56117 16.3343 8.19269Z" fill="#1C1B1F"/>
-                                </g>
-                            </svg>
+                        <button class="website-button" @onclick="() => OpenWebsite(property.Website)" title="Visit website">
+                            <img src="icons/globe-link.svg" alt="Website" width="25" height="25" loading="lazy" />
                         </button>
                     </div>
                     <div class="property-status">
@@ -94,31 +118,30 @@
                     </div>
                 </div>
 
+                <div class="property-card-divider"></div>
+
                 <div class="property-card-details">
                     <div class="detail-row">
-                        <span class="detail-address">@(property.AddressLine1 ?? ""), @(property.PostalCode ?? "") @(property.City ?? "")</span>
+                        <span class="detail-address">@FormatAddress(property)</span>
                         <div class="detail-contact">
-                            <svg width="20" height="16" viewBox="0 0 20 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="1" y="1" width="18" height="14" rx="2" stroke="#666666" stroke-width="1.5"/>
-                                <path d="M1 4L10 9L19 4" stroke="#666666" stroke-width="1.5"/>
-                            </svg>
+                            <img src="icons/email.svg" alt="Email" width="25" height="25" loading="lazy" />
                             <span>@(property.ContactName ?? "")</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="property-card-services">
-                    <div class="service-item">
+                    <div class="service-item booking-engine">
                         <span class="service-indicator"></span>
                         <span class="service-name">Booking engine</span>
                     </div>
-                    <div class="service-item">
+                    <div class="service-item aro-analytics">
                         <span class="service-indicator"></span>
-                        <span class="service-name">Aro Analytics</span>
+                        <span class="service-name">Aró Analytics</span>
                     </div>
                 </div>
             </div>
-        }
+        </Virtualize>
     }
 </div>
 
@@ -128,18 +151,62 @@
     [Inject] private NavigationManager? NavigationManager { get; set; }
 
     private string userName = "there";
+    private string groupName = "";
+    private string? groupImageUrl = null;
     private bool isLoading = true;
     private List<PropertyListItemResponse> properties = new();
+    private bool isSortDropdownOpen = false;
+    private SortOption currentSortOption = SortOption.AZ;
+    private bool shouldRender = true;
+
+    // Cached values for performance
+    private string? cachedApiBaseAddress;
+    private Dictionary<Guid, string> propertyImageUrlCache = new();
+
+    private enum SortOption
+    {
+        AZ,
+        ZA
+    }
+
+    // Optimize rendering - only re-render when necessary
+    protected override bool ShouldRender() => shouldRender;
 
     protected override async Task OnInitializedAsync()
     {
-        // Get the user's display name
+        // Load all data in parallel for better performance
+        if (GroupId.HasValue && GroupId.Value != Guid.Empty)
+        {
+            // Create tasks for parallel execution
+            var userTask = LoadUserInfoAsync();
+            var groupTask = LoadGroupInfoAsync(GroupId.Value);
+            var propertiesTask = PropertyService.GetPropertiesByGroupIdAsync(GroupId.Value);
+
+            // Wait for all tasks to complete in parallel
+            await Task.WhenAll(userTask, groupTask, propertiesTask);
+
+            // Get results
+            properties = propertiesTask.Result;
+
+            // Apply default A-Z sorting
+            SortProperties();
+        }
+        else
+        {
+            // Only load user info if no group
+            await LoadUserInfoAsync();
+        }
+
+        isLoading = false;
+    }
+
+    private async Task LoadUserInfoAsync()
+    {
         try
         {
             var userInfo = await AuthService.GetCurrentUserAsync();
             if (userInfo != null && !string.IsNullOrEmpty(userInfo.DisplayName))
             {
-                // Get first name only
                 userName = userInfo.DisplayName.Split(' ')[0];
             }
         }
@@ -147,25 +214,95 @@
         {
             userName = "there";
         }
+    }
 
-        // Load properties for this group
-        if (GroupId.HasValue && GroupId.Value != Guid.Empty)
+    private async Task LoadGroupInfoAsync(Guid groupId)
+    {
+        try
         {
-            properties = await PropertyService.GetPropertiesByGroupIdAsync(GroupId.Value);
-        }
+            var groupResponse = await GroupService.GetGroup(new GetGroupRequest(groupId, "PrimaryContact"));
+            if (groupResponse?.Group != null)
+            {
+                groupName = groupResponse.Group.GroupName ?? "";
 
-        isLoading = false;
+                // Convert logo byte array to base64 data URL
+                if (groupResponse.Group.Logo != null && groupResponse.Group.Logo.Length > 0)
+                {
+                    var base64 = Convert.ToBase64String(groupResponse.Group.Logo);
+                    groupImageUrl = $"data:image/png;base64,{base64}";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading group: {ex.Message}");
+            groupName = "";
+            groupImageUrl = null;
+        }
+    }
+
+    private void ToggleSortDropdown()
+    {
+        isSortDropdownOpen = !isSortDropdownOpen;
+    }
+
+    private void ApplySort(SortOption option)
+    {
+        currentSortOption = option;
+        SortProperties();
+        isSortDropdownOpen = false;
+    }
+
+    private void SortProperties()
+    {
+        properties = currentSortOption switch
+        {
+            SortOption.AZ => properties.OrderBy(p => p.PropertyName, StringComparer.OrdinalIgnoreCase).ToList(),
+            SortOption.ZA => properties.OrderByDescending(p => p.PropertyName, StringComparer.OrdinalIgnoreCase).ToList(),
+            _ => properties
+        };
+    }
+
+    private string GetSortLabel()
+    {
+        return currentSortOption switch
+        {
+            SortOption.AZ => "A-Z",
+            SortOption.ZA => "Z-A",
+            _ => "A-Z"
+        };
+    }
+
+    private string FormatAddress(PropertyListItemResponse property)
+    {
+        var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(property.AddressLine1))
+            parts.Add(property.AddressLine1);
+
+        var cityPart = string.Join(" ", new[] { property.PostalCode, property.City }
+            .Where(s => !string.IsNullOrWhiteSpace(s)));
+
+        if (!string.IsNullOrWhiteSpace(cityPart))
+            parts.Add(cityPart);
+
+        return string.Join(", ", parts);
     }
 
     private string GetPropertyImageUrl(Guid groupId, Guid propertyId, Guid imageId)
     {
-        var apiBaseAddress = Configuration["ApiBaseAddress"] ?? "https://localhost:7225/";
-        // Ensure the base address ends with a slash
-        if (!apiBaseAddress.EndsWith("/"))
+        // Check cache first
+        if (propertyImageUrlCache.TryGetValue(imageId, out var cachedUrl))
         {
-            apiBaseAddress += "/";
+            return cachedUrl;
         }
-        return $"{apiBaseAddress}api/property/image/{groupId}/{propertyId}/{imageId}";
+
+        // Cache the API base address on first use
+        cachedApiBaseAddress ??= Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
+
+        var url = $"{cachedApiBaseAddress}/api/property/image/{groupId}/{propertyId}/{imageId}";
+        propertyImageUrlCache[imageId] = url;
+        return url;
     }
 
     private void OpenWebsite(string? website)
@@ -182,8 +319,14 @@
         // Store GroupId in localStorage for property wizard
         if (GroupId.HasValue && GroupId.Value != Guid.Empty)
         {
+            // Store the selected group ID for the wizard pages to use
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", GroupId.Value.ToString());
+
+            // Get the group-specific storage key
+            var storageKey = PropertyWizardModel.GetLocalStorageKey(GroupId.Value);
+
             // Create a new wizard model with the GroupId or update existing
-            var existingJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", PropertyWizardModel.LocalStorageKey);
+            var existingJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey);
             PropertyWizardModel wizardModel;
 
             if (!string.IsNullOrEmpty(existingJson))
@@ -199,11 +342,16 @@
             wizardModel.CurrentStep = 1;
 
             var json = JsonSerializer.Serialize(wizardModel);
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", PropertyWizardModel.LocalStorageKey, json);
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, json);
         }
 
         // Navigate to property information wizard
         NavigationManager?.NavigateTo("/property/information");
+    }
+
+    private void HandleSettingsClick()
+    {
+        NavigationManager?.NavigateTo("/settings");
     }
 
 }
@@ -213,6 +361,82 @@
         padding: 24px;
         background-color: #F5F5F5;
         min-height: calc(100vh - 72px);
+    }
+
+    /* Top Header Bar Styles */
+    .top-right-section {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 16px;
+        padding: 10px 0;
+        margin-bottom: 24px;
+    }
+
+    .top-right-profile {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background-color: white;
+        border-radius: 999px;
+        padding: 4px 12px 4px 4px;
+        cursor: pointer;
+    }
+
+    .top-right-profile:hover {
+        background-color: #f5f5f5;
+    }
+
+    .profile-img {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .group-logo-placeholder {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background-color: #434343;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .group-name-text {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        color: #000000;
+        white-space: nowrap;
+    }
+
+    .dropdown-icon {
+        margin-left: 4px;
+        width: 12px;
+        height: 12px;
+    }
+
+    .top-right-icons {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: white;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .top-right-icons:hover {
+        background-color: rgba(0, 0, 0, 0.1);
     }
 
     .loading-container {
@@ -322,6 +546,53 @@
         font-size: 14px;
         color: #000000;
         cursor: pointer;
+        position: relative;
+        user-select: none;
+    }
+
+    .sort-dropdown:hover {
+        border-color: #BDBDBD;
+    }
+
+    .dropdown-arrow {
+        transition: transform 0.2s ease;
+    }
+
+    .dropdown-arrow.open {
+        transform: rotate(180deg);
+    }
+
+    .sort-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 4px;
+        background: #FFFFFF;
+        border: 1px solid #E0E0E0;
+        border-radius: 4px;
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        overflow: hidden;
+    }
+
+    .sort-option {
+        padding: 10px 16px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 14px;
+        color: #000000;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+
+    .sort-option:hover {
+        background-color: #F5F5F5;
+    }
+
+    .sort-option.active {
+        background-color: #FFF3E0;
+        color: #FF931E;
+        font-weight: 500;
     }
 
     /* Property Card Styles */
@@ -331,6 +602,11 @@
         box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
         padding: 24px;
         margin-bottom: 16px;
+        /* Performance optimizations */
+        contain: layout style paint;
+        content-visibility: auto;
+        contain-intrinsic-size: 0 200px;
+        will-change: auto;
     }
 
     .property-card-header {
@@ -421,15 +697,20 @@
         color: #666666;
     }
 
+    .property-card-divider {
+        height: 1px;
+        background-color: #E0E0E0;
+        margin: 16px 0;
+    }
+
     .property-card-details {
-        padding: 16px 0;
-        border-bottom: 1px solid #E0E0E0;
+        padding-bottom: 16px;
     }
 
     .detail-row {
         display: flex;
-        justify-content: space-between;
         align-items: center;
+        gap: 16px;
     }
 
     .detail-address {
@@ -453,21 +734,37 @@
 
     .property-card-services {
         display: flex;
-        gap: 32px;
-        padding-top: 16px;
+        gap: 16px;
+        margin-top: 16px;
     }
 
     .service-item {
         display: flex;
         align-items: center;
-        gap: 8px;
+        background-color: #F5F5F5;
+        border-radius: 6px;
+        padding: 20px 24px;
+        gap: 12px;
+        position: relative;
+        overflow: hidden;
     }
 
     .service-indicator {
-        width: 4px;
-        height: 24px;
-        background-color: #FF931E;
-        border-radius: 2px;
+        width: 2px;
+        height: 38px;
+        border-radius: 1px;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+    }
+
+    .service-item.booking-engine .service-indicator {
+        background-color: #F69126;
+    }
+
+    .service-item.aro-analytics .service-indicator {
+        background-color: #434343;
     }
 
     .service-name {
@@ -475,6 +772,6 @@
         font-weight: 400;
         font-size: 14px;
         line-height: 17px;
-        color: #000000;
+        color: #1C1B1F;
     }
 </style>
