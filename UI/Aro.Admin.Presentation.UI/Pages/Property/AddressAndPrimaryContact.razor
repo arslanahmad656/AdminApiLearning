@@ -103,7 +103,9 @@
                                       Immediate="true"
                                       Error="@IsAddressLine1Invalid"
                                       ErrorText="Address Line 1 is required"
-                                      DisableUnderLine="true" />
+                                      Placeholder="Enter address line 1"
+                                      DisableUnderLine="true"
+                                      @onblur="OnAddressLine1Blur" />
                     </div>
                     <div class="address-column-right">
                         <div class="label-group-right">
@@ -115,6 +117,7 @@
                                       HelperText=""
                                       HelperTextOnFocus="false"
                                       Immediate="true"
+                                      Placeholder="Enter address line 2"
                                       DisableUnderLine="true" />
                     </div>
                 </div>
@@ -130,11 +133,13 @@
                                       Immediate="true"
                                       Error="@IsCityInvalid"
                                       ErrorText="City is required"
-                                      DisableUnderLine="true" />
+                                      Placeholder="Enter city"
+                                      DisableUnderLine="true"
+                                      @onblur="OnCityBlur" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Country *</label>
-                        <div class="@($"country-select-wrapper {(IsCountryInvalid ? "input-error-border" : "")}")">
+                        <div class="@($"country-select-wrapper {(IsCountryInvalid ? "input-error-border" : "")}")" @onfocusout="OnCountryBlur">
                             <div class="country-flag">
                                 <img src="@GetCountryFlagUrl(wizardModel.Country)" alt="Country Flag" class="flag-icon" />
                             </div>
@@ -169,7 +174,9 @@
                                       Immediate="true"
                                       Error="@IsPostalCodeInvalid"
                                       ErrorText="Postal Code is required"
-                                      DisableUnderLine="true" />
+                                      Placeholder="Enter postal code"
+                                      DisableUnderLine="true"
+                                      @onblur="OnPostalCodeBlur" />
                     </div>
                 </div>
 
@@ -196,6 +203,7 @@
                                    class="phone-number-input"
                                    value="@wizardModel.PhoneNumber"
                                    @oninput="OnPhoneNumberInput"
+                                   @onblur="OnPhoneNumberBlur"
                                    placeholder="Enter phone number"
                                    required />
                         </div>
@@ -214,7 +222,8 @@
                                       Error="@IsWebsiteInvalid"
                                       ErrorText="@GetWebsiteErrorMessage()"
                                       Placeholder="https://example.com"
-                                      DisableUnderLine="true" />
+                                      DisableUnderLine="true"
+                                      @onblur="OnWebsiteBlur" />
                     </div>
                 </div>
 
@@ -240,7 +249,9 @@
                                       Immediate="true"
                                       Error="@IsContactNameInvalid"
                                       ErrorText="Contact Name is required"
-                                      DisableUnderLine="true" />
+                                      Placeholder="Enter contact name"
+                                      DisableUnderLine="true"
+                                      @onblur="OnContactNameBlur" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email *</label>
@@ -252,7 +263,8 @@
                                       Error="@IsContactEmailInvalid"
                                       ErrorText="@GetEmailErrorMessage()"
                                       Placeholder="example@domain.com"
-                                      DisableUnderLine="true" />
+                                      DisableUnderLine="true"
+                                      @onblur="OnContactEmailBlur" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Role</label>
@@ -284,6 +296,26 @@
     private IEnumerable<string>? countryNames;
     private IEnumerable<string>? countryCodes;
     private Guid? _currentGroupId = null;
+
+    // Track which fields have been touched (focused and then blurred)
+    private bool addressLine1Touched = false;
+    private bool cityTouched = false;
+    private bool countryTouched = false;
+    private bool postalCodeTouched = false;
+    private bool phoneNumberTouched = false;
+    private bool websiteTouched = false;
+    private bool contactNameTouched = false;
+    private bool contactEmailTouched = false;
+
+    // Blur handlers to mark fields as touched
+    private void OnAddressLine1Blur() { addressLine1Touched = true; StateHasChanged(); }
+    private void OnCityBlur() { cityTouched = true; StateHasChanged(); }
+    private void OnCountryBlur() { countryTouched = true; StateHasChanged(); }
+    private void OnPostalCodeBlur() { postalCodeTouched = true; StateHasChanged(); }
+    private void OnPhoneNumberBlur() { phoneNumberTouched = true; StateHasChanged(); }
+    private void OnWebsiteBlur() { websiteTouched = true; StateHasChanged(); }
+    private void OnContactNameBlur() { contactNameTouched = true; StateHasChanged(); }
+    private void OnContactEmailBlur() { contactEmailTouched = true; StateHasChanged(); }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -397,15 +429,15 @@
     private bool IsValidEmail(string? email) => !string.IsNullOrWhiteSpace(email) && EmailRegex.IsMatch(email);
     private bool IsValidUrl(string? url) => !string.IsNullOrWhiteSpace(url) && UrlRegex.IsMatch(url);
 
-    // Validation helper methods for red border
-    private bool IsAddressLine1Invalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.AddressLine1);
-    private bool IsCityInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.City);
-    private bool IsCountryInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.Country);
-    private bool IsPostalCodeInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.PostalCode);
-    private bool IsPhoneNumberInvalid => showValidation && (string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) || !IsValidPhoneNumber(wizardModel.PhoneNumber));
-    private bool IsWebsiteInvalid => showValidation && (string.IsNullOrWhiteSpace(wizardModel.Website) || !IsValidUrl(wizardModel.Website));
-    private bool IsContactNameInvalid => showValidation && string.IsNullOrWhiteSpace(wizardModel.ContactName);
-    private bool IsContactEmailInvalid => showValidation && (string.IsNullOrWhiteSpace(wizardModel.ContactEmail) || !IsValidEmail(wizardModel.ContactEmail));
+    // Validation helper methods for red border - show error if touched OR showValidation (Next clicked)
+    private bool IsAddressLine1Invalid => (showValidation || addressLine1Touched) && string.IsNullOrWhiteSpace(wizardModel.AddressLine1);
+    private bool IsCityInvalid => (showValidation || cityTouched) && string.IsNullOrWhiteSpace(wizardModel.City);
+    private bool IsCountryInvalid => (showValidation || countryTouched) && string.IsNullOrWhiteSpace(wizardModel.Country);
+    private bool IsPostalCodeInvalid => (showValidation || postalCodeTouched) && string.IsNullOrWhiteSpace(wizardModel.PostalCode);
+    private bool IsPhoneNumberInvalid => (showValidation || phoneNumberTouched) && (string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) || !IsValidPhoneNumber(wizardModel.PhoneNumber));
+    private bool IsWebsiteInvalid => (showValidation || websiteTouched) && (string.IsNullOrWhiteSpace(wizardModel.Website) || !IsValidUrl(wizardModel.Website));
+    private bool IsContactNameInvalid => (showValidation || contactNameTouched) && string.IsNullOrWhiteSpace(wizardModel.ContactName);
+    private bool IsContactEmailInvalid => (showValidation || contactEmailTouched) && (string.IsNullOrWhiteSpace(wizardModel.ContactEmail) || !IsValidEmail(wizardModel.ContactEmail));
 
     // Error message methods
     private string GetPhoneNumberErrorMessage()
@@ -447,6 +479,7 @@
     private void OnCountryChanged(string newCountry)
     {
         wizardModel.Country = newCountry;
+        countryTouched = true; // Mark as touched when value changes
 
         // Auto-update phone country code based on selected country
         if (!string.IsNullOrWhiteSpace(newCountry))
@@ -1098,7 +1131,7 @@
         }
 
         .phone-number-input::placeholder {
-            color: #000000;
+            color: #737373;
             opacity: 1;
         }
 
