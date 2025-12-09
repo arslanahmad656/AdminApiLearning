@@ -93,6 +93,7 @@
                                   Required="true"
                                   MaxLength="100"
                                   Immediate="true"
+                                  Placeholder="Enter property name"
                                   DisableUnderLine="true"
                                   @onfocus="() => isPropertyNameFocused = true"
                                   @onblur="OnPropertyNameBlur" />
@@ -180,6 +181,7 @@
                               @onblur="OnDescriptionBlur"
                               rows="5"
                               maxlength="@MaxDescriptionLength"
+                              placeholder="Enter property description"
                               required></textarea>
                 </div>
             </MudForm>

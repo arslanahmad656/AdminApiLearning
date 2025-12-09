@@ -102,7 +102,7 @@
                 <div class="form-group">
                     <label for="metaTitle">Meta Title</label>
                     <div class="input-wrapper">
-                        <InputText id="metaTitle" class="form-control form-control-with-icon" maxlength="@MaxTitleLength" @bind-Value="wizardModel.MarketingTitle" @onfocus="() => isTitleFocused = true" @onblur="() => OnTitleBlur()" />
+                        <InputText id="metaTitle" class="form-control form-control-with-icon" maxlength="@MaxTitleLength" placeholder="Enter meta title" @bind-Value="wizardModel.MarketingTitle" @onfocus="() => isTitleFocused = true" @onblur="() => OnTitleBlur()" />
                         <span class="input-info-icon" title="Enter a concise title for search engines">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="8" cy="8" r="7.5" stroke="#737373"/>
@@ -118,7 +118,7 @@
                 <div class="form-group mt-3">
                     <label for="meta">Meta description</label>
                     <div class="input-wrapper">
-                        <InputTextArea id="meta" class="form-control form-control-textarea" maxlength="@MaxDescriptionLength" rows="8" @bind-Value="wizardModel.MarketingDescription" @onfocus="() => isDescriptionFocused = true" @onblur="() => OnDescriptionBlur()" />
+                        <InputTextArea id="meta" class="form-control form-control-textarea" maxlength="@MaxDescriptionLength" rows="8" placeholder="Enter meta description" @bind-Value="wizardModel.MarketingDescription" @onfocus="() => isDescriptionFocused = true" @onblur="() => OnDescriptionBlur()" />
                         <span class="input-info-icon textarea-icon" title="Enter a description for search engines">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <circle cx="8" cy="8" r="7.5" stroke="#737373"/>
