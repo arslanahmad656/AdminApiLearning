@@ -109,6 +109,7 @@
                                maxlength="30"
                                placeholder="Enter selling point"
                                @bind="keySellingPoints[index].Text"
+                               @bind:event="oninput"
                                @onfocus="() => SetActiveIndex(index)"
                                @onblur="ClearActiveIndex" />
 
@@ -139,7 +140,7 @@
             <WizardFooter OnBack="HandleBack"
                           OnNext="HandleNext"
                           BackDisabled="false"
-                          NextDisabled="false" />
+                          NextDisabled="@(!IsFormValid())" />
         </div>
     </div>
 </div>
@@ -328,6 +329,12 @@
             keySellingPoints.RemoveAt(index);
             // Don't save on every remove - save only on navigation
         }
+    }
+
+    // Validation - requires at least one selling point with text
+    private bool IsFormValid()
+    {
+        return keySellingPoints.Any(p => !string.IsNullOrWhiteSpace(p.Text));
     }
 
     private void HandleClose()

@@ -201,10 +201,15 @@
                             <div class="phone-divider"></div>
                             <input type="tel"
                                    class="phone-number-input"
-                                   value="@wizardModel.PhoneNumber"
-                                   @oninput="OnPhoneNumberInput"
+                                   @bind="wizardModel.PhoneNumber"
+                                   @bind:event="oninput"
+                                   @bind:after="OnPhoneNumberChanged"
                                    @onblur="OnPhoneNumberBlur"
+                                   onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 0"
                                    placeholder="Enter phone number"
+                                   pattern="[0-9]*"
+                                   inputmode="numeric"
+                                   maxlength="15"
                                    required />
                         </div>
                         @if (IsPhoneNumberInvalid)
@@ -425,27 +430,40 @@
     }
 
     // Format validation methods
-    private bool IsValidPhoneNumber(string? phone) => !string.IsNullOrWhiteSpace(phone) && PhoneNumberRegex.IsMatch(phone);
+    private bool IsValidPhoneNumber(string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+            return false;
+        if (!PhoneNumberRegex.IsMatch(phone))
+            return false;
+        // Phone number must be between 7-15 digits
+        return phone.Length >= 7 && phone.Length <= 15;
+    }
     private bool IsValidEmail(string? email) => !string.IsNullOrWhiteSpace(email) && EmailRegex.IsMatch(email);
     private bool IsValidUrl(string? url) => !string.IsNullOrWhiteSpace(url) && UrlRegex.IsMatch(url);
 
     // Validation helper methods for red border - show error if touched OR showValidation (Next clicked)
-    private bool IsAddressLine1Invalid => (showValidation || addressLine1Touched) && string.IsNullOrWhiteSpace(wizardModel.AddressLine1);
-    private bool IsCityInvalid => (showValidation || cityTouched) && string.IsNullOrWhiteSpace(wizardModel.City);
-    private bool IsCountryInvalid => (showValidation || countryTouched) && string.IsNullOrWhiteSpace(wizardModel.Country);
-    private bool IsPostalCodeInvalid => (showValidation || postalCodeTouched) && string.IsNullOrWhiteSpace(wizardModel.PostalCode);
-    private bool IsPhoneNumberInvalid => (showValidation || phoneNumberTouched) && (string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) || !IsValidPhoneNumber(wizardModel.PhoneNumber));
-    private bool IsWebsiteInvalid => (showValidation || websiteTouched) && (string.IsNullOrWhiteSpace(wizardModel.Website) || !IsValidUrl(wizardModel.Website));
-    private bool IsContactNameInvalid => (showValidation || contactNameTouched) && string.IsNullOrWhiteSpace(wizardModel.ContactName);
-    private bool IsContactEmailInvalid => (showValidation || contactEmailTouched) && (string.IsNullOrWhiteSpace(wizardModel.ContactEmail) || !IsValidEmail(wizardModel.ContactEmail));
+    // BUT only if the field is actually empty/invalid (check value FIRST)
+    private bool IsAddressLine1Invalid => string.IsNullOrWhiteSpace(wizardModel.AddressLine1) && (showValidation || addressLine1Touched);
+    private bool IsCityInvalid => string.IsNullOrWhiteSpace(wizardModel.City) && (showValidation || cityTouched);
+    private bool IsCountryInvalid => string.IsNullOrWhiteSpace(wizardModel.Country) && (showValidation || countryTouched);
+    private bool IsPostalCodeInvalid => string.IsNullOrWhiteSpace(wizardModel.PostalCode) && (showValidation || postalCodeTouched);
+    private bool IsPhoneNumberInvalid => (string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) || !IsValidPhoneNumber(wizardModel.PhoneNumber)) && (showValidation || phoneNumberTouched);
+    private bool IsWebsiteInvalid => (string.IsNullOrWhiteSpace(wizardModel.Website) || !IsValidUrl(wizardModel.Website)) && (showValidation || websiteTouched);
+    private bool IsContactNameInvalid => string.IsNullOrWhiteSpace(wizardModel.ContactName) && (showValidation || contactNameTouched);
+    private bool IsContactEmailInvalid => (string.IsNullOrWhiteSpace(wizardModel.ContactEmail) || !IsValidEmail(wizardModel.ContactEmail)) && (showValidation || contactEmailTouched);
 
     // Error message methods
     private string GetPhoneNumberErrorMessage()
     {
         if (string.IsNullOrWhiteSpace(wizardModel.PhoneNumber))
             return "Phone Number is required";
-        if (!IsValidPhoneNumber(wizardModel.PhoneNumber))
+        if (!PhoneNumberRegex.IsMatch(wizardModel.PhoneNumber))
             return "Phone Number must contain only numeric values";
+        if (wizardModel.PhoneNumber.Length < 7)
+            return "Phone Number must be at least 7 digits";
+        if (wizardModel.PhoneNumber.Length > 15)
+            return "Phone Number must not exceed 15 digits";
         return string.Empty;
     }
 
@@ -467,13 +485,19 @@
         return string.Empty;
     }
 
-    // Phone number input handler - only allows numeric values
-    private void OnPhoneNumberInput(ChangeEventArgs e)
+    // Phone number change handler - strips non-numeric characters after binding (handles paste)
+    private void OnPhoneNumberChanged()
     {
-        var input = e.Value?.ToString() ?? string.Empty;
-        // Remove all non-numeric characters
-        var numericOnly = new string(input.Where(char.IsDigit).ToArray());
-        wizardModel.PhoneNumber = numericOnly;
+        if (!string.IsNullOrEmpty(wizardModel.PhoneNumber))
+        {
+            // Remove all non-numeric characters
+            var numericOnly = new string(wizardModel.PhoneNumber.Where(char.IsDigit).ToArray());
+            if (numericOnly != wizardModel.PhoneNumber)
+            {
+                wizardModel.PhoneNumber = numericOnly;
+                StateHasChanged();
+            }
+        }
     }
 
     private void OnCountryChanged(string newCountry)
@@ -496,15 +520,15 @@
 
     private async Task OnSameAsPrimaryChanged()
     {
+        // Reset validation states FIRST before any async operations
+        addressLine1Touched = false;
+        cityTouched = false;
+        countryTouched = false;
+        postalCodeTouched = false;
+        showValidation = false;
+
         if (wizardModel.SetAddressSameAsGroupAddress && wizardModel.GroupId.HasValue)
         {
-            // Clear existing address fields first
-            wizardModel.AddressLine1 = string.Empty;
-            wizardModel.AddressLine2 = string.Empty;
-            wizardModel.City = string.Empty;
-            wizardModel.Country = string.Empty;
-            wizardModel.PostalCode = string.Empty;
-
             try
             {
                 // Include Address, PrimaryContact, and PrimaryContact.ContactInfo to get all data
@@ -516,8 +540,6 @@
                     wizardModel.City = groupResponse.Group.City ?? string.Empty;
                     wizardModel.Country = groupResponse.Group.Country ?? string.Empty;
                     wizardModel.PostalCode = groupResponse.Group.PostalCode ?? string.Empty;
-                    // Force UI to re-render with new values
-                    StateHasChanged();
                 }
             }
             catch
@@ -525,19 +547,32 @@
                 // Silent fail
             }
         }
+        else
+        {
+            // Checkbox unchecked - clear the fields
+            wizardModel.AddressLine1 = string.Empty;
+            wizardModel.AddressLine2 = string.Empty;
+            wizardModel.City = string.Empty;
+            wizardModel.Country = string.Empty;
+            wizardModel.PostalCode = string.Empty;
+        }
+
+        // Force complete UI re-render
+        await InvokeAsync(StateHasChanged);
+
         // Don't save on every checkbox change - save only on navigation
     }
 
     private async Task OnSameAsClientChanged()
     {
+        // Reset validation states FIRST before any async operations
+        contactNameTouched = false;
+        contactEmailTouched = false;
+        phoneNumberTouched = false;
+        showValidation = false;
+
         if (wizardModel.SetContactSameAsPrimaryContact && wizardModel.GroupId.HasValue)
         {
-            // Clear existing contact fields first
-            wizardModel.ContactName = string.Empty;
-            wizardModel.ContactEmail = string.Empty;
-            wizardModel.PhoneCountryCode = string.Empty;
-            wizardModel.PhoneNumber = string.Empty;
-
             try
             {
                 // Include Address, PrimaryContact, and PrimaryContact.ContactInfo to get phone data
@@ -548,7 +583,6 @@
                     wizardModel.ContactEmail = groupResponse.Group.PrimaryContactEmail ?? string.Empty;
                     wizardModel.PhoneCountryCode = groupResponse.Group.PrimaryContactCountryCode ?? string.Empty;
                     wizardModel.PhoneNumber = groupResponse.Group.PrimaryContactPhoneNumber ?? string.Empty;
-                    StateHasChanged();
                 }
             }
             catch
@@ -556,6 +590,18 @@
                 // Silent fail
             }
         }
+        else
+        {
+            // Checkbox unchecked - clear the fields
+            wizardModel.ContactName = string.Empty;
+            wizardModel.ContactEmail = string.Empty;
+            wizardModel.PhoneCountryCode = string.Empty;
+            wizardModel.PhoneNumber = string.Empty;
+        }
+
+        // Force complete UI re-render
+        await InvokeAsync(StateHasChanged);
+
         // Don't save on every checkbox change - save only on navigation
     }
 
