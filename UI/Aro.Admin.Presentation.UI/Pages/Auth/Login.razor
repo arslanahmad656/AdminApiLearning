@@ -31,12 +31,17 @@
             </div>
 
             <MudForm @ref="form" Class="login-form">
-                <MudTextField @bind-Value="model.Username"
-                              Label="Username"
+                <MudTextField @bind-Value="model.Email"
+                              Label="Email"
                               Variant="Variant.Outlined"
                               Class="login-input"
                               Required="true"
-                              RequiredError="Username is required" />
+                              RequiredError="Email is required"
+                              Immediate="true"
+                              Validation="@(new EmailAddressAttribute() { ErrorMessage = "Please enter a valid email address" })"
+                              OnKeyDown="@HandleKeyDown"
+                              aria-label="Email input"
+                              tabindex="1" />
 
                 <MudTextField @bind-Value="model.Password"
                               Label="Password"
@@ -45,12 +50,17 @@
                               Class="login-input"
                               Required="true"
                               RequiredError="Password is required"
+                              Immediate="true"
                               Adornment="Adornment.End"
                               AdornmentIcon="@passwordIcon"
-                              OnAdornmentClick="TogglePasswordVisibility" />
+                              OnAdornmentClick="TogglePasswordVisibility"
+                              OnKeyDown="@HandleKeyDown"
+                              AdornmentAriaLabel="@(passwordVisible ? "Hide password" : "Show password")"
+                              aria-label="Password input"
+                              tabindex="2" />
 
                 <div class="remember-me-container">
-                    <MudCheckBox @bind-Value="model.RememberMe" Color="Color.Dark">
+                    <MudCheckBox @bind-Value="model.RememberMe" Color="Color.Dark" tabindex="3" aria-label="Remember me checkbox">
                         Remember me
                     </MudCheckBox>
                 </div>
@@ -61,10 +71,12 @@
 
                 <div class="login-button-container">
                     <MudButton Variant="Variant.Filled"
-                               Class="login-button"
+                               Class="@($"login-button {(IsLoginDisabled ? "login-button-disabled" : "")}")"
                                OnClick="HandleLogin"
-                               Disabled="@isLoading"
-                               FullWidth="false">
+                               Disabled="@IsLoginDisabled"
+                               FullWidth="false"
+                               aria-label="Login button"
+                               tabindex="4">
                         @if (isLoading)
                         {
                             <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
@@ -90,6 +102,11 @@
     private InputType passwordInputType = InputType.Password;
     private string passwordIcon = Icons.Material.Filled.Visibility;
 
+    // Computed property to disable login button until both fields are filled
+    private bool IsLoginDisabled => isLoading ||
+                                    string.IsNullOrWhiteSpace(model.Email) ||
+                                    string.IsNullOrWhiteSpace(model.Password);
+
     protected override void OnInitialized()
     {
         var uri = new Uri(NavigationManager.Uri);
@@ -108,6 +125,15 @@
         passwordIcon = passwordVisible ? Icons.Material.Filled.VisibilityOff : Icons.Material.Filled.Visibility;
     }
 
+    // Handle Enter key press to submit form
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !IsLoginDisabled)
+        {
+            await HandleLogin();
+        }
+    }
+
     private async Task HandleLogin()
     {
         await form!.Validate();
@@ -121,7 +147,7 @@
 
         try
         {
-            var response = await AuthService.LoginAsync(model.Username, model.Password, model.RememberMe);
+            var response = await AuthService.LoginAsync(model.Email, model.Password, model.RememberMe);
 
             if (response != null)
             {
@@ -137,9 +163,29 @@
                 Snackbar.Add("Invalid email or password. Please try again.", MudBlazor.Severity.Error);
             }
         }
+        catch (HttpRequestException)
+        {
+            Snackbar.Clear();
+            Snackbar.Add("Unable to connect to the server. Please check your internet connection and try again.", MudBlazor.Severity.Error);
+        }
+        catch (TaskCanceledException)
+        {
+            Snackbar.Clear();
+            Snackbar.Add("The request timed out. Please try again.", MudBlazor.Severity.Error);
+        }
         catch (Exception ex)
         {
-            ErrorHandler.ShowError(ex, "An unexpected error occurred during login. Please try again.");
+            // Check for account locked scenario (assuming API returns specific message)
+            if (ex.Message.Contains("locked", StringComparison.OrdinalIgnoreCase) ||
+                ex.Message.Contains("too many attempts", StringComparison.OrdinalIgnoreCase))
+            {
+                Snackbar.Clear();
+                Snackbar.Add("Your account has been locked due to too many failed attempts. Please try again later or contact support.", MudBlazor.Severity.Error);
+            }
+            else
+            {
+                ErrorHandler.ShowError(ex, "An unexpected error occurred during login. Please try again.");
+            }
         }
         finally
         {
@@ -151,7 +197,7 @@
     {
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
-        public string Username { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Password is required")]
         public string Password { get; set; } = string.Empty;
