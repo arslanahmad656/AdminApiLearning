@@ -141,7 +141,7 @@
             <WizardFooter OnBack="HandleBack"
                           OnNext="HandleNext"
                           BackDisabled="false"
-                          NextDisabled="false" />
+                          NextDisabled="@(!IsFormValid())" />
         </div>
     </div>
 </div>
@@ -344,6 +344,12 @@
     private void SelectImage(ImageModel image)
     {
         // Implement rename functionality or other logic
+    }
+
+    // Validation - requires at least one banner image and a favicon
+    private bool IsFormValid()
+    {
+        return uploadedImages.Count > 0 && !string.IsNullOrEmpty(faviconFileName);
     }
 
     private void HandleClose()

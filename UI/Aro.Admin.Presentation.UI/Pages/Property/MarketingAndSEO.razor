@@ -135,7 +135,7 @@
             <WizardFooter OnBack="HandleBack"
                           OnNext="HandleNext"
                           BackDisabled="false"
-                          NextDisabled="false" />
+                          NextDisabled="@(!IsFormValid())" />
         </div>
     </div>
 
@@ -242,6 +242,13 @@
         {
             Console.WriteLine($"Error saving to localStorage: {ex.Message}");
         }
+    }
+
+    // Validation - requires both meta title and description
+    private bool IsFormValid()
+    {
+        return !string.IsNullOrWhiteSpace(wizardModel.MarketingTitle) &&
+               !string.IsNullOrWhiteSpace(wizardModel.MarketingDescription);
     }
 
     private async Task HandleBack()
