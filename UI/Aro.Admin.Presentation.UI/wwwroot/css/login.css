@@ -163,8 +163,65 @@
     min-width: 190px !important;
 }
 
-.login-button:hover {
+.login-button:hover:not(:disabled) {
     background: #FF931E !important;
+}
+
+/* Disabled Login Button */
+.login-button:disabled,
+.login-button-disabled {
+    background: #C3C3C3 !important;
+    color: #737373 !important;
+    cursor: not-allowed !important;
+    opacity: 0.7 !important;
+}
+
+.login-button:disabled:hover,
+.login-button-disabled:hover {
+    background: #C3C3C3 !important;
+}
+
+/* Focus indicators for accessibility */
+.login-input .mud-input-outlined:focus-within {
+    border-color: #F69126 !important;
+    box-shadow: 0 0 0 2px rgba(246, 145, 38, 0.25) !important;
+}
+
+.login-input input:focus {
+    outline: none !important;
+}
+
+.login-button:focus-visible {
+    outline: 2px solid #F69126 !important;
+    outline-offset: 2px !important;
+}
+
+/* Remove yellow/blue border from checkbox on focus */
+.remember-me-container .mud-checkbox,
+.remember-me-container .mud-checkbox *,
+.remember-me-container .mud-checkbox *:focus,
+.remember-me-container .mud-checkbox *:focus-visible,
+.remember-me-container .mud-checkbox *:focus-within {
+    outline: none !important;
+    box-shadow: none !important;
+    --bs-focus-ring-color: transparent !important;
+    --bs-focus-ring-width: 0 !important;
+}
+
+.remember-me-container .mud-button-root {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.remember-me-container .mud-button-root:focus,
+.remember-me-container .mud-button-root:focus-visible {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.forgot-password-container a:focus-visible {
+    outline: 2px solid #F69126 !important;
+    outline-offset: 2px !important;
 }
 
 /* Success Alert Customization */
