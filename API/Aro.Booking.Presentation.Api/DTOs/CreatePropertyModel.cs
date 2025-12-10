@@ -29,7 +29,7 @@ public record CreatePropertyModel(
 
 public record CreatePropertyFilesModel
 {
-    public IFormFile Favicon { get; init; }
-    public IFormFile Banner1 { get; set; }
-    public IFormFile Banner2 { get; set; }
+    public required IFormFile Favicon { get; init; }
+    public required IFormFile Banner1 { get; set; }
+    public required IFormFile Banner2 { get; set; }
 }

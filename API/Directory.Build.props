@@ -11,4 +11,8 @@
     <FileVersion>1.25.12.09</FileVersion>
     <InformationalVersion>1.25.12.09</InformationalVersion>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+  </PropertyGroup>
 </Project>

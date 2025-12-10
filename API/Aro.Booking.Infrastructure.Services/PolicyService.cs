@@ -48,7 +48,7 @@ public partial class PolicyService(
     {
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetPolicies], cancellationToken);
 
-        logger.LogDebug("Retrieving policies with filter: {Filter}, include: {Include}, page: {Page}, size: {PageSize}", query.Filter, query.Include, query.Page, query.PageSize);
+        logger.LogDebug("Retrieving policies with filter: {Filter}, include: {Include}, page: {Page}, size: {PageSize}", query.Filter ?? '\0', query.Include ?? string.Empty, query.Page, query.PageSize);
 
         var baseQuery = policyRepository.GetAll();
 
