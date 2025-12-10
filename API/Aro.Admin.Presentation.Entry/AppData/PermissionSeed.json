@@ -123,6 +123,22 @@
     {
       "Name": "amenity.delete",
       "Description": "Can delete amenities"
+    },
+    {
+      "Name": "policy.create",
+      "Description": "Can create policies"
+    },
+    {
+      "Name": "policy.read",
+      "Description": "Can view policy details"
+    },
+    {
+      "Name": "policy.patch",
+      "Description": "Can update policies"
+    },
+    {
+      "Name": "policy.delete",
+      "Description": "Can delete policies"
     }
   ],
 
@@ -160,7 +176,11 @@
         "amenity.create",
         "amenity.read",
         "amenity.patch",
-        "amenity.delete"
+        "amenity.delete",
+        "policy.create",
+        "policy.read",
+        "policy.patch",
+        "policy.delete"
       ]
     },
     {

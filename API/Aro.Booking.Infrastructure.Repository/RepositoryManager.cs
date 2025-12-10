@@ -12,6 +12,7 @@ public class RepositoryManager(AroDbContext dbContext) : IRepositoryManager
     private readonly Lazy<PropertyFilesRepository> propertyFilesRepository = new(() => new PropertyFilesRepository(dbContext));
     private readonly Lazy<RoomRepository> roomRepository = new(() => new RoomRepository(dbContext));
     private readonly Lazy<AmenityRepository> amenityRepository = new(() => new AmenityRepository(dbContext));
+    private readonly Lazy<PolicyRepository> policyRepository = new(() => new PolicyRepository(dbContext));
 
     public IAddressRepository AddressRepository => addressRepository.Value;
     //public IContactRepository ContactRepository => contactRepository.Value;
@@ -20,4 +21,5 @@ public class RepositoryManager(AroDbContext dbContext) : IRepositoryManager
     public IPropertyFilesRepository PropertyFilesRepository => propertyFilesRepository.Value;
     public IRoomRepository RoomRepository => roomRepository.Value;
     public IAmenityRepository AmenityRepository => amenityRepository.Value;
+    public IPolicyRepository PolicyRepository => policyRepository.Value;
 }

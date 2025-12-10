@@ -66,6 +66,10 @@ public class ErrorCodes
     public readonly string AMENITY_ALREADY_EXISTS = nameof(AMENITY_ALREADY_EXISTS);
     #endregion
 
+    #region [POLICY]
+    public readonly string POLICY_NOT_FOUND = nameof(POLICY_NOT_FOUND);
+    #endregion
+
     #region [FILE MANAGEMENT]
     public readonly string GENERAL_FILE_ERROR = nameof(GENERAL_FILE_ERROR);
     public readonly string FILE_NOT_FOUND = nameof(FILE_NOT_FOUND);

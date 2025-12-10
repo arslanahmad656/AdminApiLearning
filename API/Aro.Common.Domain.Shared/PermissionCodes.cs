@@ -48,6 +48,14 @@ public class PermissionCodes
     public const string DeleteAmenity = "amenity.delete";
     #endregion
 
+    #region [Policies]
+    public const string CreatePolicy = "policy.create";
+    public const string GetPolicies = "policy.read";
+    public const string GetPolicy = "policy.read";
+    public const string PatchPolicy = "policy.patch";
+    public const string DeletePolicy = "policy.delete";
+    #endregion
+
     #region [Miscs]
     public const string MigrateDabase = "database.migrate";
     public const string SeedApplication = "application.seed";
