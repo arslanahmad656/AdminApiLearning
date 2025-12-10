@@ -1,5 +1,6 @@
 @page "/property/{PropertyId:guid}/rules"
 @attribute [Authorize]
+@layout PropertyLayout
 @using Microsoft.AspNetCore.Components.Authorization
 @implements IDisposable
 @inject NavigationManager NavigationManager
