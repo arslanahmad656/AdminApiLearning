@@ -153,6 +153,72 @@
     </div>
 </div>
 
+<!-- Edit/Add Rule Side Panel -->
+@if (isPanelOpen)
+{
+    <div class="panel-overlay" @onclick="HandleClosePanel"></div>
+    <div class="edit-panel @(isPanelOpen ? "open" : "")">
+        <!-- Panel Header -->
+        <div class="panel-header">
+            <span class="panel-title">@(isEditMode ? $"Edit {editModel.Name}" : "Add New Rule")</span>
+            <button class="panel-close-btn" @onclick="HandleClosePanel">X</button>
+        </div>
+
+        <!-- Panel Content -->
+        <div class="panel-content">
+            <!-- Policy Title -->
+            <div class="form-group">
+                <label class="form-label">Policy title</label>
+                <span class="form-hint">Max 50 characters</span>
+                <input type="text"
+                       class="form-input"
+                       @bind="editModel.Name"
+                       @bind:event="oninput"
+                       maxlength="50"
+                       placeholder="Enter policy title" />
+            </div>
+
+            <!-- Policy Description -->
+            <div class="form-group">
+                <label class="form-label">Policy description</label>
+                <div class="textarea-wrapper">
+                    <textarea class="form-textarea"
+                              @bind="editModel.Description"
+                              @bind:event="oninput"
+                              maxlength="250"
+                              placeholder="Enter policy description"></textarea>
+                    <span class="char-count">max 250 characters.</span>
+                </div>
+            </div>
+
+            <!-- Is this policy active? -->
+            <div class="form-group">
+                <div class="active-toggle-container">
+                    <label class="form-label">Is this policy active?</label>
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn @(editModel.IsActive ? "active" : "")"
+                                @onclick="() => editModel.IsActive = true">
+                            <span class="toggle-indicator @(editModel.IsActive ? "selected" : "")"></span>
+                            Yes
+                        </button>
+                        <button class="toggle-btn @(!editModel.IsActive ? "active" : "")"
+                                @onclick="() => editModel.IsActive = false">
+                            <span class="toggle-indicator @(!editModel.IsActive ? "selected" : "")"></span>
+                            No
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Footer -->
+        <div class="panel-footer">
+            <button class="btn-discard" @onclick="HandleClosePanel">Discard</button>
+            <button class="btn-save" @onclick="HandleSaveRule">Save changes</button>
+        </div>
+    </div>
+}
+
 @code {
     [Parameter]
     public Guid PropertyId { get; set; }
@@ -162,29 +228,90 @@
 
     private List<PropertyRuleModel> rules = new();
 
+    // Panel state
+    private bool isPanelOpen = false;
+    private bool isEditMode = false;
+    private PropertyRuleModel editModel = new();
+    private Guid? editingRuleId = null;
+
     protected override void OnInitialized()
     {
         // Load sample rules - replace with actual API call
         rules = new List<PropertyRuleModel>
         {
-            new() { Id = Guid.NewGuid(), Name = "Property Rule 1", IsActive = true, Order = 1 },
-            new() { Id = Guid.NewGuid(), Name = "Property Rule 2", IsActive = false, Order = 2 },
-            new() { Id = Guid.NewGuid(), Name = "Property Rule 3", IsActive = true, Order = 3 },
-            new() { Id = Guid.NewGuid(), Name = "Property Rule 4", IsActive = true, Order = 4 },
-            new() { Id = Guid.NewGuid(), Name = "Property Rule 5", IsActive = true, Order = 5 }
+            new() { Id = Guid.NewGuid(), Name = "Property Rule 1", Description = "Guests may check-in at any time from 3.00 p.m. on the scheduled day of arrival.", IsActive = true, Order = 1 },
+            new() { Id = Guid.NewGuid(), Name = "Property Rule 2", Description = "", IsActive = false, Order = 2 },
+            new() { Id = Guid.NewGuid(), Name = "Property Rule 3", Description = "", IsActive = true, Order = 3 },
+            new() { Id = Guid.NewGuid(), Name = "Property Rule 4", Description = "", IsActive = true, Order = 4 },
+            new() { Id = Guid.NewGuid(), Name = "Property Rule 5", Description = "", IsActive = true, Order = 5 }
         };
     }
 
     private void HandleAddNewRule()
     {
-        Snackbar.Add("Add New Rule clicked - functionality to be implemented", MudBlazor.Severity.Info);
-        // TODO: Open modal/dialog to add new rule
+        isEditMode = false;
+        editingRuleId = null;
+        editModel = new PropertyRuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "",
+            Description = "",
+            IsActive = true,
+            Order = rules.Count + 1
+        };
+        isPanelOpen = true;
     }
 
     private void HandleEditRule(PropertyRuleModel rule)
     {
-        Snackbar.Add($"Edit rule: {rule.Name}", MudBlazor.Severity.Info);
-        // TODO: Open modal/dialog to edit rule
+        isEditMode = true;
+        editingRuleId = rule.Id;
+        editModel = new PropertyRuleModel
+        {
+            Id = rule.Id,
+            Name = rule.Name,
+            Description = rule.Description,
+            IsActive = rule.IsActive,
+            Order = rule.Order
+        };
+        isPanelOpen = true;
+    }
+
+    private void HandleClosePanel()
+    {
+        isPanelOpen = false;
+        editModel = new PropertyRuleModel();
+        editingRuleId = null;
+    }
+
+    private void HandleSaveRule()
+    {
+        if (string.IsNullOrWhiteSpace(editModel.Name))
+        {
+            Snackbar.Add("Policy title is required", MudBlazor.Severity.Warning);
+            return;
+        }
+
+        if (isEditMode && editingRuleId.HasValue)
+        {
+            // Update existing rule
+            var existingRule = rules.FirstOrDefault(r => r.Id == editingRuleId.Value);
+            if (existingRule != null)
+            {
+                existingRule.Name = editModel.Name;
+                existingRule.Description = editModel.Description;
+                existingRule.IsActive = editModel.IsActive;
+                Snackbar.Add($"Rule updated: {existingRule.Name}", MudBlazor.Severity.Success);
+            }
+        }
+        else
+        {
+            // Add new rule
+            rules.Add(editModel);
+            Snackbar.Add($"Rule added: {editModel.Name}", MudBlazor.Severity.Success);
+        }
+
+        HandleClosePanel();
     }
 
     private void HandleDuplicateRule(PropertyRuleModel rule)
@@ -193,6 +320,7 @@
         {
             Id = Guid.NewGuid(),
             Name = $"{rule.Name} (Copy)",
+            Description = rule.Description,
             IsActive = rule.IsActive,
             Order = rules.Count + 1
         };
@@ -210,6 +338,7 @@
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
         public int Order { get; set; }
     }
@@ -481,13 +610,13 @@
     }
 
     .status-badge.active {
-        background: #d8edd9;
-        color: #1b4d19;
+        background: #A7E5A4;
+        color: #1B4D19;
     }
 
     .status-badge.inactive {
-        background: #ffd7d7;
-        color: #d03c3c;
+        background: #FFBDBD;
+        color: #D03C3C;
     }
 
     /* Rule Actions */
@@ -534,6 +663,262 @@
         cursor: grabbing;
     }
 
+    /* Panel Overlay */
+    .panel-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+    }
+
+    /* Edit Panel */
+    .edit-panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 503px;
+        height: 100vh;
+        background: #FFFFFF;
+        box-shadow: -4px 4px 11px 3px rgba(0, 0, 0, 0.12);
+        z-index: 1001;
+        display: flex;
+        flex-direction: column;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @@keyframes slideIn {
+        from {
+            transform: translateX(100%);
+        }
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    /* Panel Header */
+    .panel-header {
+        background: #434343;
+        padding: 23px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 75px;
+        box-sizing: border-box;
+    }
+
+    .panel-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+        color: #FFFFFF;
+    }
+
+    .panel-close-btn {
+        background: none;
+        border: none;
+        font-family: 'Inter', sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+        color: #FFFFFF;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .panel-close-btn:hover {
+        opacity: 0.8;
+    }
+
+    /* Panel Content */
+    .panel-content {
+        flex: 1;
+        padding: 36px 24px;
+        overflow-y: auto;
+    }
+
+    /* Form Group */
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1C1B1F;
+        margin-bottom: 8px;
+    }
+
+    .form-hint {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #707070;
+        margin-bottom: 12px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1C1B1F;
+        background: #FFFFFF;
+        border: 1px solid #C3C3C3;
+        border-radius: 8px;
+        box-sizing: border-box;
+        outline: none;
+    }
+
+    .form-input:focus {
+        border-color: #F69126;
+    }
+
+    .form-input::placeholder {
+        color: #9E9E9E;
+    }
+
+    /* Textarea */
+    .textarea-wrapper {
+        position: relative;
+    }
+
+    .form-textarea {
+        width: 100%;
+        min-height: 160px;
+        padding: 14px 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 25px;
+        color: #1C1B1F;
+        background: #FFFFFF;
+        border: 1px solid #C7C7C7;
+        border-radius: 8px;
+        box-sizing: border-box;
+        outline: none;
+        resize: vertical;
+    }
+
+    .form-textarea:focus {
+        border-color: #F69126;
+    }
+
+    .form-textarea::placeholder {
+        color: #9E9E9E;
+    }
+
+    .char-count {
+        position: absolute;
+        bottom: 12px;
+        right: 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #707070;
+    }
+
+    /* Active Toggle Container */
+    .active-toggle-container {
+        background: #FFFFFF;
+        border: 1px solid #C3C3C3;
+        border-radius: 8px;
+        padding: 16px 20px;
+    }
+
+    .active-toggle-container .form-label {
+        margin-bottom: 16px;
+    }
+
+    /* Toggle Buttons */
+    .toggle-buttons {
+        display: flex;
+        gap: 12px;
+    }
+
+    .toggle-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #FFFFFF;
+        border: 0.5px solid #C7C7C7;
+        border-radius: 21px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1C1B1F;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .toggle-btn:hover {
+        border-color: #F69126;
+    }
+
+    .toggle-indicator {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #FFFFFF;
+        border: 1px solid #C7C7C7;
+        transition: all 0.2s;
+    }
+
+    .toggle-indicator.selected {
+        background: #F69126;
+        border-color: #F69126;
+    }
+
+    /* Panel Footer */
+    .panel-footer {
+        padding: 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        border-top: 1px solid #E0E0E0;
+    }
+
+    .btn-discard {
+        padding: 14px 32px;
+        background: #FFFFFF;
+        border: 1px solid #4A4A4A;
+        border-radius: 6px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #4A4A4A;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-discard:hover {
+        background: #F5F5F5;
+    }
+
+    .btn-save {
+        padding: 14px 32px;
+        background: #F69126;
+        border: none;
+        border-radius: 6px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1C1B1F;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-save:hover {
+        background: #E58320;
+    }
+
     /* Responsive */
     @@media (max-width: 1024px) {
         .property-sidebar {
@@ -571,6 +956,19 @@
         }
 
         .add-rule-btn {
+            width: 100%;
+        }
+
+        .edit-panel {
+            width: 100%;
+        }
+
+        .panel-footer {
+            flex-direction: column;
+        }
+
+        .btn-discard,
+        .btn-save {
             width: 100%;
         }
     }
