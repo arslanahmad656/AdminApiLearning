@@ -1,9 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <!-- Disabling this as it's simple to work with the EF Core entities in a nullable-disabled context -->
-    <!--<Nullable>enable</Nullable>-->
+    <Nullable>disable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
