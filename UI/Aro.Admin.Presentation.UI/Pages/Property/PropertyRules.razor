@@ -1,6 +1,7 @@
 @page "/property/{PropertyId:guid}/rules"
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Components.Authorization
+@implements IDisposable
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 
@@ -80,6 +81,17 @@
 
     <!-- Main Content Area -->
     <div class="main-content">
+        <!-- Success Notification Banner -->
+        @if (showSuccessNotification)
+        {
+            <div class="success-notification">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.25 10.15L2.1 7L1.0325 8.0675L5.25 12.285L13.25 4.285L12.1825 3.2175L5.25 10.15Z" fill="#166719"/>
+                </svg>
+                <span>Changes to @lastSavedRuleName have been saved!</span>
+            </div>
+        }
+
         <!-- Top Header -->
         <div class="content-header">
             <div class="header-left">
@@ -115,9 +127,15 @@
         <div class="rules-card">
             <!-- Rules List -->
             <div class="rules-list">
-                @foreach (var rule in rules)
+                @foreach (var rule in rules.OrderBy(r => r.Order))
                 {
-                    <div class="rule-item @(rule.IsActive ? "" : "inactive")">
+                    <div class="rule-item @(rule.IsActive ? "" : "inactive") @(draggedRule?.Id == rule.Id ? "dragging" : "") @(dropTargetRule?.Id == rule.Id ? "drop-target" : "")"
+                         draggable="true"
+                         @ondragstart="() => HandleDragStart(rule)"
+                         @ondragend="HandleDragEnd"
+                         @ondragover:preventDefault
+                         @ondragover="() => HandleDragOver(rule)"
+                         @ondrop="() => HandleDrop(rule)">
                         <div class="rule-content">
                             <span class="rule-name">@rule.Name</span>
                             <span class="status-badge @(rule.IsActive ? "active" : "inactive")">
@@ -125,17 +143,17 @@
                             </span>
                         </div>
                         <div class="rule-actions">
-                            <button class="action-btn" title="Edit" @onclick="() => HandleEditRule(rule)">
+                            <button class="action-btn" title="Edit" @onclick="() => HandleEditRule(rule)" @onclick:stopPropagation="true">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="#737373"/>
                                 </svg>
                             </button>
-                            <button class="action-btn" title="Duplicate" @onclick="() => HandleDuplicateRule(rule)">
+                            <button class="action-btn" title="Duplicate" @onclick="() => HandleDuplicateRule(rule)" @onclick:stopPropagation="true">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="#737373"/>
                                 </svg>
                             </button>
-                            <button class="action-btn delete" title="Delete" @onclick="() => HandleDeleteRule(rule)">
+                            <button class="action-btn delete" title="Delete" @onclick="() => HandleDeleteRule(rule)" @onclick:stopPropagation="true">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="#737373"/>
                                 </svg>
@@ -234,12 +252,21 @@
     private PropertyRuleModel editModel = new();
     private Guid? editingRuleId = null;
 
+    // Success notification state
+    private bool showSuccessNotification = false;
+    private string lastSavedRuleName = "";
+    private System.Timers.Timer? notificationTimer;
+
+    // Drag and drop state
+    private PropertyRuleModel? draggedRule = null;
+    private PropertyRuleModel? dropTargetRule = null;
+
     protected override void OnInitialized()
     {
         // Load sample rules - replace with actual API call
         rules = new List<PropertyRuleModel>
         {
-            new() { Id = Guid.NewGuid(), Name = "Property Rule 1", Description = "Guests may check-in at any time from 3.00 p.m. on the scheduled day of arrival.", IsActive = true, Order = 1 },
+            new() { Id = Guid.NewGuid(), Name = "Check in / out", Description = "Guests may check-in at any time from 3.00 p.m. on the scheduled day of arrival.", IsActive = true, Order = 1 },
             new() { Id = Guid.NewGuid(), Name = "Property Rule 2", Description = "", IsActive = false, Order = 2 },
             new() { Id = Guid.NewGuid(), Name = "Property Rule 3", Description = "", IsActive = true, Order = 3 },
             new() { Id = Guid.NewGuid(), Name = "Property Rule 4", Description = "", IsActive = true, Order = 4 },
@@ -292,6 +319,8 @@
             return;
         }
 
+        string savedRuleName = editModel.Name;
+
         if (isEditMode && editingRuleId.HasValue)
         {
             // Update existing rule
@@ -301,17 +330,40 @@
                 existingRule.Name = editModel.Name;
                 existingRule.Description = editModel.Description;
                 existingRule.IsActive = editModel.IsActive;
-                Snackbar.Add($"Rule updated: {existingRule.Name}", MudBlazor.Severity.Success);
             }
         }
         else
         {
             // Add new rule
             rules.Add(editModel);
-            Snackbar.Add($"Rule added: {editModel.Name}", MudBlazor.Severity.Success);
         }
 
         HandleClosePanel();
+        ShowSuccessNotification(savedRuleName);
+    }
+
+    private void ShowSuccessNotification(string ruleName)
+    {
+        lastSavedRuleName = ruleName;
+        showSuccessNotification = true;
+        StateHasChanged();
+
+        // Auto-hide notification after 5 seconds
+        notificationTimer?.Dispose();
+        notificationTimer = new System.Timers.Timer(5000);
+        notificationTimer.Elapsed += (sender, args) =>
+        {
+            notificationTimer?.Dispose();
+            showSuccessNotification = false;
+            InvokeAsync(StateHasChanged);
+        };
+        notificationTimer.AutoReset = false;
+        notificationTimer.Start();
+    }
+
+    public void Dispose()
+    {
+        notificationTimer?.Dispose();
     }
 
     private void HandleDuplicateRule(PropertyRuleModel rule)
@@ -331,7 +383,69 @@
     private void HandleDeleteRule(PropertyRuleModel rule)
     {
         rules.Remove(rule);
+        // Reorder remaining rules
+        var orderedRules = rules.OrderBy(r => r.Order).ToList();
+        for (int i = 0; i < orderedRules.Count; i++)
+        {
+            orderedRules[i].Order = i + 1;
+        }
         Snackbar.Add($"Rule deleted: {rule.Name}", MudBlazor.Severity.Success);
+    }
+
+    // Drag and Drop Handlers
+    private void HandleDragStart(PropertyRuleModel rule)
+    {
+        draggedRule = rule;
+    }
+
+    private void HandleDragEnd()
+    {
+        draggedRule = null;
+        dropTargetRule = null;
+    }
+
+    private void HandleDragOver(PropertyRuleModel rule)
+    {
+        if (draggedRule != null && draggedRule.Id != rule.Id)
+        {
+            dropTargetRule = rule;
+        }
+    }
+
+    private void HandleDrop(PropertyRuleModel targetRule)
+    {
+        if (draggedRule == null || draggedRule.Id == targetRule.Id)
+        {
+            return;
+        }
+
+        // Get current ordered list
+        var orderedRules = rules.OrderBy(r => r.Order).ToList();
+
+        // Find positions
+        int draggedIndex = orderedRules.FindIndex(r => r.Id == draggedRule.Id);
+        int targetIndex = orderedRules.FindIndex(r => r.Id == targetRule.Id);
+
+        if (draggedIndex < 0 || targetIndex < 0)
+        {
+            return;
+        }
+
+        // Remove dragged item and insert at target position
+        orderedRules.RemoveAt(draggedIndex);
+        orderedRules.Insert(targetIndex, draggedRule);
+
+        // Update order values
+        for (int i = 0; i < orderedRules.Count; i++)
+        {
+            orderedRules[i].Order = i + 1;
+        }
+
+        // Reset drag state
+        draggedRule = null;
+        dropTargetRule = null;
+
+        StateHasChanged();
     }
 
     public class PropertyRuleModel
@@ -460,6 +574,38 @@
         text-decoration: underline;
     }
 
+    /* Success Notification Banner */
+    .success-notification {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: #D8EDD9;
+        border-radius: 6px;
+        padding: 10px 20px;
+        margin-bottom: 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        color: #166719;
+        animation: fadeIn 0.3s ease-out;
+        max-width: fit-content;
+    }
+
+    .success-notification svg {
+        flex-shrink: 0;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
     /* Main Content */
     .main-content {
         flex: 1;
@@ -582,6 +728,17 @@
         background: #f5f5f5;
     }
 
+    .rule-item.dragging {
+        opacity: 0.5;
+        border: 2px dashed #F69126;
+        background: #FFF8F0;
+    }
+
+    .rule-item.drop-target {
+        border: 2px solid #F69126;
+        box-shadow: 0 0 8px rgba(246, 145, 38, 0.4);
+    }
+
     .rule-content {
         flex: 1;
         display: flex;
@@ -610,7 +767,7 @@
     }
 
     .status-badge.active {
-        background: #A7E5A4;
+        background: #D8EDD9;
         color: #1B4D19;
     }
 
@@ -657,10 +814,23 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: transform 0.2s;
+    }
+
+    .drag-handle:hover {
+        transform: scale(1.1);
+    }
+
+    .drag-handle:hover svg path {
+        fill: #737373;
     }
 
     .drag-handle:active {
         cursor: grabbing;
+    }
+
+    .rule-item:hover .drag-handle svg path {
+        fill: #737373;
     }
 
     /* Panel Overlay */
