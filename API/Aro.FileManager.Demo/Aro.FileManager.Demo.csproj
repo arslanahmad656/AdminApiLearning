@@ -4,9 +4,6 @@
     <ProjectReference Include="..\Aro.Common.Infrastructure.Services\Aro.Common.Infrastructure.Services.csproj" />
     <ProjectReference Include="..\Aro.Common.Infrastructure.Services.Azure\Aro.Common.Infrastructure.Services.Azure.csproj" />
     <ProjectReference Include="..\Aro.Common.Infrastructure.Tests.Mocks\Aro.Common.Infrastructure.Tests.Mocks.csproj" />
-    <ProjectReference Include="..\Aro.Common.Application.Services\Aro.Common.Application.Services.csproj" />
-    <ProjectReference Include="..\Aro.Common.Application.Repository\Aro.Common.Application.Repository.csproj" />
-    <ProjectReference Include="..\Aro.Common.Domain.Entities\Aro.Common.Domain.Entities.csproj" />
   </ItemGroup>
 
   <ItemGroup>

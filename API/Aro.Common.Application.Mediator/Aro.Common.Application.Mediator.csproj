@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Aro.Common.Application.Services\Aro.Common.Application.Services.csproj" PrivateAssets="none" />
-    <ProjectReference Include="..\Aro.Common.Domain.Shared\Aro.Common.Domain.Shared.csproj" />
   </ItemGroup>
 
 </Project>

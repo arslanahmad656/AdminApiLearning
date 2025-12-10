@@ -19,7 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Aro.Admin.Tests.Common\Aro.Admin.Tests.Common.csproj" />
     <ProjectReference Include="..\Aro.Admin.Infrastructure.Services\Aro.Admin.Infrastructure.Services.csproj" />
-    <ProjectReference Include="..\Aro.Admin.Application.Services\Aro.Admin.Application.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>
