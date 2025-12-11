@@ -68,6 +68,7 @@ builder.Services.AddMudServices(config =>
 // Register data services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IPolicyService, PolicyService>();
 
 builder.Services.AddScoped<ICountryMetadataService, CountryMetadataService>();
 

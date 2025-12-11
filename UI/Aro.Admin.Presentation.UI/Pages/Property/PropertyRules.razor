@@ -1,0 +1,1291 @@
+@page "/property/{PropertyId:guid}/rules"
+@attribute [Authorize]
+@layout PropertyLayout
+@using Microsoft.AspNetCore.Components.Authorization
+@using Aro.UI.Infrastructure.Services
+@using Aro.UI.Application.DTOs
+@implements IDisposable
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IPolicyService PolicyService
+
+<PageTitle>ARO Admin - Property Rules</PageTitle>
+
+<div class="property-rules-container">
+    <!-- Left Sidebar - Property Specific Menu -->
+    <div class="property-sidebar">
+        <div class="sidebar-logo">
+            <img src="aro-logo.svg" alt="ARO" class="logo-img" />
+        </div>
+
+        <div class="property-header">
+            <div class="property-avatar">
+                <img src="@(PropertyImageUrl ?? "icons/profile.png")" alt="Property" />
+            </div>
+            <span class="property-title">@PropertyName</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/property/@PropertyId/rooms" class="nav-item">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 12V18H6V14H18V18H21V12H3Z" fill="white"/>
+                        <path d="M3 5V10H21V5H3Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Rooms</span>
+            </a>
+            <a href="/property/@PropertyId/rate-plans" class="nav-item">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21.41 11.58L12.41 2.58C12.05 2.22 11.55 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.55 2.22 12.05 2.59 12.42L11.59 21.42C11.95 21.78 12.45 22 13 22C13.55 22 14.05 21.78 14.41 21.41L21.41 14.41C21.78 14.05 22 13.55 22 13C22 12.45 21.77 11.94 21.41 11.58ZM5.5 7C4.67 7 4 6.33 4 5.5C4 4.67 4.67 4 5.5 4C6.33 4 7 4.67 7 5.5C7 6.33 6.33 7 5.5 7Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Rate plans</span>
+            </a>
+            <a href="/property/@PropertyId/gift-vouchers" class="nav-item">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 6H17.82C17.93 5.69 18 5.35 18 5C18 3.34 16.66 2 15 2C13.95 2 13.04 2.54 12.5 3.35L12 4.02L11.5 3.34C10.96 2.54 10.05 2 9 2C7.34 2 6 3.34 6 5C6 5.35 6.07 5.69 6.18 6H4C2.89 6 2.01 6.89 2.01 8L2 19C2 20.11 2.89 21 4 21H20C21.11 21 22 20.11 22 19V8C22 6.89 21.11 6 20 6ZM15 4C15.55 4 16 4.45 16 5C16 5.55 15.55 6 15 6C14.45 6 14 5.55 14 5C14 4.45 14.45 4 15 4ZM9 4C9.55 4 10 4.45 10 5C10 5.55 9.55 6 9 6C8.45 6 8 5.55 8 5C8 4.45 8.45 4 9 4ZM20 19H4V17H20V19ZM20 14H4V8H9.08L7 10.83L8.62 12L11 8.76L12 7.4L13 8.76L15.38 12L17 10.83L14.92 8H20V14Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Gift vouchers</span>
+            </a>
+            <a href="/property/@PropertyId/users" class="nav-item">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.65 10C11.83 7.67 9.61 6 7 6C3.69 6 1 8.69 1 12C1 15.31 3.69 18 7 18C9.61 18 11.83 16.33 12.65 14H17V18H21V14H23V10H12.65ZM7 14C5.9 14 5 13.1 5 12C5 10.9 5.9 10 7 10C8.1 10 9 10.9 9 12C9 13.1 8.1 14 7 14Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Users & Permissions</span>
+            </a>
+            <a href="/property/@PropertyId/facilities" class="nav-item">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="white"/>
+                        <path d="M7 12H9V17H7V12ZM11 7H13V17H11V7ZM15 10H17V17H15V10Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Facilities & Services</span>
+            </a>
+            <a href="/property/@PropertyId/rules" class="nav-item active">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM14 17H7V15H14V17ZM17 13H7V11H17V13ZM17 9H7V7H17V9Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Property Rules</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="/" class="back-link">← Back to All Properties</a>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Success Notification Banner -->
+        @if (showSuccessNotification)
+        {
+            <div class="success-notification">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.25 10.15L2.1 7L1.0325 8.0675L5.25 12.285L13.25 4.285L12.1825 3.2175L5.25 10.15Z" fill="#166719"/>
+                </svg>
+                <span>Changes to @lastSavedRuleName have been saved!</span>
+            </div>
+        }
+
+        <!-- Top Header -->
+        <div class="content-header">
+            <div class="header-left">
+                <div class="property-badge">
+                    <img src="@(PropertyImageUrl ?? "icons/profile.png")" alt="Property" class="badge-img" />
+                    <span class="badge-name">@PropertyName</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <TopHeaderBar GroupName="@PropertyName" />
+            </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <span>@PropertyName / Property Rules</span>
+        </div>
+
+        <!-- Page Title -->
+        <div class="page-title-section">
+            <h1 class="page-title">Property Rules</h1>
+            <button class="add-rule-btn" @onclick="HandleAddNewRule">
+                + Add New Rule
+            </button>
+        </div>
+
+        <!-- Rules Count -->
+        <div class="rules-count">
+            Total: @rules.Count
+        </div>
+
+        <!-- Rules Card Container -->
+        <div class="rules-card">
+            @if (isLoading)
+            {
+                <div class="loading-container">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
+                    <span class="loading-text">Loading policies...</span>
+                </div>
+            }
+            else
+            {
+            <!-- Rules List -->
+            <div class="rules-list">
+                @foreach (var rule in rules.OrderBy(r => r.Order))
+                {
+                    <div class="rule-item @(rule.IsActive ? "" : "inactive") @(draggedRule?.Id == rule.Id ? "dragging" : "") @(dropTargetRule?.Id == rule.Id ? "drop-target" : "")"
+                         draggable="true"
+                         @ondragstart="() => HandleDragStart(rule)"
+                         @ondragend="HandleDragEnd"
+                         @ondragover:preventDefault
+                         @ondragover="() => HandleDragOver(rule)"
+                         @ondrop="() => HandleDrop(rule)">
+                        <div class="rule-content">
+                            <span class="rule-name">@rule.Name</span>
+                            <span class="status-badge @(rule.IsActive ? "active" : "inactive")">
+                                @(rule.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </div>
+                        <div class="rule-actions">
+                            <button class="action-btn" title="Edit" @onclick="() => HandleEditRule(rule)" @onclick:stopPropagation="true">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="#737373"/>
+                                </svg>
+                            </button>
+                            <button class="action-btn" title="Duplicate" @onclick="async () => await HandleDuplicateRule(rule)" @onclick:stopPropagation="true">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="#737373"/>
+                                </svg>
+                            </button>
+                            <button class="action-btn delete" title="Delete" @onclick="async () => await HandleDeleteRule(rule)" @onclick:stopPropagation="true">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="#737373"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="drag-handle" title="Drag to reorder">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11 18C11 19.1 10.1 20 9 20C7.9 20 7 19.1 7 18C7 16.9 7.9 16 9 16C10.1 16 11 16.9 11 18ZM9 10C7.9 10 7 10.9 7 12C7 13.1 7.9 14 9 14C10.1 14 11 13.1 11 12C11 10.9 10.1 10 9 10ZM9 4C7.9 4 7 4.9 7 6C7 7.1 7.9 8 9 8C10.1 8 11 7.1 11 6C11 4.9 10.1 4 9 4ZM15 8C16.1 8 17 7.1 17 6C17 4.9 16.1 4 15 4C13.9 4 13 4.9 13 6C13 7.1 13.9 8 15 8ZM15 10C13.9 10 13 10.9 13 12C13 13.1 13.9 14 15 14C16.1 14 17 13.1 17 12C17 10.9 16.1 10 15 10ZM15 16C13.9 16 13 16.9 13 18C13 19.1 13.9 20 15 20C16.1 20 17 19.1 17 18C17 16.9 16.1 16 15 16Z" fill="#BDBDBD"/>
+                            </svg>
+                        </div>
+                    </div>
+                }
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Edit/Add Rule Side Panel -->
+@if (isPanelOpen)
+{
+    <div class="panel-overlay" @onclick="HandleClosePanel"></div>
+    <div class="edit-panel @(isPanelOpen ? "open" : "")">
+        <!-- Panel Header -->
+        <div class="panel-header">
+            <span class="panel-title">@(isEditMode ? $"Edit {editModel.Name}" : "Add New Rule")</span>
+            <button class="panel-close-btn" @onclick="HandleClosePanel">X</button>
+        </div>
+
+        <!-- Panel Content -->
+        <div class="panel-content">
+            <!-- Policy Title -->
+            <div class="form-group">
+                <label class="form-label">Policy title</label>
+                <span class="form-hint">Max 50 characters</span>
+                <input type="text"
+                       class="form-input"
+                       @bind="editModel.Name"
+                       @bind:event="oninput"
+                       maxlength="50"
+                       placeholder="Enter policy title" />
+            </div>
+
+            <!-- Policy Description -->
+            <div class="form-group">
+                <label class="form-label">Policy description</label>
+                <div class="textarea-wrapper">
+                    <textarea class="form-textarea"
+                              @bind="editModel.Description"
+                              @bind:event="oninput"
+                              maxlength="250"
+                              placeholder="Enter policy description"></textarea>
+                    <span class="char-count">max 250 characters.</span>
+                </div>
+            </div>
+
+            <!-- Is this policy active? -->
+            <div class="form-group">
+                <div class="active-toggle-container">
+                    <label class="form-label">Is this policy active?</label>
+                    <div class="toggle-buttons">
+                        <button class="toggle-btn @(editModel.IsActive ? "active" : "")"
+                                @onclick="() => editModel.IsActive = true">
+                            <span class="toggle-indicator @(editModel.IsActive ? "selected" : "")"></span>
+                            Yes
+                        </button>
+                        <button class="toggle-btn @(!editModel.IsActive ? "active" : "")"
+                                @onclick="() => editModel.IsActive = false">
+                            <span class="toggle-indicator @(!editModel.IsActive ? "selected" : "")"></span>
+                            No
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel Footer -->
+        <div class="panel-footer">
+            <button class="btn-discard" @onclick="HandleClosePanel" disabled="@isSaving">Discard</button>
+            <button class="btn-save" @onclick="HandleSaveRule" disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <MudProgressCircular Color="Color.Dark" Indeterminate="true" Size="Size.Small" Style="width: 18px; height: 18px; margin-right: 8px;" />
+                    <span>Saving...</span>
+                }
+                else
+                {
+                    <span>Save changes</span>
+                }
+            </button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Guid PropertyId { get; set; }
+
+    private string PropertyName { get; set; } = "Danmark Hotel";
+    private string? PropertyImageUrl { get; set; }
+
+    private List<PropertyRuleModel> rules = new();
+    private bool isLoading = true;
+
+    // Panel state
+    private bool isPanelOpen = false;
+    private bool isEditMode = false;
+    private bool isSaving = false;
+    private PropertyRuleModel editModel = new();
+    private Guid? editingRuleId = null;
+
+    // Success notification state
+    private bool showSuccessNotification = false;
+    private string lastSavedRuleName = "";
+    private System.Timers.Timer? notificationTimer;
+
+    // Drag and drop state
+    private PropertyRuleModel? draggedRule = null;
+    private PropertyRuleModel? dropTargetRule = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPolicies();
+    }
+
+    private async Task LoadPolicies()
+    {
+        try
+        {
+            isLoading = true;
+            var response = await PolicyService.GetPolicies(new GetPoliciesRequest(
+                Page: 1,
+                PageSize: 100,
+                SortBy: "Title",
+                Ascending: true
+            ));
+
+            if (response?.Policies != null)
+            {
+                rules = response.Policies.Select((p, index) => new PropertyRuleModel
+                {
+                    Id = p.Id,
+                    Name = p.Title,
+                    Description = p.Description ?? "",
+                    IsActive = p.IsActive,
+                    Order = index + 1
+                }).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load policies: {ex.Message}", MudBlazor.Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void HandleAddNewRule()
+    {
+        isEditMode = false;
+        editingRuleId = null;
+        editModel = new PropertyRuleModel
+        {
+            Id = Guid.NewGuid(),
+            Name = "",
+            Description = "",
+            IsActive = true,
+            Order = rules.Count + 1
+        };
+        isPanelOpen = true;
+    }
+
+    private void HandleEditRule(PropertyRuleModel rule)
+    {
+        isEditMode = true;
+        editingRuleId = rule.Id;
+        editModel = new PropertyRuleModel
+        {
+            Id = rule.Id,
+            Name = rule.Name,
+            Description = rule.Description,
+            IsActive = rule.IsActive,
+            Order = rule.Order
+        };
+        isPanelOpen = true;
+    }
+
+    private void HandleClosePanel()
+    {
+        isPanelOpen = false;
+        editModel = new PropertyRuleModel();
+        editingRuleId = null;
+    }
+
+    private async Task HandleSaveRule()
+    {
+        if (string.IsNullOrWhiteSpace(editModel.Name))
+        {
+            Snackbar.Add("Policy title is required", MudBlazor.Severity.Warning);
+            return;
+        }
+
+        try
+        {
+            isSaving = true;
+            string savedRuleName = editModel.Name;
+
+            if (isEditMode && editingRuleId.HasValue)
+            {
+                // Update existing policy via API
+                var patchResponse = await PolicyService.PatchPolicy(new PatchPolicyRequest(
+                    Id: editingRuleId.Value,
+                    Title: editModel.Name,
+                    Description: editModel.Description,
+                    IsActive: editModel.IsActive
+                ));
+
+                if (patchResponse != null)
+                {
+                    // Update local list
+                    var existingRule = rules.FirstOrDefault(r => r.Id == editingRuleId.Value);
+                    if (existingRule != null)
+                    {
+                        existingRule.Name = editModel.Name;
+                        existingRule.Description = editModel.Description;
+                        existingRule.IsActive = editModel.IsActive;
+                    }
+                }
+            }
+            else
+            {
+                // Create new policy via API
+                var createResponse = await PolicyService.CreatePolicy(new CreatePolicyRequest(
+                    Title: editModel.Name,
+                    Description: editModel.Description ?? "",
+                    IsActive: editModel.IsActive
+                ));
+
+                if (createResponse != null)
+                {
+                    // Add to local list
+                    editModel.Id = createResponse.Id;
+                    rules.Add(editModel);
+                }
+            }
+
+            HandleClosePanel();
+            ShowSuccessNotification(savedRuleName);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to save policy: {ex.Message}", MudBlazor.Severity.Error);
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private void ShowSuccessNotification(string ruleName)
+    {
+        lastSavedRuleName = ruleName;
+        showSuccessNotification = true;
+        StateHasChanged();
+
+        // Auto-hide notification after 5 seconds
+        notificationTimer?.Dispose();
+        notificationTimer = new System.Timers.Timer(5000);
+        notificationTimer.Elapsed += (sender, args) =>
+        {
+            notificationTimer?.Dispose();
+            showSuccessNotification = false;
+            InvokeAsync(StateHasChanged);
+        };
+        notificationTimer.AutoReset = false;
+        notificationTimer.Start();
+    }
+
+    public void Dispose()
+    {
+        notificationTimer?.Dispose();
+    }
+
+    private async Task HandleDuplicateRule(PropertyRuleModel rule)
+    {
+        try
+        {
+            // Create duplicate via API
+            var createResponse = await PolicyService.CreatePolicy(new CreatePolicyRequest(
+                Title: $"{rule.Name} (Copy)",
+                Description: rule.Description ?? "",
+                IsActive: rule.IsActive
+            ));
+
+            if (createResponse != null)
+            {
+                var newRule = new PropertyRuleModel
+                {
+                    Id = createResponse.Id,
+                    Name = createResponse.Title,
+                    Description = rule.Description,
+                    IsActive = rule.IsActive,
+                    Order = rules.Count + 1
+                };
+                rules.Add(newRule);
+                Snackbar.Add($"Rule duplicated: {newRule.Name}", MudBlazor.Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to duplicate policy: {ex.Message}", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task HandleDeleteRule(PropertyRuleModel rule)
+    {
+        try
+        {
+            var deleteResponse = await PolicyService.DeletePolicy(rule.Id);
+
+            if (deleteResponse != null)
+            {
+                rules.Remove(rule);
+                // Reorder remaining rules
+                var orderedRules = rules.OrderBy(r => r.Order).ToList();
+                for (int i = 0; i < orderedRules.Count; i++)
+                {
+                    orderedRules[i].Order = i + 1;
+                }
+                Snackbar.Add($"Rule deleted: {rule.Name}", MudBlazor.Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to delete policy: {ex.Message}", MudBlazor.Severity.Error);
+        }
+    }
+
+    // Drag and Drop Handlers
+    private void HandleDragStart(PropertyRuleModel rule)
+    {
+        draggedRule = rule;
+    }
+
+    private void HandleDragEnd()
+    {
+        draggedRule = null;
+        dropTargetRule = null;
+    }
+
+    private void HandleDragOver(PropertyRuleModel rule)
+    {
+        if (draggedRule != null && draggedRule.Id != rule.Id)
+        {
+            dropTargetRule = rule;
+        }
+    }
+
+    private void HandleDrop(PropertyRuleModel targetRule)
+    {
+        if (draggedRule == null || draggedRule.Id == targetRule.Id)
+        {
+            return;
+        }
+
+        // Get current ordered list
+        var orderedRules = rules.OrderBy(r => r.Order).ToList();
+
+        // Find positions
+        int draggedIndex = orderedRules.FindIndex(r => r.Id == draggedRule.Id);
+        int targetIndex = orderedRules.FindIndex(r => r.Id == targetRule.Id);
+
+        if (draggedIndex < 0 || targetIndex < 0)
+        {
+            return;
+        }
+
+        // Remove dragged item and insert at target position
+        orderedRules.RemoveAt(draggedIndex);
+        orderedRules.Insert(targetIndex, draggedRule);
+
+        // Update order values
+        for (int i = 0; i < orderedRules.Count; i++)
+        {
+            orderedRules[i].Order = i + 1;
+        }
+
+        // Reset drag state
+        draggedRule = null;
+        dropTargetRule = null;
+
+        StateHasChanged();
+    }
+
+    public class PropertyRuleModel
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
+        public int Order { get; set; }
+    }
+}
+
+<style>
+    /* Main Container */
+    .property-rules-container {
+        display: flex;
+        min-height: 100vh;
+        background: #FFFFFF;
+    }
+
+    /* Left Sidebar */
+    .property-sidebar {
+        width: 381px;
+        background: #434343;
+        border-right: 1px solid #474747;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+        padding: 36px 36px 20px;
+    }
+
+    .logo-img {
+        height: 36px;
+        width: auto;
+    }
+
+    .property-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 36px;
+    }
+
+    .property-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 18px;
+        border: 1px solid white;
+        overflow: hidden;
+    }
+
+    .property-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .property-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+        color: #FFFFFF;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar-nav {
+        flex: 1;
+        padding: 20px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        color: #FFFFFF;
+        text-decoration: none;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        border-radius: 10px;
+        transition: background-color 0.2s;
+    }
+
+    .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-item.active {
+        background: #5b5b5b;
+        font-weight: 600;
+    }
+
+    .nav-icon {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-text {
+        flex: 1;
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+        padding: 20px 36px 26px;
+    }
+
+    .back-link {
+        font-family: 'Inter', sans-serif;
+        font-weight: 300;
+        font-size: 14px;
+        color: #FFFFFF;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Success Notification Banner */
+    .success-notification {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: #D8EDD9;
+        border-radius: 6px;
+        padding: 10px 20px;
+        margin-bottom: 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        color: #166719;
+        animation: fadeIn 0.3s ease-out;
+        max-width: fit-content;
+    }
+
+    .success-notification svg {
+        flex-shrink: 0;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        padding: 12px 36px 36px;
+        background: #FFFFFF;
+        overflow-y: auto;
+    }
+
+    /* Content Header */
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+    }
+
+    .property-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .badge-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 18px;
+        object-fit: cover;
+    }
+
+    .badge-name {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1c1b1f;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #4a4a4a;
+        margin-bottom: 20px;
+    }
+
+    /* Page Title Section */
+    .page-title-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .page-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 30px;
+        font-weight: 400;
+        color: #000000;
+        margin: 0;
+    }
+
+    .add-rule-btn {
+        background: #f69126;
+        border: none;
+        border-radius: 6px;
+        padding: 14px 24px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1c1b1f;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .add-rule-btn:hover {
+        background: #e58320;
+    }
+
+    /* Rules Count */
+    .rules-count {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        color: #737373;
+        margin-bottom: 20px;
+    }
+
+    /* Rules Card */
+    .rules-card {
+        background: #FFFFFF;
+        border-radius: 6px;
+        box-shadow: 0px 4px 20px 8px rgba(0, 0, 0, 0.06);
+        padding: 24px;
+        min-height: 200px;
+    }
+
+    /* Loading Container */
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding: 40px;
+    }
+
+    .loading-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        color: #737373;
+    }
+
+    /* Rules List */
+    .rules-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* Rule Item */
+    .rule-item {
+        display: flex;
+        align-items: center;
+        background: #FFFFFF;
+        border: 0.5px solid #c7c7c7;
+        border-radius: 8px;
+        padding: 12px 16px;
+        gap: 12px;
+    }
+
+    .rule-item.inactive {
+        background: #f5f5f5;
+    }
+
+    .rule-item.dragging {
+        opacity: 0.5;
+        border: 2px dashed #F69126;
+        background: #FFF8F0;
+    }
+
+    .rule-item.drop-target {
+        border: 2px solid #F69126;
+        box-shadow: 0 0 8px rgba(246, 145, 38, 0.4);
+    }
+
+    .rule-content {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .rule-name {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #4a4a4a;
+    }
+
+    .rule-item.inactive .rule-name {
+        color: #a6a6a6;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        padding: 4px 12px;
+        border-radius: 18px;
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+    }
+
+    .status-badge.active {
+        background: #D8EDD9;
+        color: #1B4D19;
+    }
+
+    .status-badge.inactive {
+        background: #FFBDBD;
+        color: #D03C3C;
+    }
+
+    /* Rule Actions */
+    .rule-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .action-btn {
+        background: none;
+        border: none;
+        padding: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+        transition: background-color 0.2s;
+    }
+
+    .action-btn:hover {
+        background: rgba(0, 0, 0, 0.05);
+    }
+
+    .action-btn.delete:hover {
+        background: rgba(208, 60, 60, 0.1);
+    }
+
+    .action-btn.delete:hover svg path {
+        fill: #d03c3c;
+    }
+
+    /* Drag Handle */
+    .drag-handle {
+        cursor: grab;
+        padding: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+    }
+
+    .drag-handle:hover {
+        transform: scale(1.1);
+    }
+
+    .drag-handle:hover svg path {
+        fill: #737373;
+    }
+
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+
+    .rule-item:hover .drag-handle svg path {
+        fill: #737373;
+    }
+
+    /* Panel Overlay */
+    .panel-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 1000;
+    }
+
+    /* Edit Panel */
+    .edit-panel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 503px;
+        height: 100vh;
+        background: #FFFFFF;
+        box-shadow: -4px 4px 11px 3px rgba(0, 0, 0, 0.12);
+        z-index: 1001;
+        display: flex;
+        flex-direction: column;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @@keyframes slideIn {
+        from {
+            transform: translateX(100%);
+        }
+        to {
+            transform: translateX(0);
+        }
+    }
+
+    /* Panel Header */
+    .panel-header {
+        background: #434343;
+        padding: 23px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 75px;
+        box-sizing: border-box;
+    }
+
+    .panel-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+        color: #FFFFFF;
+    }
+
+    .panel-close-btn {
+        background: none;
+        border: none;
+        font-family: 'Inter', sans-serif;
+        font-size: 24px;
+        font-weight: 400;
+        color: #FFFFFF;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+    }
+
+    .panel-close-btn:hover {
+        opacity: 0.8;
+    }
+
+    /* Panel Content */
+    .panel-content {
+        flex: 1;
+        padding: 36px 24px;
+        overflow-y: auto;
+    }
+
+    /* Form Group */
+    .form-group {
+        margin-bottom: 24px;
+    }
+
+    .form-label {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1C1B1F;
+        margin-bottom: 8px;
+    }
+
+    .form-hint {
+        display: block;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #707070;
+        margin-bottom: 12px;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 14px 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1C1B1F;
+        background: #FFFFFF;
+        border: 1px solid #C3C3C3;
+        border-radius: 8px;
+        box-sizing: border-box;
+        outline: none;
+    }
+
+    .form-input:focus {
+        border-color: #F69126;
+    }
+
+    .form-input::placeholder {
+        color: #9E9E9E;
+    }
+
+    /* Textarea */
+    .textarea-wrapper {
+        position: relative;
+    }
+
+    .form-textarea {
+        width: 100%;
+        min-height: 160px;
+        padding: 14px 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 25px;
+        color: #1C1B1F;
+        background: #FFFFFF;
+        border: 1px solid #C7C7C7;
+        border-radius: 8px;
+        box-sizing: border-box;
+        outline: none;
+        resize: vertical;
+    }
+
+    .form-textarea:focus {
+        border-color: #F69126;
+    }
+
+    .form-textarea::placeholder {
+        color: #9E9E9E;
+    }
+
+    .char-count {
+        position: absolute;
+        bottom: 12px;
+        right: 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #707070;
+    }
+
+    /* Active Toggle Container */
+    .active-toggle-container {
+        background: #FFFFFF;
+        border: 1px solid #C3C3C3;
+        border-radius: 8px;
+        padding: 16px 20px;
+    }
+
+    .active-toggle-container .form-label {
+        margin-bottom: 16px;
+    }
+
+    /* Toggle Buttons */
+    .toggle-buttons {
+        display: flex;
+        gap: 12px;
+    }
+
+    .toggle-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #FFFFFF;
+        border: 0.5px solid #C7C7C7;
+        border-radius: 21px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1C1B1F;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .toggle-btn:hover {
+        border-color: #F69126;
+    }
+
+    .toggle-indicator {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #FFFFFF;
+        border: 1px solid #C7C7C7;
+        transition: all 0.2s;
+    }
+
+    .toggle-indicator.selected {
+        background: #F69126;
+        border-color: #F69126;
+    }
+
+    /* Panel Footer */
+    .panel-footer {
+        padding: 24px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        border-top: 1px solid #E0E0E0;
+    }
+
+    .btn-discard {
+        padding: 14px 32px;
+        background: #FFFFFF;
+        border: 1px solid #4A4A4A;
+        border-radius: 6px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #4A4A4A;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-discard:hover {
+        background: #F5F5F5;
+    }
+
+    .btn-save {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 14px 32px;
+        background: #F69126;
+        border: none;
+        border-radius: 6px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1C1B1F;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-save:hover:not(:disabled) {
+        background: #E58320;
+    }
+
+    .btn-save:disabled {
+        background: #E0E0E0;
+        cursor: not-allowed;
+    }
+
+    .btn-discard:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    /* Responsive */
+    @@media (max-width: 1024px) {
+        .property-sidebar {
+            width: 280px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .property-rules-container {
+            flex-direction: column;
+        }
+
+        .property-sidebar {
+            width: 100%;
+            position: fixed;
+            left: -100%;
+            top: 0;
+            bottom: 0;
+            z-index: 1000;
+            transition: left 0.3s;
+        }
+
+        .property-sidebar.open {
+            left: 0;
+        }
+
+        .main-content {
+            padding: 12px 16px;
+        }
+
+        .page-title-section {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .add-rule-btn {
+            width: 100%;
+        }
+
+        .edit-panel {
+            width: 100%;
+        }
+
+        .panel-footer {
+            flex-direction: column;
+        }
+
+        .btn-discard,
+        .btn-save {
+            width: 100%;
+        }
+    }
+</style>
