@@ -1,0 +1,23 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<!-- Property Layout - Full screen with property-specific sidebar -->
+<div class="property-layout">
+    @Body
+</div>
+
+<style>
+    .property-layout {
+        width: 100%;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+@code {
+}

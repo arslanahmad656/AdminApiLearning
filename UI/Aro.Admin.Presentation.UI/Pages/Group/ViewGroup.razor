@@ -93,7 +93,7 @@
 
         <!-- Properties Cards with Virtualization for performance -->
         <Virtualize Items="@properties" Context="property" OverscanCount="2">
-            <div class="property-card" @key="property.PropertyId">
+            <div class="property-card" @key="property.PropertyId" @onclick="() => NavigateToProperty(property.PropertyId)">
                 <div class="property-card-header">
                     <div class="property-info">
                         <div class="property-logo">
@@ -109,7 +109,7 @@
                             }
                         </div>
                         <h3 class="property-name">@property.PropertyName</h3>
-                        <button class="website-button" @onclick="() => OpenWebsite(property.Website)" title="Visit website">
+                        <button class="website-button" @onclick="() => OpenWebsite(property.Website)" @onclick:stopPropagation="true" title="Visit website">
                             <img src="icons/globe-link.svg" alt="Website" width="25" height="25" loading="lazy" />
                         </button>
                     </div>
@@ -352,6 +352,11 @@
     private void HandleSettingsClick()
     {
         NavigationManager?.NavigateTo("/settings");
+    }
+
+    private void NavigateToProperty(Guid propertyId)
+    {
+        NavigationManager?.NavigateTo($"/property/{GroupId}/{propertyId}/rules");
     }
 
 }
@@ -607,6 +612,13 @@
         content-visibility: auto;
         contain-intrinsic-size: 0 200px;
         will-change: auto;
+        cursor: pointer;
+        transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+
+    .property-card:hover {
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
     }
 
     .property-card-header {
