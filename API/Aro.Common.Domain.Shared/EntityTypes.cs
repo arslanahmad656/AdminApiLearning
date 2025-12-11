@@ -12,4 +12,5 @@ public class EntityTypes
     public readonly string Room = "Room";
     public readonly string Amenity = "Amenity";
     public readonly string FileResource = "FileResource";
+    public readonly string Policy = "Policy";
 }

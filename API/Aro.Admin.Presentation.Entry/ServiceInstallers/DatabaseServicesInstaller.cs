@@ -8,6 +8,7 @@ using Aro.Admin.Infrastructure.Services;
 using Aro.Booking.Application.Services.Amenity;
 using Aro.Booking.Application.Services.Group;
 using Aro.Booking.Application.Services.Property;
+using Aro.Booking.Application.Services.Policy;
 using Aro.Booking.Application.Services.Room;
 using Aro.Booking.Infrastructure.Services;
 using Aro.Common.Application.Repository;
@@ -53,5 +54,6 @@ internal class DatabaseServicesInstaller : IServiceInstaller
         builder.Services.AddScoped<IPropertyService, PropertyService>();
         builder.Services.AddScoped<IRoomService, RoomService>();
         builder.Services.AddScoped<IAmenityService, AmenityService>();
+        builder.Services.AddScoped<IPolicyService, PolicyService>();
     }
 }

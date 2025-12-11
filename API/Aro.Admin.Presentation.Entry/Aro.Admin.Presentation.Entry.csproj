@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable></Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,28 +15,29 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.20" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.14.0" />
-    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.1" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.15.0" />
+    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- RA656: The following packages have not been upgraded to the latest versions due to the breaking changes. We'll target these later. -->
+    <PackageReference Include="Microsoft.OpenApi" Version="1.6.17" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Aro.Admin.Application.Services\Aro.Admin.Application.Services.csproj" />
-    <ProjectReference Include="..\Aro.Admin.Infrastructure.Repository\Aro.Admin.Infrastructure.Repository.csproj" />
     <ProjectReference Include="..\Aro.Admin.Infrastructure.Services\Aro.Admin.Infrastructure.Services.csproj" />
     <ProjectReference Include="..\Aro.Admin.Presentation.Api\Aro.Admin.Presentation.Api.csproj" />
     <ProjectReference Include="..\Aro.Booking.Infrastructure.Repository\Aro.Booking.Infrastructure.Repository.csproj" />
     <ProjectReference Include="..\Aro.Booking.Infrastructure.Services\Aro.Booking.Infrastructure.Services.csproj" />
     <ProjectReference Include="..\Aro.Booking.Presentation.Api\Aro.Booking.Presentation.Api.csproj" />
-    <ProjectReference Include="..\Aro.Common.Infrastructure.Repository\Aro.Common.Infrastructure.Repository.csproj" />
     <ProjectReference Include="..\Aro.Common.Infrastructure.Services.Azure\Aro.Common.Infrastructure.Services.Azure.csproj" />
-    <ProjectReference Include="..\Aro.Common.Infrastructure.Services\Aro.Common.Infrastructure.Services.csproj" />
     <ProjectReference Include="..\Aro.Common.Presentation.Api\Aro.Common.Presentation.Api.csproj" />
   </ItemGroup>
 

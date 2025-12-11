@@ -14,7 +14,7 @@ public class RequestLoggingMiddleware(RequestDelegate next, ILogManager logger, 
         var request = context.Request;
         var stopWatch = logSettings.TrackTimeInDebugLevel ? Stopwatch.StartNew() : null;
 
-        string? body = null;
+        string body = string.Empty;
         if (logSettings.IncludeBodyInRequestLogging && request.ContentLength > 0 && request.Body.CanSeek)
         {
             request.EnableBuffering();
@@ -29,7 +29,7 @@ public class RequestLoggingMiddleware(RequestDelegate next, ILogManager logger, 
             Path = request.Path,
             Query = request.QueryString.ToString(),
             User = context.User.Identity?.IsAuthenticated == true ? context.User.Identity?.Name : "Anonymous",
-            Body = logSettings.IncludeBodyInRequestLogging ? body : null
+            Body = logSettings.IncludeBodyInRequestLogging ? body : string.Empty
         };
 
         logger.LogDebug("Incoming request", requestLog);

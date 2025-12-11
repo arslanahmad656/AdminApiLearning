@@ -113,6 +113,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Demos", "Demos", "{AB012BB7
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aro.FileManager.Demo", "Aro.FileManager.Demo\Aro.FileManager.Demo.csproj", "{0EB574CE-08D1-DF8F-687D-5B12D8F0E53D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Utilities", "Utilities", "{2D1E405B-386D-46A4-B3B1-ABB0F5E389BC}"
+	ProjectSection(SolutionItems) = preProject
+		packages-upgrade.ps1 = packages-upgrade.ps1
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -302,6 +307,7 @@ Global
 		{36F79702-9D19-48E1-855F-3E36F5AF5D43} = {2C46A650-19DC-4A46-BC3C-93F6494918AB}
 		{793E19CE-4F4B-4B2C-82F9-91759B2DD7BB} = {A0786A37-41C5-4908-A640-70F7CE76BD5B}
 		{0EB574CE-08D1-DF8F-687D-5B12D8F0E53D} = {AB012BB7-5512-4406-8211-D89F6C84C2B4}
+		{2D1E405B-386D-46A4-B3B1-ABB0F5E389BC} = {8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {B86AB3AF-0895-4FEF-8444-14F657F6FC4C}

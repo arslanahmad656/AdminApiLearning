@@ -9,4 +9,5 @@ public interface IRepositoryManager
     IPropertyFilesRepository PropertyFilesRepository { get; }
     IRoomRepository RoomRepository { get; }
     IAmenityRepository AmenityRepository { get; }
+    IPolicyRepository PolicyRepository { get; }
 }
