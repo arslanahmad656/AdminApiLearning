@@ -94,6 +94,7 @@
             {
                 var index = i;
                 var remainingChars = 30 - (keySellingPoints[index].Text?.Length ?? 0);
+                var placeholder = GetPlaceholderText(index);
 
                 <div class="selection-row"
                      draggable="true"
@@ -103,11 +104,11 @@
                      @ondragover="() => HandleDragOver(index)"
                      @ondrop="() => HandleDrop(index)">
 
-                    <div class="selling-point-row">
+                    <div class="selling-point-row @(activeInputIndex == index && remainingChars == 0 ? "max-reached" : "")">
                         <input type="text"
                                class="selling-point-input"
                                maxlength="30"
-                               placeholder="Enter selling point"
+                               placeholder="@placeholder"
                                @bind="keySellingPoints[index].Text"
                                @bind:event="oninput"
                                @onfocus="() => SetActiveIndex(index)"
@@ -337,6 +338,19 @@
         return keySellingPoints.Any(p => !string.IsNullOrWhiteSpace(p.Text));
     }
 
+    // Get placeholder text based on index
+    private string GetPlaceholderText(int index)
+    {
+        return index switch
+        {
+            0 => "eg. Super fast Wi-Fi",
+            1 => "eg. No booking deposit",
+            2 => "eg. Best price guaranteed",
+            3 => "eg. Free cancellation",
+            _ => "Enter selling point"
+        };
+    }
+
     private void HandleClose()
     {
         // Don't save on close - user is canceling
@@ -460,6 +474,7 @@
     }
 
     .wizard-step.active .step-number {
+        background: #FFFFFF;
         border: 1px solid #FF931E;
     }
 
@@ -684,6 +699,12 @@
         padding: 10px 10px;
         margin-bottom: 10px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        transition: border-color 0.2s ease;
+    }
+
+    .selling-point-row.max-reached {
+        border: 1px solid #FF4D4F;
+        box-shadow: 0 0 0 1px #FF4D4F;
     }
 
     .selection-row {

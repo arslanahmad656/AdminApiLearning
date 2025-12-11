@@ -14,4 +14,9 @@ public interface IPropertyService
     /// Gets all properties for a specific group.
     /// </summary>
     Task<List<PropertyListItemResponse>> GetPropertiesByGroupIdAsync(Guid groupId);
+
+    /// <summary>
+    /// Gets a property by its group ID and property ID.
+    /// </summary>
+    Task<GetPropertyByIdResponse?> GetPropertyByIdAsync(Guid groupId, Guid propertyId);
 }
