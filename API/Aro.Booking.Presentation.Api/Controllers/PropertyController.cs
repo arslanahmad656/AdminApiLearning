@@ -1,3 +1,4 @@
+using Aro.Booking.Application.Mediator.Common.DTOs;
 using Aro.Booking.Application.Mediator.Property.Commands;
 using Aro.Booking.Application.Mediator.Property.DTOs;
 using Aro.Booking.Application.Mediator.Property.Queries;
@@ -112,7 +113,7 @@ public class PropertyController(
             imageId, propertyId, groupId);
 
         var response = await mediator.Send(new GetPropertyImageQuery(
-            new GetPropertyImageRequest(groupId, propertyId, imageId))).ConfigureAwait(false);
+            new GetGroupEntityImageRequest(groupId, propertyId, imageId))).ConfigureAwait(false);
 
         string contentType = "image/jpeg";
         return File(response.Image, contentType);

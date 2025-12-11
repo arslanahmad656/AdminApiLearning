@@ -4,6 +4,7 @@ using Aro.Booking.Domain.Entities;
 using Aro.Booking.Domain.Shared.Exceptions;
 using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.Authorization;
+using Aro.Common.Application.Services.FileResource;
 using Aro.Common.Application.Services.UniqueIdGenerator;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Domain.Shared.Exceptions;
@@ -17,7 +18,8 @@ public partial class GroupService(
     Common.Application.Repository.IRepositoryManager commonRepository,
     IUnitOfWork unitOfWork,
     IUniqueIdGenerator idGenerator,
-    IAuthorizationService authorizationService
+    IAuthorizationService authorizationService,
+    IFileResourceService fileResourceService
 ) : IGroupService
 {
     private readonly IGroupRepository groupRepository = bookingRepository.GroupRepository;
@@ -33,7 +35,7 @@ public partial class GroupService(
             .ConfigureAwait(false) ??
             throw new AroUserNotFoundException(group.ContactId.ToString());
 
-        var GroupEntity = new Group
+        var groupEntity = new Group
         {
             Id = idGenerator.Generate(),
             GroupName = group.GroupName,
@@ -46,15 +48,22 @@ public partial class GroupService(
                 Country = group.Country,
                 PostalCode = group.PostalCode,
             },
-            Logo = group.Logo,
             IsActive = group.IsActive
         };
+        var fileNameToUse = idGenerator.Generate().ToString("N");
+        var fileServiceResponse = await fileResourceService.CreateFile(new(fileNameToUse, group.Logo, "Group Logo", groupEntity.Id.ToString(), null), cancellationToken).ConfigureAwait(false);
+        await bookingRepository.GroupFilesRepository.Create(new()
+        {
+            FileId = fileServiceResponse.Id,
+            GroupId = groupEntity.Id,
+        }, cancellationToken).ConfigureAwait(false);
 
-        await groupRepository.Create(GroupEntity, cancellationToken).ConfigureAwait(false);
+        groupEntity.IconId = fileServiceResponse.Id;
+        await groupRepository.Create(groupEntity, cancellationToken).ConfigureAwait(false);
 
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
-        return new CreateGroupResponse(GroupEntity.Id, GroupEntity.GroupName);
+        return new CreateGroupResponse(groupEntity.Id, groupEntity.GroupName);
     }
 
     public async Task<GetGroupsResponse> GetGroups(
@@ -92,7 +101,7 @@ public partial class GroupService(
                 g.Address.City,
                 g.Address.PostalCode,
                 g.Address.Country,
-                g.Logo,
+                g.IconId,
                 g.PrimaryContact.Id,
                 g.PrimaryContact.DisplayName,
                 g.PrimaryContact.Email,
@@ -128,7 +137,7 @@ public partial class GroupService(
             response.Address?.City ?? string.Empty,
             response.Address?.PostalCode ?? string.Empty,
             response.Address?.Country ?? string.Empty,
-            response.Logo,
+            response.IconId,
             response.PrimaryContact?.Id ?? Guid.Empty,
             response.PrimaryContact?.DisplayName,
             response.PrimaryContact?.Email,

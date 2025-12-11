@@ -7,7 +7,7 @@ public record CreateGroupRequest(
     string City,
     string PostalCode,
     string Country,
-    byte[]? Logo,
+    Stream Logo,
     Guid PrimaryContactId,
     bool IsActive
 );

@@ -1,4 +1,6 @@
-﻿namespace Aro.Booking.Presentation.Api.DTOs;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Aro.Booking.Presentation.Api.DTOs;
 
 public record CreateGroupModel(
     string GroupName,
@@ -7,7 +9,7 @@ public record CreateGroupModel(
     string City,
     string PostalCode,
     string Country,
-    byte[]? Logo,
+    IFormFile Logo,
     Guid PrimaryContactId,
     bool IsActive
 );

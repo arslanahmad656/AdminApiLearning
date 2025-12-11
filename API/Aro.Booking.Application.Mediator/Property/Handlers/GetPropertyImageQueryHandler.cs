@@ -1,4 +1,4 @@
-﻿using Aro.Booking.Application.Mediator.Property.DTOs;
+﻿using Aro.Booking.Application.Mediator.Common.DTOs;
 using Aro.Booking.Application.Mediator.Property.Queries;
 using Aro.Common.Application.Services.FileResource;
 using Aro.Common.Application.Services.LogManager;
@@ -6,9 +6,9 @@ using MediatR;
 
 namespace Aro.Booking.Application.Mediator.Property.Handlers;
 
-public class GetPropertyImageQueryHandler(ILogManager<GetPropertyImageQueryHandler> logger, IFileResourceService fileResourceService) : IRequestHandler<GetPropertyImageQuery, GetPropertyImageResponse>
+public class GetPropertyImageQueryHandler(ILogManager<GetPropertyImageQueryHandler> logger, IFileResourceService fileResourceService) : IRequestHandler<GetPropertyImageQuery, GetGroupEntityImageResponse>
 {
-    public async Task<GetPropertyImageResponse> Handle(GetPropertyImageQuery request, CancellationToken cancellationToken)
+    public async Task<GetGroupEntityImageResponse> Handle(GetPropertyImageQuery request, CancellationToken cancellationToken)
     {
         logger.LogDebug("Handling GetPropertyImageQuery for ImageId: {ImageId}", request.Request.ImageId);
 

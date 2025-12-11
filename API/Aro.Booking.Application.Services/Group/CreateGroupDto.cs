@@ -7,7 +7,7 @@ public record CreateGroupDto(
     string City,
     string PostalCode,
     string Country,
-    byte[]? Logo,
+    Stream Logo,
     Guid ContactId,
     bool IsActive
 );

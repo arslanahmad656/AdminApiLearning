@@ -30,6 +30,9 @@ public class CreateGroupModelValidator : AbstractValidator<CreateGroupModel>
         RuleFor(m => m.PrimaryContactId)
             .NotEmpty();
 
+        RuleFor(m => m.Logo)
+            .NotNull();
+
         //RuleFor(m => m.IsActive);
     }
 }

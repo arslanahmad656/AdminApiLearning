@@ -1,10 +1,13 @@
-﻿using Aro.Booking.Application.Mediator.Group.Commands;
+﻿using Aro.Booking.Application.Mediator.Common.DTOs;
+using Aro.Booking.Application.Mediator.Group.Commands;
 using Aro.Booking.Application.Mediator.Group.Queries;
+using Aro.Booking.Application.Mediator.Property.Queries;
 using Aro.Booking.Presentation.Api.DTOs;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Presentation.Shared.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 
 namespace Aro.Booking.Presentation.Api.Controllers;
 
@@ -17,13 +20,18 @@ public class GroupController(
 {
     [HttpPost("create")]
     [Permissions(PermissionCodes.CreateGroup)]
+    [Consumes("multipart/form-data")]
     public async Task<IActionResult> CreateGroup(
-        [FromBody] CreateGroupModel model,
+        [FromForm] CreateGroupModel model,
         CancellationToken cancellationToken
         )
     {
         //logger.LogDebug("Starting CreateGroup operation for group: {0}",
         //    model.GroupName);
+
+        var logo = new MemoryStream();
+        await model.Logo.CopyToAsync(logo, cancellationToken).ConfigureAwait(false);
+        logo.Position = 0;
 
         var response = await mediator.Send(new CreateGroupCommand(
             new(
@@ -33,7 +41,7 @@ public class GroupController(
                 model.City,
                 model.PostalCode,
                 model.Country,
-                model.Logo,
+                logo,
                 model.PrimaryContactId,
                 model.IsActive
             )
@@ -142,5 +150,15 @@ public class GroupController(
         //logger.LogDebug("Completed DeleteGroup operation successfully");
 
         return Ok(response);
+    }
+
+    [HttpGet("image/{groupId:Guid}/{imageId:Guid}")]
+    public async Task<IActionResult> GetImage(Guid groupId, Guid imageId)
+    {
+        var response = await mediator.Send(new GetPropertyImageQuery(
+            new GetGroupEntityImageRequest(groupId, groupId, imageId))).ConfigureAwait(false);
+
+        string contentType = "image/jpeg";
+        return File(response.Image, contentType);
     }
 }

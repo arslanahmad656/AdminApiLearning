@@ -32,7 +32,7 @@ public static partial class MiddlewareExtensions
                 return Results.Unauthorized();
 
             var envVars = Environment.GetEnvironmentVariables();
-            var configDictionary = new Dictionary<string, string>();
+            var configDictionary = new Dictionary<string, string?>();
 
             foreach (var config in configuration.AsEnumerable())
             {

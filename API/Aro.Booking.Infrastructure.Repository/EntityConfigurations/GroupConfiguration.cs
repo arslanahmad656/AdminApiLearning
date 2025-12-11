@@ -16,13 +16,9 @@ public class GroupConfiguration : IEntityTypeConfiguration<Group>
             .IsRequired()
             .HasMaxLength(100);
 
-        builder.Property(u => u.Logo)
-            .HasColumnType("varbinary(max)");
-
-        //builder.HasOne(g => g.Contact)
-        //    .WithMany()
-        //    .HasForeignKey(g => g.ContactId)
-        //    .OnDelete(DeleteBehavior.Restrict);
+        builder.Property(u => u.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
 
         builder.HasOne(g => g.PrimaryContact)
             .WithMany()
@@ -34,8 +30,10 @@ public class GroupConfiguration : IEntityTypeConfiguration<Group>
             .HasForeignKey(g => g.AddressId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Property(u => u.IsActive)
+        builder.HasOne(g => g.Icon)
+            .WithMany()
+            .HasForeignKey(l => l.IconId)
             .IsRequired()
-            .HasDefaultValue(true);
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

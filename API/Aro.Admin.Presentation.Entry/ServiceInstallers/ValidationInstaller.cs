@@ -32,7 +32,7 @@ public class ValidationInstaller : IServiceInstaller
 
 public class LoggingValidationResultFactory(ILogger<LoggingValidationResultFactory> logger) : IFluentValidationAutoValidationResultFactory
 {
-    public IActionResult CreateActionResult(ActionExecutingContext context, ValidationProblemDetails validationProblemDetails)
+    public IActionResult CreateActionResult(ActionExecutingContext context, ValidationProblemDetails? validationProblemDetails)
     {
         if (validationProblemDetails?.Errors?.Count > 0 == true)
         {

@@ -28,7 +28,7 @@ public class GetGroupsCommandHandler(IGroupService groupService) : IRequestHandl
                 g.City,
                 g.PostalCode,
                 g.Country,
-                g.Logo,
+                g.LogoId,
                 g.PrimaryContactId,
                 g.PrimaryContactName,
                 g.PrimaryContactEmail,
