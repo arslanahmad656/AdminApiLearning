@@ -27,6 +27,7 @@ public class PolicyController(
 
         var response = await mediator.Send(new CreatePolicyCommand(
             new(
+                model.PropertyId,
                 model.Title,
                 model.Description,
                 model.IsActive
@@ -81,6 +82,51 @@ public class PolicyController(
         ), cancellationToken).ConfigureAwait(false);
 
         logger.LogDebug("Completed GetPolicy for Id: {PolicyId}", policyId);
+
+        return Ok(response);
+    }
+
+    [HttpGet("getbyproperty/{propertyId:guid}/{policyId:guid}")]
+    [Permissions(PermissionCodes.GetPolicy)]
+    public async Task<IActionResult> GetPolicyByProperty(
+        [FromRoute] GetPolicyByPropertyRouteParameters route,
+        [FromQuery] GetPolicyQueryParameters model,
+        CancellationToken cancellationToken
+        )
+    {
+        logger.LogDebug("Starting GetPolicyByProperty for PropertyId: {PropertyId}, PolicyId: {PolicyId}", route.PropertyId, route.PolicyId);
+
+        var response = await mediator.Send(new GetPolicyByPropertyQuery(
+            new(
+                route.PropertyId,
+                route.PolicyId,
+                model.Include
+            )
+        ), cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed GetPolicyByProperty for PropertyId: {PropertyId}, PolicyId: {PolicyId}", route.PropertyId, route.PolicyId);
+
+        return Ok(response);
+    }
+
+    [HttpGet("getbyproperty/{propertyId:guid}")]
+    [Permissions(PermissionCodes.GetPolicies)]
+    public async Task<IActionResult> GetPoliciesByProperty(
+        [FromRoute] GetPoliciesByPropertyRouteParameters route,
+        [FromQuery] GetPoliciesByPropertyQueryParameters query,
+        CancellationToken cancellationToken
+        )
+    {
+        logger.LogDebug("Starting GetPoliciesByProperty for PropertyId: {PropertyId}", route.PropertyId);
+
+        var response = await mediator.Send(new GetPoliciesByPropertyQuery(
+            new(
+                route.PropertyId,
+                query.Include
+            )
+        ), cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed GetPoliciesByProperty for PropertyId: {PropertyId} with {Count} items", route.PropertyId, response.Policies.Count);
 
         return Ok(response);
     }

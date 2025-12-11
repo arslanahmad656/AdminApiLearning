@@ -21,6 +21,7 @@ public class PatchPolicyCommandHandler(IPolicyService policyService, IMediator m
         var r = res.Policy;
         var result = new DTOs.PatchPolicyResponse(new(
             r.Id,
+            r.PropertyId,
             r.Title,
             r.Description,
             r.IsActive

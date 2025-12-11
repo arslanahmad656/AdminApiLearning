@@ -9,6 +9,10 @@ public class PolicyRepository(AroDbContext dbContext) : RepositoryBase<Policy>(d
 {
     public IQueryable<Policy> GetById(Guid id) => FindByCondition(filter: p => p.Id == id);
 
+    public IQueryable<Policy> GetByProperty(Guid propertyId) => FindByCondition(filter: p => p.PropertyId == propertyId);
+
+    public IQueryable<Policy> GetByProperty(Guid propertyId, Guid policyId) => FindByCondition(filter: p => p.PropertyId == propertyId && p.Id == policyId);
+
     public IQueryable<Policy> GetAll() => FindByCondition();
 
     public Task Create(Policy policy, CancellationToken cancellationToken = default) => base.Add(policy, cancellationToken);

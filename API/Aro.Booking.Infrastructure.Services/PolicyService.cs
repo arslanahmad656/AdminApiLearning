@@ -31,6 +31,7 @@ public partial class PolicyService(
         var policyEntity = new Policy
         {
             Id = idGenerator.Generate(),
+            PropertyId = policy.PropertyId,
             Title = policy.Title,
             Description = policy.Description,
             IsActive = policy.IsActive
@@ -68,6 +69,7 @@ public partial class PolicyService(
         var policies = await pagedQuery
             .Select(p => new PolicyDto(
                 p.Id,
+                p.PropertyId,
                 p.Title,
                 p.Description,
                 p.IsActive
@@ -78,6 +80,31 @@ public partial class PolicyService(
         logger.LogDebug("Retrieved {Count} policies", policies.Count);
 
         return new GetPoliciesResponse(policies, totalCount);
+    }
+
+    public async Task<GetPoliciesResponse> GetPoliciesByProperty(GetPoliciesByPropertyDto dto, CancellationToken cancellationToken = default)
+    {
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetPolicies], cancellationToken);
+
+        logger.LogDebug("Retrieving policies for PropertyId: {PropertyId} with include: {Include}", dto.PropertyId, dto.Include ?? string.Empty);
+
+        var baseQuery = policyRepository.GetByProperty(dto.PropertyId)
+            .IncludeElements(dto.Include ?? string.Empty);
+
+        var policies = await baseQuery
+            .Select(p => new PolicyDto(
+                p.Id,
+                p.PropertyId,
+                p.Title,
+                p.Description,
+                p.IsActive
+            ))
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        logger.LogDebug("Retrieved {Count} policies for PropertyId: {PropertyId}", policies.Count, dto.PropertyId);
+
+        return new GetPoliciesResponse(policies, policies.Count);
     }
 
     public async Task<GetPolicyResponse> GetPolicyById(GetPolicyDto dto, CancellationToken cancellationToken = default)
@@ -94,6 +121,30 @@ public partial class PolicyService(
 
         var policyDto = new PolicyDto(
             policy.Id,
+            policy.PropertyId,
+            policy.Title,
+            policy.Description,
+            policy.IsActive
+        );
+
+        return new GetPolicyResponse(policyDto);
+    }
+
+    public async Task<GetPolicyResponse> GetPolicyByProperty(GetPolicyByPropertyDto dto, CancellationToken cancellationToken = default)
+    {
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetPolicy], cancellationToken);
+
+        logger.LogDebug("Fetching policy with Id: {PolicyId} for PropertyId: {PropertyId}", dto.PolicyId, dto.PropertyId);
+
+        var policy = await policyRepository.GetByProperty(dto.PropertyId, dto.PolicyId)
+            .IncludeElements(dto.Include ?? string.Empty)
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false)
+            ?? throw new AroPolicyNotFoundException(dto.PolicyId.ToString());
+
+        var policyDto = new PolicyDto(
+            policy.Id,
+            policy.PropertyId,
             policy.Title,
             policy.Description,
             policy.IsActive
@@ -126,6 +177,7 @@ public partial class PolicyService(
 
         var policyDto = new PolicyDto(
             existingPolicy.Id,
+            existingPolicy.PropertyId,
             existingPolicy.Title,
             existingPolicy.Description,
             existingPolicy.IsActive

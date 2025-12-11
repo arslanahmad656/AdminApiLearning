@@ -4,19 +4,15 @@ using MediatR;
 
 namespace Aro.Booking.Application.Mediator.Policy.Handlers;
 
-public class GetPoliciesCommandHandler(IPolicyService policyService) : IRequestHandler<GetPoliciesQuery, DTOs.GetPoliciesResponse>
+public class GetPoliciesByPropertyCommandHandler(IPolicyService policyService) : IRequestHandler<GetPoliciesByPropertyQuery, DTOs.GetPoliciesResponse>
 {
-    public async Task<DTOs.GetPoliciesResponse> Handle(GetPoliciesQuery request, CancellationToken cancellationToken)
+    public async Task<DTOs.GetPoliciesResponse> Handle(GetPoliciesByPropertyQuery request, CancellationToken cancellationToken)
     {
         var req = request.Data;
-        var res = await policyService.GetPolicies(
+        var res = await policyService.GetPoliciesByProperty(
             new(
-                req.Filter,
-                req.Include,
-                req.Page,
-                req.PageSize,
-                req.SortBy,
-                req.Ascending
+                req.PropertyId,
+                req.Include
             ), cancellationToken).ConfigureAwait(false);
 
         var policyDtos = res.Policies

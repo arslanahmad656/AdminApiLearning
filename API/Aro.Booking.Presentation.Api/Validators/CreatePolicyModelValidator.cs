@@ -7,6 +7,10 @@ public class CreatePolicyModelValidator : AbstractValidator<CreatePolicyModel>
 {
     public CreatePolicyModelValidator()
     {
+        RuleFor(m => m.PropertyId)
+            .NotEmpty()
+            .NotNull();
+
         RuleFor(m => m.Title)
             .NotEmpty()
             .MaximumLength(50);

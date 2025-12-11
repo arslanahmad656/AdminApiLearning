@@ -12,6 +12,7 @@ public class CreatePolicyCommandHandler(IPolicyService policyService, IMediator 
         var r = request.CreatePolicyRequest;
         var response = await policyService.CreatePolicy(
             new CreatePolicyDto(
+                r.PropertyId,
                 r.Title,
                 r.Description,
                 r.IsActive

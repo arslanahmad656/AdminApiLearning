@@ -27,4 +27,5 @@ public class Property : IEntity
     public User Contact { get; set; }
     public ICollection<Room> Rooms { get; set; }
     public ICollection<PropertyFiles> Files { get; set; }
+    public ICollection<Policy> Policies { get; set; }
 }

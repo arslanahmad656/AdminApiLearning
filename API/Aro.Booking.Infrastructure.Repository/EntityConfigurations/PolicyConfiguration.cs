@@ -10,6 +10,9 @@ public class PolicyConfiguration : IEntityTypeConfiguration<Policy>
     {
         builder.ToTable("Policies");
 
+        builder.Property(p => p.PropertyId)
+            .IsRequired();
+
         builder.Property(p => p.Title)
             .IsRequired()
             .HasMaxLength(50);
@@ -20,5 +23,10 @@ public class PolicyConfiguration : IEntityTypeConfiguration<Policy>
 
         builder.Property(p => p.IsActive)
             .HasDefaultValue(true);
+
+        builder.HasOne(p => p.Property)
+            .WithMany()
+            .HasForeignKey(p => p.PropertyId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
