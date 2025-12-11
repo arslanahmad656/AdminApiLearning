@@ -356,7 +356,7 @@
 
     private void NavigateToProperty(Guid propertyId)
     {
-        NavigationManager?.NavigateTo($"/property/{propertyId}/rules");
+        NavigationManager?.NavigateTo($"/property/{GroupId}/{propertyId}/rules");
     }
 
 }

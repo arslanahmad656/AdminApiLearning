@@ -118,4 +118,25 @@ public class PropertyService : IPropertyService
             return new List<PropertyListItemResponse>();
         }
     }
+
+    public async Task<GetPropertyByIdResponse?> GetPropertyByIdAsync(Guid groupId, Guid propertyId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"api/property/getbyid/{groupId}/{propertyId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var property = await response.Content.ReadFromJsonAsync<GetPropertyByIdResponse>(
+                    new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                return property;
+            }
+
+            return null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
 }
