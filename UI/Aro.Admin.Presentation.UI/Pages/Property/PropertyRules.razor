@@ -2,9 +2,12 @@
 @attribute [Authorize]
 @layout PropertyLayout
 @using Microsoft.AspNetCore.Components.Authorization
+@using Aro.UI.Infrastructure.Services
+@using Aro.UI.Application.DTOs
 @implements IDisposable
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
+@inject IPolicyService PolicyService
 
 <PageTitle>ARO Admin - Property Rules</PageTitle>
 
@@ -126,6 +129,15 @@
 
         <!-- Rules Card Container -->
         <div class="rules-card">
+            @if (isLoading)
+            {
+                <div class="loading-container">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
+                    <span class="loading-text">Loading policies...</span>
+                </div>
+            }
+            else
+            {
             <!-- Rules List -->
             <div class="rules-list">
                 @foreach (var rule in rules.OrderBy(r => r.Order))
@@ -149,12 +161,12 @@
                                     <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="#737373"/>
                                 </svg>
                             </button>
-                            <button class="action-btn" title="Duplicate" @onclick="() => HandleDuplicateRule(rule)" @onclick:stopPropagation="true">
+                            <button class="action-btn" title="Duplicate" @onclick="async () => await HandleDuplicateRule(rule)" @onclick:stopPropagation="true">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="#737373"/>
                                 </svg>
                             </button>
-                            <button class="action-btn delete" title="Delete" @onclick="() => HandleDeleteRule(rule)" @onclick:stopPropagation="true">
+                            <button class="action-btn delete" title="Delete" @onclick="async () => await HandleDeleteRule(rule)" @onclick:stopPropagation="true">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="#737373"/>
                                 </svg>
@@ -168,6 +180,7 @@
                     </div>
                 }
             </div>
+            }
         </div>
     </div>
 </div>
@@ -232,8 +245,18 @@
 
         <!-- Panel Footer -->
         <div class="panel-footer">
-            <button class="btn-discard" @onclick="HandleClosePanel">Discard</button>
-            <button class="btn-save" @onclick="HandleSaveRule">Save changes</button>
+            <button class="btn-discard" @onclick="HandleClosePanel" disabled="@isSaving">Discard</button>
+            <button class="btn-save" @onclick="HandleSaveRule" disabled="@isSaving">
+                @if (isSaving)
+                {
+                    <MudProgressCircular Color="Color.Dark" Indeterminate="true" Size="Size.Small" Style="width: 18px; height: 18px; margin-right: 8px;" />
+                    <span>Saving...</span>
+                }
+                else
+                {
+                    <span>Save changes</span>
+                }
+            </button>
         </div>
     </div>
 }
@@ -246,10 +269,12 @@
     private string? PropertyImageUrl { get; set; }
 
     private List<PropertyRuleModel> rules = new();
+    private bool isLoading = true;
 
     // Panel state
     private bool isPanelOpen = false;
     private bool isEditMode = false;
+    private bool isSaving = false;
     private PropertyRuleModel editModel = new();
     private Guid? editingRuleId = null;
 
@@ -262,17 +287,43 @@
     private PropertyRuleModel? draggedRule = null;
     private PropertyRuleModel? dropTargetRule = null;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        // Load sample rules - replace with actual API call
-        rules = new List<PropertyRuleModel>
+        await LoadPolicies();
+    }
+
+    private async Task LoadPolicies()
+    {
+        try
         {
-            new() { Id = Guid.NewGuid(), Name = "Check in / out", Description = "Guests may check-in at any time from 3.00 p.m. on the scheduled day of arrival.", IsActive = true, Order = 1 },
-            new() { Id = Guid.NewGuid(), Name = "Property Rule 2", Description = "", IsActive = false, Order = 2 },
-            new() { Id = Guid.NewGuid(), Name = "Property Rule 3", Description = "", IsActive = true, Order = 3 },
-            new() { Id = Guid.NewGuid(), Name = "Property Rule 4", Description = "", IsActive = true, Order = 4 },
-            new() { Id = Guid.NewGuid(), Name = "Property Rule 5", Description = "", IsActive = true, Order = 5 }
-        };
+            isLoading = true;
+            var response = await PolicyService.GetPolicies(new GetPoliciesRequest(
+                Page: 1,
+                PageSize: 100,
+                SortBy: "Title",
+                Ascending: true
+            ));
+
+            if (response?.Policies != null)
+            {
+                rules = response.Policies.Select((p, index) => new PropertyRuleModel
+                {
+                    Id = p.Id,
+                    Name = p.Title,
+                    Description = p.Description ?? "",
+                    IsActive = p.IsActive,
+                    Order = index + 1
+                }).ToList();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to load policies: {ex.Message}", MudBlazor.Severity.Error);
+        }
+        finally
+        {
+            isLoading = false;
+        }
     }
 
     private void HandleAddNewRule()
@@ -312,7 +363,7 @@
         editingRuleId = null;
     }
 
-    private void HandleSaveRule()
+    private async Task HandleSaveRule()
     {
         if (string.IsNullOrWhiteSpace(editModel.Name))
         {
@@ -320,27 +371,61 @@
             return;
         }
 
-        string savedRuleName = editModel.Name;
-
-        if (isEditMode && editingRuleId.HasValue)
+        try
         {
-            // Update existing rule
-            var existingRule = rules.FirstOrDefault(r => r.Id == editingRuleId.Value);
-            if (existingRule != null)
+            isSaving = true;
+            string savedRuleName = editModel.Name;
+
+            if (isEditMode && editingRuleId.HasValue)
             {
-                existingRule.Name = editModel.Name;
-                existingRule.Description = editModel.Description;
-                existingRule.IsActive = editModel.IsActive;
-            }
-        }
-        else
-        {
-            // Add new rule
-            rules.Add(editModel);
-        }
+                // Update existing policy via API
+                var patchResponse = await PolicyService.PatchPolicy(new PatchPolicyRequest(
+                    Id: editingRuleId.Value,
+                    Title: editModel.Name,
+                    Description: editModel.Description,
+                    IsActive: editModel.IsActive
+                ));
 
-        HandleClosePanel();
-        ShowSuccessNotification(savedRuleName);
+                if (patchResponse != null)
+                {
+                    // Update local list
+                    var existingRule = rules.FirstOrDefault(r => r.Id == editingRuleId.Value);
+                    if (existingRule != null)
+                    {
+                        existingRule.Name = editModel.Name;
+                        existingRule.Description = editModel.Description;
+                        existingRule.IsActive = editModel.IsActive;
+                    }
+                }
+            }
+            else
+            {
+                // Create new policy via API
+                var createResponse = await PolicyService.CreatePolicy(new CreatePolicyRequest(
+                    Title: editModel.Name,
+                    Description: editModel.Description ?? "",
+                    IsActive: editModel.IsActive
+                ));
+
+                if (createResponse != null)
+                {
+                    // Add to local list
+                    editModel.Id = createResponse.Id;
+                    rules.Add(editModel);
+                }
+            }
+
+            HandleClosePanel();
+            ShowSuccessNotification(savedRuleName);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to save policy: {ex.Message}", MudBlazor.Severity.Error);
+        }
+        finally
+        {
+            isSaving = false;
+        }
     }
 
     private void ShowSuccessNotification(string ruleName)
@@ -367,30 +452,59 @@
         notificationTimer?.Dispose();
     }
 
-    private void HandleDuplicateRule(PropertyRuleModel rule)
+    private async Task HandleDuplicateRule(PropertyRuleModel rule)
     {
-        var newRule = new PropertyRuleModel
+        try
         {
-            Id = Guid.NewGuid(),
-            Name = $"{rule.Name} (Copy)",
-            Description = rule.Description,
-            IsActive = rule.IsActive,
-            Order = rules.Count + 1
-        };
-        rules.Add(newRule);
-        Snackbar.Add($"Rule duplicated: {newRule.Name}", MudBlazor.Severity.Success);
+            // Create duplicate via API
+            var createResponse = await PolicyService.CreatePolicy(new CreatePolicyRequest(
+                Title: $"{rule.Name} (Copy)",
+                Description: rule.Description ?? "",
+                IsActive: rule.IsActive
+            ));
+
+            if (createResponse != null)
+            {
+                var newRule = new PropertyRuleModel
+                {
+                    Id = createResponse.Id,
+                    Name = createResponse.Title,
+                    Description = rule.Description,
+                    IsActive = rule.IsActive,
+                    Order = rules.Count + 1
+                };
+                rules.Add(newRule);
+                Snackbar.Add($"Rule duplicated: {newRule.Name}", MudBlazor.Severity.Success);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to duplicate policy: {ex.Message}", MudBlazor.Severity.Error);
+        }
     }
 
-    private void HandleDeleteRule(PropertyRuleModel rule)
+    private async Task HandleDeleteRule(PropertyRuleModel rule)
     {
-        rules.Remove(rule);
-        // Reorder remaining rules
-        var orderedRules = rules.OrderBy(r => r.Order).ToList();
-        for (int i = 0; i < orderedRules.Count; i++)
+        try
         {
-            orderedRules[i].Order = i + 1;
+            var deleteResponse = await PolicyService.DeletePolicy(rule.Id);
+
+            if (deleteResponse != null)
+            {
+                rules.Remove(rule);
+                // Reorder remaining rules
+                var orderedRules = rules.OrderBy(r => r.Order).ToList();
+                for (int i = 0; i < orderedRules.Count; i++)
+                {
+                    orderedRules[i].Order = i + 1;
+                }
+                Snackbar.Add($"Rule deleted: {rule.Name}", MudBlazor.Severity.Success);
+            }
         }
-        Snackbar.Add($"Rule deleted: {rule.Name}", MudBlazor.Severity.Success);
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to delete policy: {ex.Message}", MudBlazor.Severity.Error);
+        }
     }
 
     // Drag and Drop Handlers
@@ -705,6 +819,24 @@
         border-radius: 6px;
         box-shadow: 0px 4px 20px 8px rgba(0, 0, 0, 0.06);
         padding: 24px;
+        min-height: 200px;
+    }
+
+    /* Loading Container */
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        padding: 40px;
+    }
+
+    .loading-text {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        color: #737373;
     }
 
     /* Rules List */
@@ -1074,6 +1206,9 @@
     }
 
     .btn-save {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         padding: 14px 32px;
         background: #F69126;
         border: none;
@@ -1086,8 +1221,18 @@
         transition: all 0.2s;
     }
 
-    .btn-save:hover {
+    .btn-save:hover:not(:disabled) {
         background: #E58320;
+    }
+
+    .btn-save:disabled {
+        background: #E0E0E0;
+        cursor: not-allowed;
+    }
+
+    .btn-discard:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
     }
 
     /* Responsive */
