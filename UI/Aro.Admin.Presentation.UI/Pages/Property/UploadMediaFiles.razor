@@ -98,9 +98,16 @@
                 <div class="upload-grid">
                     @foreach (var image in uploadedImages)
                     {
-                        <div class="image-thumbnail" @onclick="() => SelectImage(image)">
+                        <div class="image-thumbnail">
                             <img src="@image.Url" alt="@image.Name" />
-                            @* <div class="image-label">@image.Name</div> *@
+                            <div class="image-overlay">
+                                <button type="button" class="delete-button" @onclick="() => RemoveImage(image)" @onclick:stopPropagation="true" title="Remove image">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 6H5H21" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                     }
 
@@ -134,6 +141,14 @@
                         Browse Files
                         <InputFile OnChange="HandleFaviconSelected" accept="image/png" style="display: none;" />
                     </label>
+                    @if (!string.IsNullOrEmpty(faviconFileName))
+                    {
+                        <button type="button" class="favicon-remove-button" @onclick="RemoveFavicon" title="Remove favicon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    }
                 </div>
             </div>
 
@@ -341,9 +356,19 @@
         }
     }
 
-    private void SelectImage(ImageModel image)
+    private async Task RemoveImage(ImageModel image)
     {
-        // Implement rename functionality or other logic
+        uploadedImages.Remove(image);
+        await SaveToLocalStorage();
+        StateHasChanged();
+    }
+
+    private async Task RemoveFavicon()
+    {
+        wizardModel.Favicon = null;
+        faviconFileName = string.Empty;
+        await SaveToLocalStorage();
+        StateHasChanged();
     }
 
     // Validation - requires at least one banner image and a favicon
@@ -732,7 +757,6 @@
         border: 5px solid #F69126;
         border-radius: 4px;
         overflow: hidden;
-        cursor: pointer;
         background: #E0E0E0;
     }
 
@@ -741,6 +765,48 @@
             height: 100%;
             object-fit: cover;
             display: block;
+        }
+
+    /* Image Overlay with Delete Button */
+    .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    .image-thumbnail:hover .image-overlay {
+        opacity: 1;
+    }
+
+    .delete-button {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: rgba(220, 53, 69, 0.9);
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+
+        .delete-button:hover {
+            background: #dc3545;
+            transform: scale(1.1);
+        }
+
+        .delete-button svg {
+            width: 20px;
+            height: 20px;
         }
 
     /* .image-label {
@@ -865,5 +931,32 @@
 
         .favicon-browse-button:hover {
             background-color: #333333;
+        }
+
+    /* Favicon Remove Button */
+    .favicon-remove-button {
+        width: 40px;
+        height: 40px;
+        margin-left: 12px;
+        border-radius: 50%;
+        background: #F5F5F5;
+        border: 1px solid #C3C3C3;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #737373;
+        transition: all 0.2s ease-in-out;
+    }
+
+        .favicon-remove-button:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: #FFFFFF;
+        }
+
+        .favicon-remove-button svg {
+            width: 16px;
+            height: 16px;
         }
 </style>
