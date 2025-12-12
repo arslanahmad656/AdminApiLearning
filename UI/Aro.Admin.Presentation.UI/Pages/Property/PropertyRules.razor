@@ -4,11 +4,13 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Aro.UI.Infrastructure.Services
 @using Aro.UI.Application.DTOs
+@using Microsoft.Extensions.Configuration
 @implements IDisposable
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @inject IPolicyService PolicyService
 @inject IGroupService GroupService
+@inject IConfiguration Configuration
 
 <PageTitle>ARO Admin - Property Rules</PageTitle>
 
@@ -108,23 +110,8 @@
 
         <!-- Top Header -->
         <div class="content-header">
-            <div class="header-left">
-                <div class="property-badge">
-                    @if (!string.IsNullOrEmpty(GroupImageUrl))
-                    {
-                        <img src="@GroupImageUrl" alt="@GroupName" class="badge-img" />
-                    }
-                    else
-                    {
-                        <div class="badge-placeholder">
-                            @(GroupName?.Length > 0 ? GroupName.Substring(0, 1).ToUpper() : "G")
-                        </div>
-                    }
-                    <span class="badge-name">@GroupName</span>
-                </div>
-            </div>
             <div class="header-right">
-                <TopHeaderBar GroupName="@GroupName" />
+                <TopHeaderBar GroupName="@GroupName" ProfileImageUrl="@GroupImageUrl" />
             </div>
         </div>
 
@@ -326,17 +313,17 @@
             {
                 GroupName = groupResponse.Group.GroupName ?? "";
 
-                // Convert logo byte array to base64 data URL
-                if (groupResponse.Group.Logo != null && groupResponse.Group.Logo.Length > 0)
+                // Construct image URL from LogoId
+                if (groupResponse.Group.LogoId.HasValue && groupResponse.Group.LogoId.Value != Guid.Empty)
                 {
-                    var base64 = Convert.ToBase64String(groupResponse.Group.Logo);
-                    GroupImageUrl = $"data:image/png;base64,{base64}";
+                    var apiBaseAddress = Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
+                    GroupImageUrl = $"{apiBaseAddress}/api/group/image/{GroupId}/{groupResponse.Group.LogoId.Value}";
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading group details: {ex.Message}");
+            // Error loading group details
             GroupName = "";
         }
     }
@@ -346,12 +333,7 @@
         try
         {
             isLoading = true;
-            var response = await PolicyService.GetPolicies(new GetPoliciesRequest(
-                Page: 1,
-                PageSize: 100,
-                SortBy: "Title",
-                Ascending: true
-            ));
+            var response = await PolicyService.GetPoliciesByProperty(PropertyId);
 
             if (response?.Policies != null)
             {
@@ -451,6 +433,7 @@
             {
                 // Create new policy via API
                 var createResponse = await PolicyService.CreatePolicy(new CreatePolicyRequest(
+                    PropertyId: PropertyId,
                     Title: editModel.Name,
                     Description: editModel.Description ?? "",
                     IsActive: editModel.IsActive
@@ -507,6 +490,7 @@
         {
             // Create duplicate via API
             var createResponse = await PolicyService.CreatePolicy(new CreatePolicyRequest(
+                PropertyId: PropertyId,
                 Title: $"{rule.Name} (Copy)",
                 Description: rule.Description ?? "",
                 IsActive: rule.IsActive
@@ -803,6 +787,13 @@
     .header-left {
         display: flex;
         align-items: center;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-left: auto;
     }
 
     .property-badge {

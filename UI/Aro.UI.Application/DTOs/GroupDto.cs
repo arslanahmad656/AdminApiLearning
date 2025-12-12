@@ -7,7 +7,7 @@ public record GroupDto(
     string City,
     string PostalCode,
     string Country,
-    byte[]? Logo,
+    Guid? LogoId,
     Guid PrimaryContactId,
     string PrimaryContactName,
     string PrimaryContactEmail,

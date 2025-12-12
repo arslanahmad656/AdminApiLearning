@@ -44,6 +44,19 @@ public class PolicyService(HttpClient httpClient) : IPolicyService
         return await response.Content.ReadFromJsonAsync<GetPoliciesResponse>();
     }
 
+    public async Task<GetPoliciesByPropertyResponse?> GetPoliciesByProperty(Guid propertyId, string? include = null)
+    {
+        var url = $"api/policy/getbyproperty/{propertyId}";
+        if (!string.IsNullOrEmpty(include))
+        {
+            url += $"?Include={include}";
+        }
+
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<GetPoliciesByPropertyResponse>();
+    }
+
     public async Task<PatchPolicyResponse?> PatchPolicy(PatchPolicyRequest request)
     {
         var patchBody = new

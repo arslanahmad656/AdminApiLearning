@@ -225,17 +225,17 @@
             {
                 groupName = groupResponse.Group.GroupName ?? "";
 
-                // Convert logo byte array to base64 data URL
-                if (groupResponse.Group.Logo != null && groupResponse.Group.Logo.Length > 0)
+                // Construct image URL from LogoId
+                if (groupResponse.Group.LogoId.HasValue && groupResponse.Group.LogoId.Value != Guid.Empty)
                 {
-                    var base64 = Convert.ToBase64String(groupResponse.Group.Logo);
-                    groupImageUrl = $"data:image/png;base64,{base64}";
+                    cachedApiBaseAddress ??= Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
+                    groupImageUrl = $"{cachedApiBaseAddress}/api/group/image/{groupId}/{groupResponse.Group.LogoId.Value}";
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading group: {ex.Message}");
+            // Error loading group
             groupName = "";
             groupImageUrl = null;
         }

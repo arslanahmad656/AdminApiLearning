@@ -8,5 +8,8 @@ public record CreateGroupRequest(
     string PostalCode,
     string Country,
     Guid PrimaryContactId,
-    bool IsActive
+    bool IsActive,
+    byte[]? LogoBytes = null,
+    string? LogoFileName = null,
+    string? LogoContentType = null
 );
