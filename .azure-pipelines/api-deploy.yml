@@ -1,6 +1,3 @@
-# Azure DevOps Pipeline for Aro Admin API
-# Deploys to Azure App Service on commits to cicd/production-api branch
-
 trigger:
   branches:
     include:
@@ -13,8 +10,6 @@ variables:
   buildConfiguration: 'Release'
   azureSubscription: 'AzureServiceConnection'
   appServiceName: 'arobe1'
-
-  # FULL ABSOLUTE PATH — prevents fallback to UI solution
   projectPath: '$(Build.SourcesDirectory)/API/Aro.Admin.Presentation.Entry/Aro.Admin.Presentation.Entry.csproj'
 
 stages:
@@ -24,10 +19,7 @@ stages:
 # ===========================================
 - stage: Build
   displayName: 'Build Stage'
-
-  # Run ONLY for this branch
-  condition: >
-    eq(variables['Build.SourceBranch'], 'refs/heads/cicd/production-api')
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/cicd/production-api')
 
   jobs:
   - job: Build
@@ -35,37 +27,35 @@ stages:
 
     steps:
     - checkout: self
-      clean: true   # Removes UI leftovers inside workspace
+      clean: true
 
     - task: UseDotNet@2
-      displayName: 'Use .NET 8.0'
+      displayName: 'Install .NET 10 SDK'
       inputs:
         packageType: 'sdk'
-        version: '8.0.x'
+        version: '10.0.x'
+        includePreviewVersions: true
+        performMultiLevelLookup: true
 
     - task: NuGetToolInstaller@1
-      displayName: 'Install NuGet'
 
     - task: DotNetCoreCLI@2
       displayName: 'Restore API Project'
       inputs:
-        command: 'restore'
-        publishWebProjects: false
+        command: restore
         projects: '$(projectPath)'
 
     - task: DotNetCoreCLI@2
       displayName: 'Build API Project'
       inputs:
-        command: 'build'
-        publishWebProjects: false
+        command: build
         projects: '$(projectPath)'
         arguments: '--configuration $(buildConfiguration)'
 
     - task: DotNetCoreCLI@2
       displayName: 'Publish API Project'
       inputs:
-        command: 'publish'
-        publishWebProjects: false   # prevents DevOps from picking UI
+        command: publish
         projects: '$(projectPath)'
         arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/api'
         zipAfterPublish: true
@@ -83,42 +73,36 @@ stages:
 - stage: Deploy
   displayName: 'Deploy to Azure App Service'
   dependsOn: Build
-
-  condition: >
-    and(
-      succeeded(),
-      eq(variables['Build.SourceBranch'], 'refs/heads/cicd/production-api')
-    )
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/cicd/production-api'))
 
   jobs:
   - deployment: Deploy
     displayName: 'Deploy API'
     environment: 'Azure'
+
     strategy:
       runOnce:
         deploy:
           steps:
-
-          # Avoid overwriting the workspace by checking out code again
           - checkout: none
 
           - task: DownloadBuildArtifacts@0
             displayName: 'Download API Artifact'
             inputs:
-              buildType: 'current'
-              downloadType: 'single'
-              artifactName: 'drop'
+              buildType: current
+              artifactName: drop
               downloadPath: '$(Pipeline.Workspace)'
 
-          - task: AzureRmWebAppDeployment@4
-            displayName: 'Deploy API to App Service'
+          - task: AzureWebApp@1
+            displayName: 'Deploy API to Azure App Service'
             inputs:
-              ConnectionType: 'AzureRM'
               azureSubscription: '$(azureSubscription)'
-              appType: 'webApp'
-              WebAppName: '$(appServiceName)'
-              packageForLinux: '$(Pipeline.Workspace)/drop/*.zip'
-              enableCustomDeployment: true
-              RemoveAdditionalFilesFlag: true
-              AppSettings: '-ASPNETCORE_ENVIRONMENT Azure'
-
+              appName: '$(appServiceName)'
+              package: '$(Pipeline.Workspace)/drop/*.zip'
+              appSettings: |
+                [
+                  {
+                    "name": "ASPNETCORE_ENVIRONMENT",
+                    "value": "Azure"
+                  }
+                ]
