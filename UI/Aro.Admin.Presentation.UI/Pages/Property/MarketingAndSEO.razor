@@ -102,32 +102,42 @@
                 <div class="form-group">
                     <label for="metaTitle">Meta Title</label>
                     <div class="input-wrapper">
-                        <InputText id="metaTitle" class="form-control form-control-with-icon" maxlength="@MaxTitleLength" placeholder="Enter meta title" @bind-Value="wizardModel.MarketingTitle" @onfocus="() => isTitleFocused = true" @onblur="() => OnTitleBlur()" />
-                        <span class="input-info-icon" title="Enter a concise title for search engines">
+                        <input type="text" id="metaTitle" class="form-control form-control-with-icon" maxlength="@MaxTitleLength" placeholder="Enter meta title" @bind="wizardModel.MarketingTitle" @bind:event="oninput" @onfocus="() => isTitleFocused = true" @onblur="() => OnTitleBlur()" />
+                        <span class="input-info-icon" title="This title appears on the browser tab and in search engine results. Keep it short and descriptive.">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="8" cy="8" r="7.5" stroke="#737373"/>
-                                <path d="M8 7V11" stroke="#737373" stroke-linecap="round"/>
-                                <circle cx="8" cy="5" r="0.5" fill="#737373" stroke="#737373"/>
+                                <path d="M7.88201 0C3.5292 0 0 3.58332 0 8C0 12.4193 3.5292 16 7.88201 16C12.2348 16 15.764 12.4193 15.764 8C15.764 3.58332 12.2348 0 7.88201 0ZM7.88201 3.54839C8.61923 3.54839 9.21686 4.15497 9.21686 4.90323C9.21686 5.65148 8.61923 6.25806 7.88201 6.25806C7.14478 6.25806 6.54715 5.65148 6.54715 4.90323C6.54715 4.15497 7.14478 3.54839 7.88201 3.54839ZM9.66181 11.7419C9.66181 11.9557 9.49105 12.129 9.28043 12.129H6.48359C6.27296 12.129 6.1022 11.9557 6.1022 11.7419V10.9677C6.1022 10.754 6.27296 10.5806 6.48359 10.5806H6.86497V8.51613H6.48359C6.27296 8.51613 6.1022 8.34281 6.1022 8.12903V7.35484C6.1022 7.14106 6.27296 6.96774 6.48359 6.96774H8.51765C8.72827 6.96774 8.89904 7.14106 8.89904 7.35484V10.5806H9.28043C9.49105 10.5806 9.66181 10.754 9.66181 10.9677V11.7419Z" fill="#434343" fill-opacity="0.75"/>
                             </svg>
                         </span>
                     </div>
-                    <span class="char-count-helper">Max @MaxTitleLength characters.</span>
+                    @if (string.IsNullOrEmpty(wizardModel.MarketingTitle))
+                    {
+                        <span class="char-count-helper">Max @MaxTitleLength characters.</span>
+                    }
+                    else
+                    {
+                        <span class="char-count-helper">@GetTitleRemainingChars() characters remaining</span>
+                    }
                 </div>
 
                 <!-- Meta Description -->
                 <div class="form-group mt-3">
                     <label for="meta">Meta description</label>
                     <div class="input-wrapper">
-                        <InputTextArea id="meta" class="form-control form-control-textarea" maxlength="@MaxDescriptionLength" rows="8" placeholder="Enter meta description" @bind-Value="wizardModel.MarketingDescription" @onfocus="() => isDescriptionFocused = true" @onblur="() => OnDescriptionBlur()" />
-                        <span class="input-info-icon textarea-icon" title="Enter a description for search engines">
+                        <textarea id="meta" class="form-control form-control-textarea" maxlength="@MaxDescriptionLength" rows="8" placeholder="Enter meta description" @bind="wizardModel.MarketingDescription" @bind:event="oninput" @onfocus="() => isDescriptionFocused = true" @onblur="() => OnDescriptionBlur()"></textarea>
+                        <span class="input-info-icon textarea-icon" title="This short description may appear in Google search results to summarise your property.">
                             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="8" cy="8" r="7.5" stroke="#737373"/>
-                                <path d="M8 7V11" stroke="#737373" stroke-linecap="round"/>
-                                <circle cx="8" cy="5" r="0.5" fill="#737373" stroke="#737373"/>
+                                <path d="M7.88201 0C3.5292 0 0 3.58332 0 8C0 12.4193 3.5292 16 7.88201 16C12.2348 16 15.764 12.4193 15.764 8C15.764 3.58332 12.2348 0 7.88201 0ZM7.88201 3.54839C8.61923 3.54839 9.21686 4.15497 9.21686 4.90323C9.21686 5.65148 8.61923 6.25806 7.88201 6.25806C7.14478 6.25806 6.54715 5.65148 6.54715 4.90323C6.54715 4.15497 7.14478 3.54839 7.88201 3.54839ZM9.66181 11.7419C9.66181 11.9557 9.49105 12.129 9.28043 12.129H6.48359C6.27296 12.129 6.1022 11.9557 6.1022 11.7419V10.9677C6.1022 10.754 6.27296 10.5806 6.48359 10.5806H6.86497V8.51613H6.48359C6.27296 8.51613 6.1022 8.34281 6.1022 8.12903V7.35484C6.1022 7.14106 6.27296 6.96774 6.48359 6.96774H8.51765C8.72827 6.96774 8.89904 7.14106 8.89904 7.35484V10.5806H9.28043C9.49105 10.5806 9.66181 10.754 9.66181 10.9677V11.7419Z" fill="#434343" fill-opacity="0.75"/>
                             </svg>
                         </span>
                     </div>
-                    <span class="char-count-helper">Max @MaxDescriptionLength characters.</span>
+                    @if (string.IsNullOrEmpty(wizardModel.MarketingDescription))
+                    {
+                        <span class="char-count-helper">Max @MaxDescriptionLength characters.</span>
+                    }
+                    else
+                    {
+                        <span class="char-count-helper">@GetDescriptionRemainingChars() characters remaining</span>
+                    }
                 </div>
             </EditForm>
 
@@ -457,6 +467,24 @@
         color: #000000;
     }
 
+    /* Placeholder styling */
+    .form-control::placeholder {
+        color: #737373;
+        opacity: 1;
+    }
+
+    .form-control::-webkit-input-placeholder {
+        color: #737373;
+    }
+
+    .form-control::-moz-placeholder {
+        color: #737373;
+    }
+
+    .form-control:-ms-input-placeholder {
+        color: #737373;
+    }
+
     .form-control-with-icon {
         padding-right: 48px;
         height: 50px;
@@ -468,12 +496,29 @@
         line-height: 25px;
     }
 
-        .form-control:focus {
-            border-color: #C3C3C3;
-            outline: none;
-            background-color: #F6F6F6;
-            box-shadow: none;
-        }
+    .form-control:focus {
+        border-color: #C3C3C3;
+        outline: none;
+        background-color: #F6F6F6;
+        box-shadow: none;
+    }
+
+    /* Override validation styling - no green border */
+    .form-control:valid,
+    .form-control.valid,
+    .form-control.modified.valid {
+        border-color: #C3C3C3;
+        background-image: none;
+        box-shadow: none;
+    }
+
+    .form-control:invalid,
+    .form-control.invalid,
+    .form-control.modified.invalid {
+        border-color: #C3C3C3;
+        background-image: none;
+        box-shadow: none;
+    }
 
     .form-group p {
         font-size: 12px;
