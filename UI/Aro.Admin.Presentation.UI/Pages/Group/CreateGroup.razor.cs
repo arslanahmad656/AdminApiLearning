@@ -290,7 +290,10 @@ namespace Aro.Admin.Presentation.UI.Pages.Group
                 groupModel.PostalCode,
                 groupModel.Country,
                 (Guid)groupModel.PrimaryContactId,
-                true
+                true,
+                _fileBytes,
+                _fileName,
+                _file?.ContentType
             ));
 
             if (createdGroup != null)
