@@ -96,13 +96,8 @@ stages:
           - task: AzureWebApp@1
             displayName: 'Deploy API to Azure App Service'
             inputs:
-              azureSubscription: '$(azureSubscription)'
-              appName: '$(appServiceName)'
-              package: '$(Pipeline.Workspace)/drop/*.zip'
-              appSettings: |
-                [
-                  {
-                    "name": "ASPNETCORE_ENVIRONMENT",
-                    "value": "Azure"
-                  }
-                ]
+                azureSubscription: '$(azureSubscription)'
+                appName: '$(appServiceName)'
+                package: '$(Pipeline.Workspace)/drop/*.zip'
+                appSettings: |
+                    ASPNETCORE_ENVIRONMENT=Azure
