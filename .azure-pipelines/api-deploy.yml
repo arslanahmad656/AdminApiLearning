@@ -14,9 +14,6 @@ variables:
 
 stages:
 
-# ===========================================
-# BUILD STAGE
-# ===========================================
 - stage: Build
   displayName: 'Build Stage'
   condition: eq(variables['Build.SourceBranch'], 'refs/heads/cicd/production-api')
@@ -67,9 +64,6 @@ stages:
         ArtifactName: 'drop'
         publishLocation: 'Container'
 
-# ===========================================
-# DEPLOY STAGE
-# ===========================================
 - stage: Deploy
   displayName: 'Deploy to Azure App Service'
   dependsOn: Build
@@ -84,6 +78,7 @@ stages:
       runOnce:
         deploy:
           steps:
+
           - checkout: none
 
           - task: DownloadBuildArtifacts@0
