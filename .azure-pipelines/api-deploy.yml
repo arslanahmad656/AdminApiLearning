@@ -118,7 +118,7 @@ stages:
               azureSubscription: '$(azureSubscription)'
               appType: 'webApp'
               WebAppName: '$(appServiceName)'
-              packageForLinux: '$(Pipeline.Workspace)/drop/*.zip'
+              package: '$(Pipeline.Workspace)/drop/*.zip'
               enableCustomDeployment: true
               RemoveAdditionalFilesFlag: true
               AppSettings: '-ASPNETCORE_ENVIRONMENT Azure'
