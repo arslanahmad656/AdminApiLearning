@@ -68,7 +68,7 @@ stages:
         command: 'publish'
         publishWebProjects: false   # prevents DevOps from picking UI
         projects: '$(projectPath)'
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/api'
+        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/api --self-contained true --runtime win-x64'
         zipAfterPublish: true
 
     - task: PublishBuildArtifacts@1
