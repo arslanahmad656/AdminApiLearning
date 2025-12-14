@@ -87,7 +87,7 @@ public static class ApplicationBuilderExtensions
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
         var dropFirst = configuration.GetValue<bool>("MigrationOptions:DropDatabaseFirst");
-        await mediator.Send(new MigrateDatabaseCommand(dropFirst)).ConfigureAwait(false);
+        await mediator.Send(new MigrateDatabaseCommand(/*dropFirst*/false)).ConfigureAwait(false);  // TODO: Restart this once we get it working
 
         logger.LogDebug("Database migrations completed.");
     }
