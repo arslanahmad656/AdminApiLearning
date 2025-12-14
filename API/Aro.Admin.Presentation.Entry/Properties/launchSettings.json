@@ -27,6 +27,7 @@
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "AzureDev",
+        //"ASPNETCORE_ENVIRONMENT": "Development",
         "DEFINE_CONFIG_ENVIRONMENT": "true"
       },
       "commandLineArgs": "--profile-directory=\"C:\\Users\\Hp\\AppData\\Local\\Microsoft\\Edge\\User Data\\Profile 1\""
@@ -38,6 +39,6 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
-    }
+    } 
   }
 }
