@@ -33,7 +33,6 @@ public class GroupConfiguration : IEntityTypeConfiguration<Group>
         builder.HasOne(g => g.Icon)
             .WithMany()
             .HasForeignKey(l => l.IconId)
-            .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

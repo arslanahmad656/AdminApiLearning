@@ -280,7 +280,7 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<Guid>("IconId")
+                    b.Property<Guid?>("IconId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
