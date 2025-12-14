@@ -59,4 +59,8 @@
 	  <Folder Include="Options\" />
 	</ItemGroup>
 
+  <ItemGroup>
+    <None Remove="*.dgml" />
+  </ItemGroup>
+
 </Project>
