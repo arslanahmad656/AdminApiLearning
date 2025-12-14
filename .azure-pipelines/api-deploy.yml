@@ -94,5 +94,4 @@ stages:
               azureSubscription: '$(azureSubscription)'
               appName: '$(appServiceName)'
               package: '$(Pipeline.Workspace)/drop/*.zip'
-              appSettings: |
-                ASPNETCORE_ENVIRONMENT=Azure
+              appSettings: '-ASPNETCORE_ENVIRONMENT Azure'
