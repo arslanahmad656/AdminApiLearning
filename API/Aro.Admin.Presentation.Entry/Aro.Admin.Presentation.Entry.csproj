@@ -47,6 +47,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Update="AppData\EmailTemplates\password-reset-email.html">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
 		<None Update="AppData\EmailTemplates\password-reset-success-email.html">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
