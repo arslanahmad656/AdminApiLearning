@@ -1023,8 +1023,33 @@
         color: #737373 !important;
     }
 
+    /* Placeholder styles for MudBlazor inputs */
     .address-form .form-input input.mud-input-slot::placeholder,
-    .address-form .form-input textarea.mud-input-slot::placeholder {
+    .address-form .form-input textarea.mud-input-slot::placeholder,
+    .address-form .form-input input::placeholder,
+    .address-form .form-input .mud-input-slot::placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+        font-weight: 400 !important;
+    }
+
+    /* WebKit browsers (Chrome, Safari, Edge) */
+    .address-form .form-input input::-webkit-input-placeholder,
+    .address-form .form-input .mud-input-slot::-webkit-input-placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+    }
+
+    /* Firefox */
+    .address-form .form-input input::-moz-placeholder,
+    .address-form .form-input .mud-input-slot::-moz-placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+    }
+
+    /* IE/Edge */
+    .address-form .form-input input:-ms-input-placeholder,
+    .address-form .form-input .mud-input-slot:-ms-input-placeholder {
         color: #737373 !important;
         opacity: 1 !important;
     }
@@ -1152,6 +1177,16 @@
             color: #000000 !important;
         }
 
+        /* MudSelect placeholder text styling */
+        .country-mud-select .mud-select-input.mud-input-slot {
+            color: #737373 !important;
+        }
+
+        .country-mud-select .mud-select-input.mud-input-slot:not(:placeholder-shown),
+        .country-mud-select.mud-input-has-value .mud-select-input.mud-input-slot {
+            color: #000000 !important;
+        }
+
         .country-mud-select .mud-select {
             height: 100% !important;
         }
@@ -1245,10 +1280,27 @@
             outline: none;
         }
 
-        .phone-number-input::placeholder {
-            color: #737373;
-            opacity: 1;
-        }
+    /* Phone number placeholder - light grey */
+    .phone-number-input::placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+        font-weight: 400 !important;
+    }
+
+    .phone-number-input::-webkit-input-placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+    }
+
+    .phone-number-input::-moz-placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+    }
+
+    .phone-number-input:-ms-input-placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+    }
 
     /* Section Divider */
     .section-divider {
