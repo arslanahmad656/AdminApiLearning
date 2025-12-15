@@ -412,6 +412,12 @@
                 wizardModel.GroupId = _currentGroupId;
             }
 
+            // Sanitize phone number in case invalid data was stored
+            if (!string.IsNullOrEmpty(wizardModel.PhoneNumber))
+            {
+                wizardModel.PhoneNumber = SanitizePhoneNumber(wizardModel.PhoneNumber);
+            }
+
             // Note: Touched flags are not restored from localStorage - they reset on page load
             // This ensures validation only triggers after user interacts with fields
         }
@@ -528,16 +534,31 @@
         return string.Empty;
     }
 
+    // Sanitize phone number - strips non-numeric characters and enforces max length
+    private string SanitizePhoneNumber(string? phone)
+    {
+        if (string.IsNullOrEmpty(phone))
+            return string.Empty;
+
+        // Remove all non-numeric characters
+        var numericOnly = new string(phone.Where(char.IsDigit).ToArray());
+
+        // Enforce max length of 15 digits
+        if (numericOnly.Length > 15)
+            numericOnly = numericOnly.Substring(0, 15);
+
+        return numericOnly;
+    }
+
     // Phone number change handler - strips non-numeric characters after binding (handles paste)
     private void OnPhoneNumberChanged()
     {
         if (!string.IsNullOrEmpty(wizardModel.PhoneNumber))
         {
-            // Remove all non-numeric characters
-            var numericOnly = new string(wizardModel.PhoneNumber.Where(char.IsDigit).ToArray());
-            if (numericOnly != wizardModel.PhoneNumber)
+            var sanitized = SanitizePhoneNumber(wizardModel.PhoneNumber);
+            if (sanitized != wizardModel.PhoneNumber)
             {
-                wizardModel.PhoneNumber = numericOnly;
+                wizardModel.PhoneNumber = sanitized;
             }
         }
     }
@@ -624,7 +645,8 @@
                     wizardModel.ContactName = groupResponse.Group.PrimaryContactName ?? string.Empty;
                     wizardModel.ContactEmail = groupResponse.Group.PrimaryContactEmail ?? string.Empty;
                     wizardModel.PhoneCountryCode = groupResponse.Group.PrimaryContactCountryCode ?? string.Empty;
-                    wizardModel.PhoneNumber = groupResponse.Group.PrimaryContactPhoneNumber ?? string.Empty;
+                    // Sanitize phone number to ensure it's numeric-only and within length limits
+                    wizardModel.PhoneNumber = SanitizePhoneNumber(groupResponse.Group.PrimaryContactPhoneNumber);
                 }
             }
             catch
@@ -1162,6 +1184,7 @@
         border: 1px solid #C3C3C3;
         border-radius: 6px;
         height: 50px;
+        overflow: hidden;
     }
 
     .phone-country-flag {
@@ -1205,6 +1228,7 @@
 
     .phone-number-input {
         flex: 1;
+        min-width: 0;
         height: 100%;
         border: none;
         background: transparent;
@@ -1213,6 +1237,8 @@
         font-size: 16px;
         font-weight: 400;
         color: #000000;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
         .phone-number-input:focus {
