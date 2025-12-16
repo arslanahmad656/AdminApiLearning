@@ -96,15 +96,17 @@
                         <div class="label-group">
                             <label class="form-label">Address Line 1 *</label>
                         </div>
-                        <MudTextField @bind-Value="wizardModel.AddressLine1"
+                        <MudTextField T="string"
+                                      Value="wizardModel.AddressLine1"
+                                      ValueChanged="OnAddressLine1Changed"
                                       Variant="Variant.Text"
                                       Class="@($"form-input {(IsAddressLine1Invalid ? "input-error" : "")}")"
-                                      Required="true"
                                       Immediate="true"
                                       Error="@IsAddressLine1Invalid"
                                       ErrorText="Address Line 1 is required"
                                       Placeholder="Enter address line 1"
                                       DisableUnderLine="true"
+                                      @onfocus="OnAddressLine1Focus"
                                       @onblur="OnAddressLine1Blur" />
                     </div>
                     <div class="address-column-right">
@@ -126,20 +128,22 @@
                 <div class="form-row-three-col">
                     <div class="form-group">
                         <label class="form-label">City *</label>
-                        <MudTextField @bind-Value="wizardModel.City"
+                        <MudTextField T="string"
+                                      Value="wizardModel.City"
+                                      ValueChanged="OnCityChanged"
                                       Variant="Variant.Text"
                                       Class="@($"form-input {(IsCityInvalid ? "input-error" : "")}")"
-                                      Required="true"
                                       Immediate="true"
                                       Error="@IsCityInvalid"
                                       ErrorText="City is required"
                                       Placeholder="Enter city"
                                       DisableUnderLine="true"
+                                      @onfocus="OnCityFocus"
                                       @onblur="OnCityBlur" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Country *</label>
-                        <div class="@($"country-select-wrapper {(IsCountryInvalid ? "input-error-border" : "")}")" @onfocusout="OnCountryBlur">
+                        <div class="@($"country-select-wrapper {(IsCountryInvalid ? "input-error-border" : "")}")" @onfocusin="OnCountryFocus" @onfocusout="OnCountryBlur">
                             <div class="country-flag">
                                 <img src="@GetCountryFlagUrl(wizardModel.Country)" alt="Country Flag" class="flag-icon" />
                             </div>
@@ -167,15 +171,17 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Postal Code *</label>
-                        <MudTextField @bind-Value="wizardModel.PostalCode"
+                        <MudTextField T="string"
+                                      Value="wizardModel.PostalCode"
+                                      ValueChanged="OnPostalCodeChanged"
                                       Variant="Variant.Text"
                                       Class="@($"form-input {(IsPostalCodeInvalid ? "input-error" : "")}")"
-                                      Required="true"
                                       Immediate="true"
                                       Error="@IsPostalCodeInvalid"
                                       ErrorText="Postal Code is required"
                                       Placeholder="Enter postal code"
                                       DisableUnderLine="true"
+                                      @onfocus="OnPostalCodeFocus"
                                       @onblur="OnPostalCodeBlur" />
                     </div>
                 </div>
@@ -184,7 +190,7 @@
                 <div class="form-row-two-col-custom">
                     <div class="form-group">
                         <label class="form-label">Phone Number *</label>
-                        <div class="@($"phone-input-wrapper {(IsPhoneNumberInvalid ? "input-error-border" : "")}")">
+                        <div class="@($"phone-input-wrapper {(IsPhoneNumberInvalid ? "input-error-border" : "")}")" @onfocusin="OnPhoneNumberFocus" @onfocusout="OnPhoneNumberBlur">
                             <div class="phone-country-flag">
                                 <img src="@GetFlagUrlByCountryCode(wizardModel.PhoneCountryCode, wizardModel.Country)" alt="Country Flag" class="flag-icon-small" />
                             </div>
@@ -204,13 +210,11 @@
                                    @bind="wizardModel.PhoneNumber"
                                    @bind:event="oninput"
                                    @bind:after="OnPhoneNumberChanged"
-                                   @onblur="OnPhoneNumberBlur"
                                    onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 0"
                                    placeholder="Enter phone number"
                                    pattern="[0-9]*"
                                    inputmode="numeric"
-                                   maxlength="15"
-                                   required />
+                                   maxlength="15" />
                         </div>
                         @if (IsPhoneNumberInvalid)
                         {
@@ -219,15 +223,17 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Website URL *</label>
-                        <MudTextField @bind-Value="wizardModel.Website"
+                        <MudTextField T="string"
+                                      Value="wizardModel.Website"
+                                      ValueChanged="OnWebsiteChanged"
                                       Variant="Variant.Text"
                                       Class="@($"form-input {(IsWebsiteInvalid ? "input-error" : "")}")"
-                                      Required="true"
                                       Immediate="true"
                                       Error="@IsWebsiteInvalid"
                                       ErrorText="@GetWebsiteErrorMessage()"
                                       Placeholder="https://example.com"
                                       DisableUnderLine="true"
+                                      @onfocus="OnWebsiteFocus"
                                       @onblur="OnWebsiteBlur" />
                     </div>
                 </div>
@@ -247,28 +253,32 @@
                 <div class="form-row-three-col">
                     <div class="form-group">
                         <label class="form-label">Name *</label>
-                        <MudTextField @bind-Value="wizardModel.ContactName"
+                        <MudTextField T="string"
+                                      Value="wizardModel.ContactName"
+                                      ValueChanged="OnContactNameChanged"
                                       Variant="Variant.Text"
                                       Class="@($"form-input {(IsContactNameInvalid ? "input-error" : "")}")"
-                                      Required="true"
                                       Immediate="true"
                                       Error="@IsContactNameInvalid"
-                                      ErrorText="Contact Name is required"
+                                      ErrorText="Name is required"
                                       Placeholder="Enter contact name"
                                       DisableUnderLine="true"
+                                      @onfocus="OnContactNameFocus"
                                       @onblur="OnContactNameBlur" />
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email *</label>
-                        <MudTextField @bind-Value="wizardModel.ContactEmail"
+                        <MudTextField T="string"
+                                      Value="wizardModel.ContactEmail"
+                                      ValueChanged="OnContactEmailChanged"
                                       Variant="Variant.Text"
                                       Class="@($"form-input {(IsContactEmailInvalid ? "input-error" : "")}")"
-                                      Required="true"
                                       Immediate="true"
                                       Error="@IsContactEmailInvalid"
                                       ErrorText="@GetEmailErrorMessage()"
                                       Placeholder="example@domain.com"
                                       DisableUnderLine="true"
+                                      @onfocus="OnContactEmailFocus"
                                       @onblur="OnContactEmailBlur" />
                     </div>
                     <div class="form-group">
@@ -302,7 +312,7 @@
     private IEnumerable<string>? countryCodes;
     private Guid? _currentGroupId = null;
 
-    // Track which fields have been touched (focused and then blurred)
+    // Track if field has been interacted with (focused then blurred)
     private bool addressLine1Touched = false;
     private bool cityTouched = false;
     private bool countryTouched = false;
@@ -312,15 +322,43 @@
     private bool contactNameTouched = false;
     private bool contactEmailTouched = false;
 
-    // Blur handlers to mark fields as touched
-    private void OnAddressLine1Blur() { addressLine1Touched = true; StateHasChanged(); }
-    private void OnCityBlur() { cityTouched = true; StateHasChanged(); }
-    private void OnCountryBlur() { countryTouched = true; StateHasChanged(); }
-    private void OnPostalCodeBlur() { postalCodeTouched = true; StateHasChanged(); }
-    private void OnPhoneNumberBlur() { phoneNumberTouched = true; StateHasChanged(); }
-    private void OnWebsiteBlur() { websiteTouched = true; StateHasChanged(); }
-    private void OnContactNameBlur() { contactNameTouched = true; StateHasChanged(); }
-    private void OnContactEmailBlur() { contactEmailTouched = true; StateHasChanged(); }
+    // Track if field is currently focused (to hide error while editing)
+    private bool addressLine1Focused = false;
+    private bool cityFocused = false;
+    private bool countryFocused = false;
+    private bool postalCodeFocused = false;
+    private bool phoneNumberFocused = false;
+    private bool websiteFocused = false;
+    private bool contactNameFocused = false;
+    private bool contactEmailFocused = false;
+
+    // Focus handlers - hide error while editing
+    private void OnAddressLine1Focus() { addressLine1Focused = true; StateHasChanged(); }
+    private void OnCityFocus() { cityFocused = true; StateHasChanged(); }
+    private void OnCountryFocus() { countryFocused = true; StateHasChanged(); }
+    private void OnPostalCodeFocus() { postalCodeFocused = true; StateHasChanged(); }
+    private void OnPhoneNumberFocus() { phoneNumberFocused = true; StateHasChanged(); }
+    private void OnWebsiteFocus() { websiteFocused = true; StateHasChanged(); }
+    private void OnContactNameFocus() { contactNameFocused = true; StateHasChanged(); }
+    private void OnContactEmailFocus() { contactEmailFocused = true; StateHasChanged(); }
+
+    // Blur handlers - mark as touched and show error when leaving field empty
+    private void OnAddressLine1Blur() { addressLine1Focused = false; addressLine1Touched = true; StateHasChanged(); }
+    private void OnCityBlur() { cityFocused = false; cityTouched = true; StateHasChanged(); }
+    private void OnCountryBlur() { countryFocused = false; countryTouched = true; StateHasChanged(); }
+    private void OnPostalCodeBlur() { postalCodeFocused = false; postalCodeTouched = true; StateHasChanged(); }
+    private void OnPhoneNumberBlur() { phoneNumberFocused = false; phoneNumberTouched = true; StateHasChanged(); }
+    private void OnWebsiteBlur() { websiteFocused = false; websiteTouched = true; StateHasChanged(); }
+    private void OnContactNameBlur() { contactNameFocused = false; contactNameTouched = true; StateHasChanged(); }
+    private void OnContactEmailBlur() { contactEmailFocused = false; contactEmailTouched = true; StateHasChanged(); }
+
+    // Value change handlers
+    private void OnAddressLine1Changed(string? newValue) { wizardModel.AddressLine1 = newValue; }
+    private void OnCityChanged(string? newValue) { wizardModel.City = newValue; }
+    private void OnPostalCodeChanged(string? newValue) { wizardModel.PostalCode = newValue; }
+    private void OnWebsiteChanged(string? newValue) { wizardModel.Website = newValue; }
+    private void OnContactNameChanged(string? newValue) { wizardModel.ContactName = newValue; }
+    private void OnContactEmailChanged(string? newValue) { wizardModel.ContactEmail = newValue; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -373,6 +411,15 @@
             {
                 wizardModel.GroupId = _currentGroupId;
             }
+
+            // Sanitize phone number in case invalid data was stored
+            if (!string.IsNullOrEmpty(wizardModel.PhoneNumber))
+            {
+                wizardModel.PhoneNumber = SanitizePhoneNumber(wizardModel.PhoneNumber);
+            }
+
+            // Note: Touched flags are not restored from localStorage - they reset on page load
+            // This ensures validation only triggers after user interacts with fields
         }
         catch (Exception ex)
         {
@@ -442,16 +489,18 @@
     private bool IsValidEmail(string? email) => !string.IsNullOrWhiteSpace(email) && EmailRegex.IsMatch(email);
     private bool IsValidUrl(string? url) => !string.IsNullOrWhiteSpace(url) && UrlRegex.IsMatch(url);
 
-    // Validation helper methods for red border - show error if touched OR showValidation (Next clicked)
-    // BUT only if the field is actually empty/invalid (check value FIRST)
-    private bool IsAddressLine1Invalid => string.IsNullOrWhiteSpace(wizardModel.AddressLine1) && (showValidation || addressLine1Touched);
-    private bool IsCityInvalid => string.IsNullOrWhiteSpace(wizardModel.City) && (showValidation || cityTouched);
-    private bool IsCountryInvalid => string.IsNullOrWhiteSpace(wizardModel.Country) && (showValidation || countryTouched);
-    private bool IsPostalCodeInvalid => string.IsNullOrWhiteSpace(wizardModel.PostalCode) && (showValidation || postalCodeTouched);
-    private bool IsPhoneNumberInvalid => (string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) || !IsValidPhoneNumber(wizardModel.PhoneNumber)) && (showValidation || phoneNumberTouched);
-    private bool IsWebsiteInvalid => (string.IsNullOrWhiteSpace(wizardModel.Website) || !IsValidUrl(wizardModel.Website)) && (showValidation || websiteTouched);
-    private bool IsContactNameInvalid => string.IsNullOrWhiteSpace(wizardModel.ContactName) && (showValidation || contactNameTouched);
-    private bool IsContactEmailInvalid => (string.IsNullOrWhiteSpace(wizardModel.ContactEmail) || !IsValidEmail(wizardModel.ContactEmail)) && (showValidation || contactEmailTouched);
+    // Validation helper methods - show error when:
+    // 1. Field is NOT currently focused (hide error while editing), AND
+    // 2. Field is empty/invalid, AND
+    // 3. Field was touched (focused then blurred) OR user clicked Next (showValidation)
+    private bool IsAddressLine1Invalid => !addressLine1Focused && string.IsNullOrWhiteSpace(wizardModel.AddressLine1) && (showValidation || addressLine1Touched);
+    private bool IsCityInvalid => !cityFocused && string.IsNullOrWhiteSpace(wizardModel.City) && (showValidation || cityTouched);
+    private bool IsCountryInvalid => !countryFocused && string.IsNullOrWhiteSpace(wizardModel.Country) && (showValidation || countryTouched);
+    private bool IsPostalCodeInvalid => !postalCodeFocused && string.IsNullOrWhiteSpace(wizardModel.PostalCode) && (showValidation || postalCodeTouched);
+    private bool IsPhoneNumberInvalid => !phoneNumberFocused && (string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) || !IsValidPhoneNumber(wizardModel.PhoneNumber)) && (showValidation || phoneNumberTouched);
+    private bool IsWebsiteInvalid => !websiteFocused && (string.IsNullOrWhiteSpace(wizardModel.Website) || !IsValidUrl(wizardModel.Website)) && (showValidation || websiteTouched);
+    private bool IsContactNameInvalid => !contactNameFocused && string.IsNullOrWhiteSpace(wizardModel.ContactName) && (showValidation || contactNameTouched);
+    private bool IsContactEmailInvalid => !contactEmailFocused && (string.IsNullOrWhiteSpace(wizardModel.ContactEmail) || !IsValidEmail(wizardModel.ContactEmail)) && (showValidation || contactEmailTouched);
 
     // Error message methods
     private string GetPhoneNumberErrorMessage()
@@ -485,17 +534,31 @@
         return string.Empty;
     }
 
+    // Sanitize phone number - strips non-numeric characters and enforces max length
+    private string SanitizePhoneNumber(string? phone)
+    {
+        if (string.IsNullOrEmpty(phone))
+            return string.Empty;
+
+        // Remove all non-numeric characters
+        var numericOnly = new string(phone.Where(char.IsDigit).ToArray());
+
+        // Enforce max length of 15 digits
+        if (numericOnly.Length > 15)
+            numericOnly = numericOnly.Substring(0, 15);
+
+        return numericOnly;
+    }
+
     // Phone number change handler - strips non-numeric characters after binding (handles paste)
     private void OnPhoneNumberChanged()
     {
         if (!string.IsNullOrEmpty(wizardModel.PhoneNumber))
         {
-            // Remove all non-numeric characters
-            var numericOnly = new string(wizardModel.PhoneNumber.Where(char.IsDigit).ToArray());
-            if (numericOnly != wizardModel.PhoneNumber)
+            var sanitized = SanitizePhoneNumber(wizardModel.PhoneNumber);
+            if (sanitized != wizardModel.PhoneNumber)
             {
-                wizardModel.PhoneNumber = numericOnly;
-                StateHasChanged();
+                wizardModel.PhoneNumber = sanitized;
             }
         }
     }
@@ -503,7 +566,6 @@
     private void OnCountryChanged(string newCountry)
     {
         wizardModel.Country = newCountry;
-        countryTouched = true; // Mark as touched when value changes
 
         // Auto-update phone country code based on selected country
         if (!string.IsNullOrWhiteSpace(newCountry))
@@ -569,6 +631,7 @@
         contactNameTouched = false;
         contactEmailTouched = false;
         phoneNumberTouched = false;
+        websiteTouched = false;
         showValidation = false;
 
         if (wizardModel.SetContactSameAsPrimaryContact && wizardModel.GroupId.HasValue)
@@ -582,7 +645,8 @@
                     wizardModel.ContactName = groupResponse.Group.PrimaryContactName ?? string.Empty;
                     wizardModel.ContactEmail = groupResponse.Group.PrimaryContactEmail ?? string.Empty;
                     wizardModel.PhoneCountryCode = groupResponse.Group.PrimaryContactCountryCode ?? string.Empty;
-                    wizardModel.PhoneNumber = groupResponse.Group.PrimaryContactPhoneNumber ?? string.Empty;
+                    // Sanitize phone number to ensure it's numeric-only and within length limits
+                    wizardModel.PhoneNumber = SanitizePhoneNumber(groupResponse.Group.PrimaryContactPhoneNumber);
                 }
             }
             catch
@@ -959,8 +1023,33 @@
         color: #737373 !important;
     }
 
+    /* Placeholder styles for MudBlazor inputs */
     .address-form .form-input input.mud-input-slot::placeholder,
-    .address-form .form-input textarea.mud-input-slot::placeholder {
+    .address-form .form-input textarea.mud-input-slot::placeholder,
+    .address-form .form-input input::placeholder,
+    .address-form .form-input .mud-input-slot::placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+        font-weight: 400 !important;
+    }
+
+    /* WebKit browsers (Chrome, Safari, Edge) */
+    .address-form .form-input input::-webkit-input-placeholder,
+    .address-form .form-input .mud-input-slot::-webkit-input-placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+    }
+
+    /* Firefox */
+    .address-form .form-input input::-moz-placeholder,
+    .address-form .form-input .mud-input-slot::-moz-placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+    }
+
+    /* IE/Edge */
+    .address-form .form-input input:-ms-input-placeholder,
+    .address-form .form-input .mud-input-slot:-ms-input-placeholder {
         color: #737373 !important;
         opacity: 1 !important;
     }
@@ -1088,6 +1177,16 @@
             color: #000000 !important;
         }
 
+        /* MudSelect placeholder text styling */
+        .country-mud-select .mud-select-input.mud-input-slot {
+            color: #737373 !important;
+        }
+
+        .country-mud-select .mud-select-input.mud-input-slot:not(:placeholder-shown),
+        .country-mud-select.mud-input-has-value .mud-select-input.mud-input-slot {
+            color: #000000 !important;
+        }
+
         .country-mud-select .mud-select {
             height: 100% !important;
         }
@@ -1120,6 +1219,7 @@
         border: 1px solid #C3C3C3;
         border-radius: 6px;
         height: 50px;
+        overflow: hidden;
     }
 
     .phone-country-flag {
@@ -1163,6 +1263,7 @@
 
     .phone-number-input {
         flex: 1;
+        min-width: 0;
         height: 100%;
         border: none;
         background: transparent;
@@ -1171,16 +1272,35 @@
         font-size: 16px;
         font-weight: 400;
         color: #000000;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
         .phone-number-input:focus {
             outline: none;
         }
 
-        .phone-number-input::placeholder {
-            color: #737373;
-            opacity: 1;
-        }
+    /* Phone number placeholder - light grey */
+    .phone-number-input::placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+        font-weight: 400 !important;
+    }
+
+    .phone-number-input::-webkit-input-placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+    }
+
+    .phone-number-input::-moz-placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+    }
+
+    .phone-number-input:-ms-input-placeholder {
+        color: #737373 !important;
+        opacity: 1 !important;
+    }
 
     /* Section Divider */
     .section-divider {
