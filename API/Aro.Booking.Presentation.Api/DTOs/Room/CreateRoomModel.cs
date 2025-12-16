@@ -1,6 +1,6 @@
-﻿namespace Aro.Booking.Application.Mediator.Room.DTOs;
+﻿namespace Aro.Booking.Presentation.Api.DTOs.Room;
 
-public record CreateRoomRequest(
+public record CreateRoomModel(
     Guid PropertyId,
     string RoomName,
     string RoomCode,
@@ -11,6 +11,6 @@ public record CreateRoomRequest(
     int RoomSizeSQM,
     BedConfiguration BedConfig,
     List<string>? Amenities,
-    List<RoomImageDto>? RoomImages,
+    List<RoomImage>? RoomImages,
     bool IsActive
 );

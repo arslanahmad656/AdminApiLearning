@@ -1,0 +1,157 @@
+﻿@using Aro.UI.Application.DTOs
+@inject IJSRuntime JSRuntime
+
+<div id="mediaContainer" class="row gap-3 media-container w-100 rounded border border-1 p-3">
+    @foreach (var image in Images)
+    {
+        <div class="col-sm-2 h-100 rounded d-flex align-items-center justify-content-center p-1 position-relative border uploaded-image"
+             draggable="true"
+             data-id="@image.Id"
+             style="cursor:grab"
+             @onclick="() => SelectImage(image)">
+
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           class="remove-btn"
+                           @onclick="@(e => RemoveImage(image))"
+                           Variant="Variant.Filled"
+                           Size="Size.Small" />
+
+            <img src="data:image/png;base64,@image.ContentBase64"
+                 alt="@image.Name"
+                 class="img-fluid rounded"
+                 style="max-height: 100%; object-fit: cover;" />
+        </div>
+    }
+
+    @if (Images.Count < MaxImages)
+    {
+        <button class="col-sm-2 add-box h-100 rounded d-flex align-items-center justify-content-center p-0">
+            <MudFileUpload T="IReadOnlyList<IBrowserFile>"
+                           FilesChanged="UploadFiles"
+                           Accept="image/png,image/jpeg"
+                           MaxFiles="@RemainingSlots"
+                           Class="w-100">
+                <ActivatorContent>
+                    <div class="vstack text-center w-100 h-100">
+                        <span>+</span>
+                        <span>Add</span>
+                        <span>@RemainingSlots Left</span>
+                    </div>
+                </ActivatorContent>
+            </MudFileUpload>
+        </button>
+    }
+</div>
+
+<style>
+    .add-box {
+        background-color: #EBEBEB;
+        border: dashed 1px #929292;
+    }
+
+    .media-container {
+        height: 200px;
+        border-color: #929292;
+    }
+
+    .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 10;
+    }
+
+    [draggable="true"] {
+        transition: transform 0.3s ease, box-shadow 0.2s ease;
+    }
+
+    .drag-over {
+        border: 2px dashed #ff9800;
+    }
+
+    .dragging {
+        opacity: 0.6;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        transform: scale(1.05);
+    }
+</style>
+
+@code {
+    [Parameter] public List<ImageModel> Images { get; set; } = new();
+
+    [Parameter] public EventCallback<List<ImageModel>> ImagesChanged { get; set; }
+    [Parameter] public EventCallback<ImageModel?> SelectedImageChanged { get; set; }
+
+    private const int MaxImages = 5;
+    const long MaxAllowedFileBytes = 5 * 1024 * 1024; // 5MB
+    private int RemainingSlots => MaxImages - Images.Count;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("enableImageDragReorderAnimated", "mediaContainer");
+        }
+    }
+
+    private static readonly string[] AllowedContentTypes =
+    {
+        "image/jpeg",
+        "image/png",
+    };
+
+
+    private async Task UploadFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        foreach (var file in files)
+        {
+            if (!AllowedContentTypes.Contains(file.ContentType))
+                continue;
+
+            if (Images.Count >= MaxImages)
+                break;
+
+            if (file.Size > MaxAllowedFileBytes)
+                continue;
+
+            using var ms = new MemoryStream();
+            await file.OpenReadStream(MaxAllowedFileBytes).CopyToAsync(ms);
+
+            var base64 = Convert.ToBase64String(ms.ToArray());
+
+            Images.Add(new ImageModel
+            {
+                Id = Guid.NewGuid(),
+                Name = Path.GetFileNameWithoutExtension(file.Name),
+                ContentBase64 = base64,
+                OrderIndex = Images.Count + 1,
+                IsThumbnail = Images.Count == 0 // first image default
+            });
+        }
+
+        await ImagesChanged.InvokeAsync(Images);
+    }
+
+
+    private async Task SelectImage(ImageModel image)
+    {
+        await SelectedImageChanged.InvokeAsync(image);
+    }
+
+    private async Task RemoveImage(ImageModel image)
+    {
+        Images.Remove(image);
+
+        await ImagesChanged.InvokeAsync(Images);
+        await SelectedImageChanged.InvokeAsync(image);
+    }
+
+    [JSInvokable]
+    public async Task UpdateImageOrder(List<Guid> orderedIds)
+    {
+        var reordered = orderedIds.Select(id => Images.First(img => img.Id == id)).ToList();
+        Images = reordered;
+        await ImagesChanged.InvokeAsync(Images);
+        StateHasChanged();
+    }
+}

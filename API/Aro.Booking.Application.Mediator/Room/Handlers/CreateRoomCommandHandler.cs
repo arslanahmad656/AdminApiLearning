@@ -12,6 +12,7 @@ public class CreateRoomCommandHandler(IRoomService roomService, IMediator mediat
         var r = request.CreateRoomRequest;
         var response = await roomService.CreateRoom(
             new CreateRoomDto(
+                r.PropertyId,
                 r.RoomName,
                 r.RoomCode,
                 r.Description,
@@ -19,9 +20,16 @@ public class CreateRoomCommandHandler(IRoomService roomService, IMediator mediat
                 r.MaxAdults,
                 r.MaxChildren,
                 r.RoomSizeSQM,
-                r.RoomSizeSQFT,
                 (BedConfiguration)r.BedConfig,
-                r.AmenityIds,
+                r.Amenities,
+                r.RoomImages?
+                    .Select(img => new RoomImage(
+                        img.Name,
+                        img.Content,
+                        img.OrderIndex,
+                        img.IsThumbnail))
+                    .ToList()
+                    ?? [],
                 r.IsActive
             ), cancellationToken
         ).ConfigureAwait(false);

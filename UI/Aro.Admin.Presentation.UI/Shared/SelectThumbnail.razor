@@ -1,0 +1,35 @@
+﻿@using Aro.UI.Application.DTOs
+
+<div class="row gap-3 media-container w-100 rounded border border-1 p-3">
+
+    @foreach (var image in Images)
+    {
+        <div class="col-sm-2 h-100 rounded d-flex align-items-center justify-content-center p-1 border @((image.IsThumbnail ? "border-3 border-warning" : ""))"
+             style="cursor:pointer"
+             @onclick="() => SelectImage(image)">
+
+            <img src="data:image/png;base64,@image.ContentBase64"
+                 alt="@image.Name" 
+                 class="img-fluid rounded"
+                 style="max-height: 100%; object-fit: cover;" />
+        </div>
+    }
+</div>
+
+
+<style>
+    .media-container {
+        height: 200px;
+        border-color: #929292;
+    }
+</style>
+
+@code {
+    [Parameter] public List<ImageModel> Images { get; set; } = new();
+    [Parameter] public EventCallback<ImageModel?> SelectedImageChanged { get; set; }
+
+    private async Task SelectImage(ImageModel image)
+    {
+        await SelectedImageChanged.InvokeAsync(image);
+    }
+}

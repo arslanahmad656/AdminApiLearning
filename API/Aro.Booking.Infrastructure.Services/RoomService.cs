@@ -1,73 +1,148 @@
-﻿using Aro.Booking.Application.Repository;
-using Aro.Booking.Application.Services.Room;
+﻿using Aro.Booking.Application.Services.Room;
 using Aro.Booking.Domain.Entities;
 using Aro.Booking.Domain.Shared.Exceptions;
 using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.Authorization;
+using Aro.Common.Application.Services.FileResource;
+using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Application.Services.UniqueIdGenerator;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Infrastructure.Shared.Extensions;
 using Microsoft.EntityFrameworkCore;
 
+using BookingRepositoryManager = Aro.Booking.Application.Repository.IRepositoryManager;
+
 namespace Aro.Booking.Infrastructure.Services;
 
 public partial class RoomService(
-    Application.Repository.IRepositoryManager bookingRepository,
+    BookingRepositoryManager repositoryManager,
+    //CommonRepositoryManager commonRepositoryManager,
     IUnitOfWork unitOfWork,
+    ILogManager<PropertyService> logger,
     IUniqueIdGenerator idGenerator,
-    IAuthorizationService authorizationService
+    IAuthorizationService authorizationService,
+    IFileResourceService fileService
 ) : IRoomService
 {
-    private readonly IRoomRepository roomRepository = bookingRepository.RoomRepository;
-    private readonly IAmenityRepository amenityRepository = bookingRepository.AmenityRepository;
-
     public async Task<CreateRoomResponse> CreateRoom(CreateRoomDto room, CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Starting {MethodName} for room: {RoomName}", nameof(CreateRoom), room.RoomName);
+
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.CreateRoom], cancellationToken);
 
-        var existingRoom = await roomRepository.GetByRoomCode(room.RoomCode)
+        var existingProperty = await repositoryManager.PropertyRepository.GetById(room.PropertyId)
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        if (existingProperty is null)
+        {
+            logger.LogWarn("Property with Id '{PropertyId}' does not exist", room.PropertyId.ToString() ?? string.Empty);
+            throw new PropertyNotFoundException(room.PropertyId.ToString());
+        }
+
+        var existingRoom = await repositoryManager.RoomRepository.GetByRoomCode(room.RoomCode)
             .SingleOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
 
         if (existingRoom is not null)
         {
+            logger.LogWarn("Room with code '{RoomCode}' already exists for room '{RoomId}'",
+                room.RoomCode, existingRoom.Id.ToString() ?? string.Empty);
             throw new RoomAlreadyExistsException(room.RoomCode, existingRoom.Id.ToString() ?? "null");
         }
 
+        Guid _roomId = idGenerator.Generate();
         var RoomEntity = new Room
         {
-            Id = idGenerator.Generate(),
+            Id = _roomId,
+            PropertyId = room.PropertyId,
             RoomName = room.RoomName,
             RoomCode = room.RoomCode,
             Description = room.Description,
             MaxOccupancy = room.MaxOccupancy,
             MaxAdults = room.MaxAdults,
             MaxChildren = room.MaxChildren,
-            RoomSize = room.RoomSizeSQM ?? 0,
+            RoomSize = room.RoomSizeSQM,
             BedConfig = (Domain.Entities.BedConfiguration)room.BedConfig,
             IsActive = room.IsActive,
             RoomAmenities = []
         };
 
-        if (room.AmenityIds is not null)
+        if (room.Amenities is not null)
         {
-            foreach (var amenityId in room.AmenityIds)
+            logger.LogDebug("Now creating / linking amenities.");
+            foreach (var amenity in room.Amenities)
             {
-                _ = await amenityRepository.GetById(amenityId)
+                // Check if amenity already exists
+                var existingAnemity = await repositoryManager.AmenityRepository.GetByName(amenity)
                     .SingleOrDefaultAsync(cancellationToken)
-                    .ConfigureAwait(false) ?? throw new AroAmenityNotFoundException(amenityId.ToString());
+                    .ConfigureAwait(false);
 
-                RoomEntity.RoomAmenities.Add(new RoomAmenity
+                if (existingAnemity is not null) // Allow linking to existing amenities
                 {
-                    RoomId = RoomEntity.Id,
-                    AmenityId = amenityId
-                });
+                    logger.LogDebug("Amenity with name '{Amenity}' already exists. Creating link to existing amenity.", amenity);
+
+                    RoomEntity.RoomAmenities.Add(new RoomAmenity
+                    {
+                        RoomId = RoomEntity.Id,
+                        AmenityId = existingAnemity.Id
+                    });
+                }
+                else
+                {
+                    logger.LogDebug("Creating new amenity with name '{Amenity}'. Creating link to new amenity.", amenity);
+
+                    // Create new amenity
+                    var newAmenity = new Amenity
+                    {
+                        Id = idGenerator.Generate(),
+                        Name = amenity
+                    };
+
+                    await repositoryManager.AmenityRepository.Create(newAmenity, cancellationToken).ConfigureAwait(false);
+
+                    // Link new amenity to room
+                    RoomEntity.RoomAmenities.Add(new RoomAmenity
+                    {
+                        RoomId = RoomEntity.Id,
+                        AmenityId = newAmenity.Id
+                    });
+                }
             }
         }
 
-        await roomRepository.Create(RoomEntity, cancellationToken).ConfigureAwait(false);
-
+        await repositoryManager.RoomRepository.Create(RoomEntity, cancellationToken).ConfigureAwait(false);
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+
+        logger.LogInfo("Room created successfully with Id: {RoomId}", _roomId);
+
+        if (room.RoomImages is not null)
+        {
+            logger.LogDebug("Now creating files.");
+            foreach (var fileData in room.RoomImages)
+            {
+                try
+                {
+                    var fileNameToUse = idGenerator.Generate().ToString("N");
+                    var fileServiceResponse = await fileService.CreateFile(new(fileNameToUse, fileData.Content, $"File for room {room.RoomName}.", fileData.Name, null), cancellationToken);
+                    await repositoryManager.RoomFilesRepository.Create(new()
+                    {
+                        FileId = fileServiceResponse.Id,
+                        RoomId = _roomId,
+                        OrderIndex = fileData.OrderIndex,
+                        IsThumbnail = fileData.IsThumbnail
+                    }, cancellationToken);
+
+                    await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+
+                    logger.LogDebug($"Created file {fileData.Name}");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error occurred while creating the file {FileName}", fileData.Name);
+                }
+            }
+        }
 
         return new CreateRoomResponse(RoomEntity.Id, RoomEntity.RoomName);
     }
@@ -79,7 +154,7 @@ public partial class RoomService(
     {
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetRooms], cancellationToken);
 
-        var baseQuery = roomRepository.GetAll();
+        var baseQuery = repositoryManager.RoomRepository.GetAll();
 
         baseQuery = baseQuery
             .IncludeElements(query.Include ?? string.Empty)
@@ -118,7 +193,7 @@ public partial class RoomService(
     {
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetRoom], cancellationToken);
 
-        var query = roomRepository.GetById(dto.Id);
+        var query = repositoryManager.RoomRepository.GetById(dto.Id);
 
         var response = await query
             .IncludeElements(dto.Inlcude ?? string.Empty)
@@ -151,7 +226,7 @@ public partial class RoomService(
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchRoom], cancellationToken);
 
         var _room = room.Room;
-        var existingRoom = await roomRepository.GetById(_room.Id)
+        var existingRoom = await repositoryManager.RoomRepository.GetById(_room.Id)
             .Include(r => r.RoomAmenities) // Necessary for updating amenities
             .SingleOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false)
@@ -172,7 +247,7 @@ public partial class RoomService(
             existingRoom.RoomAmenities.Clear(); // Clear existing amenities included in above query
             foreach (var amenityId in _room.AmenityIds)
             {
-                _ = await amenityRepository.GetById(amenityId)
+                _ = await repositoryManager.AmenityRepository.GetById(amenityId)
                     .SingleOrDefaultAsync(cancellationToken)
                     .ConfigureAwait(false) ?? throw new AroAmenityNotFoundException(amenityId.ToString());
 
@@ -184,7 +259,7 @@ public partial class RoomService(
             }
         }
 
-        roomRepository.Update(existingRoom);
+        repositoryManager.RoomRepository.Update(existingRoom);
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
         return new PatchRoomResponse(new(
@@ -210,14 +285,14 @@ public partial class RoomService(
     {
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.DeleteRoom], cancellationToken);
 
-        var query = roomRepository.GetById(dto.Id);
+        var query = repositoryManager.RoomRepository.GetById(dto.Id);
 
         var room = await query
             .SingleOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false) ??
             throw new AroRoomNotFoundException(dto.Id.ToString());
 
-        roomRepository.Delete(room);
+        repositoryManager.RoomRepository.Delete(room);
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
         return new DeleteRoomResponse(dto.Id);

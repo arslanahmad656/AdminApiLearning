@@ -1,0 +1,57 @@
+﻿@typeparam TEntity
+@inherits LayoutComponentBase
+
+<CascadingValue Value="Wizard">
+<div class="full-screen-overlay">
+    <div class="row g-0 h-100">
+        <!-- Wizard Header -->
+        <div class="col-12 card-bg-dark">
+            <WizardHeader 
+                HeaderTitle="@(Wizard.IsCreateMode ? "Add New Room" : "Edit Room")"
+                ReturnTo="/" />
+        </div>
+        <!-- Wizard Steps (Sidebar) -->
+        <div class="d-none d-md-block col-xl-2  border-end bg-white">
+            <WizardSteps StepTitles="Wizard.StepTitles"
+                            ActiveStepIndex="Wizard.ActiveStepIndex"
+                            AllStepsCompleted="Wizard.EntityCreationComplete" />
+        </div>
+
+        <!-- Child content -->
+        <div class="col-xl-10 h-100 overflow-y-auto">
+            <div class="p-5">
+                @ChildContent
+            </div>
+
+            <!-- Wizard Navigation -->
+            <WizardNavigation TEntity="TEntity" />
+        </div>
+
+    </div>
+</div>
+
+</CascadingValue>
+
+<style>
+    .full-screen-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 9999;
+        background: #F6F6F6;
+        overflow: hidden
+    }
+
+    .card-bg-dark {
+        background-color: #434343;
+        color: white;
+    }
+</style>
+
+@code {
+    [Parameter] public EntityWizardContext<TEntity> Wizard { get; set; } = default!;
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

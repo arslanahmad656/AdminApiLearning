@@ -1,4 +1,4 @@
-﻿using Aro.Booking.Presentation.Api.DTOs;
+﻿using Aro.Booking.Presentation.Api.DTOs.Room;
 using FluentValidation;
 
 namespace Aro.Booking.Presentation.Api.Validators;
@@ -30,18 +30,14 @@ public class CreateRoomModelValidator : AbstractValidator<CreateRoomModel>
             .GreaterThanOrEqualTo(0);
 
         RuleFor(m => m.RoomSizeSQM)
-            .GreaterThan(0)
-            .When(m => m.RoomSizeSQM.HasValue);
-
-        RuleFor(m => m.RoomSizeSQFT)
-            .GreaterThan(0)
-            .When(m => m.RoomSizeSQFT.HasValue);
+            .NotEmpty()
+            .GreaterThan(0);
 
         RuleFor(m => m.BedConfig)
             .NotEmpty();
 
-        RuleFor(m => m.AmenityIds)
-            .Must(ids => ids?.Distinct().Count() == ids?.Count)
+        RuleFor(m => m.Amenities)
+            .Must(a => a?.Distinct().Count() == a?.Count)
             .WithMessage("Amenities list contains duplicate values.");
 
         //RuleFor(m => m.IsActive);

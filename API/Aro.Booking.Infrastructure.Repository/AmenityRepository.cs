@@ -9,6 +9,8 @@ public class AmenityRepository(AroDbContext dbContext) : RepositoryBase<Amenity>
 {
     public IQueryable<Amenity> GetById(Guid id) => FindByCondition(filter: u => u.Id == id);
 
+    public IQueryable<Amenity> GetByName(string name) => FindByCondition(filter: u => u.Name == name);
+
     public IQueryable<Amenity> GetAll() => FindByCondition();
 
     public Task Create(Amenity amenity, CancellationToken cancellationToken = default) => base.Add(amenity, cancellationToken);

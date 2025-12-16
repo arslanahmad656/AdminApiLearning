@@ -1,15 +1,16 @@
-﻿namespace Aro.Booking.Presentation.Api.DTOs;
+namespace Aro.UI.Application.DTOs.Room;
 
-public record CreateRoomModel(
+public record CreateRoomRequest(
+    Guid PropertyId,
     string RoomName,
     string RoomCode,
     string? Description,
     int MaxOccupancy,
     int MaxAdults,
     int MaxChildren,
-    int? RoomSizeSQM,
-    int? RoomSizeSQFT,
+    int RoomSizeSQM,
     BedConfiguration BedConfig,
-    List<Guid>? AmenityIds,
+    List<string>? Amenities,
+    List<RoomImage>? RoomImages,
     bool IsActive
 );

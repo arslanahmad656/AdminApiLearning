@@ -1,0 +1,70 @@
+﻿@typeparam TEntity
+@using Microsoft.AspNetCore.Components.Web
+
+@code {
+    [CascadingParameter]
+    private EntityWizardContext<TEntity> Wizard { get; set; } = default!;
+}
+
+
+<div class="d-flex flex-row-reverse p-5 border-top mb-5">
+    <div class="hstack gap-2">
+
+        @* Back Button *@
+        @if (Wizard.ActiveStepIndex > 0 && !Wizard.EntityCreationComplete)
+        {
+            <AroButton IsPrimary="false"
+                       IsBack
+                       Label="Back"
+                       OnClick="HandleBack" />
+        }
+
+        @* Next Button *@
+        @if (Wizard.ActiveStepIndex < Wizard.StepTitles.Count - 1)
+        {
+            <AroButton IsNext
+                       Label="Next"
+                       OnClick="HandleNext" />
+        }
+        else
+        {
+            @* Save / Edit Button *@
+            @if (Wizard.EntityCreationComplete)
+            {
+                <AroButton Label="Edit"
+                           OnClick="HandleEdit" />
+            }
+            else
+            {
+                <AroButton Label="@(Wizard.IsCreateMode ? "Save" : "Update")"
+                           OnClick="HandleSave" />
+            }
+        }
+
+    </div>
+</div>
+
+@code {
+    private async Task HandleNext(MouseEventArgs args)
+    {
+        if (Wizard.OnNext != null)
+            await Wizard.OnNext.Invoke();
+    }
+
+    private void HandleBack(MouseEventArgs args)
+    {
+        Wizard.OnBack?.Invoke();
+    }
+
+    private async Task HandleSave(MouseEventArgs args)
+    {
+        if (Wizard.OnSave != null)
+            await Wizard.OnSave.Invoke();
+    }
+
+    private async Task HandleEdit(MouseEventArgs args)
+    {
+        if (Wizard.OnEdit != null)
+            await Wizard.OnEdit.Invoke();
+    }
+}

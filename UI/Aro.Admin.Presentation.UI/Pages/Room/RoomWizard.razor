@@ -1,0 +1,78 @@
+﻿@page "/property/{propertyId:guid}/rooms/add"
+
+@using Aro.Admin.Presentation.UI.Layout
+@using Aro.UI.Application.DTOs.Room
+
+@code {
+    [Parameter] public Guid PropertyId { get; set; }
+
+    private EntityWizardContext<RoomModel> Wizard = new()
+        {
+            Entity = new RoomModel(),
+            IsCreateMode = true,
+            StepTitles = new() 
+            { 
+                "General Information", 
+                "Capacity & Features", 
+                "Amenities", 
+                "Media Files", 
+                "Review & Save" 
+            }
+    };
+
+    private readonly List<Type> StepComponents = new()
+    {
+        typeof(GeneralInformationStep),
+        typeof(CapacityAndFeaturesStep),
+        typeof(AmenitiesStep),
+        typeof(MediaFilesStep),
+        typeof(ReviewAndSaveStep)
+    };
+
+    protected override void OnInitialized()
+    {
+        Wizard.OnNext = async () =>
+            {
+                bool isValid = true;
+                if (Wizard.CurrentStepValidation != null)
+                {
+                    isValid = await Wizard.CurrentStepValidation.Invoke();
+                }
+
+                if (isValid && Wizard.ActiveStepIndex < Wizard.StepTitles.Count - 1)
+                {
+                    Wizard.ActiveStepIndex++;
+                    StateHasChanged();
+                }
+            };
+
+        Wizard.OnBack = () =>
+        {
+            if (Wizard.ActiveStepIndex > 0)
+                Wizard.ActiveStepIndex--;
+            StateHasChanged();
+        };
+
+        Wizard.OnSave = async () =>
+        {
+            StateHasChanged();
+        };
+
+        Wizard.OnEdit = async () =>
+        {
+            Wizard.EntityCreationComplete = false;
+            StateHasChanged();
+        };
+
+        if (Wizard.Entity is not null)
+            Wizard.Entity.PropertyId = PropertyId;
+    }
+
+}
+
+<EntityCreationWizardLayout TEntity="RoomModel" Wizard="Wizard">
+    @if (Wizard.ActiveStepIndex >= 0 && Wizard.ActiveStepIndex < StepComponents.Count)
+    {
+        <DynamicComponent Type="StepComponents[Wizard.ActiveStepIndex]" />
+    }
+</EntityCreationWizardLayout>

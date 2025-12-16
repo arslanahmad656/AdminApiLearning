@@ -1,6 +1,7 @@
 using Aro.Admin.Presentation.UI;
 using Aro.Admin.Presentation.UI.Validators;
 using Aro.UI.Application.DTOs;
+using Aro.UI.Application.DTOs.Room;
 using Aro.UI.Application.Interfaces;
 using Aro.UI.Infrastructure.Services;
 using FluentValidation;
@@ -68,6 +69,7 @@ builder.Services.AddMudServices(config =>
 // Register data services
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IRoomService, RoomService>();
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 
 builder.Services.AddScoped<ICountryMetadataService, CountryMetadataService>();
@@ -75,5 +77,7 @@ builder.Services.AddScoped<ICountryMetadataService, CountryMetadataService>();
 builder.Services.AddTransient<IValidator<GroupModel>, GroupModelFluentValidator>();
 builder.Services.AddTransient<IValidator<PrimaryContactModel>, PrimaryContactModelFluentValidator>();
 
+builder.Services.AddTransient<IValidator<RoomModel>, RoomModelFluentValidator>();
+builder.Services.AddTransient<IValidator<Amenity>, AmenityModelFluentValidator>();
 
 await builder.Build().RunAsync();

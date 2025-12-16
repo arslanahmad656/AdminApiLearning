@@ -1,4 +1,4 @@
-﻿using Aro.Booking.Presentation.Api.DTOs;
+﻿using Aro.Booking.Presentation.Api.DTOs.Room;
 using FluentValidation;
 
 namespace Aro.Booking.Presentation.Api.Validators;

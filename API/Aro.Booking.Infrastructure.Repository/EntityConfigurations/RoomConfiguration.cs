@@ -43,5 +43,10 @@ public class RoomConfiguration : IEntityTypeConfiguration<Room>
             .WithMany(p => p.Rooms)
             .HasForeignKey(r => r.PropertyId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasMany(r => r.RoomFiles)
+            .WithOne()
+            .HasForeignKey(rf => rf.RoomId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -1,16 +1,17 @@
 ﻿namespace Aro.Booking.Application.Services.Room;
 
 public record CreateRoomDto(
+    Guid PropertyId,
     string RoomName,
     string RoomCode,
     string? Description,
     int MaxOccupancy,
     int MaxAdults,
     int MaxChildren,
-    int? RoomSizeSQM,
-    int? RoomSizeSQFT,
+    int RoomSizeSQM,
     BedConfiguration BedConfig,
-    List<Guid>? AmenityIds,
+    List<string>? Amenities,
+    List<RoomImage>? RoomImages,
     bool IsActive
 );
 

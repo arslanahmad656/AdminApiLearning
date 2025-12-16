@@ -1,0 +1,106 @@
+﻿@using Aro.UI.Application.DTOs.Room
+
+@inject IValidator<RoomModel> roomValidator
+@inject IValidator<Amenity> amenityValidator
+
+<StepTitle StepNumber="3" Title="Amenities" />
+
+<MudForm @ref="roomForm"
+         Model="Wizard.Entity"
+         Validation="@(roomValidator.GetValidateValue())">
+
+    <div class="row gy-2 mt-2">
+        <div class="col-sm-8 col-xl-6">
+            <div class="form-group">
+                <div class="vstack gap-3 mb-2">
+                    <small id="amenitiesHelp" class="form-text text-muted">
+                        Describe what in-room amenities the guests can expect to find in this room type. Each new line will create a new amenity
+                    </small>
+                </div>
+                <MudTextField @bind-Value="AmenitiesToAdd"
+                              For="@(() => AmenitiesToAdd)"
+                              Placeholder="e.g., Free WiFi"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense"
+                              Lines="10"
+                              MaxLength="800"
+                              Immediate="true"
+                              Error="@_error"
+                              ErrorText="@AmenityError"
+                              aria-describedby="amenitiesHelp" />
+
+            </div>
+        </div>
+        <div class="w-100"></div>
+    </div>
+</MudForm>
+
+@code {
+    [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
+
+    private MudForm? roomForm;
+
+    private string AmenitiesToAdd { get; set; } = string.Empty;
+
+    private string AmenityError { get; set; } = string.Empty;
+    
+    private bool _error => !string.IsNullOrEmpty(AmenityError);
+
+    private async Task<bool> AddAmenitiesFromTextboxAsync()
+    {
+        AmenityError = string.Empty;
+
+        if (Wizard.Entity is null) return false;
+
+        if (string.IsNullOrWhiteSpace(AmenitiesToAdd))
+            return true;
+
+        var lines = AmenitiesToAdd
+            .Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+            .Select(l => l.Trim())
+            .Where(l => !string.IsNullOrWhiteSpace(l))
+            .ToList();
+
+        foreach (var name in lines)
+        {
+            if (Wizard.Entity.Amenities.Any(a => string.Equals(a.Name, name, StringComparison.OrdinalIgnoreCase)))
+            {
+                AmenityError = $"The amenity '{name}' already exists.";
+                return false;
+            }
+
+            var amenity = new Amenity { Name = name };
+            var validationResult = await amenityValidator.ValidateAsync(amenity);
+            if (!validationResult.IsValid)
+            {
+                AmenityError = validationResult.Errors.FirstOrDefault()?.ErrorMessage;
+                return false;
+            }
+
+            Wizard.Entity.Amenities.Add(amenity);
+        }
+
+        AmenitiesToAdd = string.Empty;
+        return true;
+    }
+
+    private async Task<bool> ValidateStepAsync()
+    {
+        var amenitiesValid = await AddAmenitiesFromTextboxAsync();
+        if (!amenitiesValid) return false;
+
+        if (roomForm is null) return false;
+
+        await roomForm.Validate();
+        return roomForm.IsValid;
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && Wizard is not null)
+        {
+            Wizard.CurrentStepValidation = ValidateStepAsync;
+        }
+    }
+
+}

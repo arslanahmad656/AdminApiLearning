@@ -1,0 +1,68 @@
+﻿@using Aro.UI.Application.DTOs.Room
+
+@inject IValidator<RoomModel> roomValidator
+
+<div class="vstack gap-2 mb-5">
+    <h3 class="fs-6 fw-normal">Step 4</h3>
+    <h2 class="fs-4">Upload Media Files</h2>
+    <span>These images will be shown in the slider to the end user when clicking on the room. Images can be reordered by dragging. Max 2MB per image.</span>
+</div>
+
+<UploadMediaFilesInput 
+    Images="@Wizard.Entity?.Images"
+    ImagesChanged="OnImagesChanged"
+    SelectedImageChanged="OnSelectedImageChanged" />
+
+
+<div class="vstack gap-2 mt-5 mb-2">
+    <h2 class="fs-4">Select Thumbnail</h2>
+    <span>Please click on an uploaded image to set it as the thumbnail. This will be shown on both the website and the booking engine.</span>
+</div>
+
+<SelectThumbnail
+    Images="@Wizard.Entity?.Images"
+    SelectedImageChanged="OnSelectedImageChanged" />
+
+
+@code {
+    [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
+
+    private async Task<bool> ValidateStepAsync()
+    {
+        return true;
+    }
+
+    private Task OnImagesChanged(List<ImageModel> images)
+    {
+        if (Wizard.Entity is not null)
+        {
+            Wizard.Entity.Images = images;
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private Task OnSelectedImageChanged(ImageModel? newImage)
+    {
+        if (Wizard.Entity is not null && Wizard.Entity.Images is not null)
+        {
+            foreach (var image in Wizard.Entity.Images)
+            {
+                image.IsThumbnail = false;
+            }
+
+            if (newImage is not null)
+            {
+                var selectedImage = Wizard.Entity.Images
+                    .FirstOrDefault(i => i.Id == newImage.Id);
+
+                if (selectedImage is not null)
+                {
+                    selectedImage.IsThumbnail = true;
+                }
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+}

@@ -16,5 +16,6 @@ public class Room : IEntity
     public BedConfiguration BedConfig { get; set; }
     public bool IsActive { get; set; }
     public Property Property { get; set; }
-    public ICollection<RoomAmenity> RoomAmenities { get; set; } = [];
+    public ICollection<RoomAmenity> RoomAmenities { get; set; }
+    public ICollection<RoomFiles> RoomFiles { get; set; }
 }

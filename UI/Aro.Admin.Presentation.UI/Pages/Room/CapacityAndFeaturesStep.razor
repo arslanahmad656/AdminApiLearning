@@ -1,0 +1,180 @@
+﻿@using Aro.UI.Application.DTOs.Room
+@inject IValidator<RoomModel> roomValidator
+
+<StepTitle StepNumber="2" Title="Capacity & Features" />
+
+<MudForm @ref="roomForm"
+    Model="Wizard.Entity"
+    Validation="@(roomValidator.GetValidateValue())">
+
+    <div class="row gy-2 mt-5">
+
+        <!-- Max Occupancy -->
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label for="maxOccupancy" class="form-label">Max Occupancy *</label>
+                <MudTextField @bind-Value="Wizard.Entity.MaxOccupancy"
+                              For="@(() => Wizard.Entity.MaxOccupancy)"
+                              id="maxOccupancy"
+                              Placeholder="1"
+                              Required="true"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense" />
+            </div>
+        </div>
+
+        <!-- Max Occupancy -->
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label for="maxAdults" class="form-label">Max Adults *</label>
+                <MudTextField @bind-Value="Wizard.Entity.MaxAdults"
+                              For="@(() => Wizard.Entity.MaxAdults)"
+                              id="maxAdults"
+                              Placeholder="1"
+                              Required="true"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense" />
+            </div>
+        </div>
+
+        <!-- Max Occupancy -->
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label for="maxChildren" class="form-label">Max Children</label>
+                <MudTextField @bind-Value="Wizard.Entity.MaxChildren"
+                              For="@(() => Wizard.Entity.MaxChildren)"
+                              id="maxChildren"
+                              Placeholder="0"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Dense" />
+            </div>
+        </div>
+
+        <div class="w-100"></div>
+
+        <!-- Room Size -->
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label for="roomSize" class="form-label">Room Size *</label>
+
+                <MudTextField T="int"
+                              Value="Wizard.Entity.RoomSizeSQM"
+                              ValueChanged="OnSqmChanged"
+                              ValueExpression="@(() => Wizard.Entity.RoomSizeSQM)"
+                              For="@(() => Wizard.Entity.RoomSizeSQM)"
+                              id="roomSize"
+                              Placeholder="0"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.End"
+                              AdornmentText="SQM (m2)"
+                              Margin="Margin.Dense" />
+            </div>
+        </div>
+
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label class="form-label" style="color: transparent;">Room Size SQFT</label>
+
+                <MudTextField T="int"
+                              Value="Wizard.Entity.RoomSizeSQFT"
+                              ValueChanged="OnSqftChanged"
+                              ValueExpression="@(() => Wizard.Entity.RoomSizeSQFT)"
+                              For="@(() => Wizard.Entity.RoomSizeSQFT)"
+                              Placeholder="0"
+                              Variant="Variant.Outlined"
+                              Adornment="Adornment.End"
+                              AdornmentText="SQFT (ft2)"
+                              Margin="Margin.Dense" />
+            </div>
+        </div>
+
+
+        <div class="w-100"></div>
+
+        <div class="col-sm-2">
+            <div class="form-group">
+                <label for="bedConfiguration" class="form-label">Bed Configuration</label>
+                <MudSelect @bind-Value="Wizard.Entity.BedConfig"
+                           For="@(() => Wizard.Entity.BedConfig)"
+                           id="bedConfiguration"
+                           Required="true"
+                           Variant="Variant.Outlined"
+                           Margin="Margin.Dense">
+                    @foreach (BedConfiguration item in Enum.GetValues(typeof(BedConfiguration)))
+                    {
+                        <MudSelectItem Value="@item">@item</MudSelectItem>
+                    }
+                </MudSelect>
+            </div>
+
+        </div>
+
+        <div class="w-100"></div>
+
+    </div>
+
+</MudForm>
+
+@code {
+    [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
+
+    private MudForm? roomForm;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Console.WriteLine("Validator injected: " + (roomValidator != null));
+            Wizard.CurrentStepValidation = ValidateStepAsync;
+
+        }
+    }
+
+    private async Task<bool> ValidateStepAsync()
+    {
+        Console.WriteLine("ValidateStepAsync called");
+
+        if (roomForm is null)
+        {
+            Console.WriteLine("roomForm is NULL");
+            return false;
+        }
+
+        await roomForm.Validate();
+
+        Console.WriteLine($"Form valid: {roomForm.IsValid}");
+
+        return roomForm.IsValid;
+    }
+
+    private bool _updatingRoomSize = false;
+
+    private void OnSqmChanged(int value)
+    {
+        if (_updatingRoomSize) return;
+
+        _updatingRoomSize = true;
+
+        Wizard.Entity.RoomSizeSQM = value;
+
+        Wizard.Entity.RoomSizeSQFT = (int)Math.Round(value * 10.7639);
+
+        _updatingRoomSize = false;
+    }
+
+    private void OnSqftChanged(int value)
+    {
+        if (_updatingRoomSize) return;
+
+        _updatingRoomSize = true;
+
+        Wizard.Entity.RoomSizeSQFT = value;
+
+        Wizard.Entity.RoomSizeSQM = (int)Math.Round(value / 10.7639);
+
+        _updatingRoomSize = false;
+    }
+
+
+
+}

@@ -1,6 +1,7 @@
-﻿namespace Aro.Booking.Presentation.Api.DTOs;
+namespace Aro.UI.Application.DTOs.Room;
 
-public record PatchRoomModel(
+public record PatchRoomRequest(
+    Guid Id,
     string? RoomName,
     string? RoomCode,
     string? Description,
@@ -8,9 +9,8 @@ public record PatchRoomModel(
     int? MaxAdults,
     int? MaxChildren,
     int? RoomSizeSQM,
-    int? RoomSizeSQFT,
     BedConfiguration? BedConfig,
-    List<Guid>? AmenityIds,
-    bool? IsActive
+    List<Amenity>? Amenities,
+    List<ImageModel>? Images,
+    Guid? ThumbnailId
 );
-

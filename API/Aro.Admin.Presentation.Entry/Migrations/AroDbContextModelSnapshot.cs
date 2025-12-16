@@ -689,6 +689,34 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.ToTable("RolePermissions", (string)null);
                 });
 
+            modelBuilder.Entity("Aro.Common.Domain.Entities.RoomFiles", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsThumbnail")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("RoomId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FileId");
+
+                    b.HasIndex("RoomId", "FileId")
+                        .IsUnique();
+
+                    b.ToTable("RoomFiles", (string)null);
+                });
+
             modelBuilder.Entity("Aro.Common.Domain.Entities.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -947,6 +975,21 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("Aro.Common.Domain.Entities.RoomFiles", b =>
+                {
+                    b.HasOne("Aro.Common.Domain.Entities.FileResource", null)
+                        .WithMany()
+                        .HasForeignKey("FileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Aro.Booking.Domain.Entities.Room", null)
+                        .WithMany("RoomFiles")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Aro.Common.Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("Aro.Common.Domain.Entities.Role", "Role")
@@ -995,6 +1038,8 @@ namespace Aro.Admin.Presentation.Entry.Migrations
             modelBuilder.Entity("Aro.Booking.Domain.Entities.Room", b =>
                 {
                     b.Navigation("RoomAmenities");
+
+                    b.Navigation("RoomFiles");
                 });
 
             modelBuilder.Entity("Aro.Common.Domain.Entities.Permission", b =>

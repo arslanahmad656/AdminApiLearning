@@ -1,4 +1,4 @@
-﻿namespace Aro.Booking.Presentation.Api.DTOs;
+﻿namespace Aro.Booking.Presentation.Api.DTOs.Room;
 
 public record GetRoomsQueryParameters(
     char? Filter = null,

@@ -1,6 +1,8 @@
 ﻿using Aro.Booking.Application.Mediator.Room.Commands;
+using Aro.Booking.Application.Mediator.Room.DTOs;
 using Aro.Booking.Application.Mediator.Room.Queries;
-using Aro.Booking.Presentation.Api.DTOs;
+using Aro.Booking.Presentation.Api.DTOs.Room;
+using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Presentation.Shared.Filters;
 using MediatR;
@@ -11,8 +13,8 @@ namespace Aro.Booking.Presentation.Api.Controllers;
 [ApiController]
 [Route("api/room")]
 public class RoomController(
-    IMediator mediator
-    //ILogManager<RoomController> logger
+    IMediator mediator,
+    ILogManager<RoomController> logger
     ) : ControllerBase
 {
     [HttpPost("create")]
@@ -22,8 +24,26 @@ public class RoomController(
         CancellationToken cancellationToken
         )
     {
+        logger.LogDebug("Starting CreateRoom operation for room: {RoomName}", model.RoomName);
+
+        var images = model.RoomImages == null
+            ? []
+            : model.RoomImages.Select(img =>
+            {
+                var bytes = Convert.FromBase64String(img.ContentBase64);
+                var stream = new MemoryStream(bytes);
+
+                return new RoomImageDto(
+                    img.Name,
+                    stream,
+                    img.OrderIndex,
+                    img.IsThumbnail
+                );
+            }).ToList();
+
         var response = await mediator.Send(new CreateRoomCommand(
             new(
+                model.PropertyId,
                 model.RoomName,
                 model.RoomCode,
                 model.Description,
@@ -31,12 +51,15 @@ public class RoomController(
                 model.MaxAdults,
                 model.MaxChildren,
                 model.RoomSizeSQM,
-                model.RoomSizeSQFT,
-                (Aro.Booking.Application.Mediator.Room.DTOs.BedConfiguration)model.BedConfig,
-                model.AmenityIds,
+                (BedConfiguration)model.BedConfig,
+                model.Amenities,
+                images,
                 model.IsActive
             )
         ), cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed CreateRoom operation successfully with Id: {RoomId}",
+            response.Id);
 
         return Ok(response);
     }

@@ -1,0 +1,227 @@
+﻿@using Aro.UI.Application.DTOs.Room
+
+@inject ISnackbar Snackbar
+
+@inject IValidator<RoomModel> roomValidator
+@inject IRoomService roomService
+
+<div class="row">
+    <div class="col-sm-12 col-lg-6 border-end">
+
+        <StepTitle StepNumber="5" Title="Review & Save" />
+
+        <div class="row gy-3 mt-5">
+
+            <div class="col-12">
+                <span class="fs-6 fw-bold">1. General Information</span>
+            </div>
+
+            <div class="col-sm-6">Room Name</div>
+            <div class="col-sm-6">@Wizard.Entity.RoomName</div>
+
+            <div class="col-sm-6">Room Code</div>
+            <div class="col-sm-6">@Wizard.Entity.RoomCode</div>
+
+            <div class="col-sm-6">Description</div>
+            <div class="col-sm-6 text-truncate mb-5">@Wizard.Entity.Description</div>
+
+
+            <div class="col-12 mt-5">
+                <span class="fs-6 fw-bold">2. Capacity & Features</span>
+            </div>
+
+            <div class="col-sm-6">Max Occupancy</div>
+            <div class="col-sm-6">@Wizard.Entity.MaxOccupancy</div>
+
+            <div class="col-sm-6">Adults</div>
+            <div class="col-sm-6">@Wizard.Entity.MaxAdults</div>
+
+            <div class="col-sm-6">Children</div>
+            <div class="col-sm-6">@Wizard.Entity.MaxChildren</div>
+
+            <div class="col-sm-6">Room Size</div>
+            <div class="col-sm-6">@Wizard.Entity.RoomSizeSQM SQM / @Wizard.Entity.RoomSizeSQFT SQFT</div>
+
+            <div class="col-sm-6">Bed Configuration</div>
+            <div class="col-sm-6 mb-5">@Wizard.Entity.BedConfig</div>
+
+            <div class="col-12 mt-5">
+                <span class="fs-6 fw-bold">3. Amenities</span>
+            </div>
+
+            <div class="col vstack gap-3 mb-5">
+            @foreach (Amenity amenity in @Wizard.Entity.Amenities) {
+                <span>@amenity.Name</span>
+            }
+            </div>
+
+            <div class="col-12 mt-5">
+                <span class="fs-6 fw-bold">4. Media Files</span>
+            </div>
+
+            <div class="col-12 gap-3 mb-5">
+
+                <div class="row gap-3 media-container w-100 rounded border border-1 p-3">
+                    @foreach (var image in Images) {
+
+                    <div class="col-sm-2 h-100 rounded d-flex align-items-center justify-content-center p-1 border @((image.IsThumbnail ? "border-3 border-warning" : ""))">
+                            <img src="data:image/png;base64,@image.ContentBase64"
+                             alt="@image.Name" 
+                             class="img-fluid rounded"
+                             style="max-height: 100%; object-fit: cover;" />
+                    </div>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+            
+    <div class="col-sm-12 col-lg-6">
+        <div class="vstack mb-5">
+            <h2 class="fs-4">Live Preview</h2>
+            <span class="fs-6">This is how the information you entered is presented to the users.</span>
+        </div>
+
+        <div class="vstack bg-white">
+
+            <div class="hstack p-2 border border-bottom">
+                <span class="fs-6 fw-bold">@Wizard.Entity.RoomName</span>
+               <button type="button" class="btn-close ms-auto" aria-label="Close"></button>
+            </div>
+
+            <div class="hstack">
+                <span class="small fw-bold p-2 border-0 border-bottom border-2 border-black">Overview</span>
+                <span class="small p-2 border-bottom">Amenities</span>
+                <span class="small p-2 w-100 border-bottom">Hotel Policies</span>
+            </div>
+
+            <div class="v-stack gap-2 p-2">
+
+                <img src="@(Thumbnail != null ? $"data:image/png;base64,{Thumbnail.ContentBase64}" : "https://placehold.co/400x200?text=No+Image")"
+                     alt="@Thumbnail?.Name ?? " No image""
+                     class="img-fluid rounded w-100"
+                     style="height: 200px; object-fit: cover;" />
+
+                <div class="hstack gap-2">
+                    <MudIcon Icon="@Icons.Material.Filled.PeopleOutline" Color="Color.Dark" Size="Size.Small" />
+                    <span class="small fw-bold">@RoomOccupancyLabel</span>
+                </div>
+
+                <div class="small">@Wizard.Entity.Description</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .media-container {
+        min-height: 200px;
+        border-color: #929292;
+    }
+</style>
+
+@code {
+    [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
+
+    private IEnumerable<ImageModel> Images => Wizard.Entity?.Images ?? Enumerable.Empty<ImageModel>();
+
+    private ImageModel? Thumbnail =>
+        Wizard.Entity?.Images?.FirstOrDefault(img => img.IsThumbnail)
+        ?? Wizard.Entity?.Images?.FirstOrDefault();
+
+    private string RoomOccupancyLabel => $"{Wizard.Entity.MaxAdults} Adult{(Wizard.Entity.MaxAdults > 1 ? "s" : "")}" +
+                                         $"{(Wizard.Entity.MaxChildren > 0 ? $", {Wizard.Entity.MaxChildren} {(Wizard.Entity.MaxChildren > 1 ? "Children" : "Child")}" : "")} " +
+                                         $"(Max: {Wizard.Entity.MaxOccupancy})";
+
+    private bool isSaving = false;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        Wizard.OnSave = SaveAsync;
+    }
+
+    private async Task SaveAsync()
+    {
+        Console.WriteLine("SaveAsync called");
+
+        if (isSaving || Wizard.Entity == null) return;
+        isSaving = true;
+
+        try
+        {
+            if (Wizard.Entity!.IsEditMode)
+            {
+                await HandlePatch();
+            }
+            else
+            {
+                await HandleCreate();
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            Snackbar.Add($"Network/API error: {httpEx.Message}", MudBlazor.Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Unexpected error: {ex.Message}", MudBlazor.Severity.Error);
+        }
+        finally
+        {
+            isSaving = false;
+        }
+    }
+
+    private CreateRoomRequest MapToRequest(RoomModel room)
+    {
+        return new CreateRoomRequest(
+            room.PropertyId,
+            room.RoomName,
+            room.RoomCode,
+            room.Description,
+            room.MaxOccupancy,
+            room.MaxAdults,
+            room.MaxChildren,
+            room.RoomSizeSQM,
+            room.BedConfig,
+            room.Amenities?.Select(a => a.Name).ToList() ?? [],
+            room.Images?.Select(img => new RoomImage(
+                img.Name,
+                img.ContentBase64,
+                img.OrderIndex,
+                img.IsThumbnail
+            )).ToList(),
+            room.IsActive
+        );
+    }
+
+
+    private async Task HandleCreate()
+    {
+        if (Wizard.Entity is null || Wizard.Entity.Id != Guid.Empty)
+            return;
+
+        var request = MapToRequest(Wizard.Entity);
+
+        var room = await roomService.CreateRoom(request);
+        if (room is null)
+            return;
+
+        Wizard.Entity.Id = room.Id;
+        Wizard.EntityCreationComplete = true;
+
+        Snackbar.Add(
+            $"Room {room.Id} successfully created",
+            MudBlazor.Severity.Success);
+    }
+
+
+    private async Task HandlePatch()
+    {
+        throw new NotImplementedException();
+    }
+}

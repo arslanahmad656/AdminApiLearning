@@ -8,6 +8,8 @@ public interface IAmenityRepository
 
     IQueryable<Amenity> GetById(Guid Id);
 
+    IQueryable<Amenity> GetByName(string name);
+
     Task Create(Amenity amenity, CancellationToken cancellationToken = default);
 
     void Update(Amenity amenity);

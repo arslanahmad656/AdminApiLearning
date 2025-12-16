@@ -1,0 +1,98 @@
+﻿@using Aro.UI.Application.DTOs.Room
+
+@inject IValidator<RoomModel> roomValidator
+
+<StepTitle StepNumber="1" Title="General Information" />
+
+<MudForm @ref="roomForm"
+    Model="Wizard.Entity"
+    Validation="@(roomValidator.GetValidateValue())">
+
+    <div class="row gy-2 mt-5">
+
+        <!-- Room Name -->
+        <div class="col-sm-8 col-xl-6">
+            <div class="form-group">
+                <label for="roomName" class="form-label">Room Name *</label>
+                <MudTextField @bind-Value="Wizard.Entity.RoomName"
+                For="@(() => Wizard.Entity.RoomName)"
+                id="roomName"
+                Placeholder="Room Name"
+                Required="true"
+                Variant="Variant.Outlined"
+                Margin="Margin.Dense" />
+            </div>
+        </div>
+
+        <div class="w-100"></div>
+
+        <!-- Room Code -->
+        <div class="col-sm-8 col-xl-6">
+            <div class="form-group">
+                <div class="vstack">
+                    <label for="roomCode" class="form-label mb-0">Room Code *</label>
+                    <small id="roomCodeHelp" class="form-text text-muted mb-0">Your unique ID for this room in URLs (e.g., SDB for Standard Double)</small>
+
+                </div>
+                <div class="w-25">
+                    <MudTextField @bind-Value="Wizard.Entity.RoomCode"
+                        For="@(() => Wizard.Entity.RoomCode)"
+                        id="roomCode"
+                        Placeholder="Room Code"
+                        Required="true"
+                        Variant="Variant.Outlined"
+                        Margin="Margin.Dense"
+                        aria-describedby="roomCodeHelp" />
+                </div>
+            </div>
+        </div>
+
+        <div class="w-100"></div>
+
+        <!-- Description -->
+        <div class="col-sm-8 col-xl-6">
+            <div class="form-group">
+                <div class="vstack">
+                    <label for="description" class="form-label mb-0">Description</label>
+                    <small id="descriptionHelp" class="form-text text-muted mb-0">This is visible to people who are trying to book the room. Max 800 characters.</small>
+                </div>
+                <MudTextField @bind-Value="Wizard.Entity.Description"
+                    id="description"
+                    Placeholder="Description"
+                    For="@(() => Wizard.Entity.Description)"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Dense"
+                    Lines="10"
+                    aria-describedby="descriptionHelp"
+                    MaxLength="800"/>
+            </div>
+        </div>
+
+        <div class="w-100"></div>
+    </div>
+
+</MudForm>
+
+@code {
+    [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
+
+    private MudForm? roomForm;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Wizard.CurrentStepValidation = ValidateStepAsync;
+
+        }
+    }
+
+    private async Task<bool> ValidateStepAsync()
+    {
+        if (roomForm is null) return false;
+
+        await roomForm.Validate();
+        return roomForm.IsValid;
+    }
+
+}

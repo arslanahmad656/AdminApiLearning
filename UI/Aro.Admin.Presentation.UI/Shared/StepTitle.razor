@@ -1,0 +1,10 @@
+﻿<div class="vstack gap-2">
+    <h3 class="fs-6 fw-normal">Step @StepNumber</h3>
+    <h2 class="fs-4">@Title</h2>
+</div>
+
+@code {
+    [Parameter] public int StepNumber { get; set; }
+
+    [Parameter] public string Title { get; set; } = string.Empty;
+}
