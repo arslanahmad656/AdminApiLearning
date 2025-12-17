@@ -21,9 +21,9 @@ public record CreatePropertyRequest(
     bool SetContactSameAsGroupContact,
     string ContactName,
     string ContactEmail,
-    List<string> KeySellingPoints,
-    string MarketingTitle,
-    string MarketingDescription,
+    List<string>? KeySellingPoints,
+    string? MarketingTitle,
+    string? MarketingDescription,
     List<FileData> Files
 )
 {

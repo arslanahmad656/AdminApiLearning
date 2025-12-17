@@ -21,15 +21,15 @@ public record CreatePropertyModel(
     bool SetContactSameAsPrimaryContact,
     string ContactName,
     string ContactEmail,
-    List<string> KeySellingPoints,
-    string MarketingTitle,
-    string MarketingDescription,
+    List<string>? KeySellingPoints,
+    string? MarketingTitle,
+    string? MarketingDescription,
     CreatePropertyFilesModel Files
 );
 
 public record CreatePropertyFilesModel
 {
-    public required IFormFile Favicon { get; init; }
+    public  IFormFile? Favicon { get; init; }
     public required IFormFile Banner1 { get; set; }
     public required IFormFile Banner2 { get; set; }
 }

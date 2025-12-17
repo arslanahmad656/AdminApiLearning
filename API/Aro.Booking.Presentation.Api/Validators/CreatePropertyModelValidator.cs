@@ -32,16 +32,12 @@ public class CreatePropertyModelValidator : AbstractValidator<CreatePropertyMode
             .MaximumLength(500);
 
         RuleFor(p => p.KeySellingPoints)
-            .Must(points => points != null && points.Count <= 4);
+            .Must(points => points == null || points.Count <= 4);
 
         RuleFor(p => p.MarketingTitle)
-            .NotNull()
-            .NotEmpty()
             .MaximumLength(60);
 
         RuleFor(p => p.MarketingDescription)
-            .NotNull()
-            .NotEmpty()
             .MaximumLength(160);
 
         RuleFor(p => p.Files)
