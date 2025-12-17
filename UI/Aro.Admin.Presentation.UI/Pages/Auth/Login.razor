@@ -3,6 +3,7 @@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Authorization
+@using Aro.UI.Application.Exceptions
 @inject NavigationManager NavigationManager
 @inject IAuthenticationService AuthService
 @inject ApiAuthenticationStateProvider AuthStateProvider
@@ -12,7 +13,7 @@
 <div class="login-container">
     <div class="login-left-panel">
         <div class="logo-container">
-            <img src="aro-logo.svg" alt="ARO Digital Strategy" class="aro-logo-svg" />
+            <img src="aro-logo.svg" alt="ARO Digital Strategy - Company Logo" class="aro-logo-svg" role="img" />
         </div>
     </div>
 
@@ -26,11 +27,11 @@
             }
 
             <div class="login-header">
-                <h1 class="welcome-text">Welcome</h1>
-                <h2 class="login-text">Login</h2>
+                <h1 id="login-title" class="welcome-text">Welcome</h1>
+                <h2 id="login-subtitle" class="login-text">Login</h2>
             </div>
 
-            <MudForm @ref="form" Class="login-form">
+            <MudForm @ref="form" Class="login-form" role="form" aria-labelledby="login-title login-subtitle">
                 <MudTextField @bind-Value="model.Email"
                               Label="Email"
                               Variant="Variant.Outlined"
@@ -47,7 +48,7 @@
                               Label="Password"
                               Variant="Variant.Outlined"
                               InputType="@passwordInputType"
-                              Class="login-input"
+                              Class="login-input password-field"
                               Required="true"
                               RequiredError="Password is required"
                               Immediate="true"
@@ -60,13 +61,13 @@
                               tabindex="2" />
 
                 <div class="remember-me-container">
-                    <MudCheckBox @bind-Value="model.RememberMe" Color="Color.Dark" tabindex="3" aria-label="Remember me checkbox">
+                    <MudCheckBox @bind-Value="model.RememberMe" Color="Color.Dark" tabindex="4" aria-label="Remember me checkbox">
                         Remember me
                     </MudCheckBox>
                 </div>
 
                 <div class="forgot-password-container">
-                    <span>Forgot your password? <MudLink Href="/forgot-password" Underline="Underline.Always" Color="Color.Dark">Reset here.</MudLink></span>
+                    <span>Forgot your password? <MudLink Href="/forgot-password" Underline="Underline.Always" Color="Color.Dark" tabindex="5" aria-label="Reset password link">Reset here.</MudLink></span>
                 </div>
 
                 <div class="login-button-container">
@@ -75,8 +76,8 @@
                                OnClick="HandleLogin"
                                Disabled="@IsLoginDisabled"
                                FullWidth="false"
-                               aria-label="Login button"
-                               tabindex="4">
+                               aria-label="@(IsLoginDisabled ? "Login button disabled - please fill in email and password" : "Login button")"
+                               tabindex="6">
                         @if (isLoading)
                         {
                             <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
@@ -163,6 +164,18 @@
                 Snackbar.Add("Invalid email or password. Please try again.", MudBlazor.Severity.Error);
             }
         }
+        catch (AccountLockedException lockEx)
+        {
+            Snackbar.Clear();
+            if (lockEx.RemainingMinutes > 0)
+            {
+                Snackbar.Add($"Your account has been locked due to too many failed attempts. Please try again in {lockEx.RemainingMinutes} minute(s).", MudBlazor.Severity.Error);
+            }
+            else
+            {
+                Snackbar.Add("Your account has been locked due to too many failed attempts. Please try again later.", MudBlazor.Severity.Error);
+            }
+        }
         catch (HttpRequestException)
         {
             Snackbar.Clear();
@@ -175,17 +188,7 @@
         }
         catch (Exception ex)
         {
-            // Check for account locked scenario (assuming API returns specific message)
-            if (ex.Message.Contains("locked", StringComparison.OrdinalIgnoreCase) ||
-                ex.Message.Contains("too many attempts", StringComparison.OrdinalIgnoreCase))
-            {
-                Snackbar.Clear();
-                Snackbar.Add("Your account has been locked due to too many failed attempts. Please try again later or contact support.", MudBlazor.Severity.Error);
-            }
-            else
-            {
-                ErrorHandler.ShowError(ex, "An unexpected error occurred during login. Please try again.");
-            }
+            ErrorHandler.ShowError(ex, "An unexpected error occurred during login. Please try again.");
         }
         finally
         {

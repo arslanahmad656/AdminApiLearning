@@ -1,4 +1,5 @@
 using Aro.Admin.Presentation.Entry.Extensions;
+using AspNetCoreRateLimit;
 
 try
 {
@@ -13,6 +14,13 @@ try
     app.UseGlobalExceptionHandler();
     app.UseRequestLogging();
 
+    // CORS must be before rate limiting so CORS headers are added to all responses
+    app.UseRouting();
+    app.UseCors(app.Environment.EnvironmentName);
+
+    // Rate limiting middleware - must be before authentication but after CORS
+    app.UseIpRateLimiting();
+
     await app.MigrateDatabase(builder.Configuration).ConfigureAwait(false);
     await app.SeedDatabase(Path.Combine(@"AppData\PermissionSeed.json"), @"AppData\EmailTemplates").ConfigureAwait(false);
     await app.CreateBootstrapUser().ConfigureAwait(false);
@@ -23,10 +31,6 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
     }
-
-    app.UseRouting();
-
-    app.UseCors(app.Environment.EnvironmentName);
 
     app.UseHttpsRedirection();
 

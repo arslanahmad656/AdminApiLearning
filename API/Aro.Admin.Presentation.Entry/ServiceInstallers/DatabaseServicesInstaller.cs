@@ -1,4 +1,5 @@
-﻿using Aro.Admin.Application.Services.Email;
+﻿using Aro.Admin.Application.Services.AccountLockout;
+using Aro.Admin.Application.Services.Email;
 using Aro.Admin.Application.Services.Migration;
 using Aro.Admin.Application.Services.PermissionSeeder;
 using Aro.Admin.Application.Services.Role;
@@ -55,5 +56,6 @@ internal class DatabaseServicesInstaller : IServiceInstaller
         builder.Services.AddScoped<IRoomService, RoomService>();
         builder.Services.AddScoped<IAmenityService, AmenityService>();
         builder.Services.AddScoped<IPolicyService, PolicyService>();
+        builder.Services.AddScoped<IAccountLockoutService, AccountLockoutService>();
     }
 }

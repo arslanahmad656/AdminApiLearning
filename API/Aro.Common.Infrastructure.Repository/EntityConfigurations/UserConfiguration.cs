@@ -51,5 +51,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
               .HasForeignKey<ContactInfo>(c => c.Id)
               .OnDelete(DeleteBehavior.Cascade)
               .IsRequired(false);
+
+        // Account lockout configuration
+        builder.Property(u => u.FailedLoginAttempts)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        builder.Property(u => u.LockoutEnd)
+            .IsRequired(false);
     }
 }

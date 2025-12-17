@@ -15,5 +15,6 @@ public class OptionsInstaller : IServiceInstaller
         builder.Services.Configure<BootstrapUserSettings>(builder.Configuration.GetSection("BootstrapUser"));
         builder.Services.Configure<PasswordHistorySettings>(builder.Configuration.GetSection("PasswordHistorySettings"));
         builder.Services.Configure<PasswordPolicyOptions>(builder.Configuration.GetSection("PasswordPolicy"));
+        builder.Services.Configure<AccountLockoutSettings>(builder.Configuration.GetSection("AccountLockoutSettings"));
     }
 }

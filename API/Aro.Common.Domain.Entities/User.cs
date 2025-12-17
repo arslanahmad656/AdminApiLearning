@@ -12,4 +12,8 @@ public class User : IEntity
     public bool IsSystem { get; set; }
     public ICollection<UserRole> UserRoles { get; set; }
     public ContactInfo ContactInfo { get; set; }
+
+    // Account lockout properties
+    public int FailedLoginAttempts { get; set; } = 0;
+    public DateTime? LockoutEnd { get; set; }
 }
