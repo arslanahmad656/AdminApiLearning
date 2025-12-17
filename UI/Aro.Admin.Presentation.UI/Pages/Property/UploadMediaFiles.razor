@@ -374,7 +374,7 @@
     // Validation - requires at least one banner image and a favicon
     private bool IsFormValid()
     {
-        return uploadedImages.Count > 0 && !string.IsNullOrEmpty(faviconFileName);
+        return uploadedImages.Count > 0;
     }
 
     private void HandleClose()

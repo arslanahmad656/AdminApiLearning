@@ -53,7 +53,7 @@ public class PropertyService(
             Currency = propertyDto.Currency,
             Description = propertyDto.Description,
             CreatedAt = DateTime.UtcNow,
-            KeySellingPoints = string.Join(Constants.DatabaseStringSplitter, propertyDto.KeySellingPoints),
+            KeySellingPoints = propertyDto.KeySellingPoints !=null? string.Join(Constants.DatabaseStringSplitter, propertyDto.KeySellingPoints): null,
             MarketingTitle = propertyDto.MarketingTitle,
             MarketingDescription = propertyDto.MarketingDescription,
             UpdatedAt = null,
