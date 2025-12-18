@@ -12,10 +12,9 @@ public partial class AuthenticationService
 
         logger.LogDebug("Retrieved user for authentication, userId: {UserId}, email: {Email}", user.Id, email);
 
-        // Check if account is locked out
-        if (await accountLockoutService.IsLockedOutAsync(user.Id, cancellationToken).ConfigureAwait(false))
+        if (await accountLockoutService.IsLockedOut(user.Id, cancellationToken).ConfigureAwait(false))
         {
-            var lockoutEnd = await accountLockoutService.GetLockoutEndAsync(user.Id, cancellationToken).ConfigureAwait(false);
+            var lockoutEnd = await accountLockoutService.GetLockoutEnd(user.Id, cancellationToken).ConfigureAwait(false);
             var remainingMinutes = lockoutEnd.HasValue
                 ? (int)Math.Ceiling((lockoutEnd.Value - DateTime.UtcNow).TotalMinutes)
                 : 0;
@@ -32,15 +31,13 @@ public partial class AuthenticationService
 
         if (!isPasswordCorrect)
         {
-            // Record the failed attempt
-            await accountLockoutService.RecordFailedAttemptAsync(user.Id, cancellationToken).ConfigureAwait(false);
+            await accountLockoutService.RecordFailedAttempt(user.Id, cancellationToken).ConfigureAwait(false);
 
             logger.LogWarn("Authentication failed for email: {Email} - invalid password", email);
             throw new AroException(errorCodes.INVALID_PASSWORD, $"Invalid password for user {email}.");
         }
 
-        // Reset failed attempts on successful login
-        await accountLockoutService.ResetFailedAttemptsAsync(user.Id, cancellationToken).ConfigureAwait(false);
+        await accountLockoutService.ResetFailedAttempts(user.Id, cancellationToken).ConfigureAwait(false);
 
         logger.LogInfo("Generating access token for user: {UserId}", user.Id);
         var accessToken = await accessTokenService.GenerateAccessToken(user.Id, cancellationToken).ConfigureAwait(false);

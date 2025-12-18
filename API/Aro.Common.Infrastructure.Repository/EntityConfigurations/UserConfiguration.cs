@@ -52,10 +52,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
               .OnDelete(DeleteBehavior.Cascade)
               .IsRequired(false);
 
-        // Account lockout configuration
         builder.Property(u => u.FailedLoginAttempts)
-            .IsRequired()
-            .HasDefaultValue(0);
+            .IsRequired(false);
 
         builder.Property(u => u.LockoutEnd)
             .IsRequired(false);

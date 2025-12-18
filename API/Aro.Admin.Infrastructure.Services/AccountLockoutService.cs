@@ -15,7 +15,7 @@ public class AccountLockoutService(
 {
     private readonly AccountLockoutSettings _settings = settings.Value;
 
-    public async Task<bool> IsLockedOutAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<bool> IsLockedOut(Guid userId, CancellationToken cancellationToken = default)
     {
         logger.LogDebug("Checking lockout status for user: {UserId}", userId);
 
@@ -39,13 +39,12 @@ public class AccountLockoutService(
             return true;
         }
 
-        // Lockout has expired, reset the failed attempts
         logger.LogInfo("Lockout expired for user {UserId}, resetting failed attempts", userId);
-        await ResetFailedAttemptsAsync(userId, cancellationToken).ConfigureAwait(false);
+        await ResetFailedAttempts(userId, cancellationToken).ConfigureAwait(false);
         return false;
     }
 
-    public async Task<DateTime?> GetLockoutEndAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<DateTime?> GetLockoutEnd(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await commonRepository.UserRepository.GetById(userId)
             .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
@@ -53,7 +52,7 @@ public class AccountLockoutService(
         return user?.LockoutEnd;
     }
 
-    public async Task<int> GetFailedAttemptsAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task<int> GetFailedAttempts(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await commonRepository.UserRepository.GetById(userId)
             .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
@@ -61,7 +60,7 @@ public class AccountLockoutService(
         return user?.FailedLoginAttempts ?? 0;
     }
 
-    public async Task RecordFailedAttemptAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task RecordFailedAttempt(Guid userId, CancellationToken cancellationToken = default)
     {
         if (!_settings.EnableLockout)
         {
@@ -78,10 +77,10 @@ public class AccountLockoutService(
             return;
         }
 
-        user.FailedLoginAttempts++;
+        user.FailedLoginAttempts = (user.FailedLoginAttempts ?? 0) + 1;
         logger.LogInfo("Failed login attempt {AttemptCount} for user {UserId}", user.FailedLoginAttempts, userId);
 
-        if (user.FailedLoginAttempts >= _settings.MaxFailedAttempts)
+        if (user.FailedLoginAttempts.Value >= _settings.MaxFailedAttempts)
         {
             user.LockoutEnd = DateTime.UtcNow.AddMinutes(_settings.LockoutDurationMinutes);
             logger.LogWarn("User {UserId} locked out until {LockoutEnd} after {Attempts} failed attempts",
@@ -92,7 +91,7 @@ public class AccountLockoutService(
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
     }
 
-    public async Task ResetFailedAttemptsAsync(Guid userId, CancellationToken cancellationToken = default)
+    public async Task ResetFailedAttempts(Guid userId, CancellationToken cancellationToken = default)
     {
         var user = await commonRepository.UserRepository.GetById(userId)
             .SingleOrDefaultAsync(cancellationToken).ConfigureAwait(false);
@@ -103,12 +102,12 @@ public class AccountLockoutService(
             return;
         }
 
-        if (user.FailedLoginAttempts == 0 && user.LockoutEnd == null)
+        if ((user.FailedLoginAttempts ?? 0) == 0 && user.LockoutEnd == null)
         {
-            return; // Nothing to reset
+            return;
         }
 
-        user.FailedLoginAttempts = 0;
+        user.FailedLoginAttempts = null;
         user.LockoutEnd = null;
 
         commonRepository.UserRepository.Update(user);

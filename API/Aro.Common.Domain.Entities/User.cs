@@ -13,7 +13,6 @@ public class User : IEntity
     public ICollection<UserRole> UserRoles { get; set; }
     public ContactInfo ContactInfo { get; set; }
 
-    // Account lockout properties
-    public int FailedLoginAttempts { get; set; } = 0;
+    public int? FailedLoginAttempts { get; set; }
     public DateTime? LockoutEnd { get; set; }
 }

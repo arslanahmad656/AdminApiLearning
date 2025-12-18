@@ -26,7 +26,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogManager logge
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)(ex switch
             {
-                AroAccountLockedException => HttpStatusCode.TooManyRequests, // 429
+                AroAccountLockedException => HttpStatusCode.TooManyRequests,
                 AroUnauthorizedException => HttpStatusCode.Unauthorized,
                 AroUserPermissionException => HttpStatusCode.Forbidden,
                 AroNotFoundException => HttpStatusCode.NotFound,

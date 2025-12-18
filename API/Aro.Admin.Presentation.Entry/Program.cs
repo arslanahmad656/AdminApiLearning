@@ -7,18 +7,14 @@ try
 
     builder.InstallServices();
 
-    // Configure the HTTP request pipeline.
-
     var app = builder.Build();
 
     app.UseGlobalExceptionHandler();
     app.UseRequestLogging();
 
-    // CORS must be before rate limiting so CORS headers are added to all responses
     app.UseRouting();
     app.UseCors(app.Environment.EnvironmentName);
 
-    // Rate limiting middleware - must be before authentication but after CORS
     app.UseIpRateLimiting();
 
     await app.MigrateDatabase(builder.Configuration).ConfigureAwait(false);
