@@ -319,11 +319,22 @@
                !string.IsNullOrWhiteSpace(wizardModel.Description);
     }
 
-    private void HandleClose()
+    private async Task HandleClose()
     {
-        // Don't save on close - user is canceling
-        NavigationManager.NavigateTo("/");
+        var groupIdString = await JSRuntime.InvokeAsync<string>(
+            "localStorage.getItem",
+            "SelectedGroupId"
+        );
+
+        if (string.IsNullOrWhiteSpace(groupIdString) ||
+            !Guid.TryParse(groupIdString, out var groupId))
+        {
+            return;
+        }
+
+        NavigationManager.NavigateTo($"/group/view/{groupId}");
     }
+
 
     private void HandleBack()
     {
@@ -665,8 +676,8 @@
         margin: 0 0 8px 0;
     }
 
-    .char-count.zero {
-        color: #FF4D4F;
-        font-weight: bold;
-    }
+        .char-count.zero {
+            color: #FF4D4F;
+            font-weight: bold;
+        }
 </style>
