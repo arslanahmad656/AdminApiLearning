@@ -157,31 +157,35 @@
                          @ondrop="() => HandleDrop(rule)">
                         <div class="rule-content">
                             <span class="rule-name">@rule.Name</span>
-                            <span class="status-badge @(rule.IsActive ? "active" : "inactive")">
-                                @(rule.IsActive ? "Active" : "Inactive")
-                            </span>
                         </div>
                         <div class="rule-actions">
+                                <span class="status-badge @(rule.IsActive ? "active" : "inactive")">
+                                    @(rule.IsActive ? "Active" : "Inactive")
+                                </span>
                             <button class="action-btn" title="Edit" @onclick="() => HandleEditRule(rule)" @onclick:stopPropagation="true">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="#737373"/>
-                                </svg>
+                                <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M0 15V12.2727H14V15H0ZM2.8 9.54545H3.78L9.24 4.24432L8.2425 3.27273L2.8 8.59091V9.54545ZM1.4 10.9091V8.01136L9.24 0.392045C9.36833 0.267045 9.51708 0.170455 9.68625 0.102273C9.85542 0.0340909 10.0333 0 10.22 0C10.4067 0 10.5875 0.0340909 10.7625 0.102273C10.9375 0.170455 11.095 0.272727 11.235 0.409091L12.1975 1.36364C12.3375 1.48864 12.4396 1.63636 12.5038 1.80682C12.5679 1.97727 12.6 2.15341 12.6 2.33523C12.6 2.50568 12.5679 2.6733 12.5038 2.83807C12.4396 3.00284 12.3375 3.15341 12.1975 3.28977L4.375 10.9091H1.4Z" fill="#1C1B1F" />
+                                    </svg>
                             </button>
                             <button class="action-btn" title="Duplicate" @onclick="async () => await HandleDuplicateRule(rule)" @onclick:stopPropagation="true">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="#737373"/>
-                                </svg>
+                                <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M11.4286 14V15.25C11.4286 15.6642 11.0448 16 10.5714 16H0.857143C0.38375 16 0 15.6642 0 15.25V3.75C0 3.33578 0.38375 3 0.857143 3H3.42857V12.25C3.42857 13.215 4.32575 14 5.42857 14H11.4286ZM11.4286 3.25V0H5.42857C4.95518 0 4.57143 0.335781 4.57143 0.75V12.25C4.57143 12.6642 4.95518 13 5.42857 13H15.1429C15.6163 13 16 12.6642 16 12.25V4H12.2857C11.8143 4 11.4286 3.6625 11.4286 3.25ZM15.749 2.28034L13.3939 0.219656C13.2332 0.0790133 13.0151 1.03999e-06 12.7878 0L12.5714 0V3H16V2.81066C16 2.61175 15.9097 2.42099 15.749 2.28034Z" fill="black" />
+                                    </svg>
                             </button>
                             <button class="action-btn delete" title="Delete" @onclick="async () => await HandleDeleteRule(rule)" @onclick:stopPropagation="true">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="#737373"/>
-                                </svg>
+                                <svg width="24" height="24" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M2.6377 15.8262C2.15412 15.8262 1.74015 15.654 1.39578 15.3097C1.05142 14.9653 0.879233 14.5513 0.879233 14.0677V2.6377H0V0.879233H4.39617V0H9.67157V0.879233H14.0677V2.6377H13.1885V14.0677C13.1885 14.5513 13.0163 14.9653 12.672 15.3097C12.3276 15.654 11.9136 15.8262 11.43 15.8262H2.6377ZM11.43 2.6377H2.6377V14.0677H11.43V2.6377ZM4.39617 12.3093H6.15463V4.39617H4.39617V12.3093ZM7.9131 12.3093H9.67157V4.39617H7.9131V12.3093Z" fill="#1C1B1F" />
+                                    </svg>
                             </button>
                         </div>
                         <div class="drag-handle" title="Drag to reorder">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M11 18C11 19.1 10.1 20 9 20C7.9 20 7 19.1 7 18C7 16.9 7.9 16 9 16C10.1 16 11 16.9 11 18ZM9 10C7.9 10 7 10.9 7 12C7 13.1 7.9 14 9 14C10.1 14 11 13.1 11 12C11 10.9 10.1 10 9 10ZM9 4C7.9 4 7 4.9 7 6C7 7.1 7.9 8 9 8C10.1 8 11 7.1 11 6C11 4.9 10.1 4 9 4ZM15 8C16.1 8 17 7.1 17 6C17 4.9 16.1 4 15 4C13.9 4 13 4.9 13 6C13 7.1 13.9 8 15 8ZM15 10C13.9 10 13 10.9 13 12C13 13.1 13.9 14 15 14C16.1 14 17 13.1 17 12C17 10.9 16.1 10 15 10ZM15 16C13.9 16 13 16.9 13 18C13 19.1 13.9 20 15 20C16.1 20 17 19.1 17 18C17 16.9 16.1 16 15 16Z" fill="#BDBDBD"/>
-                            </svg>
+                                <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <line x1="0.5" y1="8.86517" x2="23.5876" y2="8.86517" stroke="#434343" stroke-linecap="round" />
+                                    <line x1="0.5" y1="12.8907" x2="23.5876" y2="12.8907" stroke="#434343" stroke-linecap="round" />
+                                    <line x1="0.5" y1="16.9034" x2="23.5876" y2="16.9034" stroke="#434343" stroke-linecap="round" />
+                                    <path d="M12.0437 0L15.5448 6.06409H8.5426L12.0437 0Z" fill="#434343" />
+                                    <path d="M9.40869 20.7799L14.6792 20.7799L12.0444 25.3444L9.40869 20.7799Z" fill="#434343" stroke="#434343" />
+                                </svg>
                         </div>
                     </div>
                 }

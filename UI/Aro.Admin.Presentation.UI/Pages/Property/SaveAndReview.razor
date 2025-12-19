@@ -270,8 +270,19 @@
 
     private async Task HandleClose()
     {
-        NavigationManager.NavigateTo("/");
+        var groupIdString = await JSRuntime.InvokeAsync<string>(
+            "localStorage.getItem",
+            "SelectedGroupId"
+        );
+
+        if (string.IsNullOrWhiteSpace(groupIdString) ||
+            !Guid.TryParse(groupIdString, out var groupId))
+        {
+            return;
+        }
+        NavigationManager.NavigateTo($"/group/view/{groupId}");
     }
+
 }
 <style>
     /* Main Container */

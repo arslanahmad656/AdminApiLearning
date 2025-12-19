@@ -13,7 +13,7 @@
     <!-- Header Bar -->
     <div class="wizard-header">
         <h1 class="header-title">Create New Property</h1>
-        <div class="close-icon">
+        <div class="close-icon" @onclick="HandleClose">
             <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <line x1="1" y1="1" x2="16" y2="16" stroke="white" stroke-width="2" />
                 <line x1="16" y1="1" x2="1" y2="16" stroke="white" stroke-width="2" />
@@ -252,6 +252,21 @@
         {
             Console.WriteLine($"Error saving to localStorage: {ex.Message}");
         }
+    }
+
+    private async Task HandleClose()
+    {
+        var groupIdString = await JSRuntime.InvokeAsync<string>(
+            "localStorage.getItem",
+            "SelectedGroupId"
+        );
+
+        if (string.IsNullOrWhiteSpace(groupIdString) ||
+            !Guid.TryParse(groupIdString, out var groupId))
+        {
+            return;
+        }
+        NavigationManager.NavigateTo($"/group/view/{groupId}");
     }
 
     // Validation - requires both meta title and description
