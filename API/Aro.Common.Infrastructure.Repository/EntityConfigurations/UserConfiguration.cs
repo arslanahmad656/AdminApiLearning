@@ -51,5 +51,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
               .HasForeignKey<ContactInfo>(c => c.Id)
               .OnDelete(DeleteBehavior.Cascade)
               .IsRequired(false);
+
+        builder.Property(u => u.FailedLoginAttempts)
+            .IsRequired(false);
+
+        builder.Property(u => u.LockoutEnd)
+            .IsRequired(false);
     }
 }

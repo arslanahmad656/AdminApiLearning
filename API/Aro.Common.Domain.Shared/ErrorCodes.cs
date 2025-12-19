@@ -19,6 +19,7 @@ public class ErrorCodes
     public readonly string USER_DOES_NOT_HAVE_PERMISSION = nameof(USER_DOES_NOT_HAVE_PERMISSION);
     public readonly string USER_NOT_AUTHENTICATED = nameof(USER_NOT_AUTHENTICATED);
     public readonly string INVALID_PASSWORD = nameof(INVALID_PASSWORD);
+    public readonly string ACCOUNT_LOCKED = nameof(ACCOUNT_LOCKED);
     public readonly string NO_AVAILABLE_ACTIVE_REFRESH_TOKEN_FOR_USER = nameof(NO_AVAILABLE_ACTIVE_REFRESH_TOKEN_FOR_USER);
     public readonly string NO_AVAILABLE_ACTIVE_REFRESH_TOKEN = nameof(NO_AVAILABLE_ACTIVE_REFRESH_TOKEN);
     public readonly string INVALID_REFRESH_TOKEN = nameof(INVALID_REFRESH_TOKEN);

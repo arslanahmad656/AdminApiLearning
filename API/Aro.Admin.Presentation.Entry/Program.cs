@@ -1,4 +1,5 @@
 using Aro.Admin.Presentation.Entry.Extensions;
+using AspNetCoreRateLimit;
 
 try
 {
@@ -6,12 +7,15 @@ try
 
     builder.InstallServices();
 
-    // Configure the HTTP request pipeline.
-
     var app = builder.Build();
 
     app.UseGlobalExceptionHandler();
     app.UseRequestLogging();
+
+    app.UseRouting();
+    app.UseCors(app.Environment.EnvironmentName);
+
+    app.UseIpRateLimiting();
 
     await app.MigrateDatabase(builder.Configuration).ConfigureAwait(false);
     await app.SeedDatabase(Path.Combine(@"AppData\PermissionSeed.json"), @"AppData\EmailTemplates").ConfigureAwait(false);
@@ -23,10 +27,6 @@ try
         app.UseSwagger();
         app.UseSwaggerUI();
     }
-
-    app.UseRouting();
-
-    app.UseCors(app.Environment.EnvironmentName);
 
     app.UseHttpsRedirection();
 

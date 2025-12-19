@@ -1,5 +1,6 @@
 ﻿using Aro.Admin.Application.Repository;
 using Aro.Admin.Application.Services.AccessToken;
+using Aro.Admin.Application.Services.AccountLockout;
 using Aro.Admin.Application.Services.Authentication;
 using Aro.Admin.Application.Services.Hasher;
 using Aro.Admin.Application.Services.User;
@@ -14,7 +15,8 @@ namespace Aro.Admin.Infrastructure.Services;
 
 public partial class AuthenticationService(IHasher haser, IUserService userService, IAccessTokenService accessTokenService, IRefreshTokenService refreshTokenService,
     Application.Repository.IRepositoryManager repositoryManager, IUnitOfWork unitOfWork, IUniqueIdGenerator idGenerator, ITokenBlackListService tokenBlackListService,
-    IActiveAccessTokenService activeAccessTokenService, ErrorCodes errorCodes, ILogManager<AuthenticationService> logger, IRequestInterpretorService currentUserService, ISystemContextFactory systemContextFactory) : IAuthenticationService
+    IActiveAccessTokenService activeAccessTokenService, ErrorCodes errorCodes, ILogManager<AuthenticationService> logger, IRequestInterpretorService currentUserService,
+    ISystemContextFactory systemContextFactory, IAccountLockoutService accountLockoutService) : IAuthenticationService
 {
     private readonly IRefreshTokenRepository refreshTokenRepo = repositoryManager.RefreshTokenRepository;
 

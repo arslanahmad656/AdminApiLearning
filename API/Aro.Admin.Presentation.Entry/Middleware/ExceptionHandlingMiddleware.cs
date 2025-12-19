@@ -1,4 +1,4 @@
-﻿namespace Aro.Admin.Presentation.Entry.Middleware;
+namespace Aro.Admin.Presentation.Entry.Middleware;
 
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
@@ -8,6 +8,11 @@ using System.Text.Json;
 
 public class ExceptionHandlingMiddleware(RequestDelegate next, ILogManager logger, ErrorCodes errorCodes)
 {
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+    };
+
     public async Task InvokeAsync(HttpContext context)
     {
         try
@@ -21,6 +26,7 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogManager logge
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)(ex switch
             {
+                AroAccountLockedException => HttpStatusCode.TooManyRequests,
                 AroUnauthorizedException => HttpStatusCode.Unauthorized,
                 AroUserPermissionException => HttpStatusCode.Forbidden,
                 AroNotFoundException => HttpStatusCode.NotFound,
@@ -28,14 +34,25 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogManager logge
             });
 
             var errorCode = ex is AroException aroEx ? aroEx.ErrorCode
-                : ex is OperationCanceledException opEx ? errorCodes.OPERATION_CANCELLED_ERROR
+                : ex is OperationCanceledException ? errorCodes.OPERATION_CANCELLED_ERROR
                 : errorCodes.UNKNOWN_ERROR;
-            var response = new Error(errorCode, ex.Message);
 
-            var json = JsonSerializer.Serialize(response);
+            string json;
+            if (ex is AroAccountLockedException lockedException)
+            {
+                var lockoutResponse = new LockoutError(errorCode, ex.Message, lockedException.LockoutEnd);
+                json = JsonSerializer.Serialize(lockoutResponse, JsonOptions);
+            }
+            else
+            {
+                var response = new Error(errorCode, ex.Message);
+                json = JsonSerializer.Serialize(response, JsonOptions);
+            }
+
             await context.Response.WriteAsync(json);
         }
     }
 }
 
 file record Error(string ErrorCode, string ErrorMessage);
+file record LockoutError(string ErrorCode, string ErrorMessage, DateTime LockoutEnd);

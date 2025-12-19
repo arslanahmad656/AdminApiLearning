@@ -12,4 +12,7 @@ public class User : IEntity
     public bool IsSystem { get; set; }
     public ICollection<UserRole> UserRoles { get; set; }
     public ContactInfo ContactInfo { get; set; }
+
+    public int? FailedLoginAttempts { get; set; }
+    public DateTime? LockoutEnd { get; set; }
 }

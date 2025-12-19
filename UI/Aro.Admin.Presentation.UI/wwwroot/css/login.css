@@ -112,6 +112,12 @@
     color: #1C1B1F !important;
 }
 
+.login-input .mud-input-adornment button:focus-visible {
+    outline: 2px solid #F69126 !important;
+    outline-offset: 2px !important;
+    border-radius: 50% !important;
+}
+
 .login-input .mud-input-adornment svg {
     fill: #1C1B1F !important;
     color: #1C1B1F !important;
@@ -167,18 +173,18 @@
     background: #FF931E !important;
 }
 
-/* Disabled Login Button */
+/* Disabled Login Button - WCAG AA compliant contrast */
 .login-button:disabled,
 .login-button-disabled {
-    background: #C3C3C3 !important;
-    color: #737373 !important;
+    background: #E5E5E5 !important;
+    color: #525252 !important; /* 4.6:1 contrast ratio with #E5E5E5 */
     cursor: not-allowed !important;
-    opacity: 0.7 !important;
+    opacity: 1 !important;
 }
 
 .login-button:disabled:hover,
 .login-button-disabled:hover {
-    background: #C3C3C3 !important;
+    background: #E5E5E5 !important;
 }
 
 /* Focus indicators for accessibility */
@@ -196,27 +202,17 @@
     outline-offset: 2px !important;
 }
 
-/* Remove yellow/blue border from checkbox on focus */
-.remember-me-container .mud-checkbox,
-.remember-me-container .mud-checkbox *,
-.remember-me-container .mud-checkbox *:focus,
-.remember-me-container .mud-checkbox *:focus-visible,
-.remember-me-container .mud-checkbox *:focus-within {
-    outline: none !important;
-    box-shadow: none !important;
-    --bs-focus-ring-color: transparent !important;
-    --bs-focus-ring-width: 0 !important;
-}
-
-.remember-me-container .mud-button-root {
-    outline: none !important;
-    box-shadow: none !important;
-}
-
-.remember-me-container .mud-button-root:focus,
+/* Checkbox focus indicator - WCAG AA compliant */
 .remember-me-container .mud-button-root:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
+    outline: 2px solid #F69126 !important;
+    outline-offset: 2px !important;
+    border-radius: 4px !important;
+}
+
+.remember-me-container .mud-checkbox:focus-within {
+    outline: 2px solid #F69126 !important;
+    outline-offset: 2px !important;
+    border-radius: 4px !important;
 }
 
 .forgot-password-container a:focus-visible {

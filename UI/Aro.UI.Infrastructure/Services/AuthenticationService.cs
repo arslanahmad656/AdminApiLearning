@@ -1,5 +1,7 @@
-using Aro.UI.Application.Interfaces;
 using Aro.UI.Application.DTOs;
+using Aro.UI.Application.Exceptions;
+using Aro.UI.Application.Interfaces;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -35,9 +37,26 @@ public class AuthenticationService : IAuthenticationService
                     return authResponse;
                 }
             }
-            else
+            else if (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
+                // Account is locked - parse the lockout response
                 var errorContent = await response.Content.ReadAsStringAsync();
+                try
+                {
+                    var lockoutResponse = JsonSerializer.Deserialize<LockoutErrorResponse>(errorContent, new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    });
+
+                    throw new AccountLockedException(
+                        lockoutResponse?.ErrorMessage ?? "Account is locked due to too many failed login attempts.",
+                        lockoutResponse?.LockoutEnd);
+                }
+                catch (JsonException)
+                {
+                    // If we can't parse the response, throw a generic lockout exception
+                    throw new AccountLockedException("Account is locked due to too many failed login attempts. Please try again later.");
+                }
             }
 
             return null;
