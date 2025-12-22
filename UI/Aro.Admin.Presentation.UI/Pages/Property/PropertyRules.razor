@@ -202,9 +202,13 @@
     <div class="edit-panel @(isPanelOpen ? "open" : "")">
         <!-- Panel Header -->
         <div class="panel-header">
-            <span class="panel-title">@(isEditMode ? $"Edit {editModel.Name}" : "Add New Rule")</span>
+            <span class="panel-title">
+                @(isEditMode ? $"Edit {editModel.Name}" : "Add New Rule")
+            </span>
             <button class="panel-close-btn" @onclick="HandleClosePanel">X</button>
         </div>
+
+
 
         <!-- Panel Content -->
         <div class="panel-content">
@@ -1089,7 +1093,18 @@
         font-size: 24px;
         font-weight: 400;
         color: #FFFFFF;
+        /* 🔑 Ellipsis logic */
+        max-width: 70%; /* adjust as needed */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
+
+    /* Ensure close button never shrinks */
+    .panel-close-btn {
+        flex-shrink: 0;
+    }
+
 
     .panel-close-btn {
         background: none;
