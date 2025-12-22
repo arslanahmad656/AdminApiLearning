@@ -13,4 +13,5 @@ public class EntityTypes
     public readonly string Amenity = "Amenity";
     public readonly string FileResource = "FileResource";
     public readonly string Policy = "Policy";
+    public readonly string Country = "Country";
 }

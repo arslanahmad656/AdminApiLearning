@@ -17,6 +17,8 @@ public class MockRepositoryManager : IRepositoryManager
     public IRoleRepository RoleRepository => throw new NotImplementedException();
     public IUserRoleRepository UserRoleRepository => throw new NotImplementedException();
     public IFileResourceRepository FileResourceRepository => _fileResourceRepository;
+
+    public ICountryRepository CountryRepository => throw new NotImplementedException();
 }
 
 /// <summary>

@@ -18,6 +18,7 @@ using Aro.Common.Infrastructure.Repository;
 using Aro.Common.Infrastructure.Repository.Context;
 using Aro.Common.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
+using Aro.Admin.Application.Services.CountriesSeeder;
 
 namespace Aro.Admin.Presentation.Entry.ServiceInstallers;
 
@@ -57,5 +58,6 @@ internal class DatabaseServicesInstaller : IServiceInstaller
         builder.Services.AddScoped<IAmenityService, AmenityService>();
         builder.Services.AddScoped<IPolicyService, PolicyService>();
         builder.Services.AddScoped<IAccountLockoutService, AccountLockoutService>();
+        builder.Services.AddScoped<ICountrySeeder, CountrySeeder>();
     }
 }

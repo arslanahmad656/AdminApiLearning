@@ -83,4 +83,11 @@ public class ErrorCodes
     #region [ROLE]
     public readonly string ROLE_NOT_FOUND = nameof(ROLE_NOT_FOUND);
     #endregion
+
+    #region [Country Service Error]
+
+    public readonly string COUNTRY_RETRIEVAL_ERROR = nameof(COUNTRY_RETRIEVAL_ERROR);
+    public readonly string COUNTRY_CREATION_ERROR = nameof(COUNTRY_CREATION_ERROR);
+
+    #endregion
 }

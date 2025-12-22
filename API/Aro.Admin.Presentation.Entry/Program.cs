@@ -18,7 +18,7 @@ try
     app.UseIpRateLimiting();
 
     await app.MigrateDatabase(builder.Configuration).ConfigureAwait(false);
-    await app.SeedDatabase(Path.Combine(@"AppData\PermissionSeed.json"), @"AppData\EmailTemplates").ConfigureAwait(false);
+    await app.SeedDatabase(Path.Combine(@"AppData\PermissionSeed.json"), Path.Combine(@"AppData\EmailTemplates"), Path.Combine(@"AppData\CountryMetadata.json")).ConfigureAwait(false);
     await app.CreateBootstrapUser().ConfigureAwait(false);
 
     var enableSwagger = builder.Configuration.GetValue<bool>("EnableSwaggerUI");

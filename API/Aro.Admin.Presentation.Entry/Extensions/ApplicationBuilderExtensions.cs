@@ -29,7 +29,7 @@ public static class ApplicationBuilderExtensions
         }
     }
 
-    public static async Task SeedDatabase(this IApplicationBuilder app, string jsonPath, string emailTemplatesDirectory)
+    public static async Task SeedDatabase(this IApplicationBuilder app, string permissionJsonFilePath, string emailTemplatesDirectory, string countryJsonFilePath)
     {
         using var scope = app.ApplicationServices.CreateScope();
         var logger = scope.ServiceProvider.GetRequiredService<ILogManager>();
@@ -52,7 +52,7 @@ public static class ApplicationBuilderExtensions
 
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-        await mediator.Send(new SeedApplicationCommand(jsonPath, emailTemplatesDirectory));
+        await mediator.Send(new SeedApplicationCommand(permissionJsonFilePath, emailTemplatesDirectory, countryJsonFilePath));
     }
 
     public static async Task MigrateDatabase(this IApplicationBuilder app, IConfiguration configuration)

@@ -15,4 +15,6 @@ public interface IRepositoryManager
     IUserRoleRepository UserRoleRepository { get; }
 
     IFileResourceRepository FileResourceRepository { get; }
+
+    ICountryRepository CountryRepository { get; }
 }

@@ -28,6 +28,7 @@ public class AuditActions
     public readonly string AmenityCreated = "AMENITY_CREATED";
     public readonly string PolicyCreated = "POLICY_CREATED";
     public readonly string FileCreated = "FILE_CREATED";
+    public readonly string CountriesCreated = "COUNTRIES_CREATED";
 
     #endregion
 
