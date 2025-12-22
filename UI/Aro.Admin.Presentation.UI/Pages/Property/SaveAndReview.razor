@@ -248,9 +248,19 @@
                 await JSRuntime.InvokeVoidAsync("localStorage.removeItem", GetStorageKey());
 
                 Snackbar.Add("Property created successfully!", MudBlazor.Severity.Success);
+                var groupIdString = await JSRuntime.InvokeAsync<string>(
+                            "localStorage.getItem",
+                            "SelectedGroupId"
+                        );
 
+                if (string.IsNullOrWhiteSpace(groupIdString) ||
+                    !Guid.TryParse(groupIdString, out var groupId))
+                {
+                    NavigationManager.NavigateTo("/");
+                    return;
+                }
+                NavigationManager.NavigateTo($"/group/view/{groupId}");
                 // Navigate to property list or dashboard
-                NavigationManager.NavigateTo("/");
             }
             else
             {
