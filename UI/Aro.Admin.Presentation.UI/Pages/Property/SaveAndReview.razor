@@ -126,16 +126,45 @@
 
             <!-- 4. Media Files -->
             <h3 class="review-section-title">4. MEDIA FILES</h3>
-            <div class="review-grid">
-                <div class="review-label">Banner 1</div>
-                <div class="review-value">@(wizardModel.Banner1?.FileName ?? "Not uploaded")</div>
-
-                <div class="review-label">Banner 2</div>
-                <div class="review-value">@(wizardModel.Banner2?.FileName ?? "Not uploaded")</div>
-
-                <div class="review-label">Favicon</div>
-                <div class="review-value">@(wizardModel.Favicon?.FileName ?? "Not uploaded")</div>
-            </div>
+            @if (!HasAnyMediaFiles())
+            {
+                <div class="review-no-media">No media files added.</div>
+            }
+            else
+            {
+                <div class="media-files-grid">
+                    @if (wizardModel.Banner1 != null && !string.IsNullOrEmpty(wizardModel.Banner1.Base64Data))
+                    {
+                        <div class="media-file-item">
+                            <div class="media-preview">
+                                <img src="@GetImageSrc(wizardModel.Banner1)" alt="Banner 1" />
+                            </div>
+                            <div class="media-file-name">@wizardModel.Banner1.FileName</div>
+                            <div class="media-file-label">Page Banner</div>
+                        </div>
+                    }
+                    @if (wizardModel.Banner2 != null && !string.IsNullOrEmpty(wizardModel.Banner2.Base64Data))
+                    {
+                        <div class="media-file-item">
+                            <div class="media-preview">
+                                <img src="@GetImageSrc(wizardModel.Banner2)" alt="Banner 2" />
+                            </div>
+                            <div class="media-file-name">@wizardModel.Banner2.FileName</div>
+                            <div class="media-file-label">Additional Banner</div>
+                        </div>
+                    }
+                    @if (wizardModel.Favicon != null && !string.IsNullOrEmpty(wizardModel.Favicon.Base64Data))
+                    {
+                        <div class="media-file-item">
+                            <div class="media-preview favicon-preview">
+                                <img src="@GetImageSrc(wizardModel.Favicon)" alt="Favicon" />
+                            </div>
+                            <div class="media-file-name">@wizardModel.Favicon.FileName</div>
+                            <div class="media-file-label">Favicon</div>
+                        </div>
+                    }
+                </div>
+            }
 
             <!-- 5. Meta Title & Description -->
             <h3 class="review-section-title">5. META TITLE & DESCRIPTION</h3>
@@ -230,6 +259,27 @@
         return types.Any() ? string.Join(", ", types) : "Not selected";
     }
 
+    private bool HasAnyMediaFiles()
+    {
+        return (wizardModel.Banner1 != null && !string.IsNullOrEmpty(wizardModel.Banner1.Base64Data)) ||
+               (wizardModel.Banner2 != null && !string.IsNullOrEmpty(wizardModel.Banner2.Base64Data)) ||
+               (wizardModel.Favicon != null && !string.IsNullOrEmpty(wizardModel.Favicon.Base64Data));
+    }
+
+    private string GetImageSrc(PropertyFileModel? file)
+    {
+        if (file == null || string.IsNullOrEmpty(file.Base64Data))
+            return string.Empty;
+
+        // If Base64Data already has data URL prefix, return as is
+        if (file.Base64Data.StartsWith("data:"))
+            return file.Base64Data;
+
+        // Otherwise, construct the data URL
+        var contentType = string.IsNullOrEmpty(file.ContentType) ? "image/png" : file.ContentType;
+        return $"data:{contentType};base64,{file.Base64Data}";
+    }
+
     private void GoBack() => NavigationManager.NavigateTo("/property/marketing-seo");
 
     private async Task SaveProperty()
@@ -249,8 +299,19 @@
 
                 Snackbar.Add("Property created successfully!", MudBlazor.Severity.Success);
 
-                // Navigate to property list or dashboard
-                NavigationManager.NavigateTo("/");
+                // Navigate to property list (ViewGroup page)
+                var groupIdString = await JSRuntime.InvokeAsync<string>(
+                            "localStorage.getItem",
+                            "SelectedGroupId"
+                        );
+
+                if (string.IsNullOrWhiteSpace(groupIdString) ||
+                    !Guid.TryParse(groupIdString, out var groupId))
+                {
+                    NavigationManager.NavigateTo("/");
+                    return;
+                }
+                NavigationManager.NavigateTo($"/group/view/{groupId}");
             }
             else
             {
@@ -554,6 +615,80 @@
         line-height: 24px;
         word-break: break-word;
     }
+
+    /* Media Files Section */
+    .review-no-media {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        color: #707070;
+        margin-bottom: 32px;
+        font-style: italic;
+    }
+
+    .media-files-grid {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+        margin-bottom: 32px;
+    }
+
+    .media-file-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .media-preview {
+        width: 150px;
+        height: 100px;
+        border: 1px solid #C3C3C3;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #F5F5F5;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .media-preview img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: cover;
+    }
+
+    .media-preview.favicon-preview {
+        width: 64px;
+        height: 64px;
+    }
+
+    .media-preview.favicon-preview img {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+    }
+
+    .media-file-name {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 14px;
+        color: #000000;
+        text-align: center;
+        max-width: 150px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .media-file-label {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 12px;
+        color: #707070;
+        text-align: center;
+    }
+
     .wizard-footer {
         display: flex;
         justify-content: flex-end;
