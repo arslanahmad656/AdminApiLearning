@@ -404,9 +404,19 @@
 
     private async Task HandleSaveRule()
     {
-        if (string.IsNullOrWhiteSpace(editModel.Name))
+        if (string.IsNullOrWhiteSpace(editModel.Name) && string.IsNullOrWhiteSpace(editModel.Description))
+        {
+            Snackbar.Add("Policy Title and Description is required", MudBlazor.Severity.Warning);
+            return;
+        }
+        else if (string.IsNullOrWhiteSpace(editModel.Name))
         {
             Snackbar.Add("Policy title is required", MudBlazor.Severity.Warning);
+            return;
+        }
+        else if (string.IsNullOrWhiteSpace(editModel.Description))
+        {
+            Snackbar.Add("Policy Description is required", MudBlazor.Severity.Warning);
             return;
         }
 
