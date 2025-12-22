@@ -7,7 +7,7 @@ public record PropertyListItemResponse(
     Guid PropertyId,
     Guid GroupId,
     string PropertyName,
-    List<int> PropertyTypes,
+    List<string> PropertyTypes,
     int StarRating,
     string Currency,
     string? Description,

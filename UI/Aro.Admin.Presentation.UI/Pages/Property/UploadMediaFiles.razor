@@ -4,15 +4,18 @@
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.JSInterop
+@using MudBlazor
 @using Aro.UI.Application.DTOs
+@using Aro.Admin.Presentation.UI.Shared
 @layout WizardLayout
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 
 <div class="property-wizard-container">
     <!-- Header Bar -->
     <div class="wizard-header">
-        <h1 class="header-title">Create New Property</h1>
+        <h1 class="header-title">@(wizardModel.IsEditMode ? "Edit Property" : "Create New Property")</h1>
         <div class="close-icon" @onclick="HandleClose">
             <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <line x1="1" y1="1" x2="16" y2="16" stroke="white" stroke-width="2" />
@@ -24,62 +27,10 @@
     <div class="wizard-body">
         <!-- Left Sidebar with Steps -->
         <div class="wizard-sidebar">
-            <div class="wizard-steps">
-                <div class="wizard-step completed">
-                    <div class="step-indicator">
-                        <div class="step-number completed-check">
-                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-                                <path d="M1 5L6 10L15 1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <div class="step-line completed"></div>
-                    </div>
-                    <div class="step-title">Property Information</div>
-                </div>
-                <div class="wizard-step completed">
-                    <div class="step-indicator">
-                        <div class="step-number completed-check">
-                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-                                <path d="M1 5L6 10L15 1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <div class="step-line completed"></div>
-                    </div>
-                    <div class="step-title">Address & Primary Contact</div>
-                </div>
-                <div class="wizard-step completed">
-                    <div class="step-indicator">
-                        <div class="step-number completed-check">
-                            <svg width="16" height="12" viewBox="0 0 16 12" fill="none">
-                                <path d="M1 5L6 10L15 1" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                        </div>
-                        <div class="step-line completed"></div>
-                    </div>
-                    <div class="step-title">Key Selling Points</div>
-                </div>
-                <div class="wizard-step active">
-                    <div class="step-indicator">
-                        <div class="step-number">4</div>
-                        <div class="step-line"></div>
-                    </div>
-                    <div class="step-title">Media Files</div>
-                </div>
-
-                <div class="wizard-step">
-                    <div class="step-indicator">
-                        <div class="step-number">5</div>
-                        <div class="step-line"></div>
-                    </div>
-                    <div class="step-title">Marketing & SEO</div>
-                </div>
-                <div class="wizard-step">
-                    <div class="step-indicator">
-                        <div class="step-number">6</div>
-                    </div>
-                    <div class="step-title">Review & Save</div>
-                </div>
-            </div>
+            <WizardSteps StepTitles="@stepTitles"
+                         ActiveStepIndex="3"
+                         IsEditMode="@wizardModel.IsEditMode"
+                         OnStepClick="HandleStepClick" />
         </div>
 
         <!-- Main Content Area -->
@@ -155,8 +106,10 @@
             <!-- Footer Buttons -->
             <WizardFooter OnBack="HandleBack"
                           OnNext="HandleNext"
+                          OnSave="HandleSave"
                           BackDisabled="false"
-                          NextDisabled="@(!IsFormValid())" />
+                          NextDisabled="@(!IsFormValid())"
+                          ShowSave="@wizardModel.IsEditMode" />
         </div>
     </div>
 </div>
@@ -169,8 +122,31 @@
     private PropertyWizardModel wizardModel = new();
     private List<ImageModel> uploadedImages = new();
     private string? faviconFileName = string.Empty;
+    private string? faviconUrl = null;
+    private bool isFaviconExisting = false;
     private InputFile? fileInput;
     private Guid? _currentGroupId = null;
+    private Guid? _currentPropertyId = null;
+
+    private readonly List<string> stepTitles = new()
+    {
+        "Property Information",
+        "Address & Primary Contact",
+        "Key Selling Points",
+        "Media Files",
+        "Marketing & SEO",
+        "Review & Save"
+    };
+
+    private readonly string[] stepRoutes = new[]
+    {
+        "/property/information",
+        "/property/address-contact",
+        "/property/key-selling-points",
+        "/property/media-files",
+        "/property/marketing-seo",
+        "/property/review-save"
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -181,20 +157,27 @@
         }
     }
 
-    private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId);
+    private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId, _currentPropertyId);
 
     private async Task LoadFromLocalStorage()
     {
         try
         {
-            // FIRST: Always try to get GroupId from SelectedGroupId in localStorage
+            // Get GroupId from localStorage
             var groupIdStr = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "SelectedGroupId");
             if (!string.IsNullOrEmpty(groupIdStr) && Guid.TryParse(groupIdStr, out var parsedGroupId))
             {
                 _currentGroupId = parsedGroupId;
             }
 
-            // Now load the wizard data with the correct storage key
+            // Get PropertyId from localStorage (for edit mode)
+            var propertyIdStr = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "CurrentPropertyId");
+            if (!string.IsNullOrEmpty(propertyIdStr) && Guid.TryParse(propertyIdStr, out var parsedPropertyId))
+            {
+                _currentPropertyId = parsedPropertyId;
+            }
+
+            // Load the wizard data with the correct storage key (create vs edit)
             var storageKey = GetStorageKey();
             var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey);
             if (!string.IsNullOrEmpty(json))
@@ -211,29 +194,40 @@
                         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", _currentGroupId.Value.ToString());
                     }
 
-                    // Restore uploaded images from wizardModel
+                    // Sync _currentPropertyId from wizardModel if in edit mode
+                    if (!_currentPropertyId.HasValue && wizardModel.PropertyId.HasValue && wizardModel.PropertyId.Value != Guid.Empty)
+                    {
+                        _currentPropertyId = wizardModel.PropertyId;
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "CurrentPropertyId", _currentPropertyId.Value.ToString());
+                    }
+
+                    // Restore uploaded images from wizardModel (handles both Base64 and URL)
                     uploadedImages.Clear();
-                    if (wizardModel.Banner1 != null && !string.IsNullOrEmpty(wizardModel.Banner1.Base64Data))
+                    if (wizardModel.Banner1 != null && wizardModel.Banner1.HasData)
                     {
                         uploadedImages.Add(new ImageModel
                         {
                             Id = "banner1",
                             Name = wizardModel.Banner1.FileName,
-                            Url = wizardModel.Banner1.Base64Data
+                            Url = wizardModel.Banner1.GetDisplayUrl(),
+                            IsExisting = !wizardModel.Banner1.IsNewUpload
                         });
                     }
-                    if (wizardModel.Banner2 != null && !string.IsNullOrEmpty(wizardModel.Banner2.Base64Data))
+                    if (wizardModel.Banner2 != null && wizardModel.Banner2.HasData)
                     {
                         uploadedImages.Add(new ImageModel
                         {
                             Id = "banner2",
                             Name = wizardModel.Banner2.FileName,
-                            Url = wizardModel.Banner2.Base64Data
+                            Url = wizardModel.Banner2.GetDisplayUrl(),
+                            IsExisting = !wizardModel.Banner2.IsNewUpload
                         });
                     }
-                    if (wizardModel.Favicon != null)
+                    if (wizardModel.Favicon != null && wizardModel.Favicon.HasData)
                     {
                         faviconFileName = wizardModel.Favicon.FileName;
+                        faviconUrl = wizardModel.Favicon.GetDisplayUrl();
+                        isFaviconExisting = !wizardModel.Favicon.IsNewUpload;
                     }
                 }
             }
@@ -267,20 +261,64 @@
                 _currentGroupId = wizardModel.GroupId;
             }
 
-            // Sync banner images to wizardModel
-            wizardModel.Banner1 = uploadedImages.Count > 0 ? new PropertyFileModel
+            // Sync banner images to wizardModel (handle both new uploads and existing files)
+            if (uploadedImages.Count > 0)
             {
-                FileName = uploadedImages[0].Name,
-                ContentType = GetContentTypeFromDataUrl(uploadedImages[0].Url),
-                Base64Data = uploadedImages[0].Url
-            } : null;
+                var img = uploadedImages[0];
+                if (img.IsExisting)
+                {
+                    // Existing image from API - preserve URL
+                    wizardModel.Banner1 = new PropertyFileModel
+                    {
+                        FileName = img.Name,
+                        Url = img.Url,
+                        FileId = wizardModel.ExistingBanner1Id
+                    };
+                }
+                else
+                {
+                    // Newly uploaded image - store Base64
+                    wizardModel.Banner1 = new PropertyFileModel
+                    {
+                        FileName = img.Name,
+                        ContentType = GetContentTypeFromDataUrl(img.Url),
+                        Base64Data = img.Url
+                    };
+                }
+            }
+            else
+            {
+                wizardModel.Banner1 = null;
+            }
 
-            wizardModel.Banner2 = uploadedImages.Count > 1 ? new PropertyFileModel
+            if (uploadedImages.Count > 1)
             {
-                FileName = uploadedImages[1].Name,
-                ContentType = GetContentTypeFromDataUrl(uploadedImages[1].Url),
-                Base64Data = uploadedImages[1].Url
-            } : null;
+                var img = uploadedImages[1];
+                if (img.IsExisting)
+                {
+                    // Existing image from API - preserve URL
+                    wizardModel.Banner2 = new PropertyFileModel
+                    {
+                        FileName = img.Name,
+                        Url = img.Url,
+                        FileId = wizardModel.ExistingBanner2Id
+                    };
+                }
+                else
+                {
+                    // Newly uploaded image - store Base64
+                    wizardModel.Banner2 = new PropertyFileModel
+                    {
+                        FileName = img.Name,
+                        ContentType = GetContentTypeFromDataUrl(img.Url),
+                        Base64Data = img.Url
+                    };
+                }
+            }
+            else
+            {
+                wizardModel.Banner2 = null;
+            }
 
             wizardModel.CurrentStep = 4;
             var storageKey = GetStorageKey();
@@ -367,6 +405,8 @@
     {
         wizardModel.Favicon = null;
         faviconFileName = string.Empty;
+        faviconUrl = null;
+        isFaviconExisting = false;
         await SaveToLocalStorage();
         StateHasChanged();
     }
@@ -389,6 +429,11 @@
             return;
         }
 
+        // Clear localStorage when closing/canceling the wizard
+        var storageKey = GetStorageKey();
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", storageKey);
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "CurrentPropertyId");
+
         NavigationManager.NavigateTo($"/group/view/{groupId}");
     }
 
@@ -404,11 +449,47 @@
         NavigationManager.NavigateTo("/property/marketing-seo");
     }
 
+    private async Task HandleSave()
+    {
+        await SaveToLocalStorage();
+        // In edit mode, "Save" navigates to Review & Save step
+        NavigationManager.NavigateTo("/property/review-save");
+    }
+
+    private async Task HandleStepClick(int stepIndex)
+    {
+        if (!wizardModel.IsEditMode) return;
+
+        // Show unsaved changes modal
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { CloseButton = false, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<UnsavedChangesModal>("Unsaved Changes", parameters, options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled) return;
+
+        var action = (UnsavedChangesModal.UnsavedChangesResult)result.Data!;
+        switch (action)
+        {
+            case UnsavedChangesModal.UnsavedChangesResult.SaveAndContinue:
+                await SaveToLocalStorage();
+                NavigationManager.NavigateTo(stepRoutes[stepIndex]);
+                break;
+            case UnsavedChangesModal.UnsavedChangesResult.Discard:
+                NavigationManager.NavigateTo(stepRoutes[stepIndex]);
+                break;
+            case UnsavedChangesModal.UnsavedChangesResult.Cancel:
+                // Stay on current step
+                break;
+        }
+    }
+
     public class ImageModel
     {
         public string Id { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
+        public bool IsExisting { get; set; } = false;
     }
 }
 

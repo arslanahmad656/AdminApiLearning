@@ -5,16 +5,18 @@
 @using Microsoft.JSInterop
 @using MudBlazor
 @using Aro.UI.Application.DTOs
+@using Aro.Admin.Presentation.UI.Shared
 @layout WizardLayout
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @inject IPropertyService PropertyService
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <div class="property-wizard-container">
     <!-- Header Bar -->
     <div class="wizard-header">
-        <h1 class="header-title">Create New Property</h1>
+        <h1 class="header-title">@(wizardModel.IsEditMode ? "Edit Property" : "Create New Property")</h1>
         <div class="close-icon" @onclick="HandleClose">
             <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <line x1="1" y1="1" x2="16" y2="16" stroke="white" stroke-width="2" />
@@ -26,50 +28,10 @@
     <div class="wizard-body">
         <!-- Left Sidebar with Steps -->
         <div class="wizard-sidebar">
-            <div class="wizard-steps">
-                <div class="wizard-step active">
-                    <div class="step-indicator">
-                        <div class="step-number">1</div>
-                        <div class="step-line"></div>
-                    </div>
-                    <div class="step-title">Property Information</div>
-                </div>
-                <div class="wizard-step">
-                    <div class="step-indicator">
-                        <div class="step-number">2</div>
-                        <div class="step-line"></div>
-                    </div>
-                    <div class="step-title">Address & Primary Contact</div>
-                </div>
-                <div class="wizard-step">
-                    <div class="step-indicator">
-                        <div class="step-number">3</div>
-                        <div class="step-line"></div>
-                    </div>
-                    <div class="step-title">Key Selling Points</div>
-                </div>
-                <div class="wizard-step">
-                    <div class="step-indicator">
-                        <div class="step-number">4</div>
-                        <div class="step-line"></div>
-                    </div>
-                    <div class="step-title">Media Files</div>
-                </div>
-
-                <div class="wizard-step">
-                    <div class="step-indicator">
-                        <div class="step-number">5</div>
-                        <div class="step-line"></div>
-                    </div>
-                    <div class="step-title">Marketing & SEO</div>
-                </div>
-                <div class="wizard-step">
-                    <div class="step-indicator">
-                        <div class="step-number">6</div>
-                    </div>
-                    <div class="step-title">Review & Save</div>
-                </div>
-            </div>
+            <WizardSteps StepTitles="@stepTitles"
+                         ActiveStepIndex="0"
+                         IsEditMode="@wizardModel.IsEditMode"
+                         OnStepClick="HandleStepClick" />
         </div>
 
         <!-- Main Content Area -->
@@ -189,8 +151,10 @@
             <!-- Footer with Buttons -->
             <WizardFooter OnBack="HandleBack"
                           OnNext="HandleNext"
+                          OnSave="HandleSave"
                           BackDisabled="true"
-                          NextDisabled="@(!IsFormValid())" />
+                          NextDisabled="@(!IsFormValid())"
+                          ShowSave="@wizardModel.IsEditMode" />
         </div>
     </div>
 </div>
@@ -204,10 +168,39 @@
     private bool isPropertyNameFocused = false;
     private bool isDescriptionFocused = false;
     private Guid? _currentGroupId = null;
+    private Guid? _currentPropertyId = null;
+
+    private readonly List<string> stepTitles = new()
+    {
+        "Property Information",
+        "Address & Primary Contact",
+        "Key Selling Points",
+        "Media Files",
+        "Marketing & SEO",
+        "Review & Save"
+    };
+
+    private readonly string[] stepRoutes = new[]
+    {
+        "/property/information",
+        "/property/address-contact",
+        "/property/key-selling-points",
+        "/property/media-files",
+        "/property/marketing-seo",
+        "/property/review-save"
+    };
 
     [Parameter]
     [SupplyParameterFromQuery(Name = "groupId")]
     public Guid GroupId { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "propertyId")]
+    public Guid? PropertyId { get; set; }
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "edit")]
+    public bool IsEditMode { get; set; }
 
     private int GetPropertyNameRemainingChars() => MaxPropertyNameLength - (wizardModel.PropertyName?.Length ?? 0);
     private int GetDescriptionRemainingChars() => MaxDescriptionLength - (wizardModel.Description?.Length ?? 0);
@@ -231,27 +224,37 @@
         }
     }
 
-    private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId);
+    private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId, _currentPropertyId);
 
     private async Task LoadFromLocalStorage()
     {
         try
         {
-            // FIRST: Always try to get GroupId from SelectedGroupId in localStorage
+            // Get GroupId from localStorage
             var groupIdStr = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "SelectedGroupId");
             if (!string.IsNullOrEmpty(groupIdStr) && Guid.TryParse(groupIdStr, out var parsedGroupId))
             {
                 _currentGroupId = parsedGroupId;
             }
-            // SECOND: If not in localStorage, check query param
             else if (GroupId != Guid.Empty)
             {
                 _currentGroupId = GroupId;
-                // Save it to localStorage for subsequent pages
                 await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", GroupId.ToString());
             }
 
-            // Now load the wizard data with the correct storage key
+            // Get PropertyId from localStorage (for edit mode)
+            var propertyIdStr = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "CurrentPropertyId");
+            if (!string.IsNullOrEmpty(propertyIdStr) && Guid.TryParse(propertyIdStr, out var parsedPropertyId))
+            {
+                _currentPropertyId = parsedPropertyId;
+            }
+            else if (PropertyId.HasValue && PropertyId.Value != Guid.Empty)
+            {
+                _currentPropertyId = PropertyId;
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "CurrentPropertyId", PropertyId.Value.ToString());
+            }
+
+            // Load the wizard data with the correct storage key (create vs edit)
             var storageKey = GetStorageKey();
             var json = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey);
             if (!string.IsNullOrEmpty(json))
@@ -266,6 +269,13 @@
                     {
                         _currentGroupId = wizardModel.GroupId;
                         await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", _currentGroupId.Value.ToString());
+                    }
+
+                    // Sync _currentPropertyId from wizardModel if in edit mode
+                    if (!_currentPropertyId.HasValue && wizardModel.PropertyId.HasValue && wizardModel.PropertyId.Value != Guid.Empty)
+                    {
+                        _currentPropertyId = wizardModel.PropertyId;
+                        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "CurrentPropertyId", _currentPropertyId.Value.ToString());
                     }
                 }
             }
@@ -332,6 +342,11 @@
             return;
         }
 
+        // Clear the wizard localStorage data on close
+        var storageKey = GetStorageKey();
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", storageKey);
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "CurrentPropertyId");
+
         NavigationManager.NavigateTo($"/group/view/{groupId}");
     }
 
@@ -349,6 +364,44 @@
 
         await SaveToLocalStorage();
         NavigationManager.NavigateTo("/property/address-contact");
+    }
+
+    private async Task HandleSave()
+    {
+        if (isSubmitting) return;
+        if (!IsFormValid()) return;
+
+        await SaveToLocalStorage();
+        // In edit mode, "Save" navigates to Review & Save step
+        NavigationManager.NavigateTo("/property/review-save");
+    }
+
+    private async Task HandleStepClick(int stepIndex)
+    {
+        if (!wizardModel.IsEditMode) return;
+
+        // Show unsaved changes modal
+        var parameters = new DialogParameters();
+        var options = new DialogOptions { CloseButton = false, MaxWidth = MaxWidth.Small };
+        var dialog = await DialogService.ShowAsync<UnsavedChangesModal>("Unsaved Changes", parameters, options);
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled) return;
+
+        var action = (UnsavedChangesModal.UnsavedChangesResult)result.Data!;
+        switch (action)
+        {
+            case UnsavedChangesModal.UnsavedChangesResult.SaveAndContinue:
+                await SaveToLocalStorage();
+                NavigationManager.NavigateTo(stepRoutes[stepIndex]);
+                break;
+            case UnsavedChangesModal.UnsavedChangesResult.Discard:
+                NavigationManager.NavigateTo(stepRoutes[stepIndex]);
+                break;
+            case UnsavedChangesModal.UnsavedChangesResult.Cancel:
+                // Stay on current step
+                break;
+        }
     }
 
     // Shorthand property for binding in the form

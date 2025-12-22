@@ -1,0 +1,112 @@
+@* Unsaved Changes Modal - Shown when navigating away with unsaved changes in edit mode *@
+
+<MudDialog>
+    <TitleContent>
+        <div class="modal-title">
+            <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Warning" Class="modal-icon" />
+            <span>Unsaved Changes</span>
+        </div>
+    </TitleContent>
+    <DialogContent>
+        <p class="modal-message">
+            You have unsaved changes. What would you like to do?
+        </p>
+    </DialogContent>
+    <DialogActions>
+        <div class="modal-actions">
+            <MudButton OnClick="Cancel" Variant="Variant.Outlined" Class="cancel-btn">
+                Cancel
+            </MudButton>
+            <MudButton OnClick="Discard" Variant="Variant.Outlined" Color="Color.Error" Class="discard-btn">
+                Discard Changes
+            </MudButton>
+            <MudButton OnClick="SaveAndContinue" Variant="Variant.Filled" Class="save-btn">
+                Save & Continue
+            </MudButton>
+        </div>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    public enum UnsavedChangesResult
+    {
+        Cancel,
+        Discard,
+        SaveAndContinue
+    }
+
+    private void Cancel()
+    {
+        MudDialog?.Close(DialogResult.Ok(UnsavedChangesResult.Cancel));
+    }
+
+    private void Discard()
+    {
+        MudDialog?.Close(DialogResult.Ok(UnsavedChangesResult.Discard));
+    }
+
+    private void SaveAndContinue()
+    {
+        MudDialog?.Close(DialogResult.Ok(UnsavedChangesResult.SaveAndContinue));
+    }
+}
+
+<style>
+    .modal-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 600;
+        font-size: 20px;
+        color: #000000;
+    }
+
+    .modal-icon {
+        font-size: 28px;
+    }
+
+    .modal-message {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 16px;
+        color: #1C1B1F;
+        margin: 0;
+        padding: 8px 0;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        padding: 8px 0;
+    }
+
+    .cancel-btn {
+        color: #666666 !important;
+        border-color: #C3C3C3 !important;
+    }
+
+    .cancel-btn:hover {
+        background-color: #F5F5F5 !important;
+    }
+
+    .discard-btn {
+        color: #D32F2F !important;
+        border-color: #D32F2F !important;
+    }
+
+    .discard-btn:hover {
+        background-color: #FFEBEE !important;
+    }
+
+    .save-btn {
+        background-color: #FF931E !important;
+        color: #FFFFFF !important;
+    }
+
+    .save-btn:hover {
+        background-color: #E8850F !important;
+    }
+</style>

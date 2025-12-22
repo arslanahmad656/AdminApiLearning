@@ -88,6 +88,73 @@ public class PropertyController(
         return Ok(response);
     }
 
+    [HttpPut("update")]
+    [Permissions(PermissionCodes.PatchProperty)]
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UpdateProperty(
+        [FromForm] UpdatePropertyModel model,
+        CancellationToken cancellationToken
+        )
+    {
+        logger.LogDebug("Starting UpdateProperty operation for property: {PropertyId}",
+            model.PropertyId);
+
+        var fileData = new List<UpdatePropertyRequest.FileData>();
+        if (model.Files?.Favicon is not null)
+        {
+            var favicon = new MemoryStream();
+            await model.Files.Favicon.CopyToAsync(favicon, cancellationToken).ConfigureAwait(false);
+            favicon.Position = 0;
+            fileData.Add(new(nameof(model.Files.Favicon), favicon));
+        }
+
+        if (model.Files?.Banner1 is not null)
+        {
+            var banner1 = new MemoryStream();
+            await model.Files.Banner1.CopyToAsync(banner1, cancellationToken).ConfigureAwait(false);
+            banner1.Position = 0;
+            fileData.Add(new(nameof(model.Files.Banner1), banner1));
+        }
+
+        if (model.Files?.Banner2 is not null)
+        {
+            var banner2 = new MemoryStream();
+            await model.Files.Banner2.CopyToAsync(banner2, cancellationToken).ConfigureAwait(false);
+            banner2.Position = 0;
+            fileData.Add(new(nameof(model.Files.Banner2), banner2));
+        }
+
+        var response = await mediator.Send(new UpdatePropertyCommand(
+            new(
+                model.PropertyId,
+                model.GroupId,
+                model.PropertyName,
+                model.PropertyTypes,
+                model.StarRating,
+                model.Currency,
+                model.Description,
+                model.AddressLine1,
+                model.AddressLine2,
+                model.City,
+                model.Country,
+                model.PostalCode,
+                model.PhoneNumber,
+                model.Website,
+                model.ContactName,
+                model.ContactEmail,
+                model.KeySellingPoints,
+                model.MarketingTitle,
+                model.MarketingDescription,
+                fileData.Count > 0 ? fileData : null
+            )
+        ), cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed UpdateProperty operation successfully with Id: {PropertyId}",
+            response.PropertyId);
+
+        return Ok(response);
+    }
+
     [HttpGet("getbyid/{groupId:Guid}/{propertyId:Guid}")]
     public async Task<IActionResult> GetProperty(Guid groupId, Guid propertyId)
     {

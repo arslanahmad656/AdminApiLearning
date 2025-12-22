@@ -19,4 +19,10 @@ public interface IPropertyService
     /// Gets a property by its group ID and property ID.
     /// </summary>
     Task<GetPropertyByIdResponse?> GetPropertyByIdAsync(Guid groupId, Guid propertyId);
+
+    /// <summary>
+    /// Updates an existing property with all wizard data including file uploads.
+    /// Sends multipart/form-data to the API.
+    /// </summary>
+    Task<UpdatePropertyResponse?> UpdatePropertyAsync(PropertyWizardModel wizardData);
 }

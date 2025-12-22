@@ -13,7 +13,7 @@
 <div class="wizard-layout">
     <!-- Header Bar -->
     <div class="wizard-header">
-        <h1 class="header-title">Create New Property</h1>
+        <h1 class="header-title">@(wizardModel.IsEditMode ? "Edit Property" : "Create New Property")</h1>
         <div class="close-icon" @onclick="HandleClose">
             <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
                 <line x1="1" y1="1" x2="16" y2="16" stroke="white" stroke-width="2" />
@@ -133,7 +133,7 @@
             else
             {
                 <div class="media-files-grid">
-                    @if (wizardModel.Banner1 != null && !string.IsNullOrEmpty(wizardModel.Banner1.Base64Data))
+                    @if (wizardModel.Banner1 != null && wizardModel.Banner1.HasData)
                     {
                         <div class="media-file-item">
                             <div class="media-preview">
@@ -143,7 +143,7 @@
                             <div class="media-file-label">Page Banner</div>
                         </div>
                     }
-                    @if (wizardModel.Banner2 != null && !string.IsNullOrEmpty(wizardModel.Banner2.Base64Data))
+                    @if (wizardModel.Banner2 != null && wizardModel.Banner2.HasData)
                     {
                         <div class="media-file-item">
                             <div class="media-preview">
@@ -153,7 +153,7 @@
                             <div class="media-file-label">Additional Banner</div>
                         </div>
                     }
-                    @if (wizardModel.Favicon != null && !string.IsNullOrEmpty(wizardModel.Favicon.Base64Data))
+                    @if (wizardModel.Favicon != null && wizardModel.Favicon.HasData)
                     {
                         <div class="media-file-item">
                             <div class="media-preview favicon-preview">
@@ -199,6 +199,7 @@
     private PropertyWizardModel wizardModel = new();
     private bool isSaving = false;
     private Guid? _currentGroupId = null;
+    private Guid? _currentPropertyId = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -209,7 +210,7 @@
         }
     }
 
-    private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId);
+    private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId, _currentPropertyId);
 
     private async Task LoadFromLocalStorage()
     {
@@ -220,6 +221,13 @@
             if (!string.IsNullOrEmpty(groupIdStr) && Guid.TryParse(groupIdStr, out var parsedGroupId))
             {
                 _currentGroupId = parsedGroupId;
+            }
+
+            // Get CurrentPropertyId for edit mode
+            var propertyIdStr = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "CurrentPropertyId");
+            if (!string.IsNullOrEmpty(propertyIdStr) && Guid.TryParse(propertyIdStr, out var parsedPropertyId))
+            {
+                _currentPropertyId = parsedPropertyId;
             }
 
             // Now load the wizard data with the correct storage key
@@ -261,23 +269,26 @@
 
     private bool HasAnyMediaFiles()
     {
-        return (wizardModel.Banner1 != null && !string.IsNullOrEmpty(wizardModel.Banner1.Base64Data)) ||
-               (wizardModel.Banner2 != null && !string.IsNullOrEmpty(wizardModel.Banner2.Base64Data)) ||
-               (wizardModel.Favicon != null && !string.IsNullOrEmpty(wizardModel.Favicon.Base64Data));
+        return (wizardModel.Banner1 != null && wizardModel.Banner1.HasData) ||
+               (wizardModel.Banner2 != null && wizardModel.Banner2.HasData) ||
+               (wizardModel.Favicon != null && wizardModel.Favicon.HasData);
     }
 
     private string GetImageSrc(PropertyFileModel? file)
     {
-        if (file == null || string.IsNullOrEmpty(file.Base64Data))
+        if (file == null || !file.HasData)
             return string.Empty;
 
-        // If Base64Data already has data URL prefix, return as is
-        if (file.Base64Data.StartsWith("data:"))
-            return file.Base64Data;
+        // Use GetDisplayUrl which handles both URL and Base64Data
+        var displayUrl = file.GetDisplayUrl();
 
-        // Otherwise, construct the data URL
+        // If it's already a URL (starts with http) or data URL, return as is
+        if (displayUrl.StartsWith("http") || displayUrl.StartsWith("data:"))
+            return displayUrl;
+
+        // Otherwise, construct the data URL from Base64
         var contentType = string.IsNullOrEmpty(file.ContentType) ? "image/png" : file.ContentType;
-        return $"data:{contentType};base64,{file.Base64Data}";
+        return $"data:{contentType};base64,{displayUrl}";
     }
 
     private void GoBack() => NavigationManager.NavigateTo("/property/marketing-seo");
@@ -290,14 +301,34 @@
 
         try
         {
-            var response = await PropertyService.CreatePropertyAsync(wizardModel);
+            bool success = false;
+            string successMessage = "";
+            string errorMessage = "";
 
-            if (response != null)
+            if (wizardModel.IsEditMode && wizardModel.PropertyId.HasValue)
+            {
+                // Update existing property
+                var updateResponse = await PropertyService.UpdatePropertyAsync(wizardModel);
+                success = updateResponse != null;
+                successMessage = "Property updated successfully!";
+                errorMessage = "Failed to update property. Please try again.";
+            }
+            else
+            {
+                // Create new property
+                var createResponse = await PropertyService.CreatePropertyAsync(wizardModel);
+                success = createResponse != null;
+                successMessage = "Property created successfully!";
+                errorMessage = "Failed to create property. Please try again.";
+            }
+
+            if (success)
             {
                 // Clear localStorage after successful save
                 await JSRuntime.InvokeVoidAsync("localStorage.removeItem", GetStorageKey());
+                await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "CurrentPropertyId");
 
-                Snackbar.Add("Property created successfully!", MudBlazor.Severity.Success);
+                Snackbar.Add(successMessage, MudBlazor.Severity.Success);
 
                 // Navigate to property list (ViewGroup page)
                 var groupIdString = await JSRuntime.InvokeAsync<string>(
@@ -315,12 +346,13 @@
             }
             else
             {
-                Snackbar.Add("Failed to create property. Please try again.", MudBlazor.Severity.Error);
+                Snackbar.Add(errorMessage, MudBlazor.Severity.Error);
             }
         }
         catch (Exception ex)
         {
-            ErrorHandler.ShowError(ex, "An error occurred while creating the property. Please try again.");
+            var action = wizardModel.IsEditMode ? "updating" : "creating";
+            ErrorHandler.ShowError(ex, $"An error occurred while {action} the property. Please try again.");
         }
         finally
         {
@@ -341,6 +373,12 @@
         {
             return;
         }
+
+        // Clear localStorage when closing/canceling the wizard
+        var storageKey = GetStorageKey();
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", storageKey);
+        await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "CurrentPropertyId");
+
         NavigationManager.NavigateTo($"/group/view/{groupId}");
     }
 
