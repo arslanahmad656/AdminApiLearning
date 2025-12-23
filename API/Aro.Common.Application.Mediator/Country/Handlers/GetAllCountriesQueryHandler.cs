@@ -11,7 +11,7 @@ public class GetAllCountriesQueryHandler(ICountryService countryService) : IRequ
     {
         var serviceResponse = await countryService.GetAll(cancellationToken).ConfigureAwait(false);
 
-        var response = new GetAllCountriesResponse([.. serviceResponse.Select(c => new GetCountryResponse(c.Id, c.Name, c.OfficialName, c.ISO2, c.PostalCodeRegex, c.PhoneNumberRegex, c.PhoneNumberRegex))]);
+        var response = new GetAllCountriesResponse([.. serviceResponse.Select(c => new GetCountryResponse(c.Id, c.Name, c.OfficialName, c.ISO2, c.PostalCodeRegex, c.PhoneCountryCode, c.PhoneNumberRegex))]);
 
         return response;
     }
