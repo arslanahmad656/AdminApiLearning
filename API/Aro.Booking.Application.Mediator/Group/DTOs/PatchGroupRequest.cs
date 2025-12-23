@@ -8,7 +8,7 @@ public record PatchGroupRequest(
     string? City,
     string? PostalCode,
     string? Country,
-    byte[]? Logo,
+    GroupLogoDto? Logo,
     Guid? PrimaryContactId,
     bool? IsActive
 );

@@ -1,10 +1,10 @@
-﻿using Aro.Admin.Application.Services.Hasher;
-using Aro.Admin.Application.Services.Password;
+﻿using Aro.Admin.Application.Services.Password;
 using Aro.Admin.Application.Services.Role;
 using Aro.Admin.Application.Services.User;
 using Aro.Admin.Application.Shared.Options;
 using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.Authorization;
+using Aro.Common.Application.Services.Hasher;
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Application.Services.UniqueIdGenerator;
 using Aro.Common.Domain.Entities;
@@ -114,6 +114,25 @@ public partial class UserService(IRepositoryManager commonRepository, IUnitOfWor
 
         logger.LogDebug("Completed {MethodName}", nameof(GetUserByEmail));
         return response;
+    }
+
+    public async Task<bool> UserEmailExists(string email, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(UserEmailExists));
+
+        string[] requiredPermissions = [PermissionCodes.GetUser];
+        await authorizationService.EnsureCurrentUserPermissions(requiredPermissions, cancellationToken);
+        logger.LogDebug("Authorization verified for user retrieval by email");
+
+        var userExists = await userRepository.GetByEmail(email)
+            .AnyAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        logger.LogDebug("User with email: {Email} exists: {Exists}.", email, userExists);
+
+        logger.LogDebug("Completed {MethodName}", nameof(UserEmailExists));
+
+        return userExists;
     }
 
     public async Task<GetUserResponse> GetSystemUser(string systemPassword, CancellationToken cancellationToken = default)

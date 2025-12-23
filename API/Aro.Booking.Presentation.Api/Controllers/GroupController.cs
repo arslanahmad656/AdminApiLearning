@@ -1,37 +1,48 @@
 ﻿using Aro.Booking.Application.Mediator.Common.DTOs;
 using Aro.Booking.Application.Mediator.Group.Commands;
+using Aro.Booking.Application.Mediator.Group.DTOs;
 using Aro.Booking.Application.Mediator.Group.Queries;
 using Aro.Booking.Application.Mediator.Property.Queries;
-using Aro.Booking.Presentation.Api.DTOs;
+using Aro.Booking.Presentation.Api.DTOs.Group;
+using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Presentation.Shared.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace Aro.Booking.Presentation.Api.Controllers;
 
 [ApiController]
 [Route("api/group")]
 public class GroupController(
-    IMediator mediator
-    //ILogManager<GroupController> logger
+    IMediator mediator,
+    ILogManager<GroupController> logger
     ) : ControllerBase
 {
     [HttpPost("create")]
     [Permissions(PermissionCodes.CreateGroup)]
-    [Consumes("multipart/form-data")]
     public async Task<IActionResult> CreateGroup(
-        [FromForm] CreateGroupModel model,
+        [FromBody] CreateGroupModel model,
         CancellationToken cancellationToken
         )
     {
-        //logger.LogDebug("Starting CreateGroup operation for group: {0}",
-        //    model.GroupName);
+        logger.LogDebug("Starting CreateGroup operation for group: {0}",
+            model.GroupName);
 
-        var logo = new MemoryStream();
-        await model.Logo.CopyToAsync(logo, cancellationToken).ConfigureAwait(false);
-        logo.Position = 0;
+        var bytes = Convert.FromBase64String(model.Logo.ContentBase64);
+        var stream = new MemoryStream(bytes);
+
+        var logo = new GroupLogoDto(
+            model.Logo.Name,
+            stream
+        );
+
+        var primaryContact = new PrimaryContactDto(
+            model.PrimaryContact.Email,
+            model.PrimaryContact.Name,
+            model.PrimaryContact.CountryCode,
+            model.PrimaryContact.PhoneNumber
+        );
 
         var response = await mediator.Send(new CreateGroupCommand(
             new(
@@ -39,10 +50,10 @@ public class GroupController(
                 model.AddressLine1,
                 model.AddressLine2,
                 model.City,
-                model.PostalCode,
                 model.Country,
+                model.PostalCode,
                 logo,
-                model.PrimaryContactId,
+                primaryContact,
                 model.IsActive
             )
         ), cancellationToken).ConfigureAwait(false);
@@ -108,8 +119,21 @@ public class GroupController(
         CancellationToken cancellationToken
         )
     {
-        //logger.LogDebug("Starting PatchGroup operation for group: {0}",
-        //    groupId);
+        logger.LogDebug("Starting PatchGroup operation for group: {0}",
+            groupId);
+
+        GroupLogoDto? logo = null;
+
+        if (model.Logo != null)
+        {
+            var bytes = Convert.FromBase64String(model.Logo.ContentBase64);
+            var stream = new MemoryStream(bytes);
+
+            logo = new GroupLogoDto(
+                model.Logo.Name,
+                stream
+            );
+        }
 
         var response = await mediator.Send(new PatchGroupCommand(
             new(
@@ -120,13 +144,13 @@ public class GroupController(
                 model.City,
                 model.PostalCode,
                 model.Country,
-                model.Logo,
+                logo,
                 model.PrimaryContactId,
                 model.IsActive
             )
         ), cancellationToken).ConfigureAwait(false);
 
-        //logger.LogDebug("Completed PatchGroup operation successfully");
+        logger.LogDebug("Completed PatchGroup operation successfully");
 
         return Ok(response);
     }

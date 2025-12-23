@@ -1,4 +1,4 @@
-﻿using Aro.UI.Application.DTOs;
+﻿using Aro.UI.Application.DTOs.Group;
 using Aro.UI.Infrastructure.Services;
 using FluentValidation;
 
@@ -21,36 +21,48 @@ public class PrimaryContactModelFluentValidator : AbstractValidator<PrimaryConta
 
         RuleFor(x => x.Email)
             .NotEmpty()
-            .EmailAddress()
+            .EmailAddress();
+
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage("Email is required.")
+            .Matches(@"^[^@\s]+@[^@\s]+\.[^@\s]+$").WithMessage("Please enter a valid email address, e.g., user@example.com.")
             .MustAsync(async (model, email, cancellation) =>
             {
                 if (string.IsNullOrEmpty(email)) return false;
 
-                var user = await _userService.GetUserByEmail(new(email));
+                var user = await _userService.UserEmailExists(new(email));
 
-                if (model.IsEditMode)
+                if (model.Id == Guid.Empty)
                 {
-                    return user != null;
+                    // Create mode
+                    return !user;
                 }
-
-                return user == null;
+                else
+                {
+                    // Edit mode
+                    return user;
+                }
             })
-            .WithMessage(model => model.IsEditMode ? "Please enter an existing email" : "A user with this email already exists.");
+            .WithMessage(model => model.Id == Guid.Empty
+                ? "A user with this email already exists."
+                : "Please enter an existing user's email");
+
 
         RuleFor(x => x.CountryCode)
             .NotEmpty();
 
         RuleFor(x => x.PhoneNumber)
             .NotEmpty()
+            .WithMessage("Phone number is required")
             .Must((model, phone) =>
             {
-                return true;
+                if (string.IsNullOrWhiteSpace(model.CountryCode))
+                    return false;
 
-                // FIX IMPLEMENTATION
-                //if (string.IsNullOrWhiteSpace(model.CountryCode)) return false;
-                //return countryMetadataService.ValidateTelephone(model.CountryCode, phone);
+                return countryMetadataService.ValidateTelephone(model.CountryCode, phone);
             })
-            .WithMessage("Invalid phone number for selected country.");
+            .WithMessage("Invalid phone number for selected country");
+
     }
 }
 

@@ -9,4 +9,6 @@ public interface IUserService
     Task<GetUserResponse?> GetUserById(Guid guid);
 
     Task<GetUserResponse?> GetUserByEmail(GetUserByEmailRequest request);
+
+    Task<bool> UserEmailExists(GetUserByEmailRequest request);
 }

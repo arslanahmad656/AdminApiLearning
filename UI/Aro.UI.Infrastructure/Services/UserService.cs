@@ -1,6 +1,6 @@
+using Aro.UI.Application.DTOs;
 using System.Net.Http.Json;
 using System.Security.Cryptography;
-using Aro.UI.Application.DTOs;
 
 namespace Aro.UI.Infrastructure.Services;
 
@@ -34,6 +34,13 @@ public class UserService(HttpClient httpClient) : IUserService
 
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<GetUserResponse>();
+    }
+
+    public async Task<bool> UserEmailExists(GetUserByEmailRequest request)
+    {
+        var response = await _httpClient.PostAsJsonAsync($"api/user/email-exists", request);
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<bool>();
     }
 
     static string GenerateSecurePassword(int length = 32)

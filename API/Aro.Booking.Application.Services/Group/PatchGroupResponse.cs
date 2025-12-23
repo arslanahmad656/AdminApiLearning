@@ -8,7 +8,7 @@ public record PatchGroupResponse(
     string? City,
     string? PostalCode,
     string? Country,
-    byte[]? Logo,
+    Guid? LogoId,
     Guid? PrimaryContactId,
     bool? IsActive
 );

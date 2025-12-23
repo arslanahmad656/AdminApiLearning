@@ -4,6 +4,7 @@ using Aro.Booking.Domain.Entities;
 using Aro.Booking.Domain.Shared.Exceptions;
 using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.Authorization;
+using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Application.Services.UniqueIdGenerator;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Infrastructure.Shared.Extensions;
@@ -14,6 +15,7 @@ namespace Aro.Booking.Infrastructure.Services;
 public partial class AmenityService(
     Application.Repository.IRepositoryManager bookingRepository,
     IUnitOfWork unitOfWork,
+    ILogManager<AmenityService> logger,
     IAuthorizationService authorizationService,
     IUniqueIdGenerator idGenerator
 ) : IAmenityService
@@ -100,7 +102,7 @@ public partial class AmenityService(
             .ConfigureAwait(false) ??
             throw new AroAmenityNotFoundException(_amenity.Id.ToString());
 
-        _amenity.Name.PatchIfNotNull(v => existingAmenity.Name = v);
+        _amenity.Name.PatchIfNotNull(v => existingAmenity.Name = v, logger, nameof(existingAmenity.Name));
 
         amenityRepository.Update(existingAmenity);
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);

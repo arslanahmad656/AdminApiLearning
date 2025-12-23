@@ -5,10 +5,9 @@ public record CreateGroupDto(
     string AddressLine1,
     string? AddressLine2,
     string City,
-    string PostalCode,
     string Country,
-    Stream Logo,
-    Guid ContactId,
+    string PostalCode,
+    GroupLogo Logo,
+    PrimaryContact PrimaryContact,
     bool IsActive
 );
-

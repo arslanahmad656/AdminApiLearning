@@ -1,4 +1,4 @@
-﻿using Aro.UI.Application.DTOs;
+﻿using Aro.UI.Application.DTOs.CountryMetadata;
 
 namespace Aro.UI.Infrastructure.Services;
 public interface ICountryMetadataService

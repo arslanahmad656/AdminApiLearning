@@ -7,4 +7,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.1" PrivateAssets="none" IncludeAssets="all" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Aro.Common.Application.Services\Aro.Common.Application.Services.csproj" />
+  </ItemGroup>
+
 </Project>

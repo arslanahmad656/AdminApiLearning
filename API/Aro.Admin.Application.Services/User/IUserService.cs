@@ -1,5 +1,4 @@
-﻿using Aro.Admin.Application.Services.Role;
-using Aro.Common.Application.Shared;
+﻿using Aro.Common.Application.Shared;
 
 namespace Aro.Admin.Application.Services.User;
 
@@ -10,6 +9,8 @@ public interface IUserService : IService
     Task<GetUserResponse> GetUserById(Guid userId, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default);
 
     Task<GetUserResponse> GetUserByEmail(string email, bool includeRoles, bool includePasswordHash, CancellationToken cancellationToken = default);
+
+    Task<bool> UserEmailExists(string email, CancellationToken cancellationToken = default);
 
     Task<GetUserResponse> GetSystemUser(string systemPassword, CancellationToken cancellationToken = default);
 

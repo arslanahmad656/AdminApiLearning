@@ -5,9 +5,9 @@ public record CreateGroupRequest(
     string AddressLine1,
     string? AddressLine2,
     string City,
-    string PostalCode,
     string Country,
-    Stream Logo,
-    Guid PrimaryContactId,
+    string PostalCode,
+    GroupLogoDto Logo,
+    PrimaryContactDto PrimaryContact,
     bool IsActive
 );

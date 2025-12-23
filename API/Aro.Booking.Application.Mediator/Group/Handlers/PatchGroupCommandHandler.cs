@@ -19,7 +19,7 @@ public class PatchGroupCommandHandler(IGroupService groupService, IMediator medi
                 req.City,
                 req.PostalCode,
                 req.Country,
-                req.Logo,
+                req.Logo == null ? null : new(req.Logo.Name, req.Logo.Content),
                 req.PrimaryContactId,
                 req.IsActive
             ), cancellationToken
@@ -33,7 +33,7 @@ public class PatchGroupCommandHandler(IGroupService groupService, IMediator medi
                 res.City,
                 res.PostalCode,
                 res.Country,
-                res.Logo,
+                res.LogoId,
                 res.PrimaryContactId,
                 res.IsActive
             );

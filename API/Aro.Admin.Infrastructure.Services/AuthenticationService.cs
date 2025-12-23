@@ -2,9 +2,9 @@
 using Aro.Admin.Application.Services.AccessToken;
 using Aro.Admin.Application.Services.AccountLockout;
 using Aro.Admin.Application.Services.Authentication;
-using Aro.Admin.Application.Services.Hasher;
 using Aro.Admin.Application.Services.User;
 using Aro.Common.Application.Repository;
+using Aro.Common.Application.Services.Hasher;
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Application.Services.RequestInterpretor;
 using Aro.Common.Application.Services.SystemContext;

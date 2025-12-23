@@ -1,0 +1,224 @@
+﻿@using Aro.UI.Application.DTOs.Group
+
+@inject IValidator<PrimaryContactModel> PrimaryContactValidator
+@inject ICountryMetadataService CountryMetadataService
+
+<StepTitle StepNumber="2" Title="Primary Contact Details" />
+
+@if (Wizard.Entity is not null && Wizard.Entity.PrimaryContact is not null)
+{
+    var model = Wizard.Entity.PrimaryContact;
+
+    <MudForm @ref="primaryContactForm"
+             Model="model"
+             Validation="@(PrimaryContactValidator.GetValidateValue())">
+
+        <div class="row gy-2">
+
+            <!-- Name -->
+            <div class="col-sm-8 col-xl-4 @(!Wizard.IsCreateMode ? "d-none" : "")">
+                <div class="form-group">
+                    <label for="primary-name" class="form-label">Name *</label>
+                    <MudTextField @bind-Value="model.Name"
+                                  For="@(() => model.Name)"
+                                  id="primary-name"
+                                  Placeholder="Name"
+                                  Immediate
+                                  Required
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense" />
+                </div>
+            </div>
+
+            <div class="w-100"></div>
+
+            <!-- Email -->
+            <div class="col-sm-10 col-xl-6">
+                <div class="form-group">
+                    <label for="primary-email" class="form-label">Contact Email *</label>
+                    <MudTextField @bind-Value="model.Email"
+                                  For="@(() => model.Email)"
+                                  id="primary-email"
+                                  Placeholder="Email"
+                                  Required
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Dense" />
+                </div>
+            </div>
+
+            <div class="w-100"></div>
+
+            <!-- Phone -->
+            <div class="col-sm-6 col-xl-4 @(!Wizard.IsCreateMode ? "d-none" : "")">
+                <div class="form-group">
+                    <label for="primary-phone" class="form-label">Phone Number *</label>
+
+                    <div class="phone-number-input hstack align-items-center border-custom rounded-1 @GetPhoneBorderClass()">
+                        <!-- Flag -->
+                        <div class="py-1 px-3">
+                            <img src="@(SelectedCountry?.FlagUrl ?? "/flags/default.svg")" alt="Country Flag" class="flag-icon" />
+                        </div>
+
+                        <!-- Country code -->
+                        <MudSelect T="CountryOption"
+                                   @bind-Value="SelectedCountry"
+                                   Variant="Variant.Text"
+                                   Dense
+                                   Underline="false"
+                                   Class="py-1 px-3"
+                                   AriaLabel="Country calling code"
+                                   Placeholder="+ --"
+                                   Error="@false">
+                            @foreach (var c in _countryOptions)
+                            {
+                                <MudSelectItem Value="@c">
+                                    @($"+ {c.PhoneCode}")
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+
+                        <!-- Phone number -->
+                        <MudTextField @bind-Value="model.PhoneNumber"
+                                      Variant="Variant.Text"
+                                      Margin="Margin.Dense"
+                                      Underline="false"
+                                      Placeholder="Phone Number"
+                                      Class="@($"border-start-custom {(GetPhoneBorderClass())} py-1 px-3")" />
+                    </div>
+
+
+                </div>
+
+                <MudTextField @bind-Value="model.PhoneNumber"
+                              For="@(() => model.PhoneNumber)"
+                              Style="display:none;"
+                              Immediate="true" />
+
+            </div>
+
+        </div>
+    </MudForm>
+}
+
+<style>
+    .phone-number-input {
+        margin: 4px 0;
+        height: 40px;
+    }
+
+    .border-custom {
+        border: 1px solid;
+    }
+
+    .border-start-custom {
+        border-left: 1px solid;
+    }
+
+    .border-grey {
+        border-color: #C3C3C3;
+    }
+
+    .border-error {
+        border-color: var(--mud-palette-error);
+    }
+
+    .flag-icon {
+        width: 24px;
+        height: 18px;
+    }
+</style>
+
+@code {
+    [CascadingParameter]
+    public EntityWizardContext<GroupModel> Wizard { get; set; } = default!;
+
+    private MudForm? primaryContactForm;
+
+    private bool IsPhoneInvalid { get; set; } = false;
+
+    private readonly List<CountryOption> _countryOptions = new();
+
+    private CountryOption? _selectedCountry;
+
+    private CountryOption? SelectedCountry
+    {
+        get => _selectedCountry;
+        set
+        {
+            if (_selectedCountry == value)
+                return;
+
+            _selectedCountry = value;
+            Wizard.Entity!.PrimaryContact!.CountryCode = value?.PhoneCode;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CountryMetadataService.InitializeAsync();
+
+        _countryOptions.AddRange(
+            CountryMetadataService.GetAll().Select(c => new CountryOption
+            {
+                Code = c.ISO2,
+                PhoneCode = c.PhoneCountryCode,
+                PhoneRegex = c.PhoneNumberRegex,
+                FlagUrl = $"/flags/{c.ISO2.ToLowerInvariant()}.svg"
+            }));
+
+        SelectedCountry = _countryOptions.FirstOrDefault(c =>
+            c.PhoneCode == Wizard.Entity?.PrimaryContact?.CountryCode);
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Wizard.CurrentStepValidation = ValidateStepAsync;
+        }
+    }
+
+
+    private async Task<bool> ValidateStepAsync()
+    {
+        if (primaryContactForm is null)
+            return false;
+
+        await primaryContactForm.Validate();
+
+        IsPhoneInvalid = string.IsNullOrWhiteSpace(Wizard.Entity!.PrimaryContact!.PhoneNumber) ||
+                         SelectedCountry is null;
+
+        await InvokeAsync(StateHasChanged);
+
+        return primaryContactForm.IsValid && !IsPhoneInvalid;
+    }
+
+
+    public void Dispose()
+    {
+        Wizard.CurrentStepValidation = null;
+    }
+
+    private sealed class CountryOption
+    {
+        public string Code { get; init; } = string.Empty;
+        public string PhoneCode { get; init; } = string.Empty;
+        public string PhoneRegex { get; init; } = string.Empty;
+        public string FlagUrl { get; init; } = string.Empty;
+
+        public override bool Equals(object? obj)
+            => obj is CountryOption other &&
+               other.PhoneCode == PhoneCode &&
+               other.Code == Code;
+
+        public override int GetHashCode()
+            => HashCode.Combine(PhoneCode, Code);
+    }
+
+    private string GetPhoneBorderClass()
+    {
+        return IsPhoneInvalid ? "border-error" : "border-grey";
+    }
+
+}

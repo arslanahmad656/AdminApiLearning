@@ -232,15 +232,15 @@ public partial class RoomService(
             .ConfigureAwait(false)
             ?? throw new AroRoomNotFoundException(_room.Id.ToString());
 
-        _room.RoomName.PatchIfNotNull(v => existingRoom.RoomName = v);
-        _room.RoomCode.PatchIfNotNull(v => existingRoom.RoomCode = v);
-        _room.Description.PatchIfNotNull(v => existingRoom.Description = v);
-        _room.MaxOccupancy.PatchIfNotNull(v => existingRoom.MaxOccupancy = v);
-        _room.MaxAdults.PatchIfNotNull(v => existingRoom.MaxAdults = v);
-        _room.MaxChildren.PatchIfNotNull(v => existingRoom.MaxChildren = v);
-        _room.RoomSizeSQM.PatchIfNotNull(v => existingRoom.RoomSize = v);
-        _room.BedConfig.PatchIfNotNull(v => existingRoom.BedConfig = (Domain.Entities.BedConfiguration)v);
-        _room.IsActive.PatchIfNotNull(v => existingRoom.IsActive = v);
+        _room.RoomName.PatchIfNotNull(v => existingRoom.RoomName = v, logger, nameof(existingRoom.RoomName));
+        _room.RoomCode.PatchIfNotNull(v => existingRoom.RoomCode = v, logger, nameof(existingRoom.RoomCode));
+        _room.Description.PatchIfNotNull(v => existingRoom.Description = v, logger, nameof(existingRoom.Description));
+        _room.MaxOccupancy.PatchIfNotNull(v => existingRoom.MaxOccupancy = v, logger, nameof(existingRoom.MaxOccupancy));
+        _room.MaxAdults.PatchIfNotNull(v => existingRoom.MaxAdults = v, logger, nameof(existingRoom.MaxAdults));
+        _room.MaxChildren.PatchIfNotNull(v => existingRoom.MaxChildren = v, logger, nameof(existingRoom.MaxChildren));
+        _room.RoomSizeSQM.PatchIfNotNull(v => existingRoom.RoomSize = v, logger, nameof(existingRoom.RoomSize));
+        _room.BedConfig.PatchIfNotNull(v => existingRoom.BedConfig = (Domain.Entities.BedConfiguration)v, logger, nameof(existingRoom.BedConfig));
+        _room.IsActive.PatchIfNotNull(v => existingRoom.IsActive = v, logger, nameof(existingRoom.IsActive));
 
         if (_room.AmenityIds is not null)
         {

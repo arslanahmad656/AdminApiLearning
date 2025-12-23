@@ -2,7 +2,7 @@
 using Aro.Admin.Application.Mediator.Authentication.DTOs;
 using Aro.Admin.Application.Mediator.Authentication.Notifications;
 using Aro.Admin.Application.Services.Authentication;
-using Aro.Admin.Application.Services.Hasher;
+using Aro.Common.Application.Services.Hasher;
 using Aro.Common.Application.Services.RequestInterpretor;
 using MediatR;
 
@@ -16,8 +16,8 @@ public class LogoutUserCommandHandler(IMediator mediator, IAuthenticationService
         var response = await authenticationService.Logout(request.Data.UserId, request.Data.RefreshToken, tokenInfo.TokenIdentifier, tokenInfo.Expiry, cancellationToken).ConfigureAwait(false);
 
         await mediator.Publish(new UserLoggedOutNotification(new UserLoggedOutNotificationData(
-            request.Data.UserId, 
-            hasher.Hash(request.Data.RefreshToken), 
+            request.Data.UserId,
+            hasher.Hash(request.Data.RefreshToken),
             tokenInfo.TokenIdentifier
         )), cancellationToken).ConfigureAwait(false);
 

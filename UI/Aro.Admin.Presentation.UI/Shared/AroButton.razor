@@ -7,8 +7,17 @@
                 Size="Size.Small" 
                 Class="@(!IsBack ? "d-none": "")" />
 
-            <span class="align-baseline">@Label</span>
-
+                @if (IsLoading)
+                {
+                    <MudProgressCircular 
+                        Size="Size.Small" 
+                        Color="Color.Inherit" 
+                        Indeterminate="true" />
+                }
+                else
+                {
+                    <span class="align-baseline">@Label</span>
+                }
             <MudIcon 
                 Icon="@Icons.Material.Filled.ArrowForward" 
                 Size="Size.Small" 
@@ -62,6 +71,7 @@
     [Parameter] public string Label { get; set; } = string.Empty;
     [Parameter] public bool IsNext { get; set; }
     [Parameter] public bool IsBack { get; set; }
+    [Parameter] public bool IsLoading { get; set; } = false;
     [Parameter] public bool IsPrimary { get; set; } = true;
 
     private bool _inProgress = false;

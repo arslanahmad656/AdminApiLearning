@@ -1,12 +1,18 @@
-﻿@inject IGroupService GroupService
+﻿@using Aro.UI.Application.DTOs.Group
+@inject IGroupService GroupService
 @inject ISnackbar Snackbar
+@inject IConfiguration Configuration
 
-<div class="card bg-white shadow">
-    <div class="card-body">
+<div class="h-100 card bg-white shadow">
+    <div class="card-body d-flex flex-column gap-3 h-100">
+
+        <!-- Header -->
         <div class="hstack p-3">
             <div><h1>Group List</h1></div>
             <div class="ms-auto"><button class="aro-button aro-button-primary" @onclick="HandleAddGroup">Add Client +</button></div>
         </div>
+
+        <!-- Alphabet filter -->
         <div class="h-stack">
             @foreach (char letter in alpha)
             {
@@ -23,8 +29,19 @@
             }
         </div>
 
+        <!-- Activity toggle -->
+        <div class="d-flex ps-5">
+            <MudToggleGroup T="string"
+                            Value="ActivityFilter"
+                            ValueChanged="OnActivityFilterChanged"
+                            Color="Color.Dark"
+                            Size="Size.Small">
+                <MudToggleItem Value="@("All")" UnselectedIcon="@Icons.Material.Filled.CheckBoxOutlineBlank" SelectedIcon="@Icons.Material.Filled.CheckBox"><MudText>All</MudText></MudToggleItem>
+                <MudToggleItem Value="@("Active")" UnselectedIcon="@Icons.Material.Filled.CheckBoxOutlineBlank" SelectedIcon="@Icons.Material.Filled.CheckBox"><MudText>Active</MudText></MudToggleItem>
+                <MudToggleItem Value="@("Inactive")" UnselectedIcon="@Icons.Material.Filled.CheckBoxOutlineBlank" SelectedIcon="@Icons.Material.Filled.CheckBox"><MudText>Inactive</MudText></MudToggleItem>
 
-        <div class="m-2"></div>
+            </MudToggleGroup>
+        </div>
 
 
         @if (tableRows.Count() > 0)
@@ -32,19 +49,16 @@
             <MudTable 
                 Items="@tableRows"
                 Hover
-                Filter="new Func<GroupTableRow,bool>(FilterFunc1)"
                 @bind-SelectedItem="selectedRow"
-                Class="shadow-none"
-                Height="300px"
+                Class="shadow-none h-100"
                 LoadingContent="@(isLoading ? loadingContent : null)"
                 LoadingContentBody="@(isLoading ? loadingContentBody : null)"
                 LoadingProgressColor="Color.Info">
-                <ToolBarContent>
-                    @* 
+                @* <ToolBarContent>
+
                 <MudText Typo="Typo.h6">GroupList</MudText>
                 <MudSpacer /> 
-                *@
-                    @*
+
                 <MudTextField 
                 @bind-Value="searchString1" 
                 Placeholder="Search" 
@@ -52,9 +66,8 @@
                 AdornmentIcon="@Icons.Material.Filled.Search" 
                 IconSize="Size.Medium" 
                 Class="mt-0"></MudTextField>
-                *@
 
-                </ToolBarContent>
+                </ToolBarContent> *@
                 <ColGroup>
                     <col />
                     <col />
@@ -63,22 +76,24 @@
                     <col />
                 </ColGroup>
                 <HeaderContent>
-                    <MudTh>Client Name</MudTh>
+                    <MudTh><MudTableSortLabel Enabled="true" SortBy="new Func<GroupTableRow, object>(x => x.GroupName)">Client Name</MudTableSortLabel></MudTh>
                     <MudTh><MudTableSortLabel Enabled="true" SortBy="new Func<GroupTableRow, object>(x=>x.PrimaryContactName)">Contact</MudTableSortLabel></MudTh>
                     <MudTh><MudTableSortLabel Enabled="true" SortBy="new Func<GroupTableRow, object>(x=>x.PrimaryContactEmail)">Email</MudTableSortLabel></MudTh>
                     <MudTh>Website</MudTh>
                     <MudTh><MudTableSortLabel Enabled="true" SortBy="new Func<GroupTableRow, object>(x=>x.IsActive)">Status</MudTableSortLabel></MudTh>
+                    <MudTh>Actions</MudTh>
                 </HeaderContent>
                 <RowTemplate>
+                    <MudTd DataLabel="Client Name">
+                        <div class="hstack align-items-center gap-3">
+                            <img src="@context.LogoUrl" style="width: 50px; height: 50px;" />
+                            <MudButton Variant="Variant.Text"
+                                       OnClick="@(e => GoToGroupView(context.Id))"
+                                       Class="pagination-button">
+                                @context.GroupName
+                            </MudButton>
+                        </div>
 
-                    <MudTd DataLabel="Contact">
-
-                        <MudButton 
-                            Variant="Variant.Text"
-                            OnClick="@(e => GoToGroupView(context.Id))"
-                            Class="pagination-button">
-                            @context.GroupName
-                        </MudButton>
                     
                     </MudTd>
 
@@ -103,92 +118,79 @@
 
                     </MudTd>
                     <MudTd DataLabel="Status">
-                        <div class="h-stack">
-                            <button class="aro-status-button @(context.IsActive ? "active" : "inactive")">@(context.IsActive ? "Active" : "Inactive")</button>
-
-                            @* 
-
-                        <MudButton 
-                            Variant="Variant.Text"
-                            Class="btn-close"
-                            @onclick="@(e => DeleteGroup(context.Id))"></MudButton>
-
-                        <MudButton 
-                            Variant="Variant.Text"
-                            Size="Size.Small"
-                            @onclick="@(e => GoToEditGroup(context.Id))">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                                <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-                                <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
-                            </svg>
-                        </MudButton>
-
-                        *@
-
-                        </div>
-
+                        <button 
+                            @onclick="@(e => ChangeClientActivity(context))"
+                            class="aro-status-button @(context.IsActive ? "active" : "inactive")">@(context.IsActive ? "Active" : "Inactive")</button>
                     </MudTd>
-
+                    <MudTd DataLabel="Actions">
+                        <div class="h-stack">
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" aria-label="delete" @onclick="@(e => DeleteGroup(context.Id))" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" aria-label="edit" @onclick="@(e => GoToEditGroup(context.Id))" />
+                        </div>
+                    </MudTd>
                 </RowTemplate>
                 <PagerContent>
                     @* Custom pagination controls *@
-                    <div class="d-flex justify-content-end pt-5">
-
-                        @*                         
-                        <MudButton 
-                            Variant="Variant.Text"
-                            OnClick="@FirstPage"
-                            Disabled="@(currentPage == 1)"
-                            Class="pagination-button"
-                        >
-                            &lt; &lt;
-                        </MudButton> 
-                        *@
-
-
-                        <MudButton 
-                        Variant="Variant.Text"
-                        OnClick="@PrevPage"
-                        Disabled="@(currentPage == 1)"
-                        Class="pagination-button">
-                            &lt;
-                        </MudButton>
-
-                        @* Pagination numbers *@
-                        @for (int i = 1; i <= lastPage; i++)
-                        {
-                            var page = i;
-                            var isActive = page == currentPage;
-
-                            <MudButton Variant="Variant.Text"
-                            Disabled="@(isActive)"
-                            @onclick="@(e => GoToPage(page))"
-                                       Class="@(isActive ? "pagination-button active" : "pagination-button")">
-                                @(page)
-                            </MudButton>
-                        }
-
-                        <MudButton Variant="Variant.Text"
-                            OnClick="@NextPage"
-                            Disabled="@(currentPage == lastPage)"
-                                   Class="pagination-button">
-                            &gt;
-                        </MudButton>
-
-                        @*                         
-                        <MudButton 
-                            Variant="Variant.Text"
-                            OnClick="@LastPage"
-                            Disabled="@(currentPage == lastPage)"
-                                   Class="pagination-button">
-                            &gt; &gt;
-                        </MudButton> 
-                        *@
-
-                    </div>
-
                 </PagerContent>
             </MudTable>
+
+            <div class="mt-auto d-flex align-items-end justify-content-end">
+
+                <span class="me-auto small text-muted">
+                    @infoFormat
+                </span>
+
+                @*                         
+                <MudButton 
+                    Variant="Variant.Text"
+                    OnClick="@FirstPage"
+                    Disabled="@(currentPage == 1)"
+                    Class="pagination-button"
+                >
+                    &lt; &lt;
+                </MudButton> 
+                *@
+
+
+                <MudButton Variant="Variant.Text"
+                           OnClick="@PrevPage"
+                           Disabled="@(currentPage == 1)"
+                           Class="pagination-button">
+                    &lt;
+                </MudButton>
+
+                @* Pagination numbers *@
+                @for (int i = 1; i <= lastPage; i++)
+                {
+                    var page = i;
+                    var isActive = page == currentPage;
+
+                    <MudButton Variant="Variant.Text"
+                               Disabled="@(isActive)"
+                               @onclick="@(e => GoToPage(page))"
+                               Class="@(isActive ? "pagination-button active" : "pagination-button")">
+                        @(page)
+                    </MudButton>
+                }
+
+                <MudButton Variant="Variant.Text"
+                           OnClick="@NextPage"
+                           Disabled="@(currentPage == lastPage)"
+                           Class="pagination-button">
+                    &gt;
+                </MudButton>
+
+                @*                         
+                <MudButton 
+                    Variant="Variant.Text"
+                    OnClick="@LastPage"
+                    Disabled="@(currentPage == lastPage)"
+                            Class="pagination-button">
+                    &gt; &gt;
+                </MudButton> 
+                *@
+
+            </div>
         }
         else
         {
@@ -204,16 +206,16 @@
 @code {
     [Inject] private NavigationManager? NavigationManager { get; set; }
 
+    [Parameter] public string ClientFilter { get; set; } = string.Empty;
+
     private string selectedLetter = string.Empty;
 
     private string searchString1 = "";
-    private string infoFormat = "Showing entries {first_item}-{last_item}, Total entries: {all_items}";
+    private string infoFormat = string.Empty;
 
     char[] alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
 
-    private GetGroupsResponse? groups;
-    private IEnumerable<GroupTableRow> tableRows = new List<GroupTableRow>();
-
+    private string ActivityFilter = "All";
 
     private GroupTableRow selectedRow;
 
@@ -233,19 +235,142 @@
     </text>
     ;
 
-    private int totalEntries = 0;
+    private List<GroupTableRow> _allRows = new List<GroupTableRow>();
+    private List<GroupTableRow> tableRows = new List<GroupTableRow>();
+
 
     private int currentPage = 1;
-
     private const int pageSize = 10;
-
+    private int totalEntries = 0;
     private int lastPage => (int)Math.Ceiling((double)totalEntries / pageSize);
 
-    private async void PageChanged(int pageNumber)
+    protected override async Task OnInitializedAsync()
     {
-        Snackbar.Add($"Going to page {pageNumber}", MudBlazor.Severity.Info);
-        currentPage = pageNumber;
-        await RetrievePagedGroups();
+        await LoadAllGroups();
+        ApplyFiltersAndPaging();
+    }
+
+    protected override void OnParametersSet()
+    {
+        currentPage = 1;
+        ApplyFiltersAndPaging();
+    }
+
+    private string cachedApiBaseAddress => Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
+
+    private async Task LoadAllGroups()
+    {
+        try
+        {
+            isLoading = true;
+
+            // Retrieve all records, no paging
+            GetGroupsRequest groupsRequest = new(
+                selectedLetter, 
+                "PrimaryContact,PrimaryContact.ContactInfo", 
+                currentPage, 
+                int.MaxValue, 
+                string.Empty, 
+                true);
+
+            var response = await GroupService.GetGroups(groupsRequest);
+
+            if (response is null || response.Groups is null) 
+            { 
+                _allRows = [];
+                totalEntries = 0;
+            } 
+            else
+            {
+
+
+                _allRows = response.Groups
+                    .Select(g => new GroupTableRow
+                    {
+                        Id = g.Id,
+                        GroupName = g.GroupName,
+                        PrimaryContactId = g.PrimaryContactId,
+                        PrimaryContactName = g.PrimaryContactName,
+                        PrimaryContactEmail = g.PrimaryContactEmail,
+                        WebsiteURL = string.Empty,
+                        IsActive = g.IsActive,
+                        LogoUrl = g.LogoId.HasValue ? $"{cachedApiBaseAddress}/api/group/image/{g.Id}/{g.LogoId.Value}": string.Empty
+
+                    })
+                    .ToList();
+                totalEntries = response.TotalCount;
+            }
+
+            isLoading = false;
+
+        }
+        catch (HttpRequestException httpEx)
+        {
+            Snackbar.Add($"Network/API error: {httpEx.Message}", MudBlazor.Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Unexpected error: {ex.Message}", MudBlazor.Severity.Error);
+        }
+    }
+
+    private void OnActivityFilterChanged(string value)
+    {
+        ActivityFilter = value;
+        currentPage = 1;
+        ApplyFiltersAndPaging();
+    }
+
+
+    private void ApplyFiltersAndPaging()
+    {
+        IEnumerable<GroupTableRow> query = _allRows;
+
+        // Letter filter
+        if (!string.IsNullOrWhiteSpace(selectedLetter))
+        {
+            query = query.Where(x =>
+                x.GroupName.StartsWith(selectedLetter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        // Debounced search filter
+        if (!string.IsNullOrWhiteSpace(ClientFilter))
+        {
+            query = query.Where(x => x.GroupName?.Contains(ClientFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+            // (x.PrimaryContactName?.Contains(_effectiveSearch, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            // (x.PrimaryContactEmail?.Contains(_effectiveSearch, StringComparison.OrdinalIgnoreCase) ?? false));
+        }
+
+    switch (ActivityFilter)
+    {
+        case "All":
+            break;
+
+        case "Active":
+            query = query.Where(x => x.IsActive);
+            break;
+
+        case "Inactive":
+            query = query.Where(x => !x.IsActive);
+            break;
+    }
+
+        totalEntries = query.Count();
+
+        tableRows = query
+            .Skip((currentPage - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+
+        infoFormat = $"Showing {(tableRows.Count == 0 ? 0 : (currentPage - 1) * pageSize + 1)} to {(currentPage - 1) * pageSize + tableRows.Count} of {totalEntries} entries";
+    }
+
+
+
+    private async void PageChanged(int page)
+    {
+        currentPage = page;
+        ApplyFiltersAndPaging();
     }
 
     private async void FirstPage()
@@ -260,7 +385,7 @@
     {
         if (currentPage > 1) 
         {
-			PageChanged(currentPage - 1);
+            PageChanged(currentPage - 1);
         }
     }
 
@@ -268,32 +393,29 @@
     {
         if (currentPage < lastPage) 
         {
-			PageChanged(currentPage + 1);
+            PageChanged(currentPage + 1);
         }
 
     }
 
     private async void LastPage()
     {
-		if (currentPage != lastPage)
-		{
-			PageChanged(lastPage);
-		}
+        if (currentPage != lastPage)
+        {
+            PageChanged(lastPage);
+        }
     }
 
-	private async void GoToPage(int pageNumber)
-	{
-
-		if (currentPage != pageNumber && pageNumber >= 1 && pageNumber <= lastPage)
-		{
-			PageChanged(pageNumber);
-		}
-	}
-
-    protected override async Task OnInitializedAsync()
+    private async void GoToPage(int pageNumber)
     {
-        await RetrievePagedGroups();
+
+        if (currentPage != pageNumber && pageNumber >= 1 && pageNumber <= lastPage)
+        {
+            PageChanged(pageNumber);
+        }
     }
+
+
 
     private void HandleAddGroup()
     {
@@ -306,19 +428,14 @@
         NavigationManager?.NavigateTo($"/group/view/{groupId}");
     }
 
-    private async Task SetOption(string letter)
+    private Task SetOption(string letter)
     {
-        if (selectedLetter == letter)
-        {
-            selectedLetter = string.Empty;
-        } 
-        else
-        {
-            selectedLetter = letter;
-        }
-
-        await RetrievePagedGroups();
+        selectedLetter = selectedLetter == letter ? string.Empty : letter;
+        currentPage = 1;
+        ApplyFiltersAndPaging();
+        return Task.CompletedTask;
     }
+
 
     private void GoToWebsite(Guid Id)
     {
@@ -337,73 +454,52 @@
 
     private void GoToEditGroup(Guid Id)
     {
-        NavigationManager?.NavigateTo($"/group/{Id}");
+        NavigationManager?.NavigateTo($"/group/edit/{Id}");
     }
 
-    private async Task RetrievePagedGroups()
+    private async Task DeleteGroup(Guid id)
     {
-        try
+        var response = await GroupService.DeleteGroup(id);
+
+        if (response is null || response.Id == Guid.Empty)
         {
-            isLoading = true;
-
-            GetGroupsRequest groupsRequest = new(selectedLetter, "PrimaryContact,PrimaryContact.ContactInfo", currentPage, pageSize, string.Empty, true);
-
-            groups = await GroupService.GetGroups(groupsRequest);
-
-            if (groups == null) tableRows = new List<GroupTableRow>();
-
-            tableRows = groups.Groups
-                .Select(g => new GroupTableRow
-                {
-                    Id = g.Id,
-                    GroupName = g.GroupName,
-                    PrimaryContactId = g.PrimaryContactId,
-                    PrimaryContactName = g.PrimaryContactName,
-                    PrimaryContactEmail = g.PrimaryContactEmail,
-                    WebsiteURL = string.Empty,
-                    IsActive = g.IsActive
-
-                })
-                .ToList();
-
-            totalEntries = groups.TotalCount;
-
-            isLoading = false;
-
-        } 
-        catch (HttpRequestException httpEx)
-        {
-            Snackbar.Add($"Network/API error: {httpEx.Message}", MudBlazor.Severity.Error);
-        }
-        catch (Exception ex)
-        {
-            Snackbar.Add($"Unexpected error: {ex.Message}", MudBlazor.Severity.Error);
-        }
-    }
-
-    private bool FilterFunc1(GroupTableRow element) => FilterFunc(element, searchString1);
-
-    private bool FilterFunc(GroupTableRow element, string searchString)
-    {
-        if (string.IsNullOrWhiteSpace(searchString))
-            return true;
-
-        return (element.GroupName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-            || (element.PrimaryContactName?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? false)
-            || (element.PrimaryContactEmail?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? false);
-    }
-
-    private async Task DeleteGroup(Guid Id)
-    {
-        var response = await GroupService.DeleteGroup(Id);
-
-        if (response.Id == null)
-        {
-			Snackbar.Add($"Group with identifier {Id} could not be found", MudBlazor.Severity.Error);
+            Snackbar.Add("Group not found", MudBlazor.Severity.Error);
             return;
         }
 
-		await RetrievePagedGroups();
-
+        _allRows.RemoveAll(x => x.Id == id);
+        ApplyFiltersAndPaging();
     }
+
+    private async Task ChangeClientActivity(GroupTableRow row)
+    {
+        // Optimistic toggle
+        row.IsActive = !row.IsActive;
+        ApplyFiltersAndPaging();
+
+        try
+        {
+            var patch = new PatchGroupRequest(
+                row.Id,
+                null, null, null, null, null, null, null, null,
+                row.IsActive
+            );
+
+            var response = await GroupService.PatchGroup(patch);
+
+            if (response.Id == Guid.Empty)
+                throw new InvalidOperationException("Group not found");
+
+            Snackbar.Add("Group activity changed", MudBlazor.Severity.Success);
+        }
+        catch
+        {
+            // Rollback
+            row.IsActive = !row.IsActive;
+            ApplyFiltersAndPaging();
+
+            Snackbar.Add("Failed to change activity", MudBlazor.Severity.Error);
+        }
+    }
+
 }

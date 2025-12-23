@@ -1,0 +1,199 @@
+﻿@using Aro.UI.Application.DTOs.Group
+@inject ISnackbar Snackbar
+@inject IValidator<GroupModel> groupValidator
+@inject IValidator<PrimaryContactModel> primaryContactValidator
+@inject ICountryMetadataService CountryMetadataService
+@inject IGroupService groupService
+@inject IUserService userService
+@inject NavigationManager NavigationManager
+
+<StepTitle StepNumber="3" Title="@(Wizard.IsCreateMode ? "Review & Save" : "Review & Update")" />
+
+@if (Wizard.Entity is not null && Wizard.Entity.PrimaryContact is not null)
+{
+    var model = Wizard.Entity;
+    var primaryContact = Wizard.Entity.PrimaryContact;
+
+    <div class="row gy-2">
+
+        <!-- GENERAL INFO SUMMARY -->
+        <div class="col-12">
+            <h6>1. GENERAL INFORMATION</h6>
+        </div>
+
+        <SummaryRow Label="Group Name" Value="@model.GroupName" />
+        <SummaryRow Label="Address Line 1" Value="@model.AddressLine1" />
+        <SummaryRow Label="Address Line 2" Value="@model.AddressLine2" />
+        <SummaryRow Label="City" Value="@model.City" />
+        <SummaryRow Label="Country" Value="@model.Country" />
+        <SummaryRow Label="Postal Code" Value="@model.PostalCode" />
+
+        <div class="col-sm-4 col-lg-4"><span class="text-body-secondary">Logo</span></div>
+        <div class="col-sm-8 col-lg-4">
+            @if (!string.IsNullOrWhiteSpace(existingImageURL))
+            {
+                <img src="@existingImageURL" alt="Group logo" class="img-fluid rounded logo-img" />
+            }
+            else if (!string.IsNullOrWhiteSpace(model.Logo?.ContentBase64))
+            {
+                <img src="data:image/png;base64,@model.Logo.ContentBase64" alt="@model.Logo?.Name" class="img-fluid rounded logo-img" />
+            }
+            else
+            {
+                <span>No image has been uploaded</span>
+            }
+        </div>
+
+        <!-- CONTACT SUMMARY -->
+        <div class="col-12 mt-5">
+            <h6>2. PRIMARY CONTACT DETAILS</h6>
+        </div>
+
+        <SummaryRow Label="Name" Value="@primaryContact.Name" />
+        <SummaryRow Label="Contact Email" Value="@primaryContact.Email" />
+        <SummaryRow Label="Phone Number" Value="@($"+{primaryContact.CountryCode} {primaryContact.PhoneNumber}")" />
+    </div>
+}
+
+@code {
+    [CascadingParameter] public EntityWizardContext<GroupModel> Wizard { get; set; } = default!;
+
+    private string existingImageURL = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        Wizard.OnSave = SaveAsync; // Save / patch
+        Wizard.OnEdit = EditAsync; // Go to edit view
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrWhiteSpace(Wizard.Entity?.Logo?.Url))
+        {
+            existingImageURL = Wizard.Entity.Logo.Url;
+        }
+    }
+
+    private async Task EditAsync()
+    {
+        if (Wizard.Entity == null || Wizard.Entity.Id == Guid.Empty) return;
+
+        NavigationManager.NavigateTo($"/group/edit/{Wizard.Entity.Id}");
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task SaveAsync()
+    {
+        if (Wizard.IsSaving || Wizard.Entity == null) return;
+
+        Wizard.IsSaving = true;
+        try
+        {
+            if (Wizard.IsCreateMode)
+            {
+                await HandleCreate();
+            }
+            else
+            {
+                await HandlePatch();
+            }
+        }
+        catch (HttpRequestException httpEx)
+        {
+            Snackbar.Add($"Network/API error: {httpEx.Message}", MudBlazor.Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Unexpected error: {ex.Message}", MudBlazor.Severity.Error);
+        }
+        finally
+        {
+            Wizard.IsSaving = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task HandleCreate()
+    {
+        var group = Wizard.Entity;
+        if (group == null || group.Logo == null || group.Id != Guid.Empty) return;
+
+        var user = group.PrimaryContact;
+        var request = new CreateGroupRequest(
+            group.GroupName,
+            group.AddressLine1!,
+            group.AddressLine2,
+            group.City!,
+            group.Country!,
+            group.PostalCode!,
+            new GroupLogo(group.Logo.Name, group.Logo.ContentBase64),
+            new PrimaryContactDto(user.Email, user.Name, user.CountryCode, user.PhoneNumber),
+            true
+        );
+
+        var createdGroup = await groupService.CreateGroup(request);
+        if (createdGroup == null)
+        {
+            Snackbar.Add("Failed to create group.", MudBlazor.Severity.Error);
+            return;
+        }
+
+        Wizard.Entity.Id = createdGroup.Id;
+        Wizard.EntityCreationComplete = true;
+
+        Snackbar.Add("Group created successfully!", MudBlazor.Severity.Success);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandlePatch()
+    {
+        var group = Wizard.Entity;
+        var prev = Wizard.PrevEntity;
+        if (group == null || prev == null || prev.Id == Guid.Empty || group.Id == Guid.Empty) return;
+
+        if (group.PrimaryContact.Email != prev.PrimaryContact.Email)
+        {
+            var existingUser = await userService.GetUserByEmail(new(group.PrimaryContact.Email));
+            if (existingUser == null)
+            {
+                Snackbar.Add("The new primary contact email does not correspond to an existing user.", MudBlazor.Severity.Error);
+                return;
+            }
+
+            group.PrimaryContact.Id = existingUser.Id;
+        }
+
+        var patch = ToPatchGroupRequest(group, prev);
+        if (patch == null)
+        {
+            Snackbar.Add("No changes detected to update.", MudBlazor.Severity.Info);
+        }
+        else
+        {
+            await groupService.PatchGroup(patch);
+            Snackbar.Add($"Successfully updated group {group.Id}", MudBlazor.Severity.Success);
+        }
+
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private static PatchGroupRequest? ToPatchGroupRequest(GroupModel cur, GroupModel prev)
+    {
+        var patch = new PatchGroupRequest(
+            Id: cur.Id,
+            GroupName: cur.GroupName != prev.GroupName ? cur.GroupName : null,
+            AddressLine1: cur.AddressLine1 != prev.AddressLine1 ? cur.AddressLine1 : null,
+            AddressLine2: cur.AddressLine2 != prev.AddressLine2 ? cur.AddressLine2 : null,
+            City: cur.City != prev.City ? cur.City : null,
+            Country: cur.Country != prev.Country ? cur.Country : null,
+            PostalCode: cur.PostalCode != prev.PostalCode ? cur.PostalCode : null,
+            Logo: (cur.Logo != null && (prev.Logo == null || cur.Logo.ContentBase64 != prev.Logo.ContentBase64))
+                ? new GroupLogo(cur.Logo.Name, cur.Logo.ContentBase64)
+                : null,
+            PrimaryContactId: cur.PrimaryContact.Id != prev.PrimaryContact.Id ? cur.PrimaryContact.Id : null,
+            IsActive: cur.IsActive != prev.IsActive ? cur.IsActive : null
+        );
+
+        return patch.AllGroupPropertiesNull() ? null : patch;
+    }
+}

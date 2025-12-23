@@ -166,9 +166,9 @@ public partial class PolicyService(
             .ConfigureAwait(false)
             ?? throw new AroPolicyNotFoundException(patch.Id.ToString());
 
-        patch.Title.PatchIfNotNull(v => existingPolicy.Title = v);
-        patch.Description.PatchIfNotNull(v => existingPolicy.Description = v);
-        patch.IsActive.PatchIfNotNull(v => existingPolicy.IsActive = v);
+        patch.Title.PatchIfNotNull(v => existingPolicy.Title = v, logger, nameof(existingPolicy.Title));
+        patch.Description.PatchIfNotNull(v => existingPolicy.Description = v, logger, nameof(existingPolicy.Description));
+        patch.IsActive.PatchIfNotNull(v => existingPolicy.IsActive = v, logger, nameof(existingPolicy.IsActive));
 
         policyRepository.Update(existingPolicy);
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);

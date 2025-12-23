@@ -7,7 +7,7 @@
 }
 
 
-<div class="d-flex flex-row-reverse p-5 border-top mb-5">
+<div class="d-flex flex-row-reverse p-3 border-top">
     <div class="hstack gap-2">
 
         @* Back Button *@
@@ -36,7 +36,7 @@
             }
             else
             {
-                <AroButton Label="@(Wizard.IsCreateMode ? "Save" : "Update")"
+                <AroButton Label="@(Wizard.IsCreateMode ? "Save" : "Update")" IsLoading="@Wizard.IsSaving"
                            OnClick="HandleSave" />
             }
         }

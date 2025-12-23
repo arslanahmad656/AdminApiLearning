@@ -1,6 +1,6 @@
-﻿using System.Net.Http.Json;
+﻿using Aro.UI.Application.DTOs.CountryMetadata;
+using System.Net.Http.Json;
 using System.Text.RegularExpressions;
-using Aro.UI.Application.DTOs;
 
 namespace Aro.UI.Infrastructure.Services;
 
@@ -61,9 +61,9 @@ public class CountryMetadataService(HttpClient http) : ICountryMetadataService
     }
 
 
-    public bool ValidatePostalCode(string countryName, string postalCode)
+    public bool ValidatePostalCode(string countryCode, string postalCode)
     {
-        var country = GetByName(countryName);
+        var country = GetByISO2(countryCode);
         if (country == null || string.IsNullOrWhiteSpace(country.PostalCodeRegex)) return false;
 
         return Regex.IsMatch(postalCode, country.PostalCodeRegex);

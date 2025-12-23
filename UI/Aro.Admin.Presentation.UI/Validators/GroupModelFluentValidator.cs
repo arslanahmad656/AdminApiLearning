@@ -1,5 +1,4 @@
-﻿
-using Aro.UI.Application.DTOs;
+﻿using Aro.UI.Application.DTOs.Group;
 using Aro.UI.Infrastructure.Services;
 using FluentValidation;
 
@@ -38,11 +37,10 @@ public class GroupModelFluentValidator : AbstractValidator<GroupModel>
             .Length(2, 20)
             .Must((model, postalCode) =>
             {
-                return true;
+                if (string.IsNullOrWhiteSpace(model.Country))
+                    return false;
 
-                // FIX IMPLEMENTATION
-                //if (string.IsNullOrWhiteSpace(model.Country)) return false;
-                //return countryMetadataService.ValidatePostalCode(model.Country, postalCode);
+                return countryMetadataService.ValidatePostalCode(model.Country, postalCode);
             })
             .WithMessage("Please enter a valid postal code.");
     }

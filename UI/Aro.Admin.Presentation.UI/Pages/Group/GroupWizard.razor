@@ -1,0 +1,140 @@
+﻿@page "/groups/add"
+@page "/group/edit/{groupId:guid}"
+
+@using Aro.Admin.Presentation.UI.Layout
+@using Aro.UI.Application.DTOs.Group
+@using System.Threading.Tasks
+
+@inject IConfiguration Configuration
+
+@inject IGroupService groupService
+
+@code {
+    [Parameter] public Guid GroupId { get; set; }
+
+    private string? cachedApiBaseAddress;
+
+    private EntityWizardContext<GroupModel> Wizard = new()
+    {
+        Entity = new GroupModel
+        {
+            PrimaryContact = new PrimaryContactModel()
+        },
+        IsCreateMode = true,
+        StepTitles = new() 
+        { 
+            "General Information",
+            "Primary Contact Details",
+            "Review & Save"
+        },
+        Title = "Group"
+    };
+
+    private readonly List<Type> StepComponents = new()
+    {
+        typeof(GeneralInformationStep),
+        typeof(PrimaryContactDetailsStep),
+        typeof(ReviewAndSaveStep)
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine($"Initialising group wizard...");
+
+        if (GroupId != Guid.Empty)
+        {
+            Console.WriteLine($"GroupId: {GroupId}");
+
+            Wizard.IsCreateMode = false;
+
+            await LoadExistingGroup();
+        }
+
+        Wizard.OnNext = async () =>
+            {
+                bool isValid = true;
+                if (Wizard.CurrentStepValidation != null)
+                {
+                    isValid = await Wizard.CurrentStepValidation.Invoke();
+                }
+
+                if (isValid && Wizard.ActiveStepIndex < Wizard.StepTitles.Count - 1)
+                {
+                    Wizard.ActiveStepIndex++;
+                    StateHasChanged();
+                }
+            };
+
+        Wizard.OnBack = () =>
+        {
+            if (Wizard.ActiveStepIndex > 0)
+                Wizard.ActiveStepIndex--;
+            StateHasChanged();
+        };
+
+        Wizard.OnSave = async () =>
+        {
+            StateHasChanged();
+        };
+
+        Wizard.OnEdit = async () =>
+        {
+            StateHasChanged();
+        };
+    }
+
+    private async Task LoadExistingGroup()
+    {
+        try
+        {
+            var existingGroup = await groupService.GetGroup(new(GroupId, "Address, PrimaryContact, PrimaryContact.ContactInfo"));
+
+            if (existingGroup is null || existingGroup.Group is null)
+            {
+                Console.WriteLine($"Group with ID {GroupId} not found.");
+            }
+
+            var _group = existingGroup!.Group;
+
+            Wizard.Entity = new GroupModel
+            {
+                Id = _group!.Id,
+                GroupName = _group.GroupName,
+                AddressLine1 = _group.AddressLine1,
+                AddressLine2 = _group.AddressLine2,
+                City = _group.City,
+                Country = _group.Country,
+                PostalCode = _group.PostalCode,
+                PrimaryContact = new PrimaryContactModel
+                {
+                    Id = _group.PrimaryContactId,
+                    Email = _group.PrimaryContactEmail,
+                    Name = _group.PrimaryContactName,
+                    CountryCode = _group.PrimaryContactCountryCode,
+                    PhoneNumber = _group.PrimaryContactPhoneNumber,
+                }
+            };
+
+            if (_group!.LogoId.HasValue && _group!.LogoId.Value != Guid.Empty)
+            {
+                cachedApiBaseAddress ??= Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
+                var logoUrl = $"{cachedApiBaseAddress}/api/group/image/{GroupId}/{_group.LogoId.Value}";
+
+                Wizard.Entity.Logo = new ImageModel { Id = _group.LogoId.Value, Url = logoUrl };
+            }
+
+            Wizard.PrevEntity = Wizard.Entity.Clone();
+        } 
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading group: {ex.Message}");
+        }
+    }
+}
+
+<EntityCreationWizardLayout TEntity="GroupModel" Wizard="Wizard">
+    @if (Wizard.ActiveStepIndex >= 0 && Wizard.ActiveStepIndex < StepComponents.Count)
+    {
+        <DynamicComponent Type="StepComponents[Wizard.ActiveStepIndex]" />
+    }
+</EntityCreationWizardLayout>

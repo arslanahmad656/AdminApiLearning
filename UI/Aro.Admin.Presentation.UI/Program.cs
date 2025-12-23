@@ -1,6 +1,6 @@
 using Aro.Admin.Presentation.UI;
 using Aro.Admin.Presentation.UI.Validators;
-using Aro.UI.Application.DTOs;
+using Aro.UI.Application.DTOs.Group;
 using Aro.UI.Application.DTOs.Room;
 using Aro.UI.Application.Interfaces;
 using Aro.UI.Infrastructure.Services;

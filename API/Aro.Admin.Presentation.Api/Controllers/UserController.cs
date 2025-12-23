@@ -34,11 +34,11 @@ public class UserController(IMediator mediator, ILogManager<UserController> logg
         CancellationToken cancellationToken
     )
     {
-        //logger.LogDebug("Starting GetUserById operation.");
+        logger.LogDebug("Starting GetUserById operation.");
 
         var response = await mediator.Send(new GetUserByIdQuery(new(userId)), cancellationToken).ConfigureAwait(false);
 
-        //logger.LogDebug("Completed GetUserById operation successfully.");
+        logger.LogDebug("Completed GetUserById operation successfully.");
         return Ok(response);
     }
 
@@ -49,11 +49,26 @@ public class UserController(IMediator mediator, ILogManager<UserController> logg
         CancellationToken cancellationToken
     )
     {
-        //logger.LogDebug("Starting GetUserByEmail operation.");
+        logger.LogDebug("Starting GetUserByEmail operation.");
 
         var response = await mediator.Send(new GetUserByEmailQuery(new(model.Email)), cancellationToken).ConfigureAwait(false);
 
-        //logger.LogDebug("Completed GetUserByEmail operation successfully.");
+        logger.LogDebug("Completed GetUserByEmail operation successfully.");
+        return Ok(response);
+    }
+
+    [HttpPost("email-exists")]
+    [Permissions(PermissionCodes.GetUser)]
+    public async Task<IActionResult> UserEmailExis(
+    [FromBody] GetUserByEmailModel model,
+    CancellationToken cancellationToken
+)
+    {
+        logger.LogDebug("Starting GetUserByEmail operation.");
+
+        var response = await mediator.Send(new UserEmailExistsQuery(new(model.Email)), cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed GetUserByEmail operation successfully.");
         return Ok(response);
     }
 

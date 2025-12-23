@@ -29,6 +29,7 @@ public class ErrorCodes
 
     #region [USERS]
     public readonly string USER_NOT_FOUND = nameof(USER_NOT_FOUND);
+    public readonly string USER_ALREADY_EXISTS = nameof(USER_ALREADY_EXISTS);
     #endregion
 
     #region [PASSWORD]

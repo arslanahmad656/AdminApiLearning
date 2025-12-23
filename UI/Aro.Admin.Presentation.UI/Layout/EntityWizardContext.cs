@@ -12,5 +12,8 @@ public class EntityWizardContext<TEntity>
     public Func<Task>? OnSave { get; set; }
     public Func<Task>? OnEdit { get; set; }
     public TEntity? Entity { get; set; }
+    public TEntity? PrevEntity { get; set; }
+    public bool IsSaving { get; set; } = false;
+    public string Title { get; set; } = string.Empty;
 }
 

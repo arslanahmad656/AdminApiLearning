@@ -1,0 +1,112 @@
+﻿@using Aro.UI.Application.DTOs
+@using Aro.UI.Application.DTOs.CountryMetadata
+
+@inject ICountryMetadataService CountryMetadataService
+
+<div class="form-group">
+    <label class="form-label">Country *</label>
+
+    <div class="@($"hstack border-custom border-grey rounded-1 {(IsCountryInvalid ? "border-error" : "")}")" style="height: 40px; margin: 4px 0px;">
+        <div class="div py-1 px-3 ">
+            @if (SelectedCountry is not null)
+            {
+                <img src="@SelectedCountry.FlagUrl" alt="Country Flag" class="flag-icon" />
+            } else
+            {
+                <img src="/flags/default.svg" alt="Country Flag" class="flag-icon" />
+
+            }
+        </div>
+
+        <MudSelect T="CountryOption"
+                    @bind-Value="SelectedCountry"
+                    Placeholder="Select country"
+                    Variant="Variant.Text"
+                    Class="border-start-custom border-grey py-1 px-3"
+                    Dense="true"
+                    Underline="false"
+                    Error="@false">
+
+            @foreach (var c in _countryOptions)
+            {
+                <MudSelectItem Value="c">
+                    @c.Name
+                </MudSelectItem>
+            }
+        </MudSelect>
+    </div>
+
+    <MudTextField @bind-Value="SelectedCountry"
+                  For="@(() => SelectedCountry)"
+                  Style="display:none;"
+                  Immediate="true" />
+</div>
+
+<style>
+    .border-custom {
+        border: 1px solid;
+    }
+
+    .border-start-custom {
+        border-left: 1px solid;
+    }
+
+    .border-grey {
+        border-color: #C3C3C3;
+    }
+
+    .flag-icon {
+        width: 24px;
+        height: 18px;
+    }
+</style>
+
+@code {
+    [Parameter] public string SelectedCountryCode { get; set; } = string.Empty;
+    [Parameter] public EventCallback<string> SelectedCountryCodeChanged { get; set; }
+
+    [Parameter] public bool IsCountryInvalid { get; set; }
+
+    private List<CountryOption> _countryOptions = new();
+
+    /// <summary>
+    /// Bridge between string country code and select object
+    /// </summary>
+    private CountryOption? SelectedCountry
+    {
+        get => _countryOptions.FirstOrDefault(c => c.Code == SelectedCountryCode);
+        set
+        {
+            var newCode = value?.Code ?? string.Empty;
+
+            if (SelectedCountryCode == newCode)
+                return;
+
+            SelectedCountryCode = newCode;
+            SelectedCountryCodeChanged.InvokeAsync(newCode);
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CountryMetadataService.InitializeAsync();
+
+        _countryOptions = CountryMetadataService
+            .GetAll()
+            .Select(c => new CountryOption
+            {
+                Code = c.ISO2,
+                Name = c.Name,
+                FlagUrl = $"/flags/{c.ISO2.ToLowerInvariant()}.svg"
+            })
+            .ToList();
+    }
+
+    private sealed class CountryOption
+    {
+        public string Code { get; init; } = string.Empty;
+        public string Name { get; init; } = string.Empty;
+        public string FlagUrl { get; init; } = string.Empty;
+    }
+}
+

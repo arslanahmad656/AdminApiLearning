@@ -1,0 +1,225 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@using MudBlazor
+
+<div class="vstack gap-3">
+    <div class="form-group">
+        <label class="form-label" for="fileInput">Upload Image</label>
+
+        <MudFileUpload T="IBrowserFile"
+                       Id="fileInput"
+                       Accept="image/png,image/jpg,image/jpeg"
+                       MaximumFileCount="1"
+                       FilesChanged="OnFileChanged"
+                       Class="w-100"
+                       Style="cursor: pointer;">
+
+            <ActivatorContent>
+                <div class="hstack w-100" style="height: 40px; margin: 4px 0px;">
+                    <div class="h-100 rounded-start hstack gap-3 align-items-center ps-3 @GetBorderClass()"
+                         style="width: 65%;">
+                        <MudIcon Icon="@Icons.Material.Filled.Image" Color="Color.Dark" />
+                        <span class="text-opacity-75">@FileUploadMessage</span>
+                    </div>
+
+                    <div class="h-100 rounded-end d-flex justify-content-center align-items-center"
+                         style="background-color: #434343; width: 35%;">
+                        <span class="text-white">Browse Files</span>
+                    </div>
+                </div>
+            </ActivatorContent>
+        </MudFileUpload>
+
+        @if (HasError)
+        {
+            <span class="small text-danger">@ErrorMessage</span>
+        }
+        else if (ShowError && IsEmpty)
+        {
+            <span class="small text-danger">Logo is required</span>
+        }
+    </div>
+
+    @if (ShowImage)
+    {
+        <div class="media-container w-100 rounded border border-1 p-3 position-relative">
+            <MudIconButton Icon="@Icons.Material.Filled.Close"
+                           Class="remove-btn"
+                           @onclick="RemoveImage"
+                           Variant="Variant.Filled"
+                           Size="Size.Small" />
+
+            <img src="@CurrentImageUrl"
+                 alt="@(model?.Name ?? "Group logo")"
+                 class="img-fluid rounded logo-img" />
+        </div>
+    }
+</div>
+
+<style>
+    .media-container {
+        height: 200px;
+        border-color: #929292;
+    }
+
+    .logo-img {
+        max-height: 150px;
+        width: auto;
+        object-fit: contain;
+    }
+
+    .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 10;
+    }
+
+    .border-custom {
+        border-left: 1px solid #C3C3C3;
+        border-top: 1px solid #C3C3C3;
+        border-bottom: 1px solid #C3C3C3;
+    }
+
+    .border-grey {
+        border-color: #C3C3C3;
+    }
+
+    .border-error {
+        border-color: var(--mud-palette-error);
+    }
+</style>
+
+@code {
+    /* ================= PARAMETERS ================= */
+
+    [Parameter]
+    public ImageModel model { get; set; } = new();
+
+    [Parameter]
+    public EventCallback<ImageModel> modelChanged { get; set; }
+
+    // Controlled by parent (deferred validation)
+    [Parameter]
+    public bool ShowError { get; set; }
+
+    // Two-way bound empty state
+    [Parameter]
+    public bool IsEmpty { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsEmptyChanged { get; set; }
+
+    /* ================= INTERNAL STATE ================= */
+
+    private bool HasError;
+    private string ErrorMessage = string.Empty;
+
+    private string FileUploadMessage = "Select file...";
+    private string ExistingImageURL = string.Empty;
+
+    private static readonly string[] AllowedContentTypes =
+        { "image/png", "image/jpg", "image/jpeg" };
+
+    private const long MaxFileSize = 5 * 1024 * 1024; // 5MB
+
+    /* ================= DERIVED STATE ================= */
+
+    private bool HasImage =>
+        !string.IsNullOrWhiteSpace(model?.ContentBase64) ||
+        !string.IsNullOrWhiteSpace(model?.Url);
+
+    private string CurrentImageUrl =>
+        !string.IsNullOrWhiteSpace(model?.ContentBase64)
+            ? $"data:image/png;base64,{model.ContentBase64}"
+            : ExistingImageURL;
+
+    private bool ShowImage => !string.IsNullOrWhiteSpace(CurrentImageUrl);
+
+    /* ================= LIFECYCLE ================= */
+
+    protected override void OnParametersSet()
+    {
+        FileUploadMessage = HasImage ? "Change file..." : "Select file...";
+
+        if (!string.IsNullOrWhiteSpace(model?.Url))
+            ExistingImageURL = model.Url;
+
+        if (!ShowError)
+        {
+            HasError = false;
+            ErrorMessage = string.Empty;
+        }
+
+        SetIsEmptyInternal(!HasImage);
+    }
+
+    /* ================= EVENT HANDLERS ================= */
+
+    private async Task OnFileChanged(IBrowserFile file)
+    {
+        HasError = false;
+        ErrorMessage = string.Empty;
+
+        if (!AllowedContentTypes.Contains(file.ContentType))
+        {
+            HasError = true;
+            ErrorMessage = "Invalid file type";
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        if (file.Size > MaxFileSize)
+        {
+            HasError = true;
+            ErrorMessage = "File too large";
+            await InvokeAsync(StateHasChanged);
+            return;
+        }
+
+        using var ms = new MemoryStream();
+        await file.OpenReadStream(MaxFileSize).CopyToAsync(ms);
+
+        model = new ImageModel
+        {
+            Name = Path.GetFileNameWithoutExtension(file.Name),
+            ContentBase64 = Convert.ToBase64String(ms.ToArray())
+        };
+
+        FileUploadMessage = file.Name;
+
+        await modelChanged.InvokeAsync(model);
+        await SetIsEmptyInternal(false);
+    }
+
+    private async Task RemoveImage()
+    {
+        ExistingImageURL = string.Empty;
+
+        model = new ImageModel();
+        FileUploadMessage = "Select file...";
+        HasError = false;
+        ErrorMessage = string.Empty;
+
+        await modelChanged.InvokeAsync(model);
+        await SetIsEmptyInternal(true);
+    }
+
+    /* ================= STATE HELPERS ================= */
+
+    private async Task SetIsEmptyInternal(bool value)
+    {
+        if (IsEmpty == value)
+            return;
+
+        IsEmpty = value;
+        await IsEmptyChanged.InvokeAsync(value);
+    }
+
+    private string GetBorderClass()
+    {
+        if (ShowError && IsEmpty)
+            return "border-custom border-error";
+
+        return "border-custom border-grey";
+    }
+}

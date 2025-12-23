@@ -1,6 +1,5 @@
 ﻿@page "/"
 
-
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Components.Authorization
 
@@ -10,35 +9,32 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="container-fluid min-vh-100">
-            <div class="vstack gap-5 p-3">
+        <div class="container-fluid h-100">
+            <div class="vstack gap-3 p-3 h-100">
                 <div class="d-flex justify-content-end">
+                    <div class="hstack gap-5">
+                        @if (IsVisible)
+                        {
+                            <div class="bg-white shadow">
+                                <MudInput T="string"
+                                          Value="@_searchInput"
+                                          ValueChanged="OnSearchInputChanged"
+                                          Immediate="true"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Dense" />
+                            </div>
+                        }
 
-                    <MudIconButton 
-                        Icon="@Icons.Material.Filled.Search"
-                        Variant="Variant.Text"
-                        Color="Color.Dark"
-                        Class="button-search shadow"
-                        @onclick="HandleSearch"
-                        title="Search button"
-                        Disabled />
-                </div>
-
-                @* 
-                <div class="top-right-section">
-                    <div class="top-right-profile">
-                        <img class="profile-img" Src="icons/profile.png" />
-                        <span class="property-name">Brochner hotels</span>
-                        <img src="icons/dropdown.png" alt="Dropdown" class="dropdown-icon"   />
-                    </div>
-
-                    <div class="top-right-icons" @onclick="HandleSettings">
-                        <img src="icons/settings.png" alt="Settings" />
+                        <MudIconButton Icon="@(IsVisible? Icons.Material.Filled.Close : Icons.Material.Filled.Search)"
+                                       Variant="Variant.Text"
+                                       Color="Color.Dark"
+                                       Class="button-search shadow"
+                                       @onclick="ShowSearchbar"
+                                       title="Search button" />
                     </div>
                 </div>
-                *@
 
-                <GroupList />
+                <GroupList ClientFilter="@ClientNameFilter" />
             </div>
         </div>
     </Authorized>
@@ -50,34 +46,47 @@
 @code {
     [Inject] private NavigationManager? NavigationManager { get; set; }
 
-    @*
-    string GetFirstName(string? fullName)
-    {
-        if (string.IsNullOrWhiteSpace(fullName))
-            return "Alex";
+    private bool IsVisible = false;
 
-        // Try to extract first name from email or full name
-        if (fullName.Contains("@"))
+    // Actual value passed to GroupList (debounced)
+    private string ClientNameFilter = string.Empty;
+
+    // Raw keystroke value
+    private string _searchInput = string.Empty;
+
+    private CancellationTokenSource? _typingCts;
+
+    private void ShowSearchbar()
+    {
+        IsVisible = !IsVisible;
+
+        if (!IsVisible)
         {
-            var emailPart = fullName.Split('@')[0];
-            var nameParts = emailPart.Split('.');
-            return char.ToUpper(nameParts[0][0]) + nameParts[0].Substring(1);
+            _searchInput = string.Empty;
+            ClientNameFilter = string.Empty;
         }
-
-        var parts = fullName.Split(' ');
-        return parts[0];
     }
-    *@
 
-    private void HandleSearch()
+    private async Task OnSearchInputChanged(string value)
     {
-        Snackbar.Add($"Search functionality has not yet been implemented.");
+        _searchInput = value;
+
+        _typingCts?.Cancel();
+        _typingCts = new CancellationTokenSource();
+
+        try
+        {
+            await Task.Delay(600, _typingCts.Token); // debounce delay
+            ClientNameFilter = _searchInput;
+        }
+        catch (TaskCanceledException)
+        {
+            // Expected while user is typing
+        }
     }
 
     private void HandleSettings()
     {
-        // Implement search functionality
         NavigationManager?.NavigateTo("/settings");
     }
 }
-

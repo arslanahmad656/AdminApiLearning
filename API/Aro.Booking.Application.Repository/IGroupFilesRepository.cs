@@ -7,7 +7,7 @@ public interface IGroupFilesRepository
 {
     IQueryable<GroupFile> GetById(Guid id);
 
-    IQueryable<GroupFile> GetByGroupId(Guid propertyId);
+    IQueryable<GroupFile> GetByGroupId(Guid groupId);
 
     Task Create(GroupFiles groupFiles, CancellationToken cancellationToken = default);
 

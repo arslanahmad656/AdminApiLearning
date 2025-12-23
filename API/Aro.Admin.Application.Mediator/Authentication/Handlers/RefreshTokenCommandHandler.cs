@@ -2,7 +2,7 @@
 using Aro.Admin.Application.Mediator.Authentication.DTOs;
 using Aro.Admin.Application.Mediator.Authentication.Notifications;
 using Aro.Admin.Application.Services.AccessToken;
-using Aro.Admin.Application.Services.Hasher;
+using Aro.Common.Application.Services.Hasher;
 using MediatR;
 
 namespace Aro.Admin.Application.Mediator.Authentication.Handlers;

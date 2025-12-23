@@ -21,7 +21,7 @@
             <div class="vstack gap-3">
                 <div class="d-flex justify-content-between p-4">
                     <img src="aro-logo.svg" style="width: 150px" alt="ARO Digital Strategy" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Close" @onclick="ToggleSidebar" Class="text-white"></MudIconButton>
+                    @* <MudIconButton Icon="@Icons.Material.Filled.Close" @onclick="ToggleSidebar" Class="text-white"></MudIconButton> *@
                 </div>
 
                 @foreach (var item in NavItems)
@@ -77,7 +77,7 @@
 
     public string[] HideFromRoutes = { "groups/add" };
 
-    private bool sidebarOpen = false;
+    private bool sidebarOpen = true;
 
     private void ToggleSidebar()
     {
