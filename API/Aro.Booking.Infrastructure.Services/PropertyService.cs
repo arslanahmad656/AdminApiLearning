@@ -204,8 +204,28 @@ public class PropertyService(
         property.MarketingDescription = propertyDto.MarketingDescription;
         property.UpdatedAt = DateTime.UtcNow;
 
-        // Update address if property has its own address (not shared with group)
-        if (property.Address != null)
+        var group = await repositoryManager.GroupRepository
+            .GetById(propertyDto.GroupId)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var isAddressSharedWithGroup = group != null && property.AddressId == group.AddressId;
+        if (isAddressSharedWithGroup)
+        {
+            logger.LogDebug("Property {PropertyId} is sharing address with group. Creating new address.", property.Id);
+            property.Address = new Address
+            {
+                Id = idGenerator.Generate(),
+                AddressLine1 = propertyDto.AddressLine1,
+                AddressLine2 = propertyDto.AddressLine2,
+                City = propertyDto.City,
+                Country = propertyDto.Country,
+                PostalCode = propertyDto.PostalCode,
+                PhoneNumber = propertyDto.PhoneNumber,
+                Website = propertyDto.Website
+            };
+        }
+        else if (property.Address != null)
         {
             property.Address.AddressLine1 = propertyDto.AddressLine1;
             property.Address.AddressLine2 = propertyDto.AddressLine2;
@@ -216,8 +236,29 @@ public class PropertyService(
             property.Address.Website = propertyDto.Website;
         }
 
-        // Update contact if property has its own contact (not shared with group)
-        if (property.Contact != null)
+        var isContactSharedWithGroup = group != null && property.ContactId == group.PrimaryContactId;
+        if (isContactSharedWithGroup)
+        {
+            logger.LogDebug("Property {PropertyId} is sharing contact with group. Creating new contact.", property.Id);
+            var roletoAssign = "PropertyManager";
+            var propertyManagerRole = await commonRepositoryManager.RoleRepository.GetByName(roletoAssign, cancellationToken).ConfigureAwait(false)
+                ?? throw new AroRoleNotFoundException(roletoAssign);
+
+            property.Contact = new()
+            {
+                CreatedAt = DateTime.Now,
+                DisplayName = propertyDto.ContactName,
+                Email = propertyDto.ContactEmail,
+                PasswordHash = "$2a$11$B51W4gxuG88sGqNkyDI9se0mYym2Zh9K1uTOP/7ATwzLVyj4/WGFy",
+                UserRoles = [
+                    new()
+                    {
+                        RoleId = propertyManagerRole.Id
+                    }
+                ]
+            };
+        }
+        else if (property.Contact != null)
         {
             property.Contact.DisplayName = propertyDto.ContactName;
             property.Contact.Email = propertyDto.ContactEmail;
