@@ -16,11 +16,13 @@ public class CountryMetadataService(HttpClient http) : ICountryMetadataService
 
         try
         {
-            var data = await _http.GetFromJsonAsync<ICollection<CountryMetadata>>("api/country-metadata");
+            var response = await _http.GetAsync("api/country-metadata");
+            response.EnsureSuccessStatusCode();
+            var data = await response.Content.ReadFromJsonAsync<CountryMetadataResponse>();
 
             if (data != null)
             {
-                _countries = data;
+                _countries = data.Countries;
             }
         }
         catch (Exception ex)
