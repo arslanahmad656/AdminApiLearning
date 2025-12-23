@@ -1,10 +1,12 @@
-﻿@page "/property/{propertyId:guid}/rooms/add"
+﻿@page "/group/{groupId:guid}/property/{propertyId:guid}/rooms/add"
 
 @using Aro.Admin.Presentation.UI.Layout
 @using Aro.UI.Application.DTOs.Room
 
 @code {
-    [Parameter] public Guid PropertyId { get; set; }
+    [Parameter] public Guid GroupId { get; set; } = Guid.Empty;
+
+    [Parameter] public Guid PropertyId { get; set; } = Guid.Empty;
 
     private EntityWizardContext<RoomModel> Wizard = new()
         {
@@ -19,7 +21,7 @@
                 "Review & Save" 
             },
             Title = "Room"
-    };
+        };
 
     private readonly List<Type> StepComponents = new()
     {
@@ -32,6 +34,8 @@
 
     protected override void OnInitialized()
     {
+        Wizard.NavigateTo = $"/group/{GroupId}/property/{PropertyId}/rooms";
+
         Wizard.OnNext = async () =>
             {
                 bool isValid = true;

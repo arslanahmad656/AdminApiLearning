@@ -15,5 +15,6 @@ public class EntityWizardContext<TEntity>
     public TEntity? PrevEntity { get; set; }
     public bool IsSaving { get; set; } = false;
     public string Title { get; set; } = string.Empty;
+    public string NavigateTo { get; set; } = "/";
 }
 

@@ -1,0 +1,443 @@
+@page "/group/{GroupId:guid}/property/{PropertyId:guid}/rooms"
+@attribute [Authorize]
+@layout PropertyLayout
+@using Aro.UI.Application.DTOs.Group
+@using Microsoft.AspNetCore.Components.Authorization
+@using Aro.UI.Infrastructure.Services
+@using Aro.UI.Application.DTOs
+@using Microsoft.Extensions.Configuration
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IPolicyService PolicyService
+@inject IGroupService GroupService
+@inject IConfiguration Configuration
+
+<PageTitle>ARO Admin - Property Rooms</PageTitle>
+
+<div class="property-rules-container">
+    <!-- Left Sidebar - Property Specific Menu -->
+    <div class="property-sidebar">
+        <div class="sidebar-logo">
+            <img src="aro-logo.svg" alt="ARO" class="logo-img" />
+        </div>
+
+        <div class="property-header">
+            <div class="property-avatar">
+                @if (!string.IsNullOrEmpty(GroupImageUrl))
+                {
+                    <img src="@GroupImageUrl" alt="@GroupName" />
+                }
+                else
+                {
+                    <div class="group-logo-placeholder">
+                        @(GroupName?.Length > 0 ? GroupName.Substring(0, 1).ToUpper() : "G")
+                    </div>
+                }
+            </div>
+            <span class="property-title">@GroupName</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/group/@GroupId/property/@PropertyId/rooms" class="nav-item active">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 12V18H6V14H18V18H21V12H3Z" fill="white"/>
+                        <path d="M3 5V10H21V5H3Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Rooms</span>
+            </a>
+            <a href="/property/@GroupId/@PropertyId/rate-plans" class="nav-item">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21.41 11.58L12.41 2.58C12.05 2.22 11.55 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.55 2.22 12.05 2.59 12.42L11.59 21.42C11.95 21.78 12.45 22 13 22C13.55 22 14.05 21.78 14.41 21.41L21.41 14.41C21.78 14.05 22 13.55 22 13C22 12.45 21.77 11.94 21.41 11.58ZM5.5 7C4.67 7 4 6.33 4 5.5C4 4.67 4.67 4 5.5 4C6.33 4 7 4.67 7 5.5C7 6.33 6.33 7 5.5 7Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Rate plans</span>
+            </a>
+            <a href="/property/@GroupId/@PropertyId/gift-vouchers" class="nav-item">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 6H17.82C17.93 5.69 18 5.35 18 5C18 3.34 16.66 2 15 2C13.95 2 13.04 2.54 12.5 3.35L12 4.02L11.5 3.34C10.96 2.54 10.05 2 9 2C7.34 2 6 3.34 6 5C6 5.35 6.07 5.69 6.18 6H4C2.89 6 2.01 6.89 2.01 8L2 19C2 20.11 2.89 21 4 21H20C21.11 21 22 20.11 22 19V8C22 6.89 21.11 6 20 6ZM15 4C15.55 4 16 4.45 16 5C16 5.55 15.55 6 15 6C14.45 6 14 5.55 14 5C14 4.45 14.45 4 15 4ZM9 4C9.55 4 10 4.45 10 5C10 5.55 9.55 6 9 6C8.45 6 8 5.55 8 5C8 4.45 8.45 4 9 4ZM20 19H4V17H20V19ZM20 14H4V8H9.08L7 10.83L8.62 12L11 8.76L12 7.4L13 8.76L15.38 12L17 10.83L14.92 8H20V14Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Gift vouchers</span>
+            </a>
+            <a href="/property/@GroupId/@PropertyId/users" class="nav-item">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.65 10C11.83 7.67 9.61 6 7 6C3.69 6 1 8.69 1 12C1 15.31 3.69 18 7 18C9.61 18 11.83 16.33 12.65 14H17V18H21V14H23V10H12.65ZM7 14C5.9 14 5 13.1 5 12C5 10.9 5.9 10 7 10C8.1 10 9 10.9 9 12C9 13.1 8.1 14 7 14Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Users & Permissions</span>
+            </a>
+            <a href="/property/@GroupId/@PropertyId/facilities" class="nav-item">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="white"/>
+                        <path d="M7 12H9V17H7V12ZM11 7H13V17H11V7ZM15 10H17V17H15V10Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Facilities & Services</span>
+            </a>
+            <a href="/property/@GroupId/@PropertyId/rules" class="nav-item">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM14 17H7V15H14V17ZM17 13H7V11H17V13ZM17 9H7V7H17V9Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Property Rules</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="/group/view/@GroupId" class="back-link">← Back to All Properties</a>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <div class="content-header">
+            <div class="header-right">
+                <TopHeaderBar GroupName="@GroupName" ProfileImageUrl="@GroupImageUrl" />
+            </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <span>@GroupName / Property Rooms</span>
+        </div>
+
+        <!-- Page Title -->
+        <div class="page-title-section">
+            <h1 class="page-title">Property Rooms</h1>
+            <button class="add-rule-btn" @onclick="HandleAddNewRoom">
+                + Add New Room
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+@code {
+    [Parameter]
+    public Guid GroupId { get; set; }
+
+    [Parameter]
+    public Guid PropertyId { get; set; }
+
+
+    private string GroupName { get; set; } = "";
+    private string? GroupImageUrl { get; set; }
+
+    private bool isLoading = true;
+
+    // Panel state
+    private bool isEditMode = false;
+    private bool isSaving = false;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadGroupDetails();
+    }
+
+    private async Task LoadGroupDetails()
+    {
+        try
+        {
+            var groupResponse = await GroupService.GetGroup(new GetGroupRequest(GroupId, "PrimaryContact"));
+            if (groupResponse?.Group != null)
+            {
+                GroupName = groupResponse.Group.GroupName ?? "";
+
+                // Construct image URL from LogoId
+                if (groupResponse.Group.LogoId.HasValue && groupResponse.Group.LogoId.Value != Guid.Empty)
+                {
+                    var apiBaseAddress = Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
+                    GroupImageUrl = $"{apiBaseAddress}/api/group/image/{GroupId}/{groupResponse.Group.LogoId.Value}";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            // Error loading group details
+            GroupName = "";
+        }
+    }
+
+    private void HandleAddNewRoom()
+    {
+        NavigationManager?.NavigateTo($"/group/{GroupId}/property/{PropertyId}/rooms/add");
+    }
+}
+
+<style>
+    /* Main Container */
+    .property-rules-container {
+        display: flex;
+        min-height: 100vh;
+        background: #FFFFFF;
+    }
+
+    /* Left Sidebar */
+    .property-sidebar {
+        width: 381px;
+        background: #434343;
+        border-right: 1px solid #474747;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+        padding: 36px 36px 20px;
+    }
+
+    .logo-img {
+        height: 36px;
+        width: auto;
+    }
+
+    .property-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 36px;
+    }
+
+    .property-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 18px;
+        border: 1px solid white;
+        overflow: hidden;
+    }
+
+    .property-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .group-logo-placeholder {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: #5B5B5B;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .property-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+        color: #FFFFFF;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar-nav {
+        flex: 1;
+        padding: 20px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        color: #FFFFFF;
+        text-decoration: none;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        border-radius: 10px;
+        transition: background-color 0.2s;
+    }
+
+    .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-item.active {
+        background: #5b5b5b;
+        font-weight: 600;
+    }
+
+    .nav-icon {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .nav-text {
+        flex: 1;
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+        padding: 20px 36px 26px;
+    }
+
+    .back-link {
+        font-family: 'Inter', sans-serif;
+        font-weight: 300;
+        font-size: 14px;
+        color: #FFFFFF;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+
+    /* Success Notification Banner */
+    .success-notification {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        background: #D8EDD9;
+        border-radius: 6px;
+        padding: 10px 20px;
+        margin-bottom: 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        font-weight: 400;
+        color: #166719;
+        animation: fadeIn 0.3s ease-out;
+        max-width: fit-content;
+    }
+
+    .success-notification svg {
+        flex-shrink: 0;
+    }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        padding: 12px 36px 36px;
+        background: #FFFFFF;
+        overflow-y: auto;
+    }
+
+    /* Content Header */
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        margin-left: auto;
+    }
+
+    .property-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .badge-img {
+        width: 36px;
+        height: 36px;
+        border-radius: 18px;
+        object-fit: cover;
+    }
+
+    .badge-placeholder {
+        width: 36px;
+        height: 36px;
+        border-radius: 18px;
+        background-color: #E0E0E0;
+        color: #1C1B1F;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .badge-name {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1c1b1f;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #4a4a4a;
+        margin-bottom: 20px;
+    }
+
+    /* Page Title Section */
+    .page-title-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .page-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 30px;
+        font-weight: 400;
+        color: #000000;
+        margin: 0;
+    }
+
+    .add-rule-btn {
+        background: #f69126;
+        border: none;
+        border-radius: 6px;
+        padding: 14px 24px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #1c1b1f;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .add-rule-btn:hover {
+        background: #e58320;
+    }
+</style>
