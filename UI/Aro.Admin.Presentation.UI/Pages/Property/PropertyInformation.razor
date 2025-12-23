@@ -169,6 +169,7 @@
     private bool isDescriptionFocused = false;
     private Guid? _currentGroupId = null;
     private Guid? _currentPropertyId = null;
+    private string _originalStateHash = string.Empty;
 
     private readonly List<string> stepTitles = new()
     {
@@ -225,6 +226,13 @@
     }
 
     private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId, _currentPropertyId);
+
+    private string ComputeCurrentStateHash()
+    {
+        return $"{wizardModel.PropertyName}|{wizardModel.PropertyTypes.Hotel}|{wizardModel.PropertyTypes.Resort}|{wizardModel.PropertyTypes.Apartment}|{wizardModel.PropertyTypes.Hostel}|{wizardModel.PropertyTypes.BnB}|{wizardModel.PropertyTypes.Guesthouse}|{wizardModel.PropertyTypes.Lodge}|{wizardModel.StarRating}|{wizardModel.Currency}|{wizardModel.Description}";
+    }
+
+    private bool HasUnsavedChanges() => _originalStateHash != ComputeCurrentStateHash();
 
     private async Task LoadFromLocalStorage()
     {
@@ -285,6 +293,8 @@
             {
                 wizardModel.GroupId = _currentGroupId;
             }
+
+            _originalStateHash = ComputeCurrentStateHash();
         }
         catch (Exception ex)
         {
@@ -313,6 +323,7 @@
             var storageKey = GetStorageKey();
             var json = JsonSerializer.Serialize(wizardModel);
             await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, json);
+            _originalStateHash = ComputeCurrentStateHash();
         }
         catch (Exception ex)
         {
@@ -380,7 +391,12 @@
     {
         if (!wizardModel.IsEditMode) return;
 
-        // Show unsaved changes modal
+        if (!HasUnsavedChanges())
+        {
+            NavigationManager.NavigateTo(stepRoutes[stepIndex]);
+            return;
+        }
+
         var parameters = new DialogParameters();
         var options = new DialogOptions { CloseButton = false, MaxWidth = MaxWidth.Small };
         var dialog = await DialogService.ShowAsync<UnsavedChangesModal>("Unsaved Changes", parameters, options);
@@ -399,7 +415,6 @@
                 NavigationManager.NavigateTo(stepRoutes[stepIndex]);
                 break;
             case UnsavedChangesModal.UnsavedChangesResult.Cancel:
-                // Stay on current step
                 break;
         }
     }
