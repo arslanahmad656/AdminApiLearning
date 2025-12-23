@@ -255,30 +255,26 @@
         }
     }
 
-    private async Task SaveToLocalStorage()
+    private async Task SaveToLocalStorage(bool updateHash = false)
     {
         try
         {
-            // Ensure GroupId is preserved
             if (_currentGroupId.HasValue && _currentGroupId.Value != Guid.Empty)
             {
                 wizardModel.GroupId = _currentGroupId;
             }
 
-            // Always ensure SelectedGroupId is saved for subsequent pages
             if (wizardModel.GroupId.HasValue && wizardModel.GroupId.Value != Guid.Empty)
             {
                 await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", wizardModel.GroupId.Value.ToString());
                 _currentGroupId = wizardModel.GroupId;
             }
 
-            // Sync banner images to wizardModel (handle both new uploads and existing files)
             if (uploadedImages.Count > 0)
             {
                 var img = uploadedImages[0];
                 if (img.IsExisting)
                 {
-                    // Existing image from API - preserve URL
                     wizardModel.Banner1 = new PropertyFileModel
                     {
                         FileName = img.Name,
@@ -288,7 +284,6 @@
                 }
                 else
                 {
-                    // Newly uploaded image - store Base64
                     wizardModel.Banner1 = new PropertyFileModel
                     {
                         FileName = img.Name,
@@ -307,7 +302,6 @@
                 var img = uploadedImages[1];
                 if (img.IsExisting)
                 {
-                    // Existing image from API - preserve URL
                     wizardModel.Banner2 = new PropertyFileModel
                     {
                         FileName = img.Name,
@@ -317,7 +311,6 @@
                 }
                 else
                 {
-                    // Newly uploaded image - store Base64
                     wizardModel.Banner2 = new PropertyFileModel
                     {
                         FileName = img.Name,
@@ -335,7 +328,11 @@
             var storageKey = GetStorageKey();
             var json = JsonSerializer.Serialize(wizardModel);
             await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, json);
-            _originalStateHash = ComputeCurrentStateHash();
+
+            if (updateHash)
+            {
+                _originalStateHash = ComputeCurrentStateHash();
+            }
         }
         catch (Exception ex)
         {
@@ -451,20 +448,19 @@
 
     private async Task HandleBack()
     {
-        await SaveToLocalStorage();
+        await SaveToLocalStorage(true);
         NavigationManager.NavigateTo("/property/key-selling-points");
     }
 
     private async Task HandleNext()
     {
-        await SaveToLocalStorage();
+        await SaveToLocalStorage(true);
         NavigationManager.NavigateTo("/property/marketing-seo");
     }
 
     private async Task HandleSave()
     {
-        await SaveToLocalStorage();
-        // In edit mode, "Save" navigates to Review & Save step
+        await SaveToLocalStorage(true);
         NavigationManager.NavigateTo("/property/review-save");
     }
 
@@ -489,7 +485,7 @@
         switch (action)
         {
             case UnsavedChangesModal.UnsavedChangesResult.SaveAndContinue:
-                await SaveToLocalStorage();
+                await SaveToLocalStorage(true);
                 NavigationManager.NavigateTo(stepRoutes[stepIndex]);
                 break;
             case UnsavedChangesModal.UnsavedChangesResult.Discard:
