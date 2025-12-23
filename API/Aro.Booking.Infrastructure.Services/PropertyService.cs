@@ -316,19 +316,19 @@ public class PropertyService(
             property.StarRating,
             property.Currency,
             property.Description,
-            property.Address.AddressLine1,
-            property.Address.AddressLine2,
-            property.Address.City,
-            property.Address.Country,
-            property.Address.PostalCode,
-            property.Address.PhoneNumber,
-            property.Address.Website,
-            property.Contact.DisplayName,
-            property.Contact.Email,
-            property.KeySellingPoints.Split(Constants.DatabaseStringSplitter).ToList(),
+            property.Address?.AddressLine1 ?? string.Empty,
+            property.Address?.AddressLine2 ?? string.Empty,
+            property.Address?.City ?? string.Empty,
+            property.Address?.Country ?? string.Empty,
+            property.Address?.PostalCode ?? string.Empty,
+            property.Address?.PhoneNumber ?? string.Empty,
+            property.Address?.Website ?? string.Empty,
+            property.Contact?.DisplayName ?? string.Empty,
+            property.Contact?.Email ?? string.Empty,
+            property.KeySellingPoints?.Split(Constants.DatabaseStringSplitter).ToList() ?? new List<string>(),
             property.MarketingTitle,
             property.MarketingDescription,
-            images.ToDictionary(i => i.File.Metadata, i => i.File.Id)
+            images.Where(i => i.File != null).ToDictionary(i => i.File.Metadata ?? string.Empty, i => i.File.Id)
         );
     }
 
@@ -368,19 +368,19 @@ public class PropertyService(
             property.StarRating,
             property.Currency,
             property.Description,
-            property.Address.AddressLine1,
-            property.Address.AddressLine2,
-            property.Address.City,
-            property.Address.Country,
-            property.Address.PostalCode,
-            property.Address.PhoneNumber,
-            property.Address.Website,
-            property.Contact.DisplayName,
-            property.Contact.Email,
-            property.KeySellingPoints.Split(Constants.DatabaseStringSplitter).ToList(),
+            property.Address?.AddressLine1 ?? string.Empty,
+            property.Address?.AddressLine2 ?? string.Empty,
+            property.Address?.City ?? string.Empty,
+            property.Address?.Country ?? string.Empty,
+            property.Address?.PostalCode ?? string.Empty,
+            property.Address?.PhoneNumber ?? string.Empty,
+            property.Address?.Website ?? string.Empty,
+            property.Contact?.DisplayName ?? string.Empty,
+            property.Contact?.Email ?? string.Empty,
+            property.KeySellingPoints?.Split(Constants.DatabaseStringSplitter).ToList() ?? new List<string>(),
             property.MarketingTitle,
             property.MarketingDescription,
-            images.ToDictionary(i => i.File.Metadata, i => i.File.Id)
+            images.Where(i => i.File != null).ToDictionary(i => i.File.Metadata ?? string.Empty, i => i.File.Id)
         );
     }
 
