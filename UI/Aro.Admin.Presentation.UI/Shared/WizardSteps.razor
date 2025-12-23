@@ -1,10 +1,14 @@
 <div class="vstack gap-0 p-4">
     @for (int i = 0; i < StepTitles.Count; i++)
     {
+        var stepIndex = i;
         var isActive = i == ActiveStepIndex;
         var isComplete = AllStepsCompleted ? true : i < ActiveStepIndex;
+        var isClickable = IsEditMode && !isActive;
 
-        <div class="hstack gap-3 align-items-center">
+        <div class="hstack gap-3 align-items-center step-row @(isClickable ? "clickable" : "")"
+             @onclick="@(() => HandleStepClick(stepIndex))"
+             @onclick:stopPropagation="true">
 
 
             <div class="progress-circle @(isComplete ? "complete" : isActive ? "active": "")">
@@ -40,7 +44,17 @@
     [Parameter] public required List<string> StepTitles { get; set; }
     [Parameter] public int ActiveStepIndex { get; set; }
     [Parameter] public bool AllStepsCompleted { get; set; }
+    [Parameter] public bool IsEditMode { get; set; } = false;
+    [Parameter] public EventCallback<int> OnStepClick { get; set; }
 
+    private async Task HandleStepClick(int stepIndex)
+    {
+        // Only allow clicks in edit mode and not on the current step
+        if (IsEditMode && stepIndex != ActiveStepIndex)
+        {
+            await OnStepClick.InvokeAsync(stepIndex);
+        }
+    }
 }
 
 <style>
@@ -77,4 +91,17 @@
         .progress-line-vertical.full {
             border-right: 2px solid black;
         }
+
+    .step-row.clickable {
+        cursor: pointer;
+        transition: opacity 0.2s ease;
+    }
+
+    .step-row.clickable:hover {
+        opacity: 0.7;
+    }
+
+    .step-row.clickable:hover .progress-circle {
+        box-shadow: 0 0 0 3px rgba(255, 147, 30, 0.3);
+    }
 </style>

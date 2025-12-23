@@ -115,6 +115,13 @@
                     </div>
                     <div class="property-status">
                         <span class="status-badge active">Active</span>
+                        <div class="property-menu" @onclick:stopPropagation="true">
+                            <MudMenu Icon="@Icons.Material.Filled.Settings" Size="Size.Small" Dense="true" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                                <MudMenuItem OnClick="@(() => EditProperty(property))">
+                                    View / Edit Property
+                                </MudMenuItem>
+                            </MudMenu>
+                        </div>
                     </div>
                 </div>
 
@@ -322,27 +329,23 @@
             // Store the selected group ID for the wizard pages to use
             await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", GroupId.Value.ToString());
 
-            // Get the group-specific storage key
-            var storageKey = PropertyWizardModel.GetLocalStorageKey(GroupId.Value);
+            // Use the CREATE storage key (separate from edit keys)
+            var storageKey = PropertyWizardModel.GetCreateStorageKey(GroupId.Value);
 
-            // Create a new wizard model with the GroupId or update existing
-            var existingJson = await JSRuntime.InvokeAsync<string>("localStorage.getItem", storageKey);
-            PropertyWizardModel wizardModel;
-
-            if (!string.IsNullOrEmpty(existingJson))
+            // Always start fresh for new property creation
+            var wizardModel = new PropertyWizardModel
             {
-                wizardModel = JsonSerializer.Deserialize<PropertyWizardModel>(existingJson) ?? new PropertyWizardModel();
-            }
-            else
-            {
-                wizardModel = new PropertyWizardModel();
-            }
-
-            wizardModel.GroupId = GroupId.Value;
-            wizardModel.CurrentStep = 1;
+                GroupId = GroupId.Value,
+                IsEditMode = false,
+                PropertyId = null,
+                CurrentStep = 1
+            };
 
             var json = JsonSerializer.Serialize(wizardModel);
             await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, json);
+
+            // Store current property ID as null (create mode)
+            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "CurrentPropertyId", "");
         }
 
         // Navigate to property information wizard
@@ -357,6 +360,107 @@
     private void NavigateToProperty(Guid propertyId)
     {
         NavigationManager?.NavigateTo($"/property/{GroupId}/{propertyId}/rules");
+    }
+
+    private async Task EditProperty(PropertyListItemResponse property)
+    {
+        // Load the property data from API and populate the wizard model
+        var propertyData = await PropertyService.GetPropertyByIdAsync(property.GroupId, property.PropertyId);
+        if (propertyData == null)
+        {
+            Snackbar.Add("Failed to load property data", MudBlazor.Severity.Error);
+            return;
+        }
+
+        // Create wizard model with existing data in edit mode
+        var wizardModel = new PropertyWizardModel
+        {
+            IsEditMode = true,
+            PropertyId = property.PropertyId,
+            GroupId = property.GroupId,
+            PropertyName = propertyData.PropertyName ?? "",
+            StarRating = propertyData.StarRating,
+            Currency = propertyData.Currency ?? "",
+            Description = propertyData.Description ?? "",
+            AddressLine1 = propertyData.AddressLine1 ?? "",
+            AddressLine2 = propertyData.AddressLine2 ?? "",
+            City = propertyData.City ?? "",
+            Country = propertyData.Country ?? "",
+            PostalCode = propertyData.PostalCode ?? "",
+            PhoneNumber = propertyData.PhoneNumber ?? "",
+            Website = propertyData.Website ?? "",
+            ContactName = propertyData.ContactName ?? "",
+            ContactEmail = propertyData.ContactEmail ?? "",
+            KeySellingPoints = propertyData.KeySellingPoints ?? new List<string>(),
+            MarketingTitle = propertyData.MarketingTitle ?? "",
+            MarketingDescription = propertyData.MarketingDescription ?? "",
+            CurrentStep = 1
+        };
+
+        // Set property types from API response
+        if (propertyData.PropertyTypes != null)
+        {
+            foreach (var type in propertyData.PropertyTypes)
+            {
+                switch (type)
+                {
+                    case "Hotel": wizardModel.PropertyTypes.Hotel = true; break;
+                    case "Guesthouse": wizardModel.PropertyTypes.Guesthouse = true; break;
+                    case "BAndB": wizardModel.PropertyTypes.BnB = true; break;
+                    case "Apartment": wizardModel.PropertyTypes.Apartment = true; break;
+                    case "Hostel": wizardModel.PropertyTypes.Hostel = true; break;
+                    case "Resort": wizardModel.PropertyTypes.Resort = true; break;
+                    case "Lodge": wizardModel.PropertyTypes.Lodge = true; break;
+                }
+            }
+        }
+
+        // Store existing file IDs and URLs for reference
+        if (propertyData.FileIds != null)
+        {
+            cachedApiBaseAddress ??= Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
+
+            if (propertyData.FileIds.TryGetValue("Favicon", out var faviconId))
+            {
+                wizardModel.ExistingFaviconId = faviconId;
+                wizardModel.Favicon = new PropertyFileModel
+                {
+                    FileName = "Favicon",
+                    FileId = faviconId,
+                    Url = $"{cachedApiBaseAddress}/api/property/image/{property.GroupId}/{property.PropertyId}/{faviconId}"
+                };
+            }
+            if (propertyData.FileIds.TryGetValue("Banner1", out var banner1Id))
+            {
+                wizardModel.ExistingBanner1Id = banner1Id;
+                wizardModel.Banner1 = new PropertyFileModel
+                {
+                    FileName = "Banner1",
+                    FileId = banner1Id,
+                    Url = $"{cachedApiBaseAddress}/api/property/image/{property.GroupId}/{property.PropertyId}/{banner1Id}"
+                };
+            }
+            if (propertyData.FileIds.TryGetValue("Banner2", out var banner2Id))
+            {
+                wizardModel.ExistingBanner2Id = banner2Id;
+                wizardModel.Banner2 = new PropertyFileModel
+                {
+                    FileName = "Banner2",
+                    FileId = banner2Id,
+                    Url = $"{cachedApiBaseAddress}/api/property/image/{property.GroupId}/{property.PropertyId}/{banner2Id}"
+                };
+            }
+        }
+
+        // Store in localStorage using EDIT storage key (property-specific)
+        var storageKey = PropertyWizardModel.GetEditStorageKey(property.GroupId, property.PropertyId);
+        var json = JsonSerializer.Serialize(wizardModel);
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", storageKey, json);
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "SelectedGroupId", property.GroupId.ToString());
+        await JSRuntime.InvokeVoidAsync("localStorage.setItem", "CurrentPropertyId", property.PropertyId.ToString());
+
+        // Navigate to property wizard in edit mode
+        NavigationManager?.NavigateTo($"/property/information?propertyId={property.PropertyId}&edit=true");
     }
 
 }
@@ -686,6 +790,7 @@
     .property-status {
         display: flex;
         align-items: center;
+        gap: 8px;
     }
 
     .status-badge {
@@ -707,6 +812,23 @@
         background-color: transparent;
         border: 1px solid #666666;
         color: #666666;
+    }
+
+    .property-menu {
+        margin-left: 8px;
+    }
+
+    .property-menu ::deep .mud-button-root {
+        min-width: 32px;
+        padding: 4px;
+    }
+
+    .property-menu ::deep .mud-icon-root {
+        color: #666666;
+    }
+
+    .property-menu:hover ::deep .mud-icon-root {
+        color: #F69126;
     }
 
     .property-card-divider {

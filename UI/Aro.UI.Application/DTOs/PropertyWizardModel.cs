@@ -9,19 +9,50 @@ public class PropertyWizardModel
     public const string LocalStorageKeyPrefix = "PropertyWizardData";
 
     /// <summary>
-    /// Gets the localStorage key for a specific group.
-    /// Returns "PropertyWizardData_{groupId}" for group-specific data,
-    /// or "PropertyWizardData" for data without a group.
+    /// Gets the localStorage key for creating a new property.
+    /// Returns "PropertyWizardData_{groupId}_new" for create mode.
     /// </summary>
-    public static string GetLocalStorageKey(Guid? groupId)
+    public static string GetCreateStorageKey(Guid groupId)
     {
-        return groupId.HasValue && groupId.Value != Guid.Empty
-            ? $"{LocalStorageKeyPrefix}_{groupId.Value}"
-            : LocalStorageKeyPrefix;
+        return $"{LocalStorageKeyPrefix}_{groupId}_new";
+    }
+
+    /// <summary>
+    /// Gets the localStorage key for editing an existing property.
+    /// Returns "PropertyWizardData_{groupId}_{propertyId}" for edit mode.
+    /// </summary>
+    public static string GetEditStorageKey(Guid groupId, Guid propertyId)
+    {
+        return $"{LocalStorageKeyPrefix}_{groupId}_{propertyId}";
+    }
+
+    /// <summary>
+    /// Gets the localStorage key based on mode.
+    /// For edit mode: "PropertyWizardData_{groupId}_{propertyId}"
+    /// For create mode: "PropertyWizardData_{groupId}_new"
+    /// </summary>
+    public static string GetLocalStorageKey(Guid? groupId, Guid? propertyId = null)
+    {
+        if (!groupId.HasValue || groupId.Value == Guid.Empty)
+            return LocalStorageKeyPrefix;
+
+        if (propertyId.HasValue && propertyId.Value != Guid.Empty)
+            return GetEditStorageKey(groupId.Value, propertyId.Value);
+
+        return GetCreateStorageKey(groupId.Value);
     }
 
     // Group association
     public Guid? GroupId { get; set; }
+
+    // Edit mode tracking
+    public bool IsEditMode { get; set; } = false;
+    public Guid? PropertyId { get; set; } = null;
+
+    // Existing file IDs (for edit mode - to preserve files if not changed)
+    public Guid? ExistingFaviconId { get; set; }
+    public Guid? ExistingBanner1Id { get; set; }
+    public Guid? ExistingBanner2Id { get; set; }
 
     // Step 1: Property Information
     public string PropertyName { get; set; } = string.Empty;
@@ -98,13 +129,43 @@ public class PropertyTypesModel
 }
 
 /// <summary>
-/// Model for storing file data in local storage (base64 encoded).
+/// Model for storing file data in local storage (base64 encoded or URL for existing files).
 /// </summary>
 public class PropertyFileModel
 {
     public string FileName { get; set; } = string.Empty;
     public string ContentType { get; set; } = string.Empty;
     public string Base64Data { get; set; } = string.Empty;
+
+    /// <summary>
+    /// URL for existing files (edit mode). Used when file already exists on server.
+    /// </summary>
+    public string? Url { get; set; }
+
+    /// <summary>
+    /// File ID for existing files (edit mode).
+    /// </summary>
+    public Guid? FileId { get; set; }
+
+    /// <summary>
+    /// Returns true if this file has data (either Base64 or URL).
+    /// </summary>
+    public bool HasData => !string.IsNullOrEmpty(Base64Data) || !string.IsNullOrEmpty(Url);
+
+    /// <summary>
+    /// Returns true if this is a newly uploaded file (has Base64 data).
+    /// </summary>
+    public bool IsNewUpload => !string.IsNullOrEmpty(Base64Data);
+
+    /// <summary>
+    /// Gets the display URL - either the Base64 data URL or the server URL.
+    /// </summary>
+    public string GetDisplayUrl()
+    {
+        if (!string.IsNullOrEmpty(Base64Data))
+            return Base64Data;
+        return Url ?? string.Empty;
+    }
 
     /// <summary>
     /// Converts base64 data to byte array for API upload.

@@ -154,6 +154,174 @@ public class PropertyService(
         );
     }
 
+    public async Task<UpdatePropertyResponse> UpdateProperty(
+        UpdatePropertyDto propertyDto,
+        CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName} for property: {PropertyId}", nameof(UpdateProperty), propertyDto.PropertyId);
+
+        var property = await repositoryManager.PropertyRepository
+            .GetById(propertyDto.PropertyId)
+            .Include(p => p.Address)
+            .Include(p => p.Contact)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        if (property == null)
+        {
+            logger.LogWarn("Property with Id '{PropertyId}' not found", propertyDto.PropertyId);
+            throw new PropertyNotFoundException(propertyDto.PropertyId.ToString());
+        }
+
+        // Check if property name is being changed and if so, ensure it's unique
+        if (property.PropertyName != propertyDto.PropertyName)
+        {
+            var existingProperty = await repositoryManager.PropertyRepository
+                .GetByNameAndGroupId(propertyDto.PropertyName, propertyDto.GroupId)
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            if (existingProperty != null && existingProperty.Id != propertyDto.PropertyId)
+            {
+                logger.LogWarn("Property with name '{PropertyName}' already exists for group '{GroupId}'",
+                    propertyDto.PropertyName, propertyDto.GroupId.ToString());
+                throw new PropertyAlreadyExistsException(
+                    propertyDto.PropertyName,
+                    propertyDto.GroupId.ToString());
+            }
+        }
+
+        // Update property fields
+        property.PropertyName = propertyDto.PropertyName;
+        property.PropertyTypes = propertyDto.PropertyTypes.ToFlag();
+        property.StarRating = propertyDto.StarRating;
+        property.Currency = propertyDto.Currency;
+        property.Description = propertyDto.Description;
+        property.KeySellingPoints = propertyDto.KeySellingPoints != null
+            ? string.Join(Constants.DatabaseStringSplitter, propertyDto.KeySellingPoints)
+            : null;
+        property.MarketingTitle = propertyDto.MarketingTitle;
+        property.MarketingDescription = propertyDto.MarketingDescription;
+        property.UpdatedAt = DateTime.UtcNow;
+
+        var group = await repositoryManager.GroupRepository
+            .GetById(propertyDto.GroupId)
+            .FirstOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var isAddressSharedWithGroup = group != null && property.AddressId == group.AddressId;
+        if (isAddressSharedWithGroup)
+        {
+            logger.LogDebug("Property {PropertyId} is sharing address with group. Creating new address.", property.Id);
+            property.Address = new Address
+            {
+                Id = idGenerator.Generate(),
+                AddressLine1 = propertyDto.AddressLine1,
+                AddressLine2 = propertyDto.AddressLine2,
+                City = propertyDto.City,
+                Country = propertyDto.Country,
+                PostalCode = propertyDto.PostalCode,
+                PhoneNumber = propertyDto.PhoneNumber,
+                Website = propertyDto.Website
+            };
+        }
+        else if (property.Address != null)
+        {
+            property.Address.AddressLine1 = propertyDto.AddressLine1;
+            property.Address.AddressLine2 = propertyDto.AddressLine2;
+            property.Address.City = propertyDto.City;
+            property.Address.Country = propertyDto.Country;
+            property.Address.PostalCode = propertyDto.PostalCode;
+            property.Address.PhoneNumber = propertyDto.PhoneNumber;
+            property.Address.Website = propertyDto.Website;
+        }
+
+        var isContactSharedWithGroup = group != null && property.ContactId == group.PrimaryContactId;
+        if (isContactSharedWithGroup)
+        {
+            logger.LogDebug("Property {PropertyId} is sharing contact with group. Creating new contact.", property.Id);
+            var roletoAssign = "PropertyManager";
+            var propertyManagerRole = await commonRepositoryManager.RoleRepository.GetByName(roletoAssign, cancellationToken).ConfigureAwait(false)
+                ?? throw new AroRoleNotFoundException(roletoAssign);
+
+            property.Contact = new()
+            {
+                CreatedAt = DateTime.Now,
+                DisplayName = propertyDto.ContactName,
+                Email = propertyDto.ContactEmail,
+                PasswordHash = "$2a$11$B51W4gxuG88sGqNkyDI9se0mYym2Zh9K1uTOP/7ATwzLVyj4/WGFy",
+                UserRoles = [
+                    new()
+                    {
+                        RoleId = propertyManagerRole.Id
+                    }
+                ]
+            };
+        }
+        else if (property.Contact != null)
+        {
+            property.Contact.DisplayName = propertyDto.ContactName;
+            property.Contact.Email = propertyDto.ContactEmail;
+        }
+
+        repositoryManager.PropertyRepository.Update(property);
+        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+
+        logger.LogInfo("Property updated successfully with Id: {PropertyId}", property.Id);
+
+        // Handle file updates if new files provided
+        if (propertyDto.Files != null && propertyDto.Files.Any())
+        {
+            logger.LogDebug("Processing file updates for property {PropertyId}", property.Id);
+
+            // Get existing files
+            var existingFiles = await repositoryManager.PropertyFilesRepository
+                .GetByPropertyId(property.Id)
+                .ToListAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            foreach (var fileData in propertyDto.Files)
+            {
+                try
+                {
+                    // Check if this file type already exists and remove it
+                    var existingFile = existingFiles.FirstOrDefault(f => f.File?.Metadata == fileData.FileName);
+                    if (existingFile != null)
+                    {
+                        logger.LogDebug("Removing existing file {FileName} for property {PropertyId}", fileData.FileName, property.Id);
+                        repositoryManager.PropertyFilesRepository.Delete(existingFile.Entity);
+                        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+                    }
+
+                    // Create new file
+                    var fileNameToUse = idGenerator.Generate().ToString("N");
+                    logger.LogDebug("Creating file {FileName} for property {PropertyName}. Storage name: {StorageName}",
+                        fileData.FileName, property.PropertyName, fileNameToUse);
+
+                    var fileServiceResponse = await fileService.CreateFile(
+                        new(fileNameToUse, fileData.Content, $"File for property {property.PropertyName}.", fileData.FileName, null),
+                        cancellationToken);
+
+                    await repositoryManager.PropertyFilesRepository.Create(new()
+                    {
+                        FileId = fileServiceResponse.Id,
+                        PropertyId = property.Id
+                    }, cancellationToken);
+
+                    await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+
+                    logger.LogDebug("Created file {FileName}", fileData.FileName);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error occurred while updating file {FileName}", fileData.FileName);
+                }
+            }
+        }
+
+        return new UpdatePropertyResponse(property.Id, property.GroupId);
+    }
+
     public async Task<GetPropertyResponse> GetPropertyById(
         Guid propertyId,
         CancellationToken cancellationToken = default)
@@ -189,19 +357,19 @@ public class PropertyService(
             property.StarRating,
             property.Currency,
             property.Description,
-            property.Address.AddressLine1,
-            property.Address.AddressLine2,
-            property.Address.City,
-            property.Address.Country,
-            property.Address.PostalCode,
-            property.Address.PhoneNumber,
-            property.Address.Website,
-            property.Contact.DisplayName,
-            property.Contact.Email,
-            property.KeySellingPoints.Split(Constants.DatabaseStringSplitter).ToList(),
+            property.Address?.AddressLine1 ?? string.Empty,
+            property.Address?.AddressLine2 ?? string.Empty,
+            property.Address?.City ?? string.Empty,
+            property.Address?.Country ?? string.Empty,
+            property.Address?.PostalCode ?? string.Empty,
+            property.Address?.PhoneNumber ?? string.Empty,
+            property.Address?.Website ?? string.Empty,
+            property.Contact?.DisplayName ?? string.Empty,
+            property.Contact?.Email ?? string.Empty,
+            property.KeySellingPoints?.Split(Constants.DatabaseStringSplitter).ToList() ?? new List<string>(),
             property.MarketingTitle,
             property.MarketingDescription,
-            images.ToDictionary(i => i.File.Metadata, i => i.File.Id)
+            images.Where(i => i.File != null).ToDictionary(i => i.File.Metadata ?? string.Empty, i => i.File.Id)
         );
     }
 
@@ -241,19 +409,19 @@ public class PropertyService(
             property.StarRating,
             property.Currency,
             property.Description,
-            property.Address.AddressLine1,
-            property.Address.AddressLine2,
-            property.Address.City,
-            property.Address.Country,
-            property.Address.PostalCode,
-            property.Address.PhoneNumber,
-            property.Address.Website,
-            property.Contact.DisplayName,
-            property.Contact.Email,
-            property.KeySellingPoints.Split(Constants.DatabaseStringSplitter).ToList(),
+            property.Address?.AddressLine1 ?? string.Empty,
+            property.Address?.AddressLine2 ?? string.Empty,
+            property.Address?.City ?? string.Empty,
+            property.Address?.Country ?? string.Empty,
+            property.Address?.PostalCode ?? string.Empty,
+            property.Address?.PhoneNumber ?? string.Empty,
+            property.Address?.Website ?? string.Empty,
+            property.Contact?.DisplayName ?? string.Empty,
+            property.Contact?.Email ?? string.Empty,
+            property.KeySellingPoints?.Split(Constants.DatabaseStringSplitter).ToList() ?? new List<string>(),
             property.MarketingTitle,
             property.MarketingDescription,
-            images.ToDictionary(i => i.File.Metadata, i => i.File.Id)
+            images.Where(i => i.File != null).ToDictionary(i => i.File.Metadata ?? string.Empty, i => i.File.Id)
         );
     }
 
