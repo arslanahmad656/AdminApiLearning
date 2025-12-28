@@ -19,4 +19,6 @@ public class UserRepository(AroDbContext dbContext) : RepositoryBase<User>(dbCon
     public Task Create(User user, CancellationToken cancellationToken = default) => Add(user, cancellationToken);
 
     public new void Update(User user) => base.Update(user);
+
+    public new void Delete(User user) => base.Delete(user);
 }

@@ -1,5 +1,6 @@
 ﻿
 using Aro.Admin.Application.Shared.Options;
+using Aro.Booking.Infrastructure.Shared.Options;
 
 namespace Aro.Admin.Presentation.Entry.ServiceInstallers;
 
@@ -16,5 +17,6 @@ public class OptionsInstaller : IServiceInstaller
         builder.Services.Configure<PasswordHistorySettings>(builder.Configuration.GetSection("PasswordHistorySettings"));
         builder.Services.Configure<PasswordPolicyOptions>(builder.Configuration.GetSection("PasswordPolicy"));
         builder.Services.Configure<AccountLockoutSettings>(builder.Configuration.GetSection("AccountLockoutSettings"));
+        builder.Services.Configure<PropertySettings>(builder.Configuration.GetSection("PropertySettings"));
     }
 }

@@ -15,4 +15,6 @@ public interface IUserRepository
     Task Create(User user, CancellationToken cancellationToken = default);
 
     void Update(User user);
+
+    void Delete(User user);
 }

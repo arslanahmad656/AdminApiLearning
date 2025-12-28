@@ -23,7 +23,9 @@ public record UpdatePropertyDto(
     List<string>? KeySellingPoints,
     string? MarketingTitle,
     string? MarketingDescription,
-    List<FileData>? Files
+    List<FileData>? Files,
+    bool SetContactSameAsGroupContact,
+    bool SetAddressSameAsGroupAddress
 )
 {
     public record FileData(

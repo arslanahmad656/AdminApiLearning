@@ -1,14 +1,17 @@
 using Aro.Booking.Application.Services.Property;
 using Aro.Booking.Domain.Entities;
 using Aro.Booking.Domain.Shared.Exceptions;
+using Aro.Booking.Infrastructure.Shared.Options;
 using Aro.Common.Application.Repository;
 using Aro.Common.Application.Services.FileResource;
+using Aro.Common.Application.Services.Hasher;
 using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Application.Services.UniqueIdGenerator;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Domain.Shared.Exceptions;
 using Aro.Common.Infrastructure.Shared.Extensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using BookingRepositoryManager = Aro.Booking.Application.Repository.IRepositoryManager;
 using CommonRepositoryManager = Aro.Common.Application.Repository.IRepositoryManager;
 
@@ -20,9 +23,14 @@ public class PropertyService(
     IUnitOfWork unitOfWork,
     ILogManager<PropertyService> logger,
     IUniqueIdGenerator idGenerator,
-    IFileResourceService fileService
+    IFileResourceService fileService,
+    IOptions<PropertySettings> propertySettings,
+    IHasher hasher
 ) : IPropertyService
 {
+    private readonly PropertySettings propertySettings = propertySettings.Value;
+    private readonly string propertyManagerRole = "PropertyManager";
+
     public async Task<CreatePropertyResponse> CreateProperty(
         CreatePropertyDto propertyDto,
         CancellationToken cancellationToken = default)
@@ -61,6 +69,11 @@ public class PropertyService(
         };
 
         Group? group = null;
+        var address = new Address
+        {
+            Id = idGenerator.Generate()
+        };
+
         if (propertyDto.SetAddressSameAsGroupAddress)
         {
             group = await repositoryManager.GroupRepository
@@ -70,22 +83,26 @@ public class PropertyService(
                 .ConfigureAwait(false)
                 ?? throw new AroGroupNotFoundException(propertyDto.GroupId.ToString());
 
-            property.AddressId = group.AddressId;
+            address.AddressLine1 = group.Address.AddressLine1;
+            address.AddressLine2 = group.Address.AddressLine2;
+            address.City = group.Address.City;
+            address.Country = group.Address.Country;
+            address.PostalCode = group.Address.PostalCode;
+            address.PhoneNumber = group.Address.PhoneNumber;
+            address.Website = group.Address.Website;
         }
         else
         {
-            property.Address = new()
-            {
-                Id = idGenerator.Generate(),
-                AddressLine1 = propertyDto.AddressLine2,
-                AddressLine2 = propertyDto.AddressLine2,
-                City = propertyDto.City,
-                Country = propertyDto.Country,
-                PostalCode = propertyDto.PostalCode,
-                PhoneNumber = propertyDto.PhoneNumber,
-                Website = propertyDto.Website
-            };
+            address.AddressLine1 = propertyDto.AddressLine1;
+            address.AddressLine2 = propertyDto.AddressLine2;
+            address.City = propertyDto.City;
+            address.Country = propertyDto.Country;
+            address.PostalCode = propertyDto.PostalCode;
+            address.PhoneNumber = propertyDto.PhoneNumber;
+            address.Website = propertyDto.Website;
         }
+
+        property.Address = address;
 
         if (propertyDto.SetContactSameAsGroupContact)
         {
@@ -99,7 +116,7 @@ public class PropertyService(
         }
         else
         {
-            var roletoAssign = "PropertyManager";
+            var roletoAssign = this.propertyManagerRole;
             var propertyManagerRole = await commonRepositoryManager.RoleRepository.GetByName(roletoAssign, cancellationToken).ConfigureAwait(false)
                 ?? throw new AroRoleNotFoundException(roletoAssign);
 
@@ -108,7 +125,7 @@ public class PropertyService(
                 CreatedAt = DateTime.Now,
                 DisplayName = propertyDto.ContactName,
                 Email = propertyDto.ContactEmail,
-                PasswordHash = "$2a$11$B51W4gxuG88sGqNkyDI9se0mYym2Zh9K1uTOP/7ATwzLVyj4/WGFy",
+                PasswordHash = hasher.Hash(propertySettings.DefaultContactPassword),
                 UserRoles = [
                     new()
                     {
@@ -205,27 +222,23 @@ public class PropertyService(
         property.UpdatedAt = DateTime.UtcNow;
 
         var group = await repositoryManager.GroupRepository
-            .GetById(propertyDto.GroupId)
-            .FirstOrDefaultAsync(cancellationToken)
-            .ConfigureAwait(false);
+                .GetById(propertyDto.GroupId)
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false)
+                ?? throw new AroGroupNotFoundException(propertyDto.GroupId.ToString());
 
-        var isAddressSharedWithGroup = group != null && property.AddressId == group.AddressId;
-        if (isAddressSharedWithGroup)
+        if (propertyDto.SetAddressSameAsGroupAddress)
         {
             logger.LogDebug("Property {PropertyId} is sharing address with group. Creating new address.", property.Id);
-            property.Address = new Address
-            {
-                Id = idGenerator.Generate(),
-                AddressLine1 = propertyDto.AddressLine1,
-                AddressLine2 = propertyDto.AddressLine2,
-                City = propertyDto.City,
-                Country = propertyDto.Country,
-                PostalCode = propertyDto.PostalCode,
-                PhoneNumber = propertyDto.PhoneNumber,
-                Website = propertyDto.Website
-            };
+            property.Address.AddressLine1 = group.Address.AddressLine1;
+            property.Address.AddressLine2 = group.Address.AddressLine2;
+            property.Address.City = group.Address.City;
+            property.Address.Country = group.Address.Country;
+            property.Address.PostalCode = group.Address.PostalCode;
+            property.Address.PhoneNumber = group.Address.PhoneNumber;
+            property.Address.Website = group.Address.Website;
         }
-        else if (property.Address != null)
+        else
         {
             property.Address.AddressLine1 = propertyDto.AddressLine1;
             property.Address.AddressLine2 = propertyDto.AddressLine2;
@@ -236,32 +249,50 @@ public class PropertyService(
             property.Address.Website = propertyDto.Website;
         }
 
-        var isContactSharedWithGroup = group != null && property.ContactId == group.PrimaryContactId;
+        var isContactSharedWithGroup = property.ContactId == group.PrimaryContactId;
         if (isContactSharedWithGroup)
         {
             logger.LogDebug("Property {PropertyId} is sharing contact with group. Creating new contact.", property.Id);
-            var roletoAssign = "PropertyManager";
-            var propertyManagerRole = await commonRepositoryManager.RoleRepository.GetByName(roletoAssign, cancellationToken).ConfigureAwait(false)
-                ?? throw new AroRoleNotFoundException(roletoAssign);
 
-            property.Contact = new()
+            if (propertyDto.SetContactSameAsGroupContact)
             {
-                CreatedAt = DateTime.Now,
-                DisplayName = propertyDto.ContactName,
-                Email = propertyDto.ContactEmail,
-                PasswordHash = "$2a$11$B51W4gxuG88sGqNkyDI9se0mYym2Zh9K1uTOP/7ATwzLVyj4/WGFy",
-                UserRoles = [
-                    new()
+                // In this case, we do nothing because property's contact is already set as same the group's contact
+            }
+            else
+            {
+                // in this case, we need to create a new contact and set that contact as the property's new contact
+                var roletoAssign = this.propertyManagerRole;
+                var propertyManagerRole = await commonRepositoryManager.RoleRepository.GetByName(roletoAssign, cancellationToken).ConfigureAwait(false)
+                    ?? throw new AroRoleNotFoundException(roletoAssign);
+
+                property.Contact = new()
+                {
+                    CreatedAt = DateTime.Now,
+                    DisplayName = propertyDto.ContactName,
+                    Email = propertyDto.ContactEmail,
+                    PasswordHash = hasher.Hash(propertySettings.DefaultContactPassword),
+                    UserRoles = [
+                        new()
                     {
                         RoleId = propertyManagerRole.Id
                     }
-                ]
-            };
+                    ]
+                };
+            }
         }
-        else if (property.Contact != null)
+        else
         {
-            property.Contact.DisplayName = propertyDto.ContactName;
-            property.Contact.Email = propertyDto.ContactEmail;
+            if (propertyDto.SetContactSameAsGroupContact)
+            {
+                // in this case, we just need to point the property contact to the group contact
+                property.ContactId = group.PrimaryContactId;
+            }
+            else
+            {
+                // we can do in place update (except the role since that's going to be the same)
+                property.Contact.DisplayName = propertyDto.ContactName;
+                property.Contact.Email = propertyDto.ContactEmail;
+            }
         }
 
         repositoryManager.PropertyRepository.Update(property);
