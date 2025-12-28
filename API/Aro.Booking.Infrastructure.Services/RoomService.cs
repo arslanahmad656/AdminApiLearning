@@ -223,7 +223,7 @@ public partial class RoomService(
         CancellationToken cancellationToken = default
         )
     {
-        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchRoom], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
 
         var _room = room.Room;
         var existingRoom = await repositoryManager.RoomRepository.GetById(_room.Id)
@@ -296,5 +296,57 @@ public partial class RoomService(
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
         return new DeleteRoomResponse(dto.Id);
+    }
+
+    public async Task<ActivateRoomResponse> ActivateRoom(
+        ActivateRoomDto dto,
+        CancellationToken cancellationToken = default
+        )
+    {
+        logger.LogDebug("Starting {MethodName} for roomId: {RoomId}", nameof(ActivateRoom), dto.Id);
+
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
+
+        var room = await repositoryManager.RoomRepository.GetById(dto.Id)
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false)
+            ?? throw new AroRoomNotFoundException(dto.Id.ToString());
+
+        if (!room.IsActive)
+        {
+            room.IsActive = true;
+            repositoryManager.RoomRepository.Update(room);
+            await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+        }
+
+        logger.LogInfo("Room activated successfully with Id: {RoomId}", room.Id);
+
+        return new ActivateRoomResponse(room.Id, room.IsActive);
+    }
+
+    public async Task<DeactivateRoomResponse> DeactivateRoom(
+        DeactivateRoomDto dto,
+        CancellationToken cancellationToken = default
+        )
+    {
+        logger.LogDebug("Starting {MethodName} for roomId: {RoomId}", nameof(DeactivateRoom), dto.Id);
+
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
+
+        var room = await repositoryManager.RoomRepository.GetById(dto.Id)
+            .SingleOrDefaultAsync(cancellationToken)
+            .ConfigureAwait(false)
+            ?? throw new AroRoomNotFoundException(dto.Id.ToString());
+
+        if (room.IsActive)
+        {
+            room.IsActive = false;
+            repositoryManager.RoomRepository.Update(room);
+            await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+        }
+
+        logger.LogInfo("Room deactivated successfully with Id: {RoomId}", room.Id);
+
+        return new DeactivateRoomResponse(room.Id, room.IsActive);
     }
 }

@@ -145,7 +145,9 @@ public class PropertyController(
                 model.KeySellingPoints,
                 model.MarketingTitle,
                 model.MarketingDescription,
-                fileData.Count > 0 ? fileData : null
+                fileData.Count > 0 ? fileData : null,
+                model.SetContactSameAsGroupContact,
+                model.SetAddressSameAsGroupAddress
             )
         ), cancellationToken).ConfigureAwait(false);
 

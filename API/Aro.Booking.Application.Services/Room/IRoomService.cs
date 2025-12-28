@@ -14,4 +14,7 @@ public interface IRoomService : IService
 
     Task<DeleteRoomResponse> DeleteRoom(DeleteRoomDto room, CancellationToken cancellationToken = default);
 
+    Task<ActivateRoomResponse> ActivateRoom(ActivateRoomDto room, CancellationToken cancellationToken = default);
+
+    Task<DeactivateRoomResponse> DeactivateRoom(DeactivateRoomDto room, CancellationToken cancellationToken = default);
 }

@@ -41,6 +41,13 @@ public class AuditActions
 
     #endregion
 
+    #region [Entity Status]
+
+    public readonly string RoomActivated = "ROOM_ACTIVATED";
+    public readonly string RoomDeactivated = "ROOM_DEACTIVATED";
+
+    #endregion
+
     #region [Entity Deleted]
 
     public readonly string GroupDeleted = "GROUP_DELETED";

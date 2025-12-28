@@ -32,7 +32,9 @@ public class UpdatePropertyCommandHandler(IPropertyService propertyService)
                 request.Request.KeySellingPoints,
                 request.Request.MarketingTitle,
                 request.Request.MarketingDescription,
-                request.Request.Files?.Select(f => new UpdatePropertyDto.FileData(f.FileName, f.Content)).ToList()
+                request.Request.Files?.Select(f => new UpdatePropertyDto.FileData(f.FileName, f.Content)).ToList(),
+                request.Request.SetContactSameAsGroupContact,
+                request.Request.SetAddressSameAsGroupAddress
             ),
             cancellationToken
         ).ConfigureAwait(false);

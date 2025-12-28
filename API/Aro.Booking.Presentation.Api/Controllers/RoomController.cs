@@ -104,7 +104,7 @@ public class RoomController(
     }
 
     [HttpPatch("patch/{roomId:guid}")]
-    [Permissions(PermissionCodes.PatchRoom)]
+    [Permissions(PermissionCodes.EditRoom)]
     public async Task<IActionResult> PatchRoom(
         Guid roomId,
         [FromBody] PatchRoomModel model,
@@ -130,6 +130,46 @@ public class RoomController(
                     )
                 )
         ), cancellationToken).ConfigureAwait(false);
+
+        return Ok(response);
+    }
+
+    [HttpPost("activate/{roomId:guid}")]
+    [Permissions(PermissionCodes.EditRoom)]
+    public async Task<IActionResult> ActivateRoom(
+        Guid roomId,
+        CancellationToken cancellationToken
+        )
+    {
+        logger.LogDebug("Starting ActivateRoom for Id: {RoomId}", roomId);
+
+        var response = await mediator.Send(new ActivateRoomCommand(
+            new(
+                roomId
+            )
+        ), cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed ActivateRoom for Id: {RoomId}", roomId);
+
+        return Ok(response);
+    }
+
+    [HttpPost("deactivate/{roomId:guid}")]
+    [Permissions(PermissionCodes.EditRoom)]
+    public async Task<IActionResult> DeactivateRoom(
+        Guid roomId,
+        CancellationToken cancellationToken
+        )
+    {
+        logger.LogDebug("Starting DeactivateRoom for Id: {RoomId}", roomId);
+
+        var response = await mediator.Send(new DeactivateRoomCommand(
+            new(
+                roomId
+            )
+        ), cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed DeactivateRoom for Id: {RoomId}", roomId);
 
         return Ok(response);
     }
