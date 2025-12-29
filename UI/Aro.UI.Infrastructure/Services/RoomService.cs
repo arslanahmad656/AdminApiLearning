@@ -64,4 +64,16 @@ public class RoomService(HttpClient httpClient) : IRoomService
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<DeleteRoomResponse>();
     }
+
+    public async Task<bool> ActivateRoom(Guid roomId)
+    {
+        var response = await _httpClient.PostAsync($"api/room/activate/{roomId}", null);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeactivateRoom(Guid roomId)
+    {
+        var response = await _httpClient.PostAsync($"api/room/deactivate/{roomId}", null);
+        return response.IsSuccessStatusCode;
+    }
 }
