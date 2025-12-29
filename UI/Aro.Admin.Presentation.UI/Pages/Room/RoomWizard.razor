@@ -1,24 +1,37 @@
-﻿@page "/group/{groupId:guid}/property/{propertyId:guid}/rooms/add"
+@page "/group/{groupId:guid}/property/{propertyId:guid}/rooms/add"
+@page "/group/{groupId:guid}/property/{propertyId:guid}/rooms/edit/{roomId:guid}"
+@page "/group/{groupId:guid}/property/{propertyId:guid}/rooms/duplicate/{roomId:guid}"
 
 @using Aro.Admin.Presentation.UI.Layout
 @using Aro.UI.Application.DTOs.Room
+@using Aro.UI.Application.DTOs
+@using Aro.UI.Infrastructure.Services
+@inject IRoomService RoomService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
 
 @code {
     [Parameter] public Guid GroupId { get; set; } = Guid.Empty;
 
     [Parameter] public Guid PropertyId { get; set; } = Guid.Empty;
 
+    [Parameter] public Guid? RoomId { get; set; }
+
+    private bool isLoading = true;
+    private bool isDuplicateMode = false;
+    private bool isEditMode = false;
+
     private EntityWizardContext<RoomModel> Wizard = new()
         {
             Entity = new RoomModel(),
             IsCreateMode = true,
-            StepTitles = new() 
-            { 
-                "General Information", 
-                "Capacity & Features", 
-                "Amenities", 
-                "Media Files", 
-                "Review & Save" 
+            StepTitles = new()
+            {
+                "General Information",
+                "Capacity & Features",
+                "Amenities",
+                "Media Files",
+                "Review & Save"
             },
             Title = "Room"
         };
@@ -32,9 +45,29 @@
         typeof(ReviewAndSaveStep)
     };
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        // Determine mode based on URL
+        var uri = NavigationManager.Uri;
+        isDuplicateMode = uri.Contains("/duplicate/");
+        isEditMode = uri.Contains("/edit/") && !isDuplicateMode;
+
         Wizard.NavigateTo = $"/group/{GroupId}/property/{PropertyId}/rooms";
+        Wizard.IsCreateMode = !isEditMode; // Duplicate is still create mode (new room)
+
+        // Update title based on mode
+        if (isDuplicateMode)
+        {
+            Wizard.Title = "Duplicate Room";
+        }
+        else if (isEditMode)
+        {
+            Wizard.Title = "Edit Room";
+        }
+        else
+        {
+            Wizard.Title = "Add New Room";
+        }
 
         Wizard.OnNext = async () =>
             {
@@ -69,15 +102,88 @@
             StateHasChanged();
         };
 
-        if (Wizard.Entity is not null)
-            Wizard.Entity.PropertyId = PropertyId;
+        // Load existing room data for edit or duplicate mode
+        if (RoomId.HasValue && (isEditMode || isDuplicateMode))
+        {
+            await LoadRoomData();
+        }
+        else
+        {
+            if (Wizard.Entity is not null)
+                Wizard.Entity.PropertyId = PropertyId;
+            isLoading = false;
+        }
     }
 
+    private async Task LoadRoomData()
+    {
+        try
+        {
+            isLoading = true;
+            var response = await RoomService.GetRoom(new GetRoomRequest(RoomId!.Value, "Amenities,Images"));
+
+            if (response?.Room != null)
+            {
+                var room = response.Room;
+
+                // Create RoomModel from RoomDto
+                Wizard.Entity = new RoomModel
+                {
+                    Id = isDuplicateMode ? Guid.Empty : room.Id, // New ID for duplicate
+                    PropertyId = PropertyId,
+                    RoomName = isDuplicateMode ? $"{room.RoomName} (Copy)" : room.RoomName,
+                    RoomCode = isDuplicateMode ? "" : room.RoomCode, // Blank for duplicate per AC3
+                    Description = room.Description ?? "",
+                    MaxOccupancy = room.MaxOccupancy,
+                    MaxAdults = room.MaxAdults,
+                    MaxChildren = room.MaxChildren,
+                    RoomSizeSQM = room.RoomSizeSQM ?? 0,
+                    RoomSizeSQFT = room.RoomSizeSQM.HasValue ? (int)(room.RoomSizeSQM.Value * 10.764) : 0,
+                    BedConfig = room.BedConfig,
+                    IsActive = room.IsActive,
+                    IsEditMode = isEditMode
+                };
+
+                // Load amenities if available
+                if (room.AmenityIds != null && room.AmenityIds.Any())
+                {
+                    Wizard.Entity.Amenities = room.AmenityIds.Select(id => new Amenity { Id = id }).ToList();
+                }
+
+                // Load images if available (for duplicate, we reference existing images)
+                // Note: Images will need to be loaded from the room response if the API includes them
+            }
+            else
+            {
+                Snackbar.Add("Room not found", MudBlazor.Severity.Error);
+                NavigationManager.NavigateTo(Wizard.NavigateTo);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading room: {ex.Message}", MudBlazor.Severity.Error);
+            NavigationManager.NavigateTo(Wizard.NavigateTo);
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
 }
 
-<EntityCreationWizardLayout TEntity="RoomModel" Wizard="Wizard">
-    @if (Wizard.ActiveStepIndex >= 0 && Wizard.ActiveStepIndex < StepComponents.Count)
-    {
-        <DynamicComponent Type="StepComponents[Wizard.ActiveStepIndex]" />
-    }
-</EntityCreationWizardLayout>
+@if (isLoading)
+{
+    <div style="display: flex; justify-content: center; align-items: center; height: 100vh;">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+    </div>
+}
+else
+{
+    <EntityCreationWizardLayout TEntity="RoomModel" Wizard="Wizard">
+        @if (Wizard.ActiveStepIndex >= 0 && Wizard.ActiveStepIndex < StepComponents.Count)
+        {
+            <DynamicComponent Type="StepComponents[Wizard.ActiveStepIndex]" />
+        }
+    </EntityCreationWizardLayout>
+}
