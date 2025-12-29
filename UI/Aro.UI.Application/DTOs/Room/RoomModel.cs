@@ -65,7 +65,7 @@ public class RoomModel
     public int RoomSizeSQFT { get; set; } = 0;
 
 
-    public BedConfiguration BedConfig = BedConfiguration.Single;
+    public BedConfiguration BedConfig { get; set; } = BedConfiguration.Single;
 
     public List<Amenity>? Amenities { get; set; } = [];
 

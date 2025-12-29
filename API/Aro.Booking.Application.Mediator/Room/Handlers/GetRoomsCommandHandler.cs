@@ -11,6 +11,7 @@ public class GetRoomsCommandHandler(IRoomService roomService) : IRequestHandler<
         var req = request.Data;
         var res = await roomService.GetRooms(
             new(
+                req.PropertyId,
                 req.Filter,
                 req.Include ?? string.Empty,
                 req.Page,

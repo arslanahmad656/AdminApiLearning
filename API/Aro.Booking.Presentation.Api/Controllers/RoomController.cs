@@ -73,6 +73,7 @@ public class RoomController(
     {
         var response = await mediator.Send(new GetRoomsQuery(
             new(
+                query.PropertyId,
                 query.Filter,
                 query.Include,
                 query.Page,

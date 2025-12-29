@@ -1,5 +1,7 @@
 using Aro.UI.Application.DTOs.Room;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 
 namespace Aro.UI.Infrastructure.Services;
@@ -7,6 +9,12 @@ namespace Aro.UI.Infrastructure.Services;
 public class RoomService(HttpClient httpClient) : IRoomService
 {
     private readonly HttpClient _httpClient = httpClient;
+
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true,
+        Converters = { new JsonStringEnumConverter() }
+    };
 
     public async Task<CreateRoomResponse?> CreateRoom(CreateRoomRequest request)
     {
@@ -24,10 +32,18 @@ public class RoomService(HttpClient httpClient) : IRoomService
 
     public async Task<GetRoomsResponse?> GetRooms(GetRoomsRequest request)
     {
-        var url = $"api/room/getall?Filter={request.Filter}&Include={request.Include}&Page={request.Page}&PageSize={request.PageSize}&SortBy={request.SortBy}&Ascending={request.Ascending}";
+        var url = $"api/room/getall?Page={request.Page}&PageSize={request.PageSize}&SortBy={request.SortBy}&Ascending={request.Ascending}";
+
+        if (request.PropertyId.HasValue)
+            url += $"&PropertyId={request.PropertyId.Value}";
+        if (!string.IsNullOrEmpty(request.Filter))
+            url += $"&Filter={request.Filter}";
+        if (!string.IsNullOrEmpty(request.Include))
+            url += $"&Include={request.Include}";
+
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<GetRoomsResponse>();
+        return await response.Content.ReadFromJsonAsync<GetRoomsResponse>(_jsonOptions);
     }
 
 

@@ -20,20 +20,17 @@ public class PropertyService : IPropertyService
         {
             using var formData = new MultipartFormDataContent();
 
-            // Add scalar fields
             formData.Add(new StringContent(wizardData.GroupId?.ToString() ?? ""), "GroupId");
             formData.Add(new StringContent(wizardData.PropertyName ?? ""), "PropertyName");
             formData.Add(new StringContent(wizardData.StarRating.ToString()), "StarRating");
             formData.Add(new StringContent(wizardData.Currency ?? ""), "Currency");
             formData.Add(new StringContent(wizardData.Description ?? ""), "Description");
 
-            // Add property types as list
             foreach (var propertyType in wizardData.PropertyTypes.ToList())
             {
                 formData.Add(new StringContent(propertyType), "PropertyTypes");
             }
 
-            // Add address fields
             formData.Add(new StringContent(wizardData.SetAddressSameAsGroupAddress.ToString().ToLower()), "SetAddressSameAsGroupAddress");
             formData.Add(new StringContent(wizardData.AddressLine1 ?? ""), "AddressLine1");
             formData.Add(new StringContent(wizardData.AddressLine2 ?? ""), "AddressLine2");
@@ -43,22 +40,18 @@ public class PropertyService : IPropertyService
             formData.Add(new StringContent(wizardData.PhoneNumber ?? ""), "PhoneNumber");
             formData.Add(new StringContent(wizardData.Website ?? ""), "Website");
 
-            // Add contact fields
-            formData.Add(new StringContent(wizardData.SetContactSameAsPrimaryContact.ToString().ToLower()), "SetContactSameAsPrimaryContact");
+            formData.Add(new StringContent(wizardData.SetContactSameAsPrimaryContact.ToString().ToLower()), "SetContactSameAsGroupContact");
             formData.Add(new StringContent(wizardData.ContactName ?? ""), "ContactName");
             formData.Add(new StringContent(wizardData.ContactEmail ?? ""), "ContactEmail");
 
-            // Add key selling points as list
             foreach (var point in wizardData.KeySellingPoints ?? new List<string>())
             {
                 formData.Add(new StringContent(point), "KeySellingPoints");
             }
 
-            // Add marketing fields
             formData.Add(new StringContent(wizardData.MarketingTitle ?? ""), "MarketingTitle");
             formData.Add(new StringContent(wizardData.MarketingDescription ?? ""), "MarketingDescription");
 
-            // Add file uploads
             if (wizardData.Favicon != null && !string.IsNullOrEmpty(wizardData.Favicon.Base64Data))
             {
                 var fileContent = new ByteArrayContent(wizardData.Favicon.GetBytes());
@@ -157,23 +150,19 @@ public class PropertyService : IPropertyService
 
             using var formData = new MultipartFormDataContent();
 
-            // Add PropertyId for update
             formData.Add(new StringContent(wizardData.PropertyId.Value.ToString()), "PropertyId");
-
-            // Add scalar fields
             formData.Add(new StringContent(wizardData.GroupId?.ToString() ?? ""), "GroupId");
             formData.Add(new StringContent(wizardData.PropertyName ?? ""), "PropertyName");
             formData.Add(new StringContent(wizardData.StarRating.ToString()), "StarRating");
             formData.Add(new StringContent(wizardData.Currency ?? ""), "Currency");
             formData.Add(new StringContent(wizardData.Description ?? ""), "Description");
 
-            // Add property types as list
             foreach (var propertyType in wizardData.PropertyTypes.ToList())
             {
                 formData.Add(new StringContent(propertyType), "PropertyTypes");
             }
 
-            // Add address fields
+            formData.Add(new StringContent(wizardData.SetAddressSameAsGroupAddress.ToString().ToLower()), "SetAddressSameAsGroupAddress");
             formData.Add(new StringContent(wizardData.AddressLine1 ?? ""), "AddressLine1");
             formData.Add(new StringContent(wizardData.AddressLine2 ?? ""), "AddressLine2");
             formData.Add(new StringContent(wizardData.City ?? ""), "City");
@@ -182,21 +171,18 @@ public class PropertyService : IPropertyService
             formData.Add(new StringContent(wizardData.PhoneNumber ?? ""), "PhoneNumber");
             formData.Add(new StringContent(wizardData.Website ?? ""), "Website");
 
-            // Add contact fields
+            formData.Add(new StringContent(wizardData.SetContactSameAsPrimaryContact.ToString().ToLower()), "SetContactSameAsGroupContact");
             formData.Add(new StringContent(wizardData.ContactName ?? ""), "ContactName");
             formData.Add(new StringContent(wizardData.ContactEmail ?? ""), "ContactEmail");
 
-            // Add key selling points as list
             foreach (var point in wizardData.KeySellingPoints ?? new List<string>())
             {
                 formData.Add(new StringContent(point), "KeySellingPoints");
             }
 
-            // Add marketing fields
             formData.Add(new StringContent(wizardData.MarketingTitle ?? ""), "MarketingTitle");
             formData.Add(new StringContent(wizardData.MarketingDescription ?? ""), "MarketingDescription");
 
-            // Add file uploads (only if new files are provided)
             if (wizardData.Favicon != null && !string.IsNullOrEmpty(wizardData.Favicon.Base64Data))
             {
                 var fileContent = new ByteArrayContent(wizardData.Favicon.GetBytes());

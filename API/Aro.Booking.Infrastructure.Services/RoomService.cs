@@ -100,6 +100,7 @@ public partial class RoomService(
                     };
 
                     await repositoryManager.AmenityRepository.Create(newAmenity, cancellationToken).ConfigureAwait(false);
+                    await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
                     // Link new amenity to room
                     RoomEntity.RoomAmenities.Add(new RoomAmenity
@@ -155,6 +156,11 @@ public partial class RoomService(
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.GetRooms], cancellationToken);
 
         var baseQuery = repositoryManager.RoomRepository.GetAll();
+
+        if (query.PropertyId.HasValue)
+        {
+            baseQuery = baseQuery.Where(r => r.PropertyId == query.PropertyId.Value);
+        }
 
         baseQuery = baseQuery
             .IncludeElements(query.Include ?? string.Empty)

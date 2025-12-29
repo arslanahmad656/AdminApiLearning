@@ -1,6 +1,7 @@
 ﻿namespace Aro.Booking.Presentation.Api.DTOs.Room;
 
 public record GetRoomsQueryParameters(
+    Guid? PropertyId = null,
     char? Filter = null,
     string? Include = null,
     int Page = 1,
