@@ -9,7 +9,7 @@ namespace Aro.Admin.Application.Mediator.Seed.Handlers;
 
 public class SeedApplicationCommandHandler
 (
-    IPermissionSeeder seedService,
+    IPermissionSeeder permissionSeeder,
     IEmailTemplateSeeder emailTemplateSeeder,
     ICountrySeeder countrySeeder,
     IMediator mediator
@@ -18,7 +18,7 @@ public class SeedApplicationCommandHandler
 {
     public async Task Handle(SeedApplicationCommand request, CancellationToken cancellationToken)
     {
-        await seedService.Seed(request.PermissionsJsonFilePath, cancellationToken).ConfigureAwait(false);
+        await permissionSeeder.Seed(request.PermissionsJsonFilePath, cancellationToken).ConfigureAwait(false);
         await emailTemplateSeeder.Seed(request.TemplatesDirectoryPath, cancellationToken).ConfigureAwait(false);
         await countrySeeder.Seed(request.CountriesJsonFilePath, cancellationToken).ConfigureAwait(false);
 

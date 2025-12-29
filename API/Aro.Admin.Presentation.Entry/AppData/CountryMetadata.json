@@ -1,27 +1,1994 @@
 [
   {
-    "Name": "Ireland",
-    "OfficialName": "Repbulic of Ireland",
-    "ISO2": "IE",
-    "PostalCodeRegex": "/(?:^[AC-FHKNPRTV-Y][0-9]{2}|D6W)[ -]?[0-9AC-FHKNPRTV-Y]{4}$/mg",
-    "PhoneCountryCode": "353",
-    "PhoneNumberRegex": "^[0-9]{7,11}$"
+    "Name": "Aruba",
+    "OfficialName": "Aruba",
+    "ISO2": "AW",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "297",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
   },
-
+  {
+    "Name": "Afghanistan",
+    "OfficialName": "Islamic Republic of Afghanistan",
+    "ISO2": "AF",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "93",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Angola",
+    "OfficialName": "Republic of Angola",
+    "ISO2": "AO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "244",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Anguilla",
+    "OfficialName": "Anguilla",
+    "ISO2": "AI",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1264",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Åland Islands",
+    "OfficialName": "Åland Islands",
+    "ISO2": "AX",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Albania",
+    "OfficialName": "Republic of Albania",
+    "ISO2": "AL",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "355",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Andorra",
+    "OfficialName": "Principality of Andorra",
+    "ISO2": "AD",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "376",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "United Arab Emirates",
+    "OfficialName": "United Arab Emirates",
+    "ISO2": "AE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "971",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Argentina",
+    "OfficialName": "Argentine Republic",
+    "ISO2": "AR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "54",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Armenia",
+    "OfficialName": "Republic of Armenia",
+    "ISO2": "AM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "374",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "American Samoa",
+    "OfficialName": "American Samoa",
+    "ISO2": "AS",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1684",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Antarctica",
+    "OfficialName": "Antarctica",
+    "ISO2": "AQ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "672",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "French Southern Territories",
+    "OfficialName": "French Southern Territories",
+    "ISO2": "TF",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "262",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Antigua and Barbuda",
+    "OfficialName": "Antigua and Barbuda",
+    "ISO2": "AG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1268",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Australia",
+    "OfficialName": "Australia",
+    "ISO2": "AU",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "61",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Austria",
+    "OfficialName": "Republic of Austria",
+    "ISO2": "AT",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "43",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Azerbaijan",
+    "OfficialName": "Republic of Azerbaijan",
+    "ISO2": "AZ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "994",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Burundi",
+    "OfficialName": "Republic of Burundi",
+    "ISO2": "BI",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "257",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Belgium",
+    "OfficialName": "Kingdom of Belgium",
+    "ISO2": "BE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "32",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Benin",
+    "OfficialName": "Republic of Benin",
+    "ISO2": "BJ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "229",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Bonaire, Sint Eustatius and Saba",
+    "OfficialName": "Bonaire, Sint Eustatius and Saba",
+    "ISO2": "BQ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Burkina Faso",
+    "OfficialName": "Burkina Faso",
+    "ISO2": "BF",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "226",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Bangladesh",
+    "OfficialName": "People's Republic of Bangladesh",
+    "ISO2": "BD",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "880",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Bulgaria",
+    "OfficialName": "Republic of Bulgaria",
+    "ISO2": "BG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "359",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Bahrain",
+    "OfficialName": "Kingdom of Bahrain",
+    "ISO2": "BH",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "973",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Bahamas",
+    "OfficialName": "Commonwealth of the Bahamas",
+    "ISO2": "BS",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1242",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Bosnia and Herzegovina",
+    "OfficialName": "Republic of Bosnia and Herzegovina",
+    "ISO2": "BA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "387",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Saint Barthélemy",
+    "OfficialName": "Saint Barthélemy",
+    "ISO2": "BL",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Belarus",
+    "OfficialName": "Republic of Belarus",
+    "ISO2": "BY",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "375",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Belize",
+    "OfficialName": "Belize",
+    "ISO2": "BZ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "501",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Bermuda",
+    "OfficialName": "Bermuda",
+    "ISO2": "BM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1441",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Bolivia, Plurinational State of",
+    "OfficialName": "Plurinational State of Bolivia",
+    "ISO2": "BO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "591",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Brazil",
+    "OfficialName": "Federative Republic of Brazil",
+    "ISO2": "BR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "55",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Barbados",
+    "OfficialName": "Barbados",
+    "ISO2": "BB",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1246",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Brunei Darussalam",
+    "OfficialName": "Brunei Darussalam",
+    "ISO2": "BN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "673",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Bhutan",
+    "OfficialName": "Kingdom of Bhutan",
+    "ISO2": "BT",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "975",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Bouvet Island",
+    "OfficialName": "Bouvet Island",
+    "ISO2": "BV",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Botswana",
+    "OfficialName": "Republic of Botswana",
+    "ISO2": "BW",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "267",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Central African Republic",
+    "OfficialName": "Central African Republic",
+    "ISO2": "CF",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "236",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Canada",
+    "OfficialName": "Canada",
+    "ISO2": "CA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Cocos (Keeling) Islands",
+    "OfficialName": "Cocos (Keeling) Islands",
+    "ISO2": "CC",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "61",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Switzerland",
+    "OfficialName": "Swiss Confederation",
+    "ISO2": "CH",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "41",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Chile",
+    "OfficialName": "Republic of Chile",
+    "ISO2": "CL",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "56",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "China",
+    "OfficialName": "People's Republic of China",
+    "ISO2": "CN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "86",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Côte d'Ivoire",
+    "OfficialName": "Republic of Côte d'Ivoire",
+    "ISO2": "CI",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "225",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Cameroon",
+    "OfficialName": "Republic of Cameroon",
+    "ISO2": "CM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "237",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Congo, The Democratic Republic of the",
+    "OfficialName": "Congo, The Democratic Republic of the",
+    "ISO2": "CD",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "243",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Congo",
+    "OfficialName": "Republic of the Congo",
+    "ISO2": "CG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "242",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Cook Islands",
+    "OfficialName": "Cook Islands",
+    "ISO2": "CK",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "682",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Colombia",
+    "OfficialName": "Republic of Colombia",
+    "ISO2": "CO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "57",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Comoros",
+    "OfficialName": "Union of the Comoros",
+    "ISO2": "KM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "269",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Cabo Verde",
+    "OfficialName": "Republic of Cabo Verde",
+    "ISO2": "CV",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "238",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Costa Rica",
+    "OfficialName": "Republic of Costa Rica",
+    "ISO2": "CR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "506",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Cuba",
+    "OfficialName": "Republic of Cuba",
+    "ISO2": "CU",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "53",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Curaçao",
+    "OfficialName": "Curaçao",
+    "ISO2": "CW",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Christmas Island",
+    "OfficialName": "Christmas Island",
+    "ISO2": "CX",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "53",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Cayman Islands",
+    "OfficialName": "Cayman Islands",
+    "ISO2": "KY",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1345",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Cyprus",
+    "OfficialName": "Republic of Cyprus",
+    "ISO2": "CY",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "357",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Czechia",
+    "OfficialName": "Czech Republic",
+    "ISO2": "CZ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "420",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Germany",
+    "OfficialName": "Federal Republic of Germany",
+    "ISO2": "DE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "49",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Djibouti",
+    "OfficialName": "Republic of Djibouti",
+    "ISO2": "DJ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "253",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Dominica",
+    "OfficialName": "Commonwealth of Dominica",
+    "ISO2": "DM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1767",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Denmark",
+    "OfficialName": "Kingdom of Denmark",
+    "ISO2": "DK",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "45",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Dominican Republic",
+    "OfficialName": "Dominican Republic",
+    "ISO2": "DO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "18091829",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Algeria",
+    "OfficialName": "People's Democratic Republic of Algeria",
+    "ISO2": "DZ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "213",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Ecuador",
+    "OfficialName": "Republic of Ecuador",
+    "ISO2": "EC",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "593",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Egypt",
+    "OfficialName": "Arab Republic of Egypt",
+    "ISO2": "EG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "20",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Eritrea",
+    "OfficialName": "the State of Eritrea",
+    "ISO2": "ER",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "291",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Western Sahara",
+    "OfficialName": "Western Sahara",
+    "ISO2": "EH",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "212",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Spain",
+    "OfficialName": "Kingdom of Spain",
+    "ISO2": "ES",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "34",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Estonia",
+    "OfficialName": "Republic of Estonia",
+    "ISO2": "EE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "372",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Ethiopia",
+    "OfficialName": "Federal Democratic Republic of Ethiopia",
+    "ISO2": "ET",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "251",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Finland",
+    "OfficialName": "Republic of Finland",
+    "ISO2": "FI",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "358",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Fiji",
+    "OfficialName": "Republic of Fiji",
+    "ISO2": "FJ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "679",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Falkland Islands (Malvinas)",
+    "OfficialName": "Falkland Islands (Malvinas)",
+    "ISO2": "FK",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "500",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "France",
+    "OfficialName": "French Republic",
+    "ISO2": "FR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "33",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Faroe Islands",
+    "OfficialName": "Faroe Islands",
+    "ISO2": "FO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "298",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Micronesia, Federated States of",
+    "OfficialName": "Federated States of Micronesia",
+    "ISO2": "FM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "691",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Gabon",
+    "OfficialName": "Gabonese Republic",
+    "ISO2": "GA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "241",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
   {
     "Name": "United Kingdom",
     "OfficialName": "United Kingdom of Great Britain and Northern Ireland",
     "ISO2": "GB",
-    "PostalCodeRegex": "GIR[ ]?0AA|((AB|AL|B|BA|BB|BD|BH|BL|BN|BR|BS|BT|CA|CB|CF|CH|CM|CO|CR|CT|CV|CW|DA|DD|DE|DG|DH|DL|DN|DT|DY|E|EC|EH|EN|EX|FK|FY|G|GL|GY|GU|HA|HD|HG|HP|HR|HS|HU|HX|IG|IM|IP|IV|JE|KA|KT|KW|KY|L|LA|LD|LE|LL|LN|LS|LU|M|ME|MK|ML|N|NE|NG|NN|NP|NR|NW|OL|OX|PA|PE|PH|PL|PO|PR|RG|RH|RM|S|SA|SE|SG|SK|SL|SM|SN|SO|SP|SR|SS|ST|SW|SY|TA|TD|TF|TN|TQ|TR|TS|TW|UB|W|WA|WC|WD|WF|WN|WR|WS|WV|YO|ZE)(\\d[\\dA-Z]?[ ]?\\d[ABD-HJLN-UW-Z]{2}))|BFPO[ ]?\\d{1,4}",
+    "PostalCodeRegex": ".*",
     "PhoneCountryCode": "44",
-    "PhoneNumberRegex": "^[0-9]{7,10}$|^[0-9]{12}$"
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
   },
   {
-    "Name": "United States of America",
+    "Name": "Georgia",
+    "OfficialName": "Georgia",
+    "ISO2": "GE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "995",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Guernsey",
+    "OfficialName": "Guernsey",
+    "ISO2": "GG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Ghana",
+    "OfficialName": "Republic of Ghana",
+    "ISO2": "GH",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "233",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Gibraltar",
+    "OfficialName": "Gibraltar",
+    "ISO2": "GI",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "350",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Guinea",
+    "OfficialName": "Republic of Guinea",
+    "ISO2": "GN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "224",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Guadeloupe",
+    "OfficialName": "Guadeloupe",
+    "ISO2": "GP",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "590",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Gambia",
+    "OfficialName": "Republic of the Gambia",
+    "ISO2": "GM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "220",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Guinea-Bissau",
+    "OfficialName": "Republic of Guinea-Bissau",
+    "ISO2": "GW",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "245",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Equatorial Guinea",
+    "OfficialName": "Republic of Equatorial Guinea",
+    "ISO2": "GQ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "240",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Greece",
+    "OfficialName": "Hellenic Republic",
+    "ISO2": "GR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "30",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Grenada",
+    "OfficialName": "Grenada",
+    "ISO2": "GD",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1473",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Greenland",
+    "OfficialName": "Greenland",
+    "ISO2": "GL",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "299",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Guatemala",
+    "OfficialName": "Republic of Guatemala",
+    "ISO2": "GT",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "502",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "French Guiana",
+    "OfficialName": "French Guiana",
+    "ISO2": "GF",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "594",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Guam",
+    "OfficialName": "Guam",
+    "ISO2": "GU",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1671",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Guyana",
+    "OfficialName": "Republic of Guyana",
+    "ISO2": "GY",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "592",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Hong Kong",
+    "OfficialName": "Hong Kong Special Administrative Region of China",
+    "ISO2": "HK",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "852",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Heard Island and McDonald Islands",
+    "OfficialName": "Heard Island and McDonald Islands",
+    "ISO2": "HM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "672",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Honduras",
+    "OfficialName": "Republic of Honduras",
+    "ISO2": "HN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "504",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Croatia",
+    "OfficialName": "Republic of Croatia",
+    "ISO2": "HR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "385",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Haiti",
+    "OfficialName": "Republic of Haiti",
+    "ISO2": "HT",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "509",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Hungary",
+    "OfficialName": "Hungary",
+    "ISO2": "HU",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "36",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Indonesia",
+    "OfficialName": "Republic of Indonesia",
+    "ISO2": "ID",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "62",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Isle of Man",
+    "OfficialName": "Isle of Man",
+    "ISO2": "IM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "India",
+    "OfficialName": "Republic of India",
+    "ISO2": "IN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "91",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "British Indian Ocean Territory",
+    "OfficialName": "British Indian Ocean Territory",
+    "ISO2": "IO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "246",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Ireland",
+    "OfficialName": "Ireland",
+    "ISO2": "IE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "353",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Iran, Islamic Republic of",
+    "OfficialName": "Islamic Republic of Iran",
+    "ISO2": "IR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "98",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Iraq",
+    "OfficialName": "Republic of Iraq",
+    "ISO2": "IQ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "964",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Iceland",
+    "OfficialName": "Republic of Iceland",
+    "ISO2": "IS",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "354",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Israel",
+    "OfficialName": "State of Israel",
+    "ISO2": "IL",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "972",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Italy",
+    "OfficialName": "Italian Republic",
+    "ISO2": "IT",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "39",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Jamaica",
+    "OfficialName": "Jamaica",
+    "ISO2": "JM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1876",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Jersey",
+    "OfficialName": "Jersey",
+    "ISO2": "JE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Jordan",
+    "OfficialName": "Hashemite Kingdom of Jordan",
+    "ISO2": "JO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "962",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Japan",
+    "OfficialName": "Japan",
+    "ISO2": "JP",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "81",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Kazakhstan",
+    "OfficialName": "Republic of Kazakhstan",
+    "ISO2": "KZ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "7",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Kenya",
+    "OfficialName": "Republic of Kenya",
+    "ISO2": "KE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "254",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Kyrgyzstan",
+    "OfficialName": "Kyrgyz Republic",
+    "ISO2": "KG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "996",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Cambodia",
+    "OfficialName": "Kingdom of Cambodia",
+    "ISO2": "KH",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "855",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Kiribati",
+    "OfficialName": "Republic of Kiribati",
+    "ISO2": "KI",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "686",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Saint Kitts and Nevis",
+    "OfficialName": "Saint Kitts and Nevis",
+    "ISO2": "KN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1869",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Korea, Republic of",
+    "OfficialName": "Korea, Republic of",
+    "ISO2": "KR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "82",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Kuwait",
+    "OfficialName": "State of Kuwait",
+    "ISO2": "KW",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "965",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Lao People's Democratic Republic",
+    "OfficialName": "Lao People's Democratic Republic",
+    "ISO2": "LA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "856",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Lebanon",
+    "OfficialName": "Lebanese Republic",
+    "ISO2": "LB",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "961",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Liberia",
+    "OfficialName": "Republic of Liberia",
+    "ISO2": "LR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "231",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Libya",
+    "OfficialName": "Libya",
+    "ISO2": "LY",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "218",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Saint Lucia",
+    "OfficialName": "Saint Lucia",
+    "ISO2": "LC",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1758",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Liechtenstein",
+    "OfficialName": "Principality of Liechtenstein",
+    "ISO2": "LI",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "423",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Sri Lanka",
+    "OfficialName": "Democratic Socialist Republic of Sri Lanka",
+    "ISO2": "LK",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "94",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Lesotho",
+    "OfficialName": "Kingdom of Lesotho",
+    "ISO2": "LS",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "266",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Lithuania",
+    "OfficialName": "Republic of Lithuania",
+    "ISO2": "LT",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "370",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Luxembourg",
+    "OfficialName": "Grand Duchy of Luxembourg",
+    "ISO2": "LU",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "352",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Latvia",
+    "OfficialName": "Republic of Latvia",
+    "ISO2": "LV",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "371",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Macao",
+    "OfficialName": "Macao Special Administrative Region of China",
+    "ISO2": "MO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "853",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Saint Martin (French part)",
+    "OfficialName": "Saint Martin (French part)",
+    "ISO2": "MF",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Morocco",
+    "OfficialName": "Kingdom of Morocco",
+    "ISO2": "MA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "212",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Monaco",
+    "OfficialName": "Principality of Monaco",
+    "ISO2": "MC",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "377",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Moldova, Republic of",
+    "OfficialName": "Republic of Moldova",
+    "ISO2": "MD",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "373",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Madagascar",
+    "OfficialName": "Republic of Madagascar",
+    "ISO2": "MG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "261",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Maldives",
+    "OfficialName": "Republic of Maldives",
+    "ISO2": "MV",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "960",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Mexico",
+    "OfficialName": "United Mexican States",
+    "ISO2": "MX",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "52",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Marshall Islands",
+    "OfficialName": "Republic of the Marshall Islands",
+    "ISO2": "MH",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "692",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "North Macedonia",
+    "OfficialName": "Republic of North Macedonia",
+    "ISO2": "MK",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "389",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Mali",
+    "OfficialName": "Republic of Mali",
+    "ISO2": "ML",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "223",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Malta",
+    "OfficialName": "Republic of Malta",
+    "ISO2": "MT",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "356",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Myanmar",
+    "OfficialName": "Republic of Myanmar",
+    "ISO2": "MM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "95",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Montenegro",
+    "OfficialName": "Montenegro",
+    "ISO2": "ME",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Mongolia",
+    "OfficialName": "Mongolia",
+    "ISO2": "MN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "976",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Northern Mariana Islands",
+    "OfficialName": "Commonwealth of the Northern Mariana Islands",
+    "ISO2": "MP",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1670",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Mozambique",
+    "OfficialName": "Republic of Mozambique",
+    "ISO2": "MZ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "258",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Mauritania",
+    "OfficialName": "Islamic Republic of Mauritania",
+    "ISO2": "MR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "222",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Montserrat",
+    "OfficialName": "Montserrat",
+    "ISO2": "MS",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1664",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Martinique",
+    "OfficialName": "Martinique",
+    "ISO2": "MQ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "596",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Mauritius",
+    "OfficialName": "Republic of Mauritius",
+    "ISO2": "MU",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "230",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Malawi",
+    "OfficialName": "Republic of Malawi",
+    "ISO2": "MW",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "265",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Malaysia",
+    "OfficialName": "Malaysia",
+    "ISO2": "MY",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "60",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Mayotte",
+    "OfficialName": "Mayotte",
+    "ISO2": "YT",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "269",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Namibia",
+    "OfficialName": "Republic of Namibia",
+    "ISO2": "NA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "264",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "New Caledonia",
+    "OfficialName": "New Caledonia",
+    "ISO2": "NC",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "687",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Niger",
+    "OfficialName": "Republic of the Niger",
+    "ISO2": "NE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "227",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Norfolk Island",
+    "OfficialName": "Norfolk Island",
+    "ISO2": "NF",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "672",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Nigeria",
+    "OfficialName": "Federal Republic of Nigeria",
+    "ISO2": "NG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "234",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Nicaragua",
+    "OfficialName": "Republic of Nicaragua",
+    "ISO2": "NI",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "505",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Niue",
+    "OfficialName": "Niue",
+    "ISO2": "NU",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "683",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Netherlands",
+    "OfficialName": "Kingdom of the Netherlands",
+    "ISO2": "NL",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "31",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Norway",
+    "OfficialName": "Kingdom of Norway",
+    "ISO2": "NO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "47",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Nepal",
+    "OfficialName": "Federal Democratic Republic of Nepal",
+    "ISO2": "NP",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "977",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Nauru",
+    "OfficialName": "Republic of Nauru",
+    "ISO2": "NR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "674",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "New Zealand",
+    "OfficialName": "New Zealand",
+    "ISO2": "NZ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "64",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Oman",
+    "OfficialName": "Sultanate of Oman",
+    "ISO2": "OM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "968",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Pakistan",
+    "OfficialName": "Islamic Republic of Pakistan",
+    "ISO2": "PK",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "92",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Panama",
+    "OfficialName": "Republic of Panama",
+    "ISO2": "PA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "507",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Pitcairn",
+    "OfficialName": "Pitcairn",
+    "ISO2": "PN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "64",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Peru",
+    "OfficialName": "Republic of Peru",
+    "ISO2": "PE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "51",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Philippines",
+    "OfficialName": "Republic of the Philippines",
+    "ISO2": "PH",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "63",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Palau",
+    "OfficialName": "Republic of Palau",
+    "ISO2": "PW",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "680",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Papua New Guinea",
+    "OfficialName": "Independent State of Papua New Guinea",
+    "ISO2": "PG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "675",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Poland",
+    "OfficialName": "Republic of Poland",
+    "ISO2": "PL",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "48",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Puerto Rico",
+    "OfficialName": "Puerto Rico",
+    "ISO2": "PR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "17871939",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Korea, Democratic People's Republic of",
+    "OfficialName": "Democratic People's Republic of Korea",
+    "ISO2": "KP",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "850",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Portugal",
+    "OfficialName": "Portuguese Republic",
+    "ISO2": "PT",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "351",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Paraguay",
+    "OfficialName": "Republic of Paraguay",
+    "ISO2": "PY",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "595",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Palestine, State of",
+    "OfficialName": "the State of Palestine",
+    "ISO2": "PS",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "970",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "French Polynesia",
+    "OfficialName": "French Polynesia",
+    "ISO2": "PF",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "689",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Qatar",
+    "OfficialName": "State of Qatar",
+    "ISO2": "QA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "974",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Réunion",
+    "OfficialName": "Réunion",
+    "ISO2": "RE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "262",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Romania",
+    "OfficialName": "Romania",
+    "ISO2": "RO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "40",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Russian Federation",
+    "OfficialName": "Russian Federation",
+    "ISO2": "RU",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "7",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Rwanda",
+    "OfficialName": "Rwandese Republic",
+    "ISO2": "RW",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "250",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Saudi Arabia",
+    "OfficialName": "Kingdom of Saudi Arabia",
+    "ISO2": "SA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "966",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Sudan",
+    "OfficialName": "Republic of the Sudan",
+    "ISO2": "SD",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "249",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Senegal",
+    "OfficialName": "Republic of Senegal",
+    "ISO2": "SN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "221",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Singapore",
+    "OfficialName": "Republic of Singapore",
+    "ISO2": "SG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "65",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "South Georgia and the South Sandwich Islands",
+    "OfficialName": "South Georgia and the South Sandwich Islands",
+    "ISO2": "GS",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "500",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Saint Helena, Ascension and Tristan da Cunha",
+    "OfficialName": "Saint Helena, Ascension and Tristan da Cunha",
+    "ISO2": "SH",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "290",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Svalbard and Jan Mayen",
+    "OfficialName": "Svalbard and Jan Mayen",
+    "ISO2": "SJ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "47",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Solomon Islands",
+    "OfficialName": "Solomon Islands",
+    "ISO2": "SB",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "677",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Sierra Leone",
+    "OfficialName": "Republic of Sierra Leone",
+    "ISO2": "SL",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "232",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "El Salvador",
+    "OfficialName": "Republic of El Salvador",
+    "ISO2": "SV",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "503",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "San Marino",
+    "OfficialName": "Republic of San Marino",
+    "ISO2": "SM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "378",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Somalia",
+    "OfficialName": "Federal Republic of Somalia",
+    "ISO2": "SO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "252",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Saint Pierre and Miquelon",
+    "OfficialName": "Saint Pierre and Miquelon",
+    "ISO2": "PM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "508",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Serbia",
+    "OfficialName": "Republic of Serbia",
+    "ISO2": "RS",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "381",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "South Sudan",
+    "OfficialName": "Republic of South Sudan",
+    "ISO2": "SS",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Sao Tome and Principe",
+    "OfficialName": "Democratic Republic of Sao Tome and Principe",
+    "ISO2": "ST",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "239",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Suriname",
+    "OfficialName": "Republic of Suriname",
+    "ISO2": "SR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "597",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Slovakia",
+    "OfficialName": "Slovak Republic",
+    "ISO2": "SK",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "421",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Slovenia",
+    "OfficialName": "Republic of Slovenia",
+    "ISO2": "SI",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "386",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Sweden",
+    "OfficialName": "Kingdom of Sweden",
+    "ISO2": "SE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "46",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Eswatini",
+    "OfficialName": "Kingdom of Eswatini",
+    "ISO2": "SZ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "268",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Sint Maarten (Dutch part)",
+    "OfficialName": "Sint Maarten (Dutch part)",
+    "ISO2": "SX",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Seychelles",
+    "OfficialName": "Republic of Seychelles",
+    "ISO2": "SC",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "248",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Syrian Arab Republic",
+    "OfficialName": "Syrian Arab Republic",
+    "ISO2": "SY",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "963",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Turks and Caicos Islands",
+    "OfficialName": "Turks and Caicos Islands",
+    "ISO2": "TC",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1649",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Chad",
+    "OfficialName": "Republic of Chad",
+    "ISO2": "TD",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "235",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Togo",
+    "OfficialName": "Togolese Republic",
+    "ISO2": "TG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "228",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Thailand",
+    "OfficialName": "Kingdom of Thailand",
+    "ISO2": "TH",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "66",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Tajikistan",
+    "OfficialName": "Republic of Tajikistan",
+    "ISO2": "TJ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "992",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Tokelau",
+    "OfficialName": "Tokelau",
+    "ISO2": "TK",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "690",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Turkmenistan",
+    "OfficialName": "Turkmenistan",
+    "ISO2": "TM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "993",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Timor-Leste",
+    "OfficialName": "Democratic Republic of Timor-Leste",
+    "ISO2": "TL",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Tonga",
+    "OfficialName": "Kingdom of Tonga",
+    "ISO2": "TO",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "676",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Trinidad and Tobago",
+    "OfficialName": "Republic of Trinidad and Tobago",
+    "ISO2": "TT",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1868",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Tunisia",
+    "OfficialName": "Republic of Tunisia",
+    "ISO2": "TN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "216",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Turkey",
+    "OfficialName": "Republic of Turkey",
+    "ISO2": "TR",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "90",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Tuvalu",
+    "OfficialName": "Tuvalu",
+    "ISO2": "TV",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "688",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Taiwan, Province of China",
+    "OfficialName": "Taiwan, Province of China",
+    "ISO2": "TW",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "886",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Tanzania, United Republic of",
+    "OfficialName": "United Republic of Tanzania",
+    "ISO2": "TZ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "255",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Uganda",
+    "OfficialName": "Republic of Uganda",
+    "ISO2": "UG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "256",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Ukraine",
+    "OfficialName": "Ukraine",
+    "ISO2": "UA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "380",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "United States Minor Outlying Islands",
+    "OfficialName": "United States Minor Outlying Islands",
+    "ISO2": "UM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "246",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Uruguay",
+    "OfficialName": "Eastern Republic of Uruguay",
+    "ISO2": "UY",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "598",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "United States",
     "OfficialName": "United States of America",
     "ISO2": "US",
-    "PostalCodeRegex": "^\\d{5}(?:[-\\s]\\d{4})?$",
+    "PostalCodeRegex": ".*",
     "PhoneCountryCode": "1",
-    "PhoneNumberRegex": "(^[0-9]{7}$|^[0-9]{10}$)"
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Uzbekistan",
+    "OfficialName": "Republic of Uzbekistan",
+    "ISO2": "UZ",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "998",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Holy See (Vatican City State)",
+    "OfficialName": "Holy See (Vatican City State)",
+    "ISO2": "VA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "418",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Saint Vincent and the Grenadines",
+    "OfficialName": "Saint Vincent and the Grenadines",
+    "ISO2": "VC",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1784",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Venezuela, Bolivarian Republic of",
+    "OfficialName": "Bolivarian Republic of Venezuela",
+    "ISO2": "VE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "58",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Virgin Islands, British",
+    "OfficialName": "British Virgin Islands",
+    "ISO2": "VG",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "000",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Virgin Islands, U.S.",
+    "OfficialName": "Virgin Islands of the United States",
+    "ISO2": "VI",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "1284",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Viet Nam",
+    "OfficialName": "Socialist Republic of Viet Nam",
+    "ISO2": "VN",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "84",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Vanuatu",
+    "OfficialName": "Republic of Vanuatu",
+    "ISO2": "VU",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "678",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Wallis and Futuna",
+    "OfficialName": "Wallis and Futuna",
+    "ISO2": "WF",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "681",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Samoa",
+    "OfficialName": "Independent State of Samoa",
+    "ISO2": "WS",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "685",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Yemen",
+    "OfficialName": "Republic of Yemen",
+    "ISO2": "YE",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "967",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "South Africa",
+    "OfficialName": "Republic of South Africa",
+    "ISO2": "ZA",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "27",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Zambia",
+    "OfficialName": "Republic of Zambia",
+    "ISO2": "ZM",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "260",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
+  },
+  {
+    "Name": "Zimbabwe",
+    "OfficialName": "Republic of Zimbabwe",
+    "ISO2": "ZW",
+    "PostalCodeRegex": ".*",
+    "PhoneCountryCode": "263",
+    "PhoneNumberRegex": "^[0-9]{7,15}$"
   }
 ]
