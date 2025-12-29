@@ -412,11 +412,20 @@
             // Convert AmenityIds to string list for CreateRoomRequest
             var amenityNames = room.AmenityIds?.Select(id => id.ToString()).ToList();
 
+            // Generate a unique room code (uppercase, numbers, hyphens only)
+            var timestamp = DateTime.Now.ToString("HHmmss");
+            var newRoomCode = $"{room.RoomCode}-{timestamp}".ToUpper();
+            // Ensure max length of 20 characters
+            if (newRoomCode.Length > 20)
+            {
+                newRoomCode = newRoomCode.Substring(0, 20);
+            }
+
             // Create a copy of the room with a new name
             var createRequest = new CreateRoomRequest(
                 PropertyId,
                 $"{room.RoomName} (Copy)",
-                $"{room.RoomCode}_COPY",
+                newRoomCode,
                 room.Description,
                 room.MaxOccupancy,
                 room.MaxAdults,
