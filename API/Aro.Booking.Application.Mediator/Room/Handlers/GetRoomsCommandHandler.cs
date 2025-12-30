@@ -1,4 +1,4 @@
-﻿using Aro.Booking.Application.Mediator.Room.Queries;
+using Aro.Booking.Application.Mediator.Room.Queries;
 using Aro.Booking.Application.Services.Room;
 using MediatR;
 
@@ -32,7 +32,12 @@ public class GetRoomsCommandHandler(IRoomService roomService) : IRequestHandler<
                 r.RoomSizeSQM,
                 (DTOs.BedConfiguration)r.BedConfig,
                 r.AmenityIds,
-                r.IsActive
+                r.IsActive,
+                r.Images?.Select(img => new DTOs.RoomImageInfoDto(
+                    img.FileId,
+                    img.OrderIndex,
+                    img.IsThumbnail
+                )).ToList()
             ))
             .ToList() ?? [];
 

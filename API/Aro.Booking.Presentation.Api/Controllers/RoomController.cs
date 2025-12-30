@@ -6,6 +6,7 @@ using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Presentation.Shared.Filters;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aro.Booking.Presentation.Api.Controllers;
@@ -189,5 +190,20 @@ public class RoomController(
         ), cancellationToken).ConfigureAwait(false);
 
         return Ok(response);
+    }
+
+    [HttpGet("image/{roomId:guid}/{imageId:guid}")]
+    public async Task<IActionResult> GetRoomImage(
+        Guid roomId,
+        Guid imageId,
+        CancellationToken cancellationToken
+        )
+    {
+        logger.LogDebug("Starting GetRoomImage for RoomId: {RoomId}, ImageId: {ImageId}", roomId, imageId);
+
+        var response = await mediator.Send(new GetRoomImageQuery(roomId, imageId), cancellationToken).ConfigureAwait(false);
+
+        string contentType = "image/jpeg";
+        return File(response.Image, contentType);
     }
 }

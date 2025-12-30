@@ -175,7 +175,7 @@
                     <div class="room-card @(room.IsActive ? "" : "inactive")">
                         <!-- Room Image -->
                         <div class="room-image @(room.IsActive ? "" : "grayscale")">
-                            <img src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop" alt="@room.RoomName" />
+                            <img src="@GetRoomImageUrl(room)" alt="@room.RoomName" onerror="this.src='https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop'" />
                             <!-- Settings Button -->
                             <div class="settings-btn" @onclick="() => ToggleRoomMenu(room.Id)" @onclick:stopPropagation="true">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -376,7 +376,7 @@
             var response = await RoomService.GetRooms(new GetRoomsRequest(
                 PropertyId,
                 null,
-                null,
+                "Images", // Include images to display thumbnails
                 1,
                 50,
                 sortBy == "name" ? "RoomName" : "RoomName",
@@ -589,6 +589,23 @@
     private string GetLastEditDate()
     {
         return DateTime.Now.ToString("ddd d MMMM yyyy");
+    }
+
+    private string GetRoomImageUrl(RoomDto room)
+    {
+        // Get thumbnail image or first image
+        var thumbnail = room.Images?.FirstOrDefault(i => i.IsThumbnail);
+        var firstImage = room.Images?.FirstOrDefault();
+        var imageToUse = thumbnail ?? firstImage;
+
+        if (imageToUse != null)
+        {
+            var apiBaseAddress = Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
+            return $"{apiBaseAddress}/api/room/image/{room.Id}/{imageToUse.FileId}";
+        }
+
+        // Fallback to placeholder
+        return "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop";
     }
 }
 

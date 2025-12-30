@@ -11,5 +11,12 @@ public record RoomDto(
     int? RoomSizeSQM,
     BedConfiguration BedConfig,
     List<Guid>? AmenityIds,
-    bool IsActive
+    bool IsActive,
+    List<RoomImageInfoDto>? Images = null
+);
+
+public record RoomImageInfoDto(
+    Guid FileId,
+    int OrderIndex,
+    bool IsThumbnail
 );

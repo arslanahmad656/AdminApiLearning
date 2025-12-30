@@ -173,8 +173,31 @@ public partial class RoomService(
         var pagedQuery = baseQuery
             .Paginate(query.Page, query.PageSize);
 
-        var roomDtos = await pagedQuery
-            .Select(r => new RoomDto(
+        var rooms = await pagedQuery.ToListAsync(cancellationToken);
+
+        // Check if images should be included
+        var includeParam = query.Include?.ToLowerInvariant() ?? string.Empty;
+        var includeImages = includeParam.Contains("images");
+
+        var roomDtos = new List<RoomDto>();
+        foreach (var r in rooms)
+        {
+            List<RoomImageInfoDto>? images = null;
+            if (includeImages)
+            {
+                var roomFiles = await repositoryManager.RoomFilesRepository.GetByRoomId(r.Id)
+                    .OrderBy(rf => rf.Entity.OrderIndex)
+                    .ToListAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
+                images = roomFiles.Select(rf => new RoomImageInfoDto(
+                    rf.Entity.FileId,
+                    rf.Entity.OrderIndex,
+                    rf.Entity.IsThumbnail
+                )).ToList();
+            }
+
+            roomDtos.Add(new RoomDto(
                 r.Id,
                 r.RoomName,
                 r.RoomCode,
@@ -185,9 +208,10 @@ public partial class RoomService(
                 r.RoomSize,
                 (Aro.Booking.Application.Services.Room.BedConfiguration)r.BedConfig,
                 r.RoomAmenities.Select(ra => ra.AmenityId).ToList(),
-                r.IsActive
-            ))
-            .ToListAsync(cancellationToken);
+                r.IsActive,
+                images
+            ));
+        }
 
         return new GetRoomsResponse(roomDtos, totalCount);
     }
@@ -207,6 +231,23 @@ public partial class RoomService(
             .ConfigureAwait(false) ??
             throw new AroRoomNotFoundException(dto.Id.ToString());
 
+        // Fetch images if requested
+        List<RoomImageInfoDto>? images = null;
+        var includeParam = dto.Inlcude?.ToLowerInvariant() ?? string.Empty;
+        if (includeParam.Contains("images"))
+        {
+            var roomFiles = await repositoryManager.RoomFilesRepository.GetByRoomId(dto.Id)
+                .OrderBy(rf => rf.Entity.OrderIndex)
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            images = roomFiles.Select(rf => new RoomImageInfoDto(
+                rf.Entity.FileId,
+                rf.Entity.OrderIndex,
+                rf.Entity.IsThumbnail
+            )).ToList();
+        }
+
         var roomDto = new RoomDto(
             response.Id,
             response.RoomName,
@@ -218,7 +259,8 @@ public partial class RoomService(
             response.RoomSize,
             (Aro.Booking.Application.Services.Room.BedConfiguration)response.BedConfig,
             [.. response.RoomAmenities.Select(ra => ra.AmenityId)],
-            response.IsActive
+            response.IsActive,
+            images
         );
 
         return new GetRoomResponse(roomDto);
