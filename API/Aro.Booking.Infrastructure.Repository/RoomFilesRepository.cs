@@ -28,6 +28,7 @@ public class RoomFilesRepository(AroDbContext dbContext) : RepositoryBase<RoomFi
                     join p in dbContext.Set<Room>() on pf.RoomId equals p.Id
                     join f in dbContext.Set<FileResource>() on pf.FileId equals f.Id
                     where p.Id == roomId
+                    orderby pf.OrderIndex
                     select new IRoomFilesRepository.RoomFile(pf, p, f);
 
         return query;

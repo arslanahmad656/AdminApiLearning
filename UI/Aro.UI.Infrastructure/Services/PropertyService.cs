@@ -40,7 +40,7 @@ public class PropertyService : IPropertyService
             formData.Add(new StringContent(wizardData.PhoneNumber ?? ""), "PhoneNumber");
             formData.Add(new StringContent(wizardData.Website ?? ""), "Website");
 
-            formData.Add(new StringContent(wizardData.SetContactSameAsPrimaryContact.ToString().ToLower()), "SetContactSameAsGroupContact");
+            formData.Add(new StringContent(wizardData.SetContactSameAsPrimaryContact.ToString().ToLower()), "SetContactSameAsPrimaryContact");
             formData.Add(new StringContent(wizardData.ContactName ?? ""), "ContactName");
             formData.Add(new StringContent(wizardData.ContactEmail ?? ""), "ContactEmail");
 
@@ -171,7 +171,7 @@ public class PropertyService : IPropertyService
             formData.Add(new StringContent(wizardData.PhoneNumber ?? ""), "PhoneNumber");
             formData.Add(new StringContent(wizardData.Website ?? ""), "Website");
 
-            formData.Add(new StringContent(wizardData.SetContactSameAsPrimaryContact.ToString().ToLower()), "SetContactSameAsGroupContact");
+            formData.Add(new StringContent(wizardData.SetContactSameAsPrimaryContact.ToString().ToLower()), "SetContactSameAsPrimaryContact");
             formData.Add(new StringContent(wizardData.ContactName ?? ""), "ContactName");
             formData.Add(new StringContent(wizardData.ContactEmail ?? ""), "ContactEmail");
 
