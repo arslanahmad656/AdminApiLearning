@@ -17,4 +17,6 @@ public interface IRoomService
     Task<bool> ActivateRoom(Guid roomId);
 
     Task<bool> DeactivateRoom(Guid roomId);
+
+    Task<bool> ReorderRooms(ReorderRoomsRequest request);
 }

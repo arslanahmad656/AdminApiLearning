@@ -12,6 +12,7 @@ public record RoomDto(
     BedConfiguration BedConfig,
     List<Guid>? AmenityIds,
     bool IsActive,
+    int DisplayOrder,
     List<RoomImageInfoDto>? Images = null
 );
 

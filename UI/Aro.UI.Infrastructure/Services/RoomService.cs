@@ -76,4 +76,10 @@ public class RoomService(HttpClient httpClient) : IRoomService
         var response = await _httpClient.PostAsync($"api/room/deactivate/{roomId}", null);
         return response.IsSuccessStatusCode;
     }
+
+    public async Task<bool> ReorderRooms(ReorderRoomsRequest request)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/room/reorder", request);
+        return response.IsSuccessStatusCode;
+    }
 }

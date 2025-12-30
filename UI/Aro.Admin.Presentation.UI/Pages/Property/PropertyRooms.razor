@@ -125,21 +125,6 @@
                 <span>Client List / @GroupName / Rooms</span>
             </div>
             <div class="actions-row">
-                <!-- Filter/Sort Dropdown -->
-                <div class="filter-dropdown" @onclick="ToggleFilterDropdown" @onclick:stopPropagation="true">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M10 18H14V16H10V18ZM3 6V8H21V6H3ZM6 13H18V11H6V13Z" fill="#1C1B1F"/>
-                    </svg>
-                    <span>@(sortBy == "name" ? "Sort by: A-Z" : "Sort by: A-Z")</span>
-                    @if (showFilterDropdown)
-                    {
-                        <div class="filter-dropdown-menu" @onclick:stopPropagation="true">
-                            <div class="filter-option @(sortBy == "name" ? "active" : "")" @onclick="@(() => SetSort("name"))">Sort by: A-Z</div>
-                            <div class="filter-option @(sortBy == "date" ? "active" : "")" @onclick="@(() => SetSort("date"))">Sort by: Date</div>
-                            <div class="filter-option @(sortBy == "status" ? "active" : "")" @onclick="@(() => SetSort("status"))">Sort by: Status</div>
-                        </div>
-                    }
-                </div>
                 <!-- Add New Room Button -->
                 <button class="add-room-btn" @onclick="HandleAddNewRoom">
                     Add New Room +
@@ -163,27 +148,38 @@
                         <path d="M7 14C8.66 14 10 12.66 10 11C10 9.34 8.66 8 7 8C5.34 8 4 9.34 4 11C4 12.66 5.34 14 7 14ZM7 10C7.55 10 8 10.45 8 11C8 11.55 7.55 12 7 12C6.45 12 6 11.55 6 11C6 10.45 6.45 10 7 10ZM19 7H11V15H3V5H1V20H3V17H21V20H23V11C23 8.79 21.21 7 19 7ZM21 15H13V9H19C20.1 9 21 9.9 21 11V15Z" fill="#9E9E9E"/>
                     </svg>
                 </div>
-                <p class="empty-title">You don't have any rooms added yet</p>
-                <p class="empty-subtitle">Click "Add New Room +" to create your first room.</p>
+                <p class="empty-title">No rooms have been added yet.</p>
+                <button class="add-room-btn" @onclick="HandleAddNewRoom">
+                    Add New Room +
+                </button>
             </div>
         }
         else
         {
-            <div class="rooms-grid">
-                @foreach (var room in rooms)
-                {
-                    <div class="room-card @(room.IsActive ? "" : "inactive")">
+            <MudDropContainer T="RoomDto" Items="@rooms" ItemsSelector="@((item, dropzone) => true)" ItemDropped="OnRoomDropped" Class="rooms-drop-container">
+                <ChildContent>
+                    <MudDropZone T="RoomDto" Identifier="rooms-zone" Class="rooms-grid" AllowReorder="true">
+                    </MudDropZone>
+                </ChildContent>
+                <ItemRenderer>
+                    <div class="room-card @(context.IsActive ? "" : "inactive")" @key="context.Id">
+                        <!-- Drag Handle -->
+                        <div class="drag-handle">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M11 18C11 19.1 10.1 20 9 20C7.9 20 7 19.1 7 18C7 16.9 7.9 16 9 16C10.1 16 11 16.9 11 18ZM9 10C7.9 10 7 10.9 7 12C7 13.1 7.9 14 9 14C10.1 14 11 13.1 11 12C11 10.9 10.1 10 9 10ZM9 4C7.9 4 7 4.9 7 6C7 7.1 7.9 8 9 8C10.1 8 11 7.1 11 6C11 4.9 10.1 4 9 4ZM15 8C16.1 8 17 7.1 17 6C17 4.9 16.1 4 15 4C13.9 4 13 4.9 13 6C13 7.1 13.9 8 15 8ZM15 10C13.9 10 13 10.9 13 12C13 13.1 13.9 14 15 14C16.1 14 17 13.1 17 12C17 10.9 16.1 10 15 10ZM15 16C13.9 16 13 16.9 13 18C13 19.1 13.9 20 15 20C16.1 20 17 19.1 17 18C17 16.9 16.1 16 15 16Z" fill="#9E9E9E"/>
+                            </svg>
+                        </div>
                         <!-- Room Image -->
-                        <div class="room-image @(room.IsActive ? "" : "grayscale")">
-                            <img src="@GetRoomImageUrl(room)" alt="@room.RoomName" onerror="this.src='https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop'" />
+                        <div class="room-image @(context.IsActive ? "" : "grayscale")">
+                            <img src="@GetRoomImageUrl(context)" alt="@context.RoomName" onerror="this.src='https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop'" />
                             <!-- Settings Button -->
-                            <div class="settings-btn" @onclick="() => ToggleRoomMenu(room.Id)" @onclick:stopPropagation="true">
+                            <div class="settings-btn" @onclick="() => ToggleRoomMenu(context.Id)" @onclick:stopPropagation="true">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M19.14 12.94C19.18 12.64 19.2 12.33 19.2 12C19.2 11.68 19.18 11.36 19.13 11.06L21.16 9.48C21.34 9.34 21.39 9.07 21.28 8.87L19.36 5.55C19.24 5.33 18.99 5.26 18.77 5.33L16.38 6.29C15.88 5.91 15.35 5.59 14.76 5.35L14.4 2.81C14.36 2.57 14.16 2.4 13.92 2.4H10.08C9.84 2.4 9.65 2.57 9.61 2.81L9.25 5.35C8.66 5.59 8.12 5.92 7.63 6.29L5.24 5.33C5.02 5.25 4.77 5.33 4.65 5.55L2.74 8.87C2.62 9.08 2.66 9.34 2.86 9.48L4.89 11.06C4.84 11.36 4.8 11.69 4.8 12C4.8 12.31 4.82 12.64 4.87 12.94L2.84 14.52C2.66 14.66 2.61 14.93 2.72 15.13L4.64 18.45C4.76 18.67 5.01 18.74 5.23 18.67L7.62 17.71C8.12 18.09 8.65 18.41 9.24 18.65L9.6 21.19C9.65 21.43 9.84 21.6 10.08 21.6H13.92C14.16 21.6 14.36 21.43 14.39 21.19L14.75 18.65C15.34 18.41 15.88 18.09 16.37 17.71L18.76 18.67C18.98 18.75 19.23 18.67 19.35 18.45L21.27 15.13C21.39 14.91 21.34 14.66 21.15 14.52L19.14 12.94ZM12 15.6C10.02 15.6 8.4 13.98 8.4 12C8.4 10.02 10.02 8.4 12 8.4C13.98 8.4 15.6 10.02 15.6 12C15.6 13.98 13.98 15.6 12 15.6Z" fill="#1C1B1F"/>
                                 </svg>
                             </div>
                             <!-- Settings Dropdown Menu -->
-                            @if (activeRoomMenuId == room.Id)
+                            @if (activeRoomMenuId == context.Id)
                             {
                                 <div class="room-menu" @onclick:stopPropagation="true">
                                     <div class="menu-close" @onclick="() => CloseRoomMenu()">
@@ -191,21 +187,21 @@
                                             <path d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z" fill="#000000"/>
                                         </svg>
                                     </div>
-                                    <div class="menu-item" @onclick="() => HandleEditRoom(room.Id)">
+                                    <div class="menu-item" @onclick="() => HandleEditRoom(context.Id)">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="#1C1B1F"/>
                                         </svg>
                                         <span>Edit details</span>
                                     </div>
-                                    <div class="menu-item" @onclick="() => HandleCopyRoom(room)">
+                                    <div class="menu-item" @onclick="() => HandleCopyRoom(context)">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="#1C1B1F"/>
                                         </svg>
                                         <span>Duplicate Room</span>
                                     </div>
-                                    <div class="menu-item" @onclick="() => HandleToggleStatus(room)">
+                                    <div class="menu-item" @onclick="() => HandleToggleStatus(context)">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                            @if (room.IsActive)
+                                            @if (context.IsActive)
                                             {
                                                 <path d="M12 7C14.76 7 17 9.24 17 12C17 12.65 16.87 13.26 16.64 13.83L19.56 16.75C21.07 15.49 22.26 13.86 22.99 12C21.26 7.61 16.99 4.5 11.99 4.5C10.59 4.5 9.25 4.75 8.01 5.2L10.17 7.36C10.74 7.13 11.35 7 12 7ZM2 4.27L4.28 6.55L4.74 7.01C3.08 8.3 1.78 10.02 1 12C2.73 16.39 7 19.5 12 19.5C13.55 19.5 15.03 19.2 16.38 18.66L16.8 19.08L19.73 22L21 20.73L3.27 3L2 4.27ZM7.53 9.8L9.08 11.35C9.03 11.56 9 11.78 9 12C9 13.66 10.34 15 12 15C12.22 15 12.44 14.97 12.65 14.92L14.2 16.47C13.53 16.8 12.79 17 12 17C9.24 17 7 14.76 7 12C7 11.21 7.2 10.47 7.53 9.8ZM11.84 9.02L14.99 12.17L15.01 12.01C15.01 10.35 13.67 9.01 12.01 9.01L11.84 9.02Z" fill="#1C1B1F"/>
                                             }
@@ -214,15 +210,15 @@
                                                 <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="#1C1B1F"/>
                                             }
                                         </svg>
-                                        <span>@(room.IsActive ? "Deactivate Room" : "Activate Room")</span>
+                                        <span>@(context.IsActive ? "Deactivate Room" : "Activate Room")</span>
                                     </div>
-                                    <div class="menu-item delete" @onclick="() => HandleDeleteRoom(room.Id)">
+                                    <div class="menu-item delete" @onclick="() => HandleDeleteRoom(context.Id)">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="#1C1B1F"/>
                                         </svg>
                                         <span>Delete Room</span>
                                     </div>
-                                    <div class="menu-item" @onclick="() => HandleViewLastChanges(room.Id)">
+                                    <div class="menu-item" @onclick="() => HandleViewLastChanges(context.Id)">
                                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M13 3C8.03 3 4 7.03 4 12H1L4.89 15.89L4.96 16.03L9 12H6C6 8.13 9.13 5 13 5C16.87 5 20 8.13 20 12C20 15.87 16.87 19 13 19C11.07 19 9.32 18.21 8.06 16.94L6.64 18.36C8.27 19.99 10.51 21 13 21C17.97 21 22 16.97 22 12C22 7.03 17.97 3 13 3ZM12 8V13L16.28 15.54L17 14.33L13.5 12.25V8H12Z" fill="#1C1B1F"/>
                                         </svg>
@@ -234,10 +230,10 @@
 
                         <!-- Room Details -->
                         <div class="room-details">
-                            <h3 class="room-name">@room.RoomName</h3>
+                            <h3 class="room-name">@context.RoomName</h3>
                             <div class="room-code-row">
-                                <span class="room-code">@room.RoomCode</span>
-                                <span class="copy-link" @onclick="() => HandleCopyLink(room)">
+                                <span class="room-code">@context.RoomCode</span>
+                                <span class="copy-link" @onclick="() => HandleCopyLink(context)">
                                     [Copy Link]
                                 </span>
                             </div>
@@ -249,25 +245,27 @@
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M16 11C17.66 11 18.99 9.66 18.99 8C18.99 6.34 17.66 5 16 5C14.34 5 13 6.34 13 8C13 9.66 14.34 11 16 11ZM8 11C9.66 11 10.99 9.66 10.99 8C10.99 6.34 9.66 5 8 5C6.34 5 5 6.34 5 8C5 9.66 6.34 11 8 11ZM8 13C5.67 13 1 14.17 1 16.5V19H15V16.5C15 14.17 10.33 13 8 13ZM16 13C15.71 13 15.38 13.02 15.03 13.05C16.19 13.89 17 15.02 17 16.5V19H23V16.5C23 14.17 18.33 13 16 13Z" fill="#000000"/>
                                     </svg>
-                                    <span>@room.MaxOccupancy</span>
+                                    <span>@context.MaxOccupancy</span>
                                 </div>
                                 <!-- Size -->
                                 <div class="info-item">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M19 12H22L12 2L2 12H5V20H11V14H13V20H19V12ZM17 18H15V12H9V18H7V9.83L12 4.83L17 9.83V18Z" fill="#000000"/>
                                     </svg>
-                                    <span>@(room.RoomSizeSQM?.ToString() ?? "0")m2 / @(GetSqft(room.RoomSizeSQM))sqft</span>
+                                    <span>@(context.RoomSizeSQM?.ToString() ?? "0")m2 / @(GetSqft(context.RoomSizeSQM))sqft</span>
                                 </div>
-                                <!-- Price Indicator -->
-                                <div class="info-item price-indicator">
-                                    <span class="price-active">€</span>
-                                    <span class="price-inactive">€€€</span>
+                                <!-- Bed Config -->
+                                <div class="info-item">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M7 14C8.66 14 10 12.66 10 11C10 9.34 8.66 8 7 8C5.34 8 4 9.34 4 11C4 12.66 5.34 14 7 14ZM7 10C7.55 10 8 10.45 8 11C8 11.55 7.55 12 7 12C6.45 12 6 11.55 6 11C6 10.45 6.45 10 7 10ZM19 7H11V15H3V5H1V20H3V17H21V20H23V11C23 8.79 21.21 7 19 7ZM21 15H13V9H19C20.1 9 21 9.9 21 11V15Z" fill="#000000"/>
+                                    </svg>
+                                    <span>@GetBedConfigDisplay(context.BedConfig)</span>
                                 </div>
                             </div>
 
                             <!-- Status Badge -->
-                            <div class="status-badge @(room.IsActive ? "active" : "inactive")">
-                                @if (room.IsActive)
+                            <div class="status-badge @(context.IsActive ? "active" : "inactive")">
+                                @if (context.IsActive)
                                 {
                                     <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M4 7.78L1.22 5L0.28 5.94L4 9.66L12 1.66L11.06 0.72L4 7.78Z" fill="#166719"/>
@@ -289,8 +287,8 @@
                             </div>
                         </div>
                     </div>
-                }
-            </div>
+                </ItemRenderer>
+            </MudDropContainer>
         }
     </div>
 </div>
@@ -606,6 +604,62 @@
 
         // Fallback to placeholder
         return "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop";
+    }
+
+    private string GetBedConfigDisplay(BedConfiguration bedConfig)
+    {
+        return bedConfig switch
+        {
+            BedConfiguration.King => "King",
+            BedConfiguration.Queen => "Queen",
+            BedConfiguration.Double => "Double",
+            BedConfiguration.Single => "Single",
+            BedConfiguration.Twin => "Twin",
+            BedConfiguration.SofaBed => "Sofa Bed",
+            _ => "N/A"
+        };
+    }
+
+    private async Task OnRoomDropped(MudItemDropInfo<RoomDto> dropItem)
+    {
+        if (dropItem.Item == null || rooms == null) return;
+
+        // Get the dropped item and calculate new order
+        var droppedRoom = dropItem.Item;
+        var newIndex = dropItem.DropzoneIdentifier == "rooms-zone" ? dropItem.IndexInZone : 0;
+
+        // Remove from current position and insert at new position
+        rooms.Remove(droppedRoom);
+        rooms.Insert(Math.Min(newIndex, rooms.Count), droppedRoom);
+
+        // Update DisplayOrder for all rooms
+        var roomOrders = new List<RoomOrderItem>();
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            roomOrders.Add(new RoomOrderItem(rooms[i].Id, i + 1));
+        }
+
+        // Auto-save the new order
+        try
+        {
+            var request = new ReorderRoomsRequest(PropertyId, roomOrders);
+            var success = await RoomService.ReorderRooms(request);
+
+            if (success)
+            {
+                ShowSuccessToast("Room order saved");
+            }
+            else
+            {
+                Snackbar.Add("Failed to save room order", MudBlazor.Severity.Error);
+                await LoadRooms(); // Reload to get original order
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving room order: {ex.Message}", MudBlazor.Severity.Error);
+            await LoadRooms(); // Reload to get original order
+        }
     }
 }
 
@@ -932,10 +986,70 @@
         border-radius: 8px;
         box-shadow: 0px 4px 12px 2px rgba(0, 0, 0, 0.06);
         overflow: hidden;
+        position: relative;
+        cursor: grab;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .room-card:hover {
+        box-shadow: 0px 8px 24px 4px rgba(0, 0, 0, 0.12);
+    }
+
+    .room-card:active {
+        cursor: grabbing;
     }
 
     .room-card.inactive .room-details {
         opacity: 0.8;
+    }
+
+    /* Drag Handle */
+    .drag-handle {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        width: 32px;
+        height: 32px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .room-card:hover .drag-handle {
+        opacity: 1;
+    }
+
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+
+    /* MudBlazor Drop Container Overrides */
+    ::deep .mud-drop-container {
+        min-height: 200px;
+    }
+
+    ::deep .mud-drop-zone {
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+    }
+
+    ::deep .mud-drop-item-preview-start {
+        border-left: 3px solid #F69126;
+        margin-left: -3px;
+    }
+
+    ::deep .mud-dragging {
+        opacity: 0.8;
+        transform: scale(1.02);
+        box-shadow: 0px 12px 32px 6px rgba(0, 0, 0, 0.15) !important;
+        z-index: 1000;
     }
 
     /* Room Image */

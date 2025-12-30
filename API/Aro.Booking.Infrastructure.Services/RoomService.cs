@@ -50,6 +50,12 @@ public partial class RoomService(
             throw new RoomAlreadyExistsException(room.RoomCode, existingRoom.Id.ToString() ?? "null");
         }
 
+        var maxDisplayOrder = await repositoryManager.RoomRepository.GetAll()
+            .Where(r => r.PropertyId == room.PropertyId)
+            .Select(r => (int?)r.DisplayOrder)
+            .MaxAsync(cancellationToken)
+            .ConfigureAwait(false) ?? -1;
+
         Guid _roomId = idGenerator.Generate();
         var RoomEntity = new Room
         {
@@ -64,6 +70,7 @@ public partial class RoomService(
             RoomSize = room.RoomSizeSQM,
             BedConfig = (Domain.Entities.BedConfiguration)room.BedConfig,
             IsActive = room.IsActive,
+            DisplayOrder = maxDisplayOrder + 1,
             RoomAmenities = []
         };
 
@@ -164,7 +171,7 @@ public partial class RoomService(
 
         baseQuery = baseQuery
             .IncludeElements(efInclude)
-            .SortBy(query.SortBy, query.Ascending);
+            .OrderBy(r => r.DisplayOrder);
 
         var totalCount = await baseQuery
             .CountAsync(cancellationToken)
@@ -207,6 +214,7 @@ public partial class RoomService(
                 (Aro.Booking.Application.Services.Room.BedConfiguration)r.BedConfig,
                 r.RoomAmenities?.Select(ra => ra.AmenityId).ToList(),
                 r.IsActive,
+                r.DisplayOrder,
                 images
             ));
         }
@@ -260,6 +268,7 @@ public partial class RoomService(
             (Aro.Booking.Application.Services.Room.BedConfiguration)response.BedConfig,
             response.RoomAmenities?.Select(ra => ra.AmenityId).ToList(),
             response.IsActive,
+            response.DisplayOrder,
             images
         );
 
@@ -396,5 +405,45 @@ public partial class RoomService(
         logger.LogInfo("Room deactivated successfully with Id: {RoomId}", room.Id);
 
         return new DeactivateRoomResponse(room.Id, room.IsActive);
+    }
+
+    public async Task<ReorderRoomsResponse> ReorderRooms(
+        ReorderRoomsDto dto,
+        CancellationToken cancellationToken = default
+        )
+    {
+        logger.LogDebug("Starting {MethodName} for propertyId: {PropertyId}", nameof(ReorderRooms), dto.PropertyId);
+
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
+
+        var rooms = await repositoryManager.RoomRepository.GetAll()
+            .Where(r => r.PropertyId == dto.PropertyId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var roomDict = rooms.ToDictionary(r => r.Id);
+        int updatedCount = 0;
+
+        foreach (var orderItem in dto.RoomOrders)
+        {
+            if (roomDict.TryGetValue(orderItem.RoomId, out var room))
+            {
+                if (room.DisplayOrder != orderItem.DisplayOrder)
+                {
+                    room.DisplayOrder = orderItem.DisplayOrder;
+                    repositoryManager.RoomRepository.Update(room);
+                    updatedCount++;
+                }
+            }
+        }
+
+        if (updatedCount > 0)
+        {
+            await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+        }
+
+        logger.LogInfo("Reordered {UpdatedCount} rooms for property {PropertyId}", updatedCount, dto.PropertyId);
+
+        return new ReorderRoomsResponse(true, updatedCount);
     }
 }

@@ -206,4 +206,26 @@ public class RoomController(
         string contentType = "image/jpeg";
         return File(response.Image, contentType);
     }
+
+    [HttpPost("reorder")]
+    [Permissions(PermissionCodes.EditRoom)]
+    public async Task<IActionResult> ReorderRooms(
+        [FromBody] ReorderRoomsModel model,
+        CancellationToken cancellationToken
+        )
+    {
+        logger.LogDebug("Starting ReorderRooms for PropertyId: {PropertyId}", model.PropertyId);
+
+        var roomOrders = model.RoomOrders.Select(ro =>
+            new Application.Mediator.Room.DTOs.RoomOrderItemDto(ro.RoomId, ro.DisplayOrder)
+        ).ToList();
+
+        var response = await mediator.Send(new ReorderRoomsCommand(
+            new(model.PropertyId, roomOrders)
+        ), cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed ReorderRooms for PropertyId: {PropertyId}", model.PropertyId);
+
+        return Ok(response);
+    }
 }
