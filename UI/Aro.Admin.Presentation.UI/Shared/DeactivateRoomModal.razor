@@ -1,0 +1,94 @@
+@* Deactivate Room Confirmation Modal - NBE-115 *@
+
+<MudDialog>
+    <TitleContent>
+        <div class="modal-title">
+            <span>Deactivate Room?</span>
+        </div>
+    </TitleContent>
+    <DialogContent>
+        <p class="modal-message">
+            This room will no longer appear in the Booking Engine or website. You can reactivate it at any time.
+        </p>
+    </DialogContent>
+    <DialogActions>
+        <div class="modal-actions">
+            <MudButton OnClick="Cancel" Variant="Variant.Outlined" Class="cancel-btn">
+                Cancel
+            </MudButton>
+            <MudButton OnClick="Deactivate" Variant="Variant.Filled" Class="deactivate-btn">
+                Deactivate
+            </MudButton>
+        </div>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+
+    [Parameter] public string RoomName { get; set; } = "";
+
+    private void Cancel()
+    {
+        MudDialog?.Close(DialogResult.Cancel());
+    }
+
+    private void Deactivate()
+    {
+        MudDialog?.Close(DialogResult.Ok(true));
+    }
+}
+
+<style>
+    .modal-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 600;
+        font-size: 20px;
+        color: #000000;
+    }
+
+    .modal-message {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 16px;
+        color: #1C1B1F;
+        margin: 0;
+        padding: 8px 0;
+        line-height: 1.5;
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        padding: 8px 0;
+    }
+
+    .cancel-btn {
+        color: #1C1B1F !important;
+        border-color: #C3C3C3 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 500 !important;
+        text-transform: none !important;
+        padding: 10px 24px !important;
+    }
+
+    .cancel-btn:hover {
+        background-color: #F5F5F5 !important;
+    }
+
+    .deactivate-btn {
+        background-color: #F69126 !important;
+        color: #1C1B1F !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 500 !important;
+        text-transform: none !important;
+        padding: 10px 24px !important;
+    }
+
+    .deactivate-btn:hover {
+        background-color: #E58115 !important;
+    }
+</style>

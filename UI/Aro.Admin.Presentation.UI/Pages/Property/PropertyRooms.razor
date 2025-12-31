@@ -2,19 +2,27 @@
 @attribute [Authorize]
 @layout PropertyLayout
 @using Aro.UI.Application.DTOs.Group
+@using Aro.UI.Application.DTOs.Room
 @using Microsoft.AspNetCore.Components.Authorization
 @using Aro.UI.Infrastructure.Services
 @using Aro.UI.Application.DTOs
 @using Microsoft.Extensions.Configuration
+@using Microsoft.JSInterop
+@using Aro.Admin.Presentation.UI.Shared
+@using System.Security.Claims
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
 @inject IPolicyService PolicyService
 @inject IGroupService GroupService
+@inject IRoomService RoomService
 @inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
-<PageTitle>ARO Admin - Property Rooms</PageTitle>
+<PageTitle>ARO Admin - Rooms</PageTitle>
 
-<div class="property-rules-container">
+<div class="rooms-page-container">
     <!-- Left Sidebar - Property Specific Menu -->
     <div class="property-sidebar">
         <div class="sidebar-logo">
@@ -41,8 +49,7 @@
             <a href="/group/@GroupId/property/@PropertyId/rooms" class="nav-item active">
                 <span class="nav-icon">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 12V18H6V14H18V18H21V12H3Z" fill="white"/>
-                        <path d="M3 5V10H21V5H3Z" fill="white"/>
+                        <path d="M7 14C8.66 14 10 12.66 10 11C10 9.34 8.66 8 7 8C5.34 8 4 9.34 4 11C4 12.66 5.34 14 7 14ZM7 10C7.55 10 8 10.45 8 11C8 11.55 7.55 12 7 12C6.45 12 6 11.55 6 11C6 10.45 6.45 10 7 10ZM19 7H11V15H3V5H1V20H3V17H21V20H23V11C23 8.79 21.21 7 19 7ZM21 15H13V9H19C20.1 9 21 9.9 21 11V15Z" fill="white"/>
                     </svg>
                 </span>
                 <span class="nav-text">Rooms</span>
@@ -86,7 +93,7 @@
                         <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM14 17H7V15H14V17ZM17 13H7V11H17V13ZM17 9H7V7H17V9Z" fill="white"/>
                     </svg>
                 </span>
-                <span class="nav-text">Property Rules</span>
+                <span class="nav-text">House Rules</span>
             </a>
         </nav>
 
@@ -99,27 +106,217 @@
     <div class="main-content">
         <!-- Top Header -->
         <div class="content-header">
+            <!-- Success Notification Toast -->
+            @if (showSuccessToast)
+            {
+                <div class="success-toast">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M16 0H2C0.9 0 0 0.9 0 2V16C0 17.1 0.9 18 2 18H16C17.1 18 18 17.1 18 16V2C18 0.9 17.1 0 16 0ZM7 14L2 9L3.41 7.59L7 11.17L14.59 3.58L16 5L7 14Z" fill="#166719"/>
+                    </svg>
+                    <span>@successMessage</span>
+                </div>
+            }
             <div class="header-right">
                 <TopHeaderBar GroupName="@GroupName" ProfileImageUrl="@GroupImageUrl" />
             </div>
         </div>
 
-        <!-- Breadcrumb -->
-        <div class="breadcrumb">
-            <span>@GroupName / Property Rooms</span>
+        <!-- Breadcrumb and Actions Row -->
+        <div class="breadcrumb-actions-row">
+            <div class="breadcrumb">
+                <span>Client List / @GroupName / Rooms</span>
+            </div>
+            <div class="actions-row">
+                <!-- Add New Room Button -->
+                <button class="add-room-btn" @onclick="HandleAddNewRoom">
+                    Add New Room +
+                </button>
+            </div>
         </div>
 
-        <!-- Page Title -->
-        <div class="page-title-section">
-            <h1 class="page-title">Property Rooms</h1>
-            <button class="add-rule-btn" @onclick="HandleAddNewRoom">
-                + Add New Room
-            </button>
-        </div>
+        <!-- Rooms Grid -->
+        @if (isLoading)
+        {
+            <div class="loading-container">
+                <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+                <span>Loading rooms...</span>
+            </div>
+        }
+        else if (rooms == null || rooms.Count == 0)
+        {
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 14C8.66 14 10 12.66 10 11C10 9.34 8.66 8 7 8C5.34 8 4 9.34 4 11C4 12.66 5.34 14 7 14ZM7 10C7.55 10 8 10.45 8 11C8 11.55 7.55 12 7 12C6.45 12 6 11.55 6 11C6 10.45 6.45 10 7 10ZM19 7H11V15H3V5H1V20H3V17H21V20H23V11C23 8.79 21.21 7 19 7ZM21 15H13V9H19C20.1 9 21 9.9 21 11V15Z" fill="#9E9E9E"/>
+                    </svg>
+                </div>
+                <p class="empty-title">No rooms have been added yet.</p>
+                <button class="add-room-btn" @onclick="HandleAddNewRoom">
+                    Add New Room +
+                </button>
+            </div>
+        }
+        else
+        {
+            <div class="rooms-grid">
+                @foreach (var room in rooms)
+                {
+                    <div class="room-card @(room.IsActive ? "" : "inactive") @(draggedRoomId == room.Id ? "dragging" : "") @(dragOverRoomId == room.Id ? "drag-over" : "")"
+                         @key="room.Id"
+                         draggable="true"
+                         @ondragstart="() => HandleDragStart(room)"
+                         @ondragend="HandleDragEnd"
+                         @ondragover="() => HandleDragOver(room)"
+                         @ondragover:preventDefault="true"
+                         @ondrop="() => HandleDrop(room)"
+                         @ondrop:preventDefault="true">
+                        <!-- Drag Handle -->
+                        <div class="drag-handle" title="Drag to reorder">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M7 4C7 5.1 6.1 6 5 6C3.9 6 3 5.1 3 4C3 2.9 3.9 2 5 2C6.1 2 7 2.9 7 4ZM5 8C3.9 8 3 8.9 3 10C3 11.1 3.9 12 5 12C6.1 12 7 11.1 7 10C7 8.9 6.1 8 5 8ZM5 14C3.9 14 3 14.9 3 16C3 17.1 3.9 18 5 18C6.1 18 7 17.1 7 16C7 14.9 6.1 14 5 14ZM11 6C12.1 6 13 5.1 13 4C13 2.9 12.1 2 11 2C9.9 2 9 2.9 9 4C9 5.1 9.9 6 11 6ZM11 8C9.9 8 9 8.9 9 10C9 11.1 9.9 12 11 12C12.1 12 13 11.1 13 10C13 8.9 12.1 8 11 8ZM11 14C9.9 14 9 14.9 9 16C9 17.1 9.9 18 11 18C12.1 18 13 17.1 13 16C13 14.9 12.1 14 11 14Z" fill="#666666"/>
+                            </svg>
+                        </div>
+                        <!-- Room Image -->
+                        <div class="room-image @(room.IsActive ? "" : "grayscale")">
+                            <img src="@GetRoomImageUrl(room)" alt="@room.RoomName" onerror="this.src='https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop'" class="room-thumbnail" />
+                            <!-- Settings Button -->
+                            <button type="button" class="settings-btn" @onclick="() => ToggleRoomMenu(room.Id)" @onclick:stopPropagation="true" draggable="false">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M19.14 12.94C19.18 12.64 19.2 12.33 19.2 12C19.2 11.68 19.18 11.36 19.13 11.06L21.16 9.48C21.34 9.34 21.39 9.07 21.28 8.87L19.36 5.55C19.24 5.33 18.99 5.26 18.77 5.33L16.38 6.29C15.88 5.91 15.35 5.59 14.76 5.35L14.4 2.81C14.36 2.57 14.16 2.4 13.92 2.4H10.08C9.83998 2.4 9.64998 2.57 9.60998 2.81L9.24998 5.35C8.65998 5.59 8.11998 5.92 7.62998 6.29L5.23998 5.33C5.01998 5.25 4.76998 5.33 4.64998 5.55L2.73998 8.87C2.61998 9.08 2.65998 9.34 2.85998 9.48L4.88998 11.06C4.83998 11.36 4.79998 11.69 4.79998 12C4.79998 12.31 4.81998 12.64 4.86998 12.94L2.83998 14.52C2.65998 14.66 2.60998 14.93 2.71998 15.13L4.63998 18.45C4.75998 18.67 5.00998 18.74 5.22998 18.67L7.61998 17.71C8.11998 18.09 8.64998 18.41 9.23998 18.65L9.59998 21.19C9.64998 21.43 9.83998 21.6 10.08 21.6H13.92C14.16 21.6 14.36 21.43 14.39 21.19L14.75 18.65C15.34 18.41 15.88 18.09 16.37 17.71L18.76 18.67C18.98 18.75 19.23 18.67 19.35 18.45L21.27 15.13C21.39 14.91 21.34 14.66 21.15 14.52L19.14 12.94ZM12 15.6C10.02 15.6 8.39998 13.98 8.39998 12C8.39998 10.02 10.02 8.4 12 8.4C13.98 8.4 15.6 10.02 15.6 12C15.6 13.98 13.98 15.6 12 15.6Z" fill="#1C1B1F"/>
+                                </svg>
+                            </button>
+                            <!-- Settings Dropdown Menu -->
+                            @if (activeRoomMenuId == room.Id)
+                            {
+                                <div class="room-menu">
+                                    <div class="menu-close" @onclick="() => CloseRoomMenu()">
+                                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M14 1.41L12.59 0L7 5.59L1.41 0L0 1.41L5.59 7L0 12.59L1.41 14L7 8.41L12.59 14L14 12.59L8.41 7L14 1.41Z" fill="#000000"/>
+                                        </svg>
+                                    </div>
+                                    <div class="menu-item" @onclick="() => HandleEditRoom(room.Id)">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M3 17.25V21H6.75L17.81 9.94L14.06 6.19L3 17.25ZM20.71 7.04C21.1 6.65 21.1 6.02 20.71 5.63L18.37 3.29C17.98 2.9 17.35 2.9 16.96 3.29L15.13 5.12L18.88 8.87L20.71 7.04Z" fill="#1C1B1F"/>
+                                        </svg>
+                                        <span>Edit details</span>
+                                    </div>
+                                    @if (canCreateRoom)
+                                    {
+                                        <div class="menu-item" @onclick="() => HandleCopyRoom(room)">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5ZM19 21H8V7H19V21Z" fill="#1C1B1F"/>
+                                            </svg>
+                                            <span>Duplicate Room</span>
+                                        </div>
+                                    }
+                                    <div class="menu-item" @onclick="() => HandleToggleStatus(room)">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            @if (room.IsActive)
+                                            {
+                                                <path d="M12 7C14.76 7 17 9.24 17 12C17 12.65 16.87 13.26 16.64 13.83L19.56 16.75C21.07 15.49 22.26 13.86 22.99 12C21.26 7.61 16.99 4.5 11.99 4.5C10.59 4.5 9.25 4.75 8.01 5.2L10.17 7.36C10.74 7.13 11.35 7 12 7ZM2 4.27L4.28 6.55L4.74 7.01C3.08 8.3 1.78 10.02 1 12C2.73 16.39 7 19.5 12 19.5C13.55 19.5 15.03 19.2 16.38 18.66L16.8 19.08L19.73 22L21 20.73L3.27 3L2 4.27ZM7.53 9.8L9.08 11.35C9.03 11.56 9 11.78 9 12C9 13.66 10.34 15 12 15C12.22 15 12.44 14.97 12.65 14.92L14.2 16.47C13.53 16.8 12.79 17 12 17C9.24 17 7 14.76 7 12C7 11.21 7.2 10.47 7.53 9.8ZM11.84 9.02L14.99 12.17L15.01 12.01C15.01 10.35 13.67 9.01 12.01 9.01L11.84 9.02Z" fill="#1C1B1F"/>
+                                            }
+                                            else
+                                            {
+                                                <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM12 9C10.34 9 9 10.34 9 12C9 13.66 10.34 15 12 15C13.66 15 15 13.66 15 12C15 10.34 13.66 9 12 9Z" fill="#1C1B1F"/>
+                                            }
+                                        </svg>
+                                        <span>@(room.IsActive ? "Deactivate Room" : "Activate Room")</span>
+                                    </div>
+                                    <div class="menu-item delete" @onclick="() => HandleDeleteRoom(room.Id)">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M6 19C6 20.1 6.9 21 8 21H16C17.1 21 18 20.1 18 19V7H6V19ZM19 4H15.5L14.5 3H9.5L8.5 4H5V6H19V4Z" fill="#1C1B1F"/>
+                                        </svg>
+                                        <span>Delete Room</span>
+                                    </div>
+                                    <div class="menu-item" @onclick="() => HandleViewLastChanges(room.Id)">
+                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M13 3C8.03 3 4 7.03 4 12H1L4.89 15.89L4.96 16.03L9 12H6C6 8.13 9.13 5 13 5C16.87 5 20 8.13 20 12C20 15.87 16.87 19 13 19C11.07 19 9.32 18.21 8.06 16.94L6.64 18.36C8.27 19.99 10.51 21 13 21C17.97 21 22 16.97 22 12C22 7.03 17.97 3 13 3ZM12 8V13L16.28 15.54L17 14.33L13.5 12.25V8H12Z" fill="#1C1B1F"/>
+                                        </svg>
+                                        <span>View Last Changes</span>
+                                    </div>
+                                </div>
+                            }
+                        </div>
 
+                        <!-- Room Details -->
+                        <div class="room-details">
+                            <h3 class="room-name">@room.RoomName</h3>
+                            <div class="room-code-row">
+                                <span class="room-code">@room.RoomCode</span>
+                                <span class="copy-link" @onclick="() => HandleCopyLink(room)">
+                                    [Copy Link]
+                                </span>
+                            </div>
+
+                            <!-- Room Info Row -->
+                            <div class="room-info-row">
+                                <!-- Occupancy -->
+                                <div class="info-item occupancy">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <g clip-path="url(#clip0_4297_68)">
+                                            <path d="M8.99961 11.6491C10.0371 11.6491 10.8781 10.8081 10.8781 9.77061C10.8781 8.73313 10.0371 7.89209 8.99961 7.89209C7.96214 7.89209 7.12109 8.73313 7.12109 9.77061C7.12109 10.8081 7.96214 11.6491 8.99961 11.6491Z" fill="black" />
+                                            <path d="M9.7968 11.7769H8.20287C6.87676 11.7769 5.79785 12.8561 5.79785 14.1821V16.1319L5.80278 16.1622L5.93687 16.204C7.20241 16.5995 8.30212 16.7316 9.20735 16.7316C10.9748 16.7316 11.9991 16.2273 12.0624 16.1956L12.188 16.1315L12.2009 16.1319V14.1819C12.2018 12.8561 11.1233 11.7769 9.7968 11.7769Z" fill="black" />
+                                            <path d="M5.16517 7.32888C6.83882 7.32888 8.19558 5.97212 8.19558 4.29847C8.19558 2.62483 6.83882 1.26807 5.16517 1.26807C3.49152 1.26807 2.13477 2.62483 2.13477 4.29847C2.13477 5.97212 3.49152 7.32888 5.16517 7.32888Z" fill="black" />
+                                            <path d="M12.8344 7.32888C14.5081 7.32888 15.8645 5.97157 15.8645 4.29811C15.8645 2.62519 14.5075 1.26807 12.8344 1.26807C11.1604 1.26807 9.8042 2.62483 9.8042 4.29811C9.8042 5.97139 11.1604 7.32888 12.8344 7.32888Z" fill="black" />
+                                            <path d="M7.52685 11.4816C7.04577 11.0667 6.73983 10.4541 6.73983 9.7707C6.73983 8.9326 7.19938 8.20104 7.87876 7.81081C7.43636 7.63476 6.95547 7.53516 6.45104 7.53516H3.87963C1.74042 7.53497 0 9.27612 0 11.415V14.5603L0.00784465 14.6094L0.224393 14.6767C2.22788 15.3028 3.97195 15.5183 5.41609 15.5261V14.1821C5.41609 12.8788 6.3164 11.7849 7.52685 11.4816Z" fill="black" />
+                                            <path d="M14.12 7.53467H11.5489C11.0445 7.53467 10.5642 7.63428 10.1216 7.81032C10.8015 8.20055 11.2611 8.93174 11.2611 9.77021C11.2611 10.4532 10.9549 11.0659 10.4742 11.4807C10.9588 11.6013 11.4048 11.8492 11.7673 12.2119C12.2942 12.7391 12.5844 13.439 12.5843 14.1822V15.5258C14.0284 15.518 15.7726 15.3023 17.7758 14.6764L17.9923 14.6091L18.0003 14.56V11.4147C17.9996 9.27581 16.2592 7.53467 14.12 7.53467Z" fill="black" />
+                                        </g>
+                                        <defs>
+                                            <clipPath id="clip0_4297_68">
+                                                <rect width="18" height="18" fill="white" />
+                                            </clipPath>
+                                        </defs>
+                                    </svg>
+
+                                    <span>@room.MaxOccupancy</span>
+                                </div>
+                                <!-- Size -->
+                                <div class="info-item size ">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M17.8515 16.4599V0.695525C17.8515 0.511081 17.7783 0.334191 17.6478 0.20377C17.5174 0.0733483 17.3405 7.70098e-05 17.1561 7.70098e-05H1.39089C1.39089 7.70098e-05 1.33765 0 0.695447 0C0.511003 0 0.334114 0.0732696 0.203692 0.203691C0.0732703 0.334113 0 0.445598 0 0.630042V17.1554C0 17.3398 0.0732703 17.5167 0.203692 17.6471C0.334114 17.7775 0.511003 17.8508 0.695447 17.8508L17.1561 17.8564C17.3405 17.8564 17.5174 17.7832 17.6478 17.6528C17.7783 17.5223 17.8515 17.3454 17.8515 17.161C17.8515 17.1247 17.8515 16.4599 17.8515 16.4599ZM16.3641 16.4599H1.39089V1.39097H16.4598V16.4599H16.3641Z" fill="black" />
+                                        <path d="M13.3127 3.62549H10.5713C10.4296 3.62549 10.2936 3.6818 10.1934 3.78205C10.0931 3.88229 10.0368 4.01825 10.0368 4.16002C10.0368 4.30178 10.0931 4.43774 10.1934 4.53799C10.2936 4.63823 10.4296 4.69455 10.5713 4.69455H12.0222L4.89035 11.8258V10.3758C4.89035 10.2341 4.83403 10.0981 4.73379 9.99787C4.63354 9.89763 4.49759 9.84131 4.35582 9.84131C4.21405 9.84131 4.07809 9.89763 3.97785 9.99787C3.8776 10.0981 3.82129 10.2341 3.82129 10.3758V13.1169C3.82125 13.1871 3.83505 13.2566 3.8619 13.3215C3.88874 13.3864 3.92812 13.4453 3.97776 13.495C4.0274 13.5446 4.08635 13.584 4.15122 13.6108C4.21609 13.6377 4.28561 13.6515 4.35582 13.6514H7.09719C7.23896 13.6514 7.37492 13.5951 7.47516 13.4949C7.57541 13.3946 7.63172 13.2587 7.63172 13.1169C7.63172 12.9751 7.57541 12.8392 7.47516 12.7389C7.37492 12.6387 7.23896 12.5824 7.09719 12.5824H5.64633L12.7782 5.44961V6.90048C12.7782 7.04224 12.8345 7.1782 12.9347 7.27845C13.035 7.37869 13.1709 7.43501 13.3127 7.43501C13.4545 7.43501 13.5904 7.37869 13.6907 7.27845C13.7909 7.1782 13.8472 7.04224 13.8472 6.90048V4.1591C13.847 4.0175 13.7906 3.88177 13.6904 3.78172C13.5901 3.68168 13.4543 3.62549 13.3127 3.62549Z" fill="black" />
+                                    </svg>
+                                    <span>@(room.RoomSizeSQM?.ToString() ?? "0")m2 / @(GetSqft(room.RoomSizeSQM))sqft</span>
+                                </div>
+                                <!-- Bed Config -->
+                                <div class="info-item price-indicator">
+                                    <span class="price-active">€</span>
+                                    <span class="price-inactive">€€€</span>
+                                </div>
+                            </div>
+
+                            <!-- Status Badge -->
+                            <div class="status-badge @(room.IsActive ? "active" : "inactive")">
+                                @if (room.IsActive)
+                                {
+                                    <svg width="12" height="10" viewBox="0 0 12 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M4 7.78L1.22 5L0.28 5.94L4 9.66L12 1.66L11.06 0.72L4 7.78Z" fill="#166719"/>
+                                    </svg>
+                                    <span>Active</span>
+                                }
+                                else
+                                {
+                                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M10 1.00714L8.99286 0L5 3.99286L1.00714 0L0 1.00714L3.99286 5L0 8.99286L1.00714 10L5 6.00714L8.99286 10L10 8.99286L6.00714 5L10 1.00714Z" fill="#B70003"/>
+                                    </svg>
+                                    <span>Inactive</span>
+                                }
+                            </div>
+
+                            <!-- Last Edit -->
+                            <div class="last-edit">
+                                Last Edit: @GetLastEditDate() by Alex Purgal
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     </div>
 </div>
 
+<!-- Click outside to close menus -->
+<div class="@(activeRoomMenuId != null || showFilterDropdown ? "overlay" : "")" @onclick="CloseAllMenus"></div>
 
 @code {
     [Parameter]
@@ -128,21 +325,62 @@
     [Parameter]
     public Guid PropertyId { get; set; }
 
-
     private string GroupName { get; set; } = "";
     private string? GroupImageUrl { get; set; }
 
     private bool isLoading = true;
+    private List<RoomDto>? rooms;
 
-    // Panel state
-    private bool isEditMode = false;
-    private bool isSaving = false;
+    // Menu state
+    private Guid? activeRoomMenuId = null;
+    private bool showFilterDropdown = false;
+    private string sortBy = "name";
 
+    // Toast state
+    private bool showSuccessToast = false;
+    private string successMessage = "";
 
+    // Permission state (AC9 - Only users with create room permission can duplicate)
+    private bool canCreateRoom = false;
+
+    // Drag and drop state
+    private Guid? draggedRoomId = null;
+    private Guid? dragOverRoomId = null;
+    private RoomDto? draggedRoom = null;
 
     protected override async Task OnInitializedAsync()
     {
+        // Check user permissions (AC9 - Only users with create room permission can duplicate)
+        await LoadUserPermissions();
+
         await LoadGroupDetails();
+        await LoadRooms();
+
+        // Check for success message from navigation
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var queryParams = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        var successParam = queryParams["success"];
+        if (!string.IsNullOrEmpty(successParam))
+        {
+            if (successParam == "created")
+            {
+                ShowSuccessToast("Room has been added!");
+            }
+            else if (successParam == "updated")
+            {
+                ShowSuccessToast("Room has been updated!");
+            }
+            else if (successParam == "duplicated")
+            {
+                ShowSuccessToast("Room duplicated!");
+            }
+        }
+    }
+
+    private async Task LoadUserPermissions()
+    {
+        canCreateRoom = true;
+        await Task.CompletedTask;
     }
 
     private async Task LoadGroupDetails()
@@ -154,7 +392,6 @@
             {
                 GroupName = groupResponse.Group.GroupName ?? "";
 
-                // Construct image URL from LogoId
                 if (groupResponse.Group.LogoId.HasValue && groupResponse.Group.LogoId.Value != Guid.Empty)
                 {
                     var apiBaseAddress = Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
@@ -164,8 +401,34 @@
         }
         catch (Exception ex)
         {
-            // Error loading group details
             GroupName = "";
+        }
+    }
+
+    private async Task LoadRooms()
+    {
+        try
+        {
+            isLoading = true;
+            var response = await RoomService.GetRooms(new GetRoomsRequest(
+                PropertyId,
+                null,
+                "Images", // Include images to display thumbnails
+                1,
+                50,
+                sortBy == "name" ? "RoomName" : "RoomName",
+                true
+            ));
+            rooms = response?.Rooms ?? new List<RoomDto>();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading rooms: {ex.Message}", MudBlazor.Severity.Error);
+            rooms = new List<RoomDto>();
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 
@@ -173,14 +436,326 @@
     {
         NavigationManager?.NavigateTo($"/group/{GroupId}/property/{PropertyId}/rooms/add");
     }
+
+    private void HandleEditRoom(Guid roomId)
+    {
+        CloseRoomMenu();
+        NavigationManager?.NavigateTo($"/group/{GroupId}/property/{PropertyId}/rooms/edit/{roomId}");
+    }
+
+    private void HandleCopyRoom(RoomDto room)
+    {
+        CloseRoomMenu();
+        // Navigate to duplicate wizard per NBE-112 requirements
+        // User will be taken to Step 1 with all fields pre-filled except Room Code
+        NavigationManager?.NavigateTo($"/group/{GroupId}/property/{PropertyId}/rooms/duplicate/{room.Id}");
+    }
+
+    private async Task HandleToggleStatus(RoomDto room)
+    {
+        CloseRoomMenu();
+
+        if (room.IsActive)
+        {
+            // Show confirmation modal for deactivation (AC1, AC2)
+            var parameters = new DialogParameters<DeactivateRoomModal>
+            {
+                { x => x.RoomName, room.RoomName }
+            };
+
+            var options = new DialogOptions
+            {
+                CloseButton = false,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true
+            };
+
+            var dialog = await DialogService.ShowAsync<DeactivateRoomModal>("", parameters, options);
+            var result = await dialog.Result;
+
+            if (result != null && !result.Canceled)
+            {
+                await DeactivateRoom(room);
+            }
+        }
+        else
+        {
+            // Activate directly without confirmation (AC6)
+            await ActivateRoom(room);
+        }
+    }
+
+    private async Task DeactivateRoom(RoomDto room)
+    {
+        try
+        {
+            var result = await RoomService.DeactivateRoom(room.Id);
+            if (result)
+            {
+                ShowSuccessToast($"{room.RoomName} has been deactivated");
+                await LoadRooms();
+            }
+            else
+            {
+                Snackbar.Add("Failed to deactivate room", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error deactivating room: {ex.Message}", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task ActivateRoom(RoomDto room)
+    {
+        try
+        {
+            var result = await RoomService.ActivateRoom(room.Id);
+            if (result)
+            {
+                ShowSuccessToast($"{room.RoomName} has been activated");
+                await LoadRooms();
+            }
+            else
+            {
+                Snackbar.Add("Failed to activate room", MudBlazor.Severity.Error);
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error activating room: {ex.Message}", MudBlazor.Severity.Error);
+        }
+    }
+
+    private async Task HandleDeleteRoom(Guid roomId)
+    {
+        CloseRoomMenu();
+        try
+        {
+            var result = await RoomService.DeleteRoom(roomId);
+            if (result != null)
+            {
+                ShowSuccessToast("Room deleted successfully!");
+                await LoadRooms();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error deleting room: {ex.Message}", MudBlazor.Severity.Error);
+        }
+    }
+
+    private void HandleViewLastChanges(Guid roomId)
+    {
+        CloseRoomMenu();
+        // TODO: Implement view last changes functionality
+        Snackbar.Add("View last changes feature coming soon", MudBlazor.Severity.Info);
+    }
+
+    private async Task HandleCopyLink(RoomDto room)
+    {
+        try
+        {
+            var link = $"{NavigationManager.BaseUri}room/{room.Id}";
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", link);
+            Snackbar.Add("Link copied to clipboard!", MudBlazor.Severity.Success);
+        }
+        catch
+        {
+            Snackbar.Add("Failed to copy link", MudBlazor.Severity.Error);
+        }
+    }
+
+    private void ToggleRoomMenu(Guid roomId)
+    {
+        if (activeRoomMenuId == roomId)
+        {
+            activeRoomMenuId = null;
+        }
+        else
+        {
+            activeRoomMenuId = roomId;
+            showFilterDropdown = false;
+        }
+        StateHasChanged();
+    }
+
+    private void CloseRoomMenu()
+    {
+        activeRoomMenuId = null;
+    }
+
+    private void ToggleFilterDropdown()
+    {
+        showFilterDropdown = !showFilterDropdown;
+        activeRoomMenuId = null;
+    }
+
+    private async Task SetSort(string sort)
+    {
+        sortBy = sort;
+        showFilterDropdown = false;
+        await LoadRooms();
+    }
+
+    private void CloseAllMenus()
+    {
+        activeRoomMenuId = null;
+        showFilterDropdown = false;
+    }
+
+    private void ShowSuccessToast(string message)
+    {
+        successMessage = message;
+        showSuccessToast = true;
+        StateHasChanged();
+
+        // Auto-hide after 5 seconds
+        Task.Delay(5000).ContinueWith(_ =>
+        {
+            showSuccessToast = false;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    private int GetSqft(int? sqm)
+    {
+        if (!sqm.HasValue) return 0;
+        return (int)(sqm.Value * 10.764);
+    }
+
+    private string GetLastEditDate()
+    {
+        return DateTime.Now.ToString("ddd d MMMM yyyy");
+    }
+
+    private string GetRoomImageUrl(RoomDto room)
+    {
+        // Get thumbnail image or first image
+        var thumbnail = room.Images?.FirstOrDefault(i => i.IsThumbnail);
+        var firstImage = room.Images?.FirstOrDefault();
+        var imageToUse = thumbnail ?? firstImage;
+
+        if (imageToUse != null)
+        {
+            var apiBaseAddress = Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
+            return $"{apiBaseAddress}/api/room/image/{room.Id}/{imageToUse.FileId}";
+        }
+
+        // Fallback to placeholder
+        return "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop";
+    }
+
+    private string GetBedConfigDisplay(BedConfiguration bedConfig)
+    {
+        return bedConfig switch
+        {
+            BedConfiguration.King => "King",
+            BedConfiguration.Queen => "Queen",
+            BedConfiguration.Double => "Double",
+            BedConfiguration.Single => "Single",
+            BedConfiguration.Twin => "Twin",
+            BedConfiguration.SofaBed => "Sofa Bed",
+            _ => "N/A"
+        };
+    }
+
+    // Drag and drop handlers
+    private void HandleDragStart(RoomDto room)
+    {
+        draggedRoomId = room.Id;
+        draggedRoom = room;
+        CloseAllMenus(); // Close any open menus when starting drag
+    }
+
+    private void HandleDragEnd()
+    {
+        draggedRoomId = null;
+        dragOverRoomId = null;
+        draggedRoom = null;
+    }
+
+    private void HandleDragOver(RoomDto room)
+    {
+        if (draggedRoomId != null && draggedRoomId != room.Id)
+        {
+            dragOverRoomId = room.Id;
+        }
+    }
+
+    private async Task HandleDrop(RoomDto targetRoom)
+    {
+        if (draggedRoom == null || rooms == null || draggedRoom.Id == targetRoom.Id)
+        {
+            HandleDragEnd();
+            return;
+        }
+
+        // Get indices
+        var draggedIndex = rooms.FindIndex(r => r.Id == draggedRoom.Id);
+        var targetIndex = rooms.FindIndex(r => r.Id == targetRoom.Id);
+
+        if (draggedIndex < 0 || targetIndex < 0)
+        {
+            HandleDragEnd();
+            return;
+        }
+
+        // Remove from current position and insert at new position
+        var roomToMove = rooms[draggedIndex];
+        rooms.RemoveAt(draggedIndex);
+        rooms.Insert(targetIndex, roomToMove);
+
+        // Reset drag state
+        HandleDragEnd();
+        StateHasChanged();
+
+        var roomOrders = new List<ReorderRoomsRequest.RoomOrderItem>();
+        for (int i = 0; i < rooms.Count; i++)
+        {
+            roomOrders.Add(new ReorderRoomsRequest.RoomOrderItem(rooms[i].Id, i + 1));
+        }
+
+        // Auto-save the new order
+        try
+        {
+            var request = new ReorderRoomsRequest(PropertyId, roomOrders);
+            var success = await RoomService.ReorderRooms(request);
+
+            if (success)
+            {
+                ShowSuccessToast("Room order saved");
+            }
+            else
+            {
+                Snackbar.Add("Failed to save room order", MudBlazor.Severity.Error);
+                await LoadRooms(); // Reload to get original order
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving room order: {ex.Message}", MudBlazor.Severity.Error);
+            await LoadRooms(); // Reload to get original order
+        }
+    }
 }
 
 <style>
     /* Main Container */
-    .property-rules-container {
+    .rooms-page-container {
         display: flex;
         min-height: 100vh;
         background: #FFFFFF;
+    }
+
+    /* Overlay for closing menus */
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 99;
     }
 
     /* Left Sidebar */
@@ -232,7 +807,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-family: 'Inter', sans-serif;
         font-weight: 600;
         font-size: 14px;
     }
@@ -284,10 +859,6 @@
         justify-content: center;
     }
 
-    .nav-text {
-        flex: 1;
-    }
-
     /* Sidebar Footer */
     .sidebar-footer {
         padding: 20px 36px 26px;
@@ -305,42 +876,10 @@
         text-decoration: underline;
     }
 
-    /* Success Notification Banner */
-    .success-notification {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        background: #D8EDD9;
-        border-radius: 6px;
-        padding: 10px 20px;
-        margin-bottom: 12px;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 400;
-        color: #166719;
-        animation: fadeIn 0.3s ease-out;
-        max-width: fit-content;
-    }
-
-    .success-notification svg {
-        flex-shrink: 0;
-    }
-
-    @@keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
     /* Main Content */
     .main-content {
         flex: 1;
-        padding: 12px 36px 36px;
+        padding: 20px 36px 36px;
         background: #FFFFFF;
         overflow-y: auto;
     }
@@ -351,93 +890,499 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 20px;
-    }
-
-    .header-left {
-        display: flex;
-        align-items: center;
+        gap: 20px;
     }
 
     .header-right {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
         margin-left: auto;
     }
 
-    .property-badge {
-        display: flex;
+    /* Success Toast */
+    .success-toast {
+        display: inline-flex;
         align-items: center;
-        gap: 8px;
-    }
-
-    .badge-img {
-        width: 36px;
-        height: 36px;
-        border-radius: 18px;
-        object-fit: cover;
-    }
-
-    .badge-placeholder {
-        width: 36px;
-        height: 36px;
-        border-radius: 18px;
-        background-color: #E0E0E0;
-        color: #1C1B1F;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        font-weight: 600;
-        font-size: 14px;
-    }
-
-    .badge-name {
+        gap: 12px;
+        background: #D8EDD9;
+        border-radius: 6px;
+        padding: 10px 20px;
         font-family: 'Inter', sans-serif;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 400;
-        color: #1c1b1f;
+        color: #166719;
+        animation: slideIn 0.3s ease-out;
     }
 
-    /* Breadcrumb */
+    @@keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Breadcrumb and Actions Row */
+    .breadcrumb-actions-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
     .breadcrumb {
         font-family: 'Inter', sans-serif;
         font-size: 16px;
         font-weight: 400;
-        color: #4a4a4a;
-        margin-bottom: 20px;
+        color: #707070;
     }
 
-    /* Page Title Section */
-    .page-title-section {
+    .actions-row {
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
+        gap: 16px;
     }
 
-    .page-title {
+    /* Filter Dropdown */
+    .filter-dropdown {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: #EFEFEF;
+        border-radius: 6px;
+        cursor: pointer;
         font-family: 'Inter', sans-serif;
-        font-size: 30px;
+        font-size: 16px;
         font-weight: 400;
         color: #000000;
-        margin: 0;
     }
 
-    .add-rule-btn {
-        background: #f69126;
+    .filter-dropdown-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 4px;
+        background: #FFFFFF;
+        border-radius: 8px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+        min-width: 180px;
+        z-index: 100;
+        overflow: hidden;
+    }
+
+    .filter-option {
+        padding: 12px 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: #000000;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .filter-option:hover {
+        background: #F5F5F5;
+    }
+
+    .filter-option.active {
+        background: #EFEFEF;
+        font-weight: 500;
+    }
+
+    /* Add Room Button */
+    .add-room-btn {
+        background: #F69126;
         border: none;
         border-radius: 6px;
         padding: 14px 24px;
         font-family: 'Inter', sans-serif;
         font-size: 16px;
         font-weight: 400;
-        color: #1c1b1f;
+        color: #1C1B1F;
         cursor: pointer;
         transition: background-color 0.2s;
+        white-space: nowrap;
     }
 
-    .add-rule-btn:hover {
-        background: #e58320;
+    .add-room-btn:hover {
+        background: #FF931E;
+    }
+
+    /* Loading Container */
+    .loading-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 100px 20px;
+        gap: 16px;
+        color: #666;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 100px 20px;
+        color: #666;
+    }
+
+    .empty-icon {
+        margin-bottom: 24px;
+    }
+
+    .empty-title {
+        font-family: 'Inter', sans-serif;
+        font-size: 20px;
+        font-weight: 500;
+        color: #1C1B1F;
+        margin: 0 0 8px 0;
+    }
+
+    .empty-subtitle {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #707070;
+        margin: 0;
+    }
+
+    /* Rooms Grid */
+    .rooms-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(345px, 345px));
+        gap: 24px;
+        margin-top: 20px;
+    }
+
+    /* Room Card */
+    .room-card {
+        width: 345px;
+        background: #EFEFEF;
+        border-radius: 8px;
+        box-shadow: 0px 4px 12px 2px rgba(0, 0, 0, 0.06);
+        overflow: hidden;
+        position: relative;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+        cursor: grab;
+    }
+
+    .room-card:hover {
+        box-shadow: 0px 8px 24px 4px rgba(0, 0, 0, 0.12);
+    }
+
+    .room-card:active {
+        cursor: grabbing;
+    }
+
+    .room-card.dragging {
+        opacity: 0.5;
+        transform: scale(0.98);
+    }
+
+    .room-card.drag-over {
+        border: 2px dashed #F69126;
+        background: #FFF5EB;
+    }
+
+    .room-card.inactive .room-details {
+        opacity: 0.8;
+    }
+
+    /* Drag Handle */
+    .drag-handle {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: grab;
+        z-index: 50;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .room-card:hover .drag-handle {
+        opacity: 1;
+    }
+
+    .drag-handle:hover {
+        background: #FFFFFF;
+    }
+
+    .drag-handle:active {
+        cursor: grabbing;
+    }
+
+    /* Room Image */
+    .room-image {
+        position: relative;
+        width: 100%;
+        height: 213px;
+        overflow: hidden;
+        border-radius: 8px 8px 0 0;
+        pointer-events: auto;
+    }
+
+    .room-image img,
+    .room-image .room-thumbnail {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none; /* Allow clicks to pass through to buttons above */
+    }
+
+    .room-image.grayscale img {
+        filter: grayscale(100%);
+    }
+
+    /* Settings Button */
+    .settings-btn {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        background: #F0F0F0;
+        border: none;
+        border-radius: 22px;
+        z-index: 100;
+        color: #1C1B1F;
+        cursor: pointer;
+        pointer-events: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        outline: none;
+        transition: background 0.2s;
+    }
+
+    .settings-btn:hover {
+        background: #E0E0E0;
+    }
+
+    .settings-btn:focus {
+        outline: none;
+        background: #E0E0E0;
+    }
+
+    .settings-btn svg {
+        width: 24px;
+        height: 24px;
+        pointer-events: none;
+    }
+
+    /* Room Menu */
+    .room-menu {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        background: #FFFFFF;
+        border-radius: 8px;
+        box-shadow: 0px 4px 4px 2px rgba(134, 134, 134, 0.12);
+        min-width: 200px;
+        z-index: 101;
+        padding: 8px 0;
+    }
+
+    .menu-close {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #000000;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+
+    .menu-item:hover {
+        background: #F5F5F5;
+    }
+
+    .menu-item.delete:hover {
+        background: #FFF0F0;
+    }
+
+    /* Room Details */
+    .room-details {
+        padding: 20px;
+    }
+
+    .room-name {
+        font-family: 'Inter', sans-serif;
+        font-size: 24px;
+        font-weight: 500;
+        color: #000000;
+        margin: 0 0 8px 0;
+        line-height: 29px;
+    }
+
+    .room-code-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+    }
+
+    .room-code {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #000000;
+    }
+
+    .copy-link {
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 400;
+        color: #000000;
+        text-decoration: underline;
+        cursor: pointer;
+    }
+
+    .copy-link:hover {
+        color: #F69126;
+    }
+
+    /* Room Info Row */
+    .room-info-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; /* equal columns */
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+        /* Base styling */
+        .room-info-row .info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            font-size: 13px;
+        }
+
+        /* LEFT column (Occupancy) */
+        .room-info-row .occupancy {
+            justify-content: flex-start;
+        }
+
+        /* CENTER column (Size) */
+        .room-info-row .size {
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* RIGHT column (Price) */
+        .room-info-row .price-indicator {
+            justify-content: flex-end;
+        }
+
+        /* Icons */
+        .room-info-row svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+    /* Price styling (from Figma proportions) */
+    .price-active,
+    .price-inactive {
+        font-size: 18px; /* ⬇ slightly smaller than before */
+        line-height: 1;
+    }
+
+    .price-active {
+        font-weight: 700;
+    }
+
+    .price-inactive {
+        font-weight: 400;
+        opacity: 0.6;
+    }
+
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-family: 'Inter', sans-serif;
+        font-size: 16px;
+        font-weight: 500;
+        margin-bottom: 16px;
+    }
+
+    .status-badge.active {
+        background: #B9F0BB;
+        color: #166719;
+    }
+
+    .status-badge.inactive {
+        background: #FFC5C6;
+        color: #B70003;
+    }
+
+    /* Last Edit */
+    .last-edit {
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        font-weight: 300;
+        color: #000000;
+        line-height: 15px;
+    }
+
+    /* Responsive */
+    @@media (max-width: 1200px) {
+        .rooms-grid {
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        }
+
+        .room-card {
+            width: 100%;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .property-sidebar {
+            display: none;
+        }
+
+        .breadcrumb-actions-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .actions-row {
+            width: 100%;
+            justify-content: space-between;
+        }
     }
 </style>

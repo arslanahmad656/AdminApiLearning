@@ -2,16 +2,23 @@ namespace Aro.UI.Application.DTOs.Room;
 
 public record RoomDto(
     Guid Id,
-    Guid PropertyId,
     string RoomName,
     string RoomCode,
     string? Description,
     int MaxOccupancy,
     int MaxAdults,
     int MaxChildren,
-    int RoomSizeSQM,
+    int? RoomSizeSQM,
     BedConfiguration BedConfig,
-    List<Amenity>? Amenities,
-    List<ImageModel>? Images,
-    Guid? ThumbnailId
-);
+    List<Guid>? AmenityIds,
+    bool IsActive,
+    int DisplayOrder,
+    List<RoomDto.RoomImageInfoDto>? Images = null
+)
+{
+    public record RoomImageInfoDto(
+        Guid FileId,
+        int OrderIndex,
+        bool IsThumbnail
+    );
+}

@@ -36,7 +36,7 @@ public class PermissionCodes
     public const string CreateRoom = "room.create";
     public const string GetRooms = "room.read";
     public const string GetRoom = "room.read";
-    public const string EditRoom = "room.edit";
+    public const string PatchRoom = "room.patch";
     public const string DeleteRoom = "room.delete";
     #endregion
 

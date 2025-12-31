@@ -70,6 +70,7 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IAmenityService, AmenityService>();
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 
 builder.Services.AddScoped<ICountryMetadataService, CountryMetadataService>();

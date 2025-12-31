@@ -1,10 +1,10 @@
-﻿using Aro.Booking.Application.Mediator.Room.Queries;
+using Aro.Booking.Application.Mediator.Room.Queries;
 using Aro.Booking.Application.Services.Room;
 using MediatR;
 
 namespace Aro.Booking.Application.Mediator.Room.Handlers;
 
-public class GetRoomCommandHandler(IRoomService roomService) : IRequestHandler<GetRoomQuery, DTOs.GetRoomResponse>
+public class GetRoomQueryHandler(IRoomService roomService) : IRequestHandler<GetRoomQuery, DTOs.GetRoomResponse>
 {
     public async Task<DTOs.GetRoomResponse> Handle(GetRoomQuery request, CancellationToken cancellationToken)
     {
@@ -16,6 +16,17 @@ public class GetRoomCommandHandler(IRoomService roomService) : IRequestHandler<G
                 ), cancellationToken).ConfigureAwait(false);
 
         var r = res.Room;
+
+        List<DTOs.RoomDto.RoomImageInfoDto>? images = null;
+        if (r.Images != null)
+        {
+            images = r.Images.Select(img => new DTOs.RoomDto.RoomImageInfoDto(
+                img.FileId,
+                img.OrderIndex,
+                img.IsThumbnail
+            )).ToList();
+        }
+
         var roomDto = new DTOs.RoomDto(
             r.Id,
             r.RoomName,
@@ -27,7 +38,8 @@ public class GetRoomCommandHandler(IRoomService roomService) : IRequestHandler<G
             r.RoomSizeSQM,
             (DTOs.BedConfiguration)r.BedConfig,
             r.AmenityIds,
-            r.IsActive
+            r.IsActive,
+            images
             );
 
         var result = new DTOs.GetRoomResponse(roomDto);

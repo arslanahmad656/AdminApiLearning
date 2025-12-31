@@ -15,6 +15,7 @@ public class Room : IEntity
     public Guid PropertyId { get; set; }
     public BedConfiguration BedConfig { get; set; }
     public bool IsActive { get; set; }
+    public int DisplayOrder { get; set; }
     public Property Property { get; set; }
     public ICollection<RoomAmenity> RoomAmenities { get; set; }
     public ICollection<RoomFiles> RoomFiles { get; set; }

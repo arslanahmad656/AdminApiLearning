@@ -16,7 +16,6 @@ namespace Aro.Booking.Infrastructure.Services;
 
 public partial class RoomService(
     BookingRepositoryManager repositoryManager,
-    //CommonRepositoryManager commonRepositoryManager,
     IUnitOfWork unitOfWork,
     ILogManager<PropertyService> logger,
     IUniqueIdGenerator idGenerator,
@@ -51,6 +50,12 @@ public partial class RoomService(
             throw new RoomAlreadyExistsException(room.RoomCode, existingRoom.Id.ToString() ?? "null");
         }
 
+        var maxDisplayOrder = await repositoryManager.RoomRepository.GetAll()
+            .Where(r => r.PropertyId == room.PropertyId)
+            .Select(r => (int?)r.DisplayOrder)
+            .MaxAsync(cancellationToken)
+            .ConfigureAwait(false) ?? -1;
+
         Guid _roomId = idGenerator.Generate();
         var RoomEntity = new Room
         {
@@ -65,6 +70,7 @@ public partial class RoomService(
             RoomSize = room.RoomSizeSQM,
             BedConfig = (Domain.Entities.BedConfiguration)room.BedConfig,
             IsActive = room.IsActive,
+            DisplayOrder = maxDisplayOrder + 1,
             RoomAmenities = []
         };
 
@@ -73,12 +79,11 @@ public partial class RoomService(
             logger.LogDebug("Now creating / linking amenities.");
             foreach (var amenity in room.Amenities)
             {
-                // Check if amenity already exists
                 var existingAnemity = await repositoryManager.AmenityRepository.GetByName(amenity)
                     .SingleOrDefaultAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                if (existingAnemity is not null) // Allow linking to existing amenities
+                if (existingAnemity is not null)
                 {
                     logger.LogDebug("Amenity with name '{Amenity}' already exists. Creating link to existing amenity.", amenity);
 
@@ -92,7 +97,6 @@ public partial class RoomService(
                 {
                     logger.LogDebug("Creating new amenity with name '{Amenity}'. Creating link to new amenity.", amenity);
 
-                    // Create new amenity
                     var newAmenity = new Amenity
                     {
                         Id = idGenerator.Generate(),
@@ -100,8 +104,8 @@ public partial class RoomService(
                     };
 
                     await repositoryManager.AmenityRepository.Create(newAmenity, cancellationToken).ConfigureAwait(false);
+                    await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
 
-                    // Link new amenity to room
                     RoomEntity.RoomAmenities.Add(new RoomAmenity
                     {
                         RoomId = RoomEntity.Id,
@@ -156,9 +160,22 @@ public partial class RoomService(
 
         var baseQuery = repositoryManager.RoomRepository.GetAll();
 
+        if (query.PropertyId.HasValue)
+        {
+            baseQuery = baseQuery.Where(r => r.PropertyId == query.PropertyId.Value);
+        }
+
+        // Transform include parameter: filter out Images (handled separately) and map Amenities -> RoomAmenities
+        var efInclude = query.Include ?? string.Empty;
+        var includeElements = efInclude.Split(',')
+            .Select(s => s.Trim())
+            .Where(s => !s.Equals("Images", StringComparison.OrdinalIgnoreCase))
+            .Select(s => s.Equals("Amenities", StringComparison.OrdinalIgnoreCase) ? "RoomAmenities.Amenity" : s);
+        efInclude = string.Join(",", includeElements);
+
         baseQuery = baseQuery
-            .IncludeElements(query.Include ?? string.Empty)
-            .SortBy(query.SortBy, query.Ascending);
+            .IncludeElements(efInclude)
+            .OrderBy(r => r.DisplayOrder);
 
         var totalCount = await baseQuery
             .CountAsync(cancellationToken)
@@ -167,8 +184,29 @@ public partial class RoomService(
         var pagedQuery = baseQuery
             .Paginate(query.Page, query.PageSize);
 
-        var roomDtos = await pagedQuery
-            .Select(r => new RoomDto(
+        var rooms = await pagedQuery.ToListAsync(cancellationToken);
+
+        var includeParam = query.Include?.ToLowerInvariant() ?? string.Empty;
+        var includeImages = includeParam.Contains("images");
+
+        var roomDtos = new List<RoomDto>();
+        foreach (var r in rooms)
+        {
+            List<RoomDto.RoomImageInfoDto>? images = null;
+            if (includeImages)
+            {
+                var roomFiles = await repositoryManager.RoomFilesRepository.GetByRoomId(r.Id)
+                    .ToListAsync(cancellationToken)
+                    .ConfigureAwait(false);
+
+                images = roomFiles.Select(rf => new RoomDto.RoomImageInfoDto(
+                    rf.Entity.FileId,
+                    rf.Entity.OrderIndex,
+                    rf.Entity.IsThumbnail
+                )).ToList();
+            }
+
+            roomDtos.Add(new RoomDto(
                 r.Id,
                 r.RoomName,
                 r.RoomCode,
@@ -178,10 +216,12 @@ public partial class RoomService(
                 r.MaxChildren,
                 r.RoomSize,
                 (Aro.Booking.Application.Services.Room.BedConfiguration)r.BedConfig,
-                r.RoomAmenities.Select(ra => ra.AmenityId).ToList(),
-                r.IsActive
-            ))
-            .ToListAsync(cancellationToken);
+                r.RoomAmenities?.Select(ra => ra.AmenityId).ToList(),
+                r.IsActive,
+                r.DisplayOrder,
+                images
+            ));
+        }
 
         return new GetRoomsResponse(roomDtos, totalCount);
     }
@@ -195,11 +235,34 @@ public partial class RoomService(
 
         var query = repositoryManager.RoomRepository.GetById(dto.Id);
 
+        // Transform include parameter: filter out Images (handled separately) and map Amenities -> RoomAmenities
+        var efInclude = dto.Inlcude ?? string.Empty;
+        var includeElements = efInclude.Split(',')
+            .Select(s => s.Trim())
+            .Where(s => !s.Equals("Images", StringComparison.OrdinalIgnoreCase))
+            .Select(s => s.Equals("Amenities", StringComparison.OrdinalIgnoreCase) ? "RoomAmenities.Amenity" : s);
+        efInclude = string.Join(",", includeElements);
+
         var response = await query
-            .IncludeElements(dto.Inlcude ?? string.Empty)
+            .IncludeElements(efInclude)
             .SingleOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false) ??
             throw new AroRoomNotFoundException(dto.Id.ToString());
+
+        List<RoomDto.RoomImageInfoDto>? images = null;
+        var includeParam = dto.Inlcude?.ToLowerInvariant() ?? string.Empty;
+        if (includeParam.Contains("images"))
+        {
+            var roomFiles = await repositoryManager.RoomFilesRepository.GetByRoomId(dto.Id)
+                .ToListAsync(cancellationToken)
+                .ConfigureAwait(false);
+
+            images = roomFiles.Select(rf => new RoomDto.RoomImageInfoDto(
+                rf.Entity.FileId,
+                rf.Entity.OrderIndex,
+                rf.Entity.IsThumbnail
+            )).ToList();
+        }
 
         var roomDto = new RoomDto(
             response.Id,
@@ -211,8 +274,10 @@ public partial class RoomService(
             response.MaxChildren,
             response.RoomSize,
             (Aro.Booking.Application.Services.Room.BedConfiguration)response.BedConfig,
-            [.. response.RoomAmenities.Select(ra => ra.AmenityId)],
-            response.IsActive
+            response.RoomAmenities?.Select(ra => ra.AmenityId).ToList(),
+            response.IsActive,
+            response.DisplayOrder,
+            images
         );
 
         return new GetRoomResponse(roomDto);
@@ -223,7 +288,7 @@ public partial class RoomService(
         CancellationToken cancellationToken = default
         )
     {
-        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchRoom], cancellationToken);
 
         var _room = room.Room;
         var existingRoom = await repositoryManager.RoomRepository.GetById(_room.Id)
@@ -305,7 +370,7 @@ public partial class RoomService(
     {
         logger.LogDebug("Starting {MethodName} for roomId: {RoomId}", nameof(ActivateRoom), dto.Id);
 
-        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchRoom], cancellationToken);
 
         var room = await repositoryManager.RoomRepository.GetById(dto.Id)
             .SingleOrDefaultAsync(cancellationToken)
@@ -331,7 +396,7 @@ public partial class RoomService(
     {
         logger.LogDebug("Starting {MethodName} for roomId: {RoomId}", nameof(DeactivateRoom), dto.Id);
 
-        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchRoom], cancellationToken);
 
         var room = await repositoryManager.RoomRepository.GetById(dto.Id)
             .SingleOrDefaultAsync(cancellationToken)
@@ -348,5 +413,45 @@ public partial class RoomService(
         logger.LogInfo("Room deactivated successfully with Id: {RoomId}", room.Id);
 
         return new DeactivateRoomResponse(room.Id, room.IsActive);
+    }
+
+    public async Task<ReorderRoomsResponse> ReorderRooms(
+        ReorderRoomsDto dto,
+        CancellationToken cancellationToken = default
+        )
+    {
+        logger.LogDebug("Starting {MethodName} for propertyId: {PropertyId}", nameof(ReorderRooms), dto.PropertyId);
+
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchRoom], cancellationToken);
+
+        var rooms = await repositoryManager.RoomRepository.GetAll()
+            .Where(r => r.PropertyId == dto.PropertyId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var roomDict = rooms.ToDictionary(r => r.Id);
+        int updatedCount = 0;
+
+        foreach (var orderItem in dto.RoomOrders)
+        {
+            if (roomDict.TryGetValue(orderItem.RoomId, out var room))
+            {
+                if (room.DisplayOrder != orderItem.DisplayOrder)
+                {
+                    room.DisplayOrder = orderItem.DisplayOrder;
+                    repositoryManager.RoomRepository.Update(room);
+                    updatedCount++;
+                }
+            }
+        }
+
+        if (updatedCount > 0)
+        {
+            await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+        }
+
+        logger.LogInfo("Reordered {UpdatedCount} rooms for property {PropertyId}", updatedCount, dto.PropertyId);
+
+        return new ReorderRoomsResponse(true, updatedCount);
     }
 }

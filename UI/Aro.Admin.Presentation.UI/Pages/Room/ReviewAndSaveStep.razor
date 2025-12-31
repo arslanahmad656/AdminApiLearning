@@ -1,6 +1,7 @@
 ﻿@using Aro.UI.Application.DTOs.Room
 
 @inject ISnackbar Snackbar
+@inject NavigationManager NavigationManager
 
 @inject IValidator<RoomModel> roomValidator
 @inject IRoomService roomService
@@ -214,9 +215,8 @@
         Wizard.Entity.Id = room.Id;
         Wizard.EntityCreationComplete = true;
 
-        Snackbar.Add(
-            $"Room {room.Id} successfully created",
-            MudBlazor.Severity.Success);
+        var successParam = Wizard.IsDuplicateMode ? "duplicated" : "created";
+        NavigationManager.NavigateTo($"{Wizard.NavigateTo}?success={successParam}");
     }
 
 
