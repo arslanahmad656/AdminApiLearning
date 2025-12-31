@@ -18,16 +18,16 @@ public class RoomService(HttpClient httpClient) : IRoomService
 
     public async Task<CreateRoomResponse?> CreateRoom(CreateRoomRequest request)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/room/create", request);
+        var response = await _httpClient.PostAsJsonAsync("api/room/create", request, _jsonOptions);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<CreateRoomResponse>();
+        return await response.Content.ReadFromJsonAsync<CreateRoomResponse>(_jsonOptions);
     }
 
     public async Task<GetRoomResponse?> GetRoom(GetRoomRequest request)
     {
         var response = await _httpClient.GetAsync($"api/room/get/{request.Id}?Include={request.Include}");
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<GetRoomResponse>();
+        return await response.Content.ReadFromJsonAsync<GetRoomResponse>(_jsonOptions);
     }
 
     public async Task<GetRoomsResponse?> GetRooms(GetRoomsRequest request)
@@ -49,9 +49,9 @@ public class RoomService(HttpClient httpClient) : IRoomService
 
     public async Task<PatchRoomResponse?> PatchRoom(PatchRoomRequest request)
     {
-        var response = await _httpClient.PatchAsJsonAsync($"api/room/patch/{request.Id}", request);
+        var response = await _httpClient.PatchAsJsonAsync($"api/room/patch/{request.Id}", request, _jsonOptions);
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<PatchRoomResponse>();
+        return await response.Content.ReadFromJsonAsync<PatchRoomResponse>(_jsonOptions);
     }
 
     public async Task<DeleteRoomResponse?> DeleteRoom(Guid Id)
@@ -62,7 +62,7 @@ public class RoomService(HttpClient httpClient) : IRoomService
             return null;
 
         response.EnsureSuccessStatusCode();
-        return await response.Content.ReadFromJsonAsync<DeleteRoomResponse>();
+        return await response.Content.ReadFromJsonAsync<DeleteRoomResponse>(_jsonOptions);
     }
 
     public async Task<bool> ActivateRoom(Guid roomId)
@@ -79,7 +79,23 @@ public class RoomService(HttpClient httpClient) : IRoomService
 
     public async Task<bool> ReorderRooms(ReorderRoomsRequest request)
     {
-        var response = await _httpClient.PostAsJsonAsync("api/room/reorder", request);
+        var response = await _httpClient.PostAsJsonAsync("api/room/reorder", request, _jsonOptions);
         return response.IsSuccessStatusCode;
+    }
+
+    public async Task<byte[]?> GetRoomImage(Guid roomId, Guid imageId)
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"api/room/image/{roomId}/{imageId}");
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            return await response.Content.ReadAsByteArrayAsync();
+        }
+        catch
+        {
+            return null;
+        }
     }
 }

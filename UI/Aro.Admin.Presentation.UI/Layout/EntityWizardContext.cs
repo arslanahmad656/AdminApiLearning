@@ -6,6 +6,7 @@ public class EntityWizardContext<TEntity>
     public List<string> StepTitles { get; set; } = new();
     public bool EntityCreationComplete { get; set; } = false;
     public bool IsCreateMode { get; set; } = true;
+    public bool IsDuplicateMode { get; set; } = false;
     public Func<Task>? OnNext { get; set; }
     public Func<Task<bool>>? CurrentStepValidation { get; set; }
     public Action? OnBack { get; set; }

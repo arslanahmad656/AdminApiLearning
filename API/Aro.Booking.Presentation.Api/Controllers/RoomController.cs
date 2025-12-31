@@ -106,7 +106,7 @@ public class RoomController(
     }
 
     [HttpPatch("patch/{roomId:guid}")]
-    [Permissions(PermissionCodes.EditRoom)]
+    [Permissions(PermissionCodes.PatchRoom)]
     public async Task<IActionResult> PatchRoom(
         Guid roomId,
         [FromBody] PatchRoomModel model,
@@ -137,7 +137,7 @@ public class RoomController(
     }
 
     [HttpPost("activate/{roomId:guid}")]
-    [Permissions(PermissionCodes.EditRoom)]
+    [Permissions(PermissionCodes.PatchRoom)]
     public async Task<IActionResult> ActivateRoom(
         Guid roomId,
         CancellationToken cancellationToken
@@ -157,7 +157,7 @@ public class RoomController(
     }
 
     [HttpPost("deactivate/{roomId:guid}")]
-    [Permissions(PermissionCodes.EditRoom)]
+    [Permissions(PermissionCodes.PatchRoom)]
     public async Task<IActionResult> DeactivateRoom(
         Guid roomId,
         CancellationToken cancellationToken
@@ -208,7 +208,7 @@ public class RoomController(
     }
 
     [HttpPost("reorder")]
-    [Permissions(PermissionCodes.EditRoom)]
+    [Permissions(PermissionCodes.PatchRoom)]
     public async Task<IActionResult> ReorderRooms(
         [FromBody] ReorderRoomsModel model,
         CancellationToken cancellationToken

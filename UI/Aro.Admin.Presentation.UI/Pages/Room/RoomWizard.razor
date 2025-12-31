@@ -6,9 +6,12 @@
 @using Aro.UI.Application.DTOs.Room
 @using Aro.UI.Application.DTOs
 @using Aro.UI.Infrastructure.Services
+@using Microsoft.Extensions.Configuration
 @inject IRoomService RoomService
+@inject IAmenityService AmenityService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
+@inject IConfiguration Configuration
 
 @code {
     [Parameter] public Guid GroupId { get; set; } = Guid.Empty;
@@ -54,6 +57,7 @@
 
         Wizard.NavigateTo = $"/group/{GroupId}/property/{PropertyId}/rooms";
         Wizard.IsCreateMode = !isEditMode; // Duplicate is still create mode (new room)
+        Wizard.IsDuplicateMode = isDuplicateMode;
 
         // Update title based on mode
         if (isDuplicateMode)
@@ -144,14 +148,38 @@
                     IsEditMode = isEditMode
                 };
 
-                // Load amenities if available
                 if (room.AmenityIds != null && room.AmenityIds.Any())
                 {
-                    Wizard.Entity.Amenities = room.AmenityIds.Select(id => new Amenity { Id = id }).ToList();
+                    var amenitiesWithNames = await AmenityService.GetAmenities(room.AmenityIds);
+                    Wizard.Entity.Amenities = amenitiesWithNames;
                 }
 
-                // Load images if available (for duplicate, we reference existing images)
-                // Note: Images will need to be loaded from the room response if the API includes them
+                if (isDuplicateMode && room.Images != null && room.Images.Any())
+                {
+                    var loadedImages = new List<ImageModel>();
+                    foreach (var imageInfo in room.Images.OrderBy(i => i.OrderIndex))
+                    {
+                        try
+                        {
+                            var imageBytes = await RoomService.GetRoomImage(room.Id, imageInfo.FileId);
+                            if (imageBytes != null)
+                            {
+                                loadedImages.Add(new ImageModel
+                                {
+                                    Id = Guid.NewGuid(),
+                                    Name = $"image_{imageInfo.OrderIndex}.jpg",
+                                    ContentBase64 = Convert.ToBase64String(imageBytes),
+                                    OrderIndex = imageInfo.OrderIndex,
+                                    IsThumbnail = imageInfo.IsThumbnail
+                                });
+                            }
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    Wizard.Entity.Images = loadedImages;
+                }
             }
             else
             {

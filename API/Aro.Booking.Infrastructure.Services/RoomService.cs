@@ -165,9 +165,13 @@ public partial class RoomService(
             baseQuery = baseQuery.Where(r => r.PropertyId == query.PropertyId.Value);
         }
 
+        // Transform include parameter: filter out Images (handled separately) and map Amenities -> RoomAmenities
         var efInclude = query.Include ?? string.Empty;
-        efInclude = string.Join(",", efInclude.Split(',')
-            .Where(s => !s.Trim().Equals("Images", StringComparison.OrdinalIgnoreCase)));
+        var includeElements = efInclude.Split(',')
+            .Select(s => s.Trim())
+            .Where(s => !s.Equals("Images", StringComparison.OrdinalIgnoreCase))
+            .Select(s => s.Equals("Amenities", StringComparison.OrdinalIgnoreCase) ? "RoomAmenities.Amenity" : s);
+        efInclude = string.Join(",", includeElements);
 
         baseQuery = baseQuery
             .IncludeElements(efInclude)
@@ -231,9 +235,13 @@ public partial class RoomService(
 
         var query = repositoryManager.RoomRepository.GetById(dto.Id);
 
+        // Transform include parameter: filter out Images (handled separately) and map Amenities -> RoomAmenities
         var efInclude = dto.Inlcude ?? string.Empty;
-        efInclude = string.Join(",", efInclude.Split(',')
-            .Where(s => !s.Trim().Equals("Images", StringComparison.OrdinalIgnoreCase)));
+        var includeElements = efInclude.Split(',')
+            .Select(s => s.Trim())
+            .Where(s => !s.Equals("Images", StringComparison.OrdinalIgnoreCase))
+            .Select(s => s.Equals("Amenities", StringComparison.OrdinalIgnoreCase) ? "RoomAmenities.Amenity" : s);
+        efInclude = string.Join(",", includeElements);
 
         var response = await query
             .IncludeElements(efInclude)
@@ -280,7 +288,7 @@ public partial class RoomService(
         CancellationToken cancellationToken = default
         )
     {
-        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchRoom], cancellationToken);
 
         var _room = room.Room;
         var existingRoom = await repositoryManager.RoomRepository.GetById(_room.Id)
@@ -362,7 +370,7 @@ public partial class RoomService(
     {
         logger.LogDebug("Starting {MethodName} for roomId: {RoomId}", nameof(ActivateRoom), dto.Id);
 
-        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchRoom], cancellationToken);
 
         var room = await repositoryManager.RoomRepository.GetById(dto.Id)
             .SingleOrDefaultAsync(cancellationToken)
@@ -388,7 +396,7 @@ public partial class RoomService(
     {
         logger.LogDebug("Starting {MethodName} for roomId: {RoomId}", nameof(DeactivateRoom), dto.Id);
 
-        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchRoom], cancellationToken);
 
         var room = await repositoryManager.RoomRepository.GetById(dto.Id)
             .SingleOrDefaultAsync(cancellationToken)
@@ -414,7 +422,7 @@ public partial class RoomService(
     {
         logger.LogDebug("Starting {MethodName} for propertyId: {PropertyId}", nameof(ReorderRooms), dto.PropertyId);
 
-        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.EditRoom], cancellationToken);
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchRoom], cancellationToken);
 
         var rooms = await repositoryManager.RoomRepository.GetAll()
             .Where(r => r.PropertyId == dto.PropertyId)
