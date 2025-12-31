@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Aro.Booking.Application.Mediator.Room.Handlers;
 
-public class GetRoomCommandHandler(IRoomService roomService) : IRequestHandler<GetRoomQuery, DTOs.GetRoomResponse>
+public class GetRoomQueryHandler(IRoomService roomService) : IRequestHandler<GetRoomQuery, DTOs.GetRoomResponse>
 {
     public async Task<DTOs.GetRoomResponse> Handle(GetRoomQuery request, CancellationToken cancellationToken)
     {
@@ -17,11 +17,10 @@ public class GetRoomCommandHandler(IRoomService roomService) : IRequestHandler<G
 
         var r = res.Room;
 
-        // Map images if present
-        List<DTOs.RoomImageInfoDto>? images = null;
+        List<DTOs.RoomDto.RoomImageInfoDto>? images = null;
         if (r.Images != null)
         {
-            images = r.Images.Select(img => new DTOs.RoomImageInfoDto(
+            images = r.Images.Select(img => new DTOs.RoomDto.RoomImageInfoDto(
                 img.FileId,
                 img.OrderIndex,
                 img.IsThumbnail

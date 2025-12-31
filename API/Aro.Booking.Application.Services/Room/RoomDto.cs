@@ -13,12 +13,13 @@ public record RoomDto(
     List<Guid>? AmenityIds,
     bool IsActive,
     int DisplayOrder,
-    List<RoomImageInfoDto>? Images = null
-);
-
-public record RoomImageInfoDto(
-    Guid FileId,
-    int OrderIndex,
-    bool IsThumbnail
-);
+    List<RoomDto.RoomImageInfoDto>? Images = null
+)
+{
+    public record RoomImageInfoDto(
+        Guid FileId,
+        int OrderIndex,
+        bool IsThumbnail
+    );
+}
 

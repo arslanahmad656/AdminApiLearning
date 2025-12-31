@@ -192,14 +192,14 @@ public partial class RoomService(
         var roomDtos = new List<RoomDto>();
         foreach (var r in rooms)
         {
-            List<RoomImageInfoDto>? images = null;
+            List<RoomDto.RoomImageInfoDto>? images = null;
             if (includeImages)
             {
                 var roomFiles = await repositoryManager.RoomFilesRepository.GetByRoomId(r.Id)
                     .ToListAsync(cancellationToken)
                     .ConfigureAwait(false);
 
-                images = roomFiles.Select(rf => new RoomImageInfoDto(
+                images = roomFiles.Select(rf => new RoomDto.RoomImageInfoDto(
                     rf.Entity.FileId,
                     rf.Entity.OrderIndex,
                     rf.Entity.IsThumbnail
@@ -249,7 +249,7 @@ public partial class RoomService(
             .ConfigureAwait(false) ??
             throw new AroRoomNotFoundException(dto.Id.ToString());
 
-        List<RoomImageInfoDto>? images = null;
+        List<RoomDto.RoomImageInfoDto>? images = null;
         var includeParam = dto.Inlcude?.ToLowerInvariant() ?? string.Empty;
         if (includeParam.Contains("images"))
         {
@@ -257,7 +257,7 @@ public partial class RoomService(
                 .ToListAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            images = roomFiles.Select(rf => new RoomImageInfoDto(
+            images = roomFiles.Select(rf => new RoomDto.RoomImageInfoDto(
                 rf.Entity.FileId,
                 rf.Entity.OrderIndex,
                 rf.Entity.IsThumbnail

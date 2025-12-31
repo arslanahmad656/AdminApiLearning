@@ -11,7 +11,7 @@ public class ReorderRoomsCommandHandler(IRoomService roomService) : IRequestHand
     public async Task<MediatorDTOs.ReorderRoomsResponse> Handle(ReorderRoomsCommand request, CancellationToken cancellationToken)
     {
         var req = request.Request;
-        var roomOrders = req.RoomOrders.Select(ro => new ServiceDTOs.RoomOrderItem(ro.RoomId, ro.DisplayOrder)).ToList();
+        var roomOrders = req.RoomOrders.Select(ro => new ServiceDTOs.ReorderRoomsDto.RoomOrderItem(ro.RoomId, ro.DisplayOrder)).ToList();
 
         var res = await roomService.ReorderRooms(
             new ServiceDTOs.ReorderRoomsDto(

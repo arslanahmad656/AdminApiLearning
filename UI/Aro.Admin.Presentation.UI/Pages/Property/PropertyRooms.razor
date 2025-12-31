@@ -710,11 +710,10 @@
         HandleDragEnd();
         StateHasChanged();
 
-        // Update DisplayOrder for all rooms and save
-        var roomOrders = new List<RoomOrderItem>();
+        var roomOrders = new List<ReorderRoomsRequest.RoomOrderItem>();
         for (int i = 0; i < rooms.Count; i++)
         {
-            roomOrders.Add(new RoomOrderItem(rooms[i].Id, i + 1));
+            roomOrders.Add(new ReorderRoomsRequest.RoomOrderItem(rooms[i].Id, i + 1));
         }
 
         // Auto-save the new order

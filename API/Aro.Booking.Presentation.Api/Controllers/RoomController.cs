@@ -115,8 +115,8 @@ public class RoomController(
     {
         var response = await mediator.Send(
             new PatchRoomCommand(
-                new( // PatchRoomRequest
-                    new( // RoomPatchDto
+                new(
+                    new(
                     roomId,
                     model.RoomName,
                     model.RoomCode,
@@ -217,7 +217,7 @@ public class RoomController(
         logger.LogDebug("Starting ReorderRooms for PropertyId: {PropertyId}", model.PropertyId);
 
         var roomOrders = model.RoomOrders.Select(ro =>
-            new Application.Mediator.Room.DTOs.RoomOrderItemDto(ro.RoomId, ro.DisplayOrder)
+            new Application.Mediator.Room.DTOs.ReorderRoomsRequest.RoomOrderItemDto(ro.RoomId, ro.DisplayOrder)
         ).ToList();
 
         var response = await mediator.Send(new ReorderRoomsCommand(
