@@ -25,7 +25,8 @@ public class GetPoliciesCommandHandler(IPolicyService policyService) : IRequestH
                 p.PropertyId,
                 p.Title,
                 p.Description,
-                p.IsActive
+                p.IsActive,
+                p.DisplayOrder
             ))
             .ToList();
 

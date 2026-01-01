@@ -176,5 +176,27 @@ public class PolicyController(
 
         return Ok(response);
     }
+
+    [HttpPost("reorder")]
+    [Permissions(PermissionCodes.PatchPolicy)]
+    public async Task<IActionResult> ReorderPolicies(
+        [FromBody] ReorderPoliciesModel model,
+        CancellationToken cancellationToken
+        )
+    {
+        logger.LogDebug("Starting ReorderPolicies for PropertyId: {PropertyId}", model.PropertyId);
+
+        var policyOrders = model.PolicyOrders.Select(po =>
+            new Application.Mediator.Policy.DTOs.ReorderPoliciesRequest.PolicyOrderItemDto(po.PolicyId, po.DisplayOrder)
+        ).ToList();
+
+        var response = await mediator.Send(new ReorderPoliciesCommand(
+            new(model.PropertyId, policyOrders)
+        ), cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed ReorderPolicies for PropertyId: {PropertyId}", model.PropertyId);
+
+        return Ok(response);
+    }
 }
 

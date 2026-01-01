@@ -346,14 +346,16 @@
 
             if (response?.Policies != null)
             {
-                rules = response.Policies.Select((p, index) => new PropertyRuleModel
-                {
-                    Id = p.Id,
-                    Name = p.Title,
-                    Description = p.Description ?? "",
-                    IsActive = p.IsActive,
-                    Order = index + 1
-                }).ToList();
+                rules = response.Policies
+                    .OrderBy(p => p.DisplayOrder)
+                    .Select((p, index) => new PropertyRuleModel
+                    {
+                        Id = p.Id,
+                        Name = p.Title,
+                        Description = p.Description ?? "",
+                        IsActive = p.IsActive,
+                        Order = p.DisplayOrder > 0 ? p.DisplayOrder : index + 1
+                    }).ToList();
             }
         }
         catch (Exception ex)
@@ -579,7 +581,7 @@
         }
     }
 
-    private void HandleDrop(PropertyRuleModel targetRule)
+    private async Task HandleDrop(PropertyRuleModel targetRule)
     {
         if (draggedRule == null || draggedRule.Id == targetRule.Id)
         {
@@ -613,6 +615,41 @@
         dropTargetRule = null;
 
         StateHasChanged();
+
+        // Auto-save the reordered policies to the API
+        await SavePolicyOrder(orderedRules);
+    }
+
+    private async Task SavePolicyOrder(List<PropertyRuleModel> orderedRules)
+    {
+        try
+        {
+            var policyOrders = new List<ReorderPoliciesRequest.PolicyOrderItem>();
+            for (int i = 0; i < orderedRules.Count; i++)
+            {
+                policyOrders.Add(new ReorderPoliciesRequest.PolicyOrderItem(orderedRules[i].Id, i + 1));
+            }
+
+            var request = new ReorderPoliciesRequest(PropertyId, policyOrders);
+            var success = await PolicyService.ReorderPolicies(request);
+
+            if (success)
+            {
+                Snackbar.Add("Policy order saved", MudBlazor.Severity.Success);
+            }
+            else
+            {
+                Snackbar.Add("Failed to save policy order", MudBlazor.Severity.Error);
+                // Reload policies to revert to original order
+                await LoadPolicies();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error saving policy order: {ex.Message}", MudBlazor.Severity.Error);
+            // Reload policies to revert to original order
+            await LoadPolicies();
+        }
     }
 
     public class PropertyRuleModel

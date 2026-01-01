@@ -223,6 +223,8 @@ public class PropertyService(
 
         var group = await repositoryManager.GroupRepository
                 .GetById(propertyDto.GroupId)
+                .Include(g => g.Address)
+                .Include(g => g.PrimaryContact)
                 .FirstOrDefaultAsync(cancellationToken)
                 .ConfigureAwait(false)
                 ?? throw new AroGroupNotFoundException(propertyDto.GroupId.ToString());
@@ -261,23 +263,38 @@ public class PropertyService(
             else
             {
                 // in this case, we need to create a new contact and set that contact as the property's new contact
-                var roletoAssign = this.propertyManagerRole;
-                var propertyManagerRole = await commonRepositoryManager.RoleRepository.GetByName(roletoAssign, cancellationToken).ConfigureAwait(false)
-                    ?? throw new AroRoleNotFoundException(roletoAssign);
+                // First check if a user with this email already exists
+                var existingUser = await commonRepositoryManager.UserRepository
+                    .GetByEmail(propertyDto.ContactEmail)
+                    .FirstOrDefaultAsync(cancellationToken)
+                    .ConfigureAwait(false);
 
-                property.Contact = new()
+                if (existingUser != null)
                 {
-                    CreatedAt = DateTime.Now,
-                    DisplayName = propertyDto.ContactName,
-                    Email = propertyDto.ContactEmail,
-                    PasswordHash = hasher.Hash(propertySettings.DefaultContactPassword),
-                    UserRoles = [
-                        new()
+                    // Use the existing user as the property contact
+                    logger.LogDebug("User with email {Email} already exists. Using existing user as property contact.", propertyDto.ContactEmail);
+                    property.ContactId = existingUser.Id;
+                }
+                else
+                {
+                    var roletoAssign = this.propertyManagerRole;
+                    var propertyManagerRole = await commonRepositoryManager.RoleRepository.GetByName(roletoAssign, cancellationToken).ConfigureAwait(false)
+                        ?? throw new AroRoleNotFoundException(roletoAssign);
+
+                    property.Contact = new()
                     {
-                        RoleId = propertyManagerRole.Id
-                    }
-                    ]
-                };
+                        CreatedAt = DateTime.Now,
+                        DisplayName = propertyDto.ContactName,
+                        Email = propertyDto.ContactEmail,
+                        PasswordHash = hasher.Hash(propertySettings.DefaultContactPassword),
+                        UserRoles = [
+                            new()
+                        {
+                            RoleId = propertyManagerRole.Id
+                        }
+                        ]
+                    };
+                }
             }
         }
         else
@@ -289,9 +306,32 @@ public class PropertyService(
             }
             else
             {
-                // we can do in place update (except the role since that's going to be the same)
-                property.Contact.DisplayName = propertyDto.ContactName;
-                property.Contact.Email = propertyDto.ContactEmail;
+                // Check if email is changing and if new email already exists for a different user
+                if (property.Contact.Email != propertyDto.ContactEmail)
+                {
+                    var existingUser = await commonRepositoryManager.UserRepository
+                        .GetByEmail(propertyDto.ContactEmail)
+                        .FirstOrDefaultAsync(cancellationToken)
+                        .ConfigureAwait(false);
+
+                    if (existingUser != null && existingUser.Id != property.ContactId)
+                    {
+                        // Email already exists for a different user, use that user as contact
+                        logger.LogDebug("User with email {Email} already exists. Switching property contact to existing user.", propertyDto.ContactEmail);
+                        property.ContactId = existingUser.Id;
+                    }
+                    else
+                    {
+                        // we can do in place update
+                        property.Contact.DisplayName = propertyDto.ContactName;
+                        property.Contact.Email = propertyDto.ContactEmail;
+                    }
+                }
+                else
+                {
+                    // Email not changing, just update display name
+                    property.Contact.DisplayName = propertyDto.ContactName;
+                }
             }
         }
 

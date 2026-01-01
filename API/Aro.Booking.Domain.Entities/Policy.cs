@@ -14,5 +14,7 @@ public class Policy : IEntity
 
     public bool IsActive { get; set; }
 
+    public int DisplayOrder { get; set; }
+
     public Property Property { get; set; }
 }

@@ -24,7 +24,8 @@ public class PatchPolicyCommandHandler(IPolicyService policyService, IMediator m
             r.PropertyId,
             r.Title,
             r.Description,
-            r.IsActive
+            r.IsActive,
+            r.DisplayOrder
         ));
 
         await mediator.Publish(new PolicyPatchedNotification(result), cancellationToken).ConfigureAwait(false);

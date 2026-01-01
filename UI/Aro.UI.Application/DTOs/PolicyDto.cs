@@ -5,5 +5,6 @@ public record PolicyDto(
     Guid PropertyId,
     string Title,
     string Description,
-    bool IsActive
+    bool IsActive,
+    int DisplayOrder
 );

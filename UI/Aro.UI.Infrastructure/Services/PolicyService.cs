@@ -81,4 +81,10 @@ public class PolicyService(HttpClient httpClient) : IPolicyService
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<DeletePolicyResponse>();
     }
+
+    public async Task<bool> ReorderPolicies(ReorderPoliciesRequest request)
+    {
+        var response = await _httpClient.PostAsJsonAsync("api/policy/reorder", request);
+        return response.IsSuccessStatusCode;
+    }
 }

@@ -22,7 +22,8 @@ public class GetPolicyCommandHandler(IPolicyService policyService) : IRequestHan
                 policy.PropertyId,
                 policy.Title,
                 policy.Description,
-                policy.IsActive
+                policy.IsActive,
+                policy.DisplayOrder
             ));
 
         return result;

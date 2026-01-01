@@ -24,6 +24,9 @@ public class PolicyConfiguration : IEntityTypeConfiguration<Policy>
         builder.Property(p => p.IsActive)
             .HasDefaultValue(true);
 
+        builder.Property(p => p.DisplayOrder)
+            .HasDefaultValue(0);
+
         builder.HasOne(p => p.Property)
             .WithMany()
             .HasForeignKey(p => p.PropertyId)
