@@ -10,4 +10,5 @@ public interface IPolicyService
     Task<GetPoliciesByPropertyResponse?> GetPoliciesByProperty(Guid propertyId, string? include = null);
     Task<PatchPolicyResponse?> PatchPolicy(PatchPolicyRequest request);
     Task<DeletePolicyResponse?> DeletePolicy(Guid id);
+    Task<bool> ReorderPolicies(ReorderPoliciesRequest request);
 }

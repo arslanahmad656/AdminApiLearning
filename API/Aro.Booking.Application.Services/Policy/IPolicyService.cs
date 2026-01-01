@@ -17,5 +17,7 @@ public interface IPolicyService : IService
     Task<PatchPolicyResponse> PatchPolicy(PatchPolicyDto policy, CancellationToken cancellationToken = default);
 
     Task<DeletePolicyResponse> DeletePolicy(DeletePolicyDto policy, CancellationToken cancellationToken = default);
+
+    Task<ReorderPoliciesResponse> ReorderPolicies(ReorderPoliciesDto dto, CancellationToken cancellationToken = default);
 }
 

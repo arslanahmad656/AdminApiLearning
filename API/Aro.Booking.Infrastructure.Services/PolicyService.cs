@@ -72,7 +72,8 @@ public partial class PolicyService(
                 p.PropertyId,
                 p.Title,
                 p.Description,
-                p.IsActive
+                p.IsActive,
+                p.DisplayOrder
             ))
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -97,7 +98,8 @@ public partial class PolicyService(
                 p.PropertyId,
                 p.Title,
                 p.Description,
-                p.IsActive
+                p.IsActive,
+                p.DisplayOrder
             ))
             .ToListAsync(cancellationToken)
             .ConfigureAwait(false);
@@ -124,7 +126,8 @@ public partial class PolicyService(
             policy.PropertyId,
             policy.Title,
             policy.Description,
-            policy.IsActive
+            policy.IsActive,
+            policy.DisplayOrder
         );
 
         return new GetPolicyResponse(policyDto);
@@ -147,7 +150,8 @@ public partial class PolicyService(
             policy.PropertyId,
             policy.Title,
             policy.Description,
-            policy.IsActive
+            policy.IsActive,
+            policy.DisplayOrder
         );
 
         return new GetPolicyResponse(policyDto);
@@ -180,7 +184,8 @@ public partial class PolicyService(
             existingPolicy.PropertyId,
             existingPolicy.Title,
             existingPolicy.Description,
-            existingPolicy.IsActive
+            existingPolicy.IsActive,
+            existingPolicy.DisplayOrder
         );
 
         return new PatchPolicyResponse(policyDto);
@@ -203,6 +208,45 @@ public partial class PolicyService(
         logger.LogInfo("Policy deleted successfully. Id: {PolicyId}", dto.Id);
 
         return new DeletePolicyResponse(dto.Id);
+    }
+
+    public async Task<ReorderPoliciesResponse> ReorderPolicies(
+        ReorderPoliciesDto dto,
+        CancellationToken cancellationToken = default
+        )
+    {
+        logger.LogDebug("Starting {MethodName} for propertyId: {PropertyId}", nameof(ReorderPolicies), dto.PropertyId);
+
+        await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchPolicy], cancellationToken);
+
+        var policies = await policyRepository.GetByProperty(dto.PropertyId)
+            .ToListAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        var policyDict = policies.ToDictionary(p => p.Id);
+        int updatedCount = 0;
+
+        foreach (var orderItem in dto.PolicyOrders)
+        {
+            if (policyDict.TryGetValue(orderItem.PolicyId, out var policy))
+            {
+                if (policy.DisplayOrder != orderItem.DisplayOrder)
+                {
+                    policy.DisplayOrder = orderItem.DisplayOrder;
+                    policyRepository.Update(policy);
+                    updatedCount++;
+                }
+            }
+        }
+
+        if (updatedCount > 0)
+        {
+            await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+        }
+
+        logger.LogInfo("Reordered {UpdatedCount} policies for property {PropertyId}", updatedCount, dto.PropertyId);
+
+        return new ReorderPoliciesResponse(true, updatedCount);
     }
 }
 

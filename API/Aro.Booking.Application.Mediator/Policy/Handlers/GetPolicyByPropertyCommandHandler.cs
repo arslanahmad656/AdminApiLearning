@@ -23,7 +23,8 @@ public class GetPolicyByPropertyCommandHandler(IPolicyService policyService) : I
                 policy.PropertyId,
                 policy.Title,
                 policy.Description,
-                policy.IsActive
+                policy.IsActive,
+                policy.DisplayOrder
             ));
 
         return result;
