@@ -1,4 +1,5 @@
 ﻿@using Aro.UI.Application.DTOs.Room
+@using Aro.Admin.Presentation.UI.Shared
 
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
@@ -118,6 +119,12 @@
     </div>
 </div>
 
+<WizardFooter OnBack="HandleBack"
+              OnSave="HandleSave"
+              BackDisabled="false"
+              SaveDisabled="@isSaving"
+              ShowSave="true" />
+
 <style>
     .media-container {
         min-height: 200px;
@@ -223,5 +230,15 @@
     private async Task HandlePatch()
     {
         throw new NotImplementedException();
+    }
+
+    private void HandleBack()
+    {
+        Wizard.OnBack?.Invoke();
+    }
+
+    private async Task HandleSave()
+    {
+        await SaveAsync();
     }
 }

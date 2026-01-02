@@ -1,7 +1,7 @@
 ﻿@using Aro.UI.Application.DTOs.Group
+@using Aro.Admin.Presentation.UI.Shared
 
 @inject IValidator<GroupModel> groupValidator
-
 @inject ICountryMetadataService countryMetadataService
 
 <StepTitle StepNumber="1" Title="General Information" />
@@ -143,6 +143,11 @@
     </MudForm>
 }
 
+<WizardFooter OnBack="HandleBack"
+              OnNext="HandleNext"
+              BackDisabled="@(Wizard.ActiveStepIndex == 0)"
+              NextDisabled="@(!IsFormValid())" />
+
 <style>
     .country-dropdown {
         margin: 4px 0;
@@ -246,5 +251,36 @@
         public string Code { get; init; } = string.Empty;
         public string Name { get; init; } = string.Empty;
         public string FlagUrl { get; init; } = string.Empty;
+    }
+
+    private bool IsFormValid()
+    {
+        if (Wizard.Entity == null) return false;
+        return !string.IsNullOrWhiteSpace(Wizard.Entity.GroupName) &&
+               !string.IsNullOrWhiteSpace(Wizard.Entity.AddressLine1) &&
+               !string.IsNullOrWhiteSpace(Wizard.Entity.City) &&
+               !string.IsNullOrWhiteSpace(Wizard.Entity.Country) &&
+               !string.IsNullOrWhiteSpace(Wizard.Entity.PostalCode) &&
+               HasValidLogo(Wizard.Entity.Logo);
+    }
+
+    private static bool HasValidLogo(ImageModel? logo)
+    {
+        if (logo == null) return false;
+        return !string.IsNullOrWhiteSpace(logo.ContentBase64) ||
+               (logo.Id != Guid.Empty && !string.IsNullOrWhiteSpace(logo.Url));
+    }
+
+    private void HandleBack()
+    {
+        Wizard.OnBack?.Invoke();
+    }
+
+    private async Task HandleNext()
+    {
+        if (Wizard.OnNext != null)
+        {
+            await Wizard.OnNext.Invoke();
+        }
     }
 }

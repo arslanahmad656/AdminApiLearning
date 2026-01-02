@@ -1,4 +1,5 @@
 ﻿@using Aro.UI.Application.DTOs.Group
+@using Aro.Admin.Presentation.UI.Shared
 
 @inject IValidator<PrimaryContactModel> PrimaryContactValidator
 @inject ICountryMetadataService CountryMetadataService
@@ -99,6 +100,11 @@
         </div>
     </MudForm>
 }
+
+<WizardFooter OnBack="HandleBack"
+              OnNext="HandleNext"
+              BackDisabled="false"
+              NextDisabled="@(!IsFormValid())" />
 
 <style>
     .phone-number-input {
@@ -221,4 +227,31 @@
         return IsPhoneInvalid ? "border-error" : "border-grey";
     }
 
+    private bool IsFormValid()
+    {
+        if (Wizard.Entity?.PrimaryContact == null) return false;
+        var contact = Wizard.Entity.PrimaryContact;
+
+        if (Wizard.IsCreateMode)
+        {
+            return !string.IsNullOrWhiteSpace(contact.Name) &&
+                   !string.IsNullOrWhiteSpace(contact.Email) &&
+                   !string.IsNullOrWhiteSpace(contact.PhoneNumber) &&
+                   !string.IsNullOrWhiteSpace(contact.CountryCode);
+        }
+        return !string.IsNullOrWhiteSpace(contact.Email);
+    }
+
+    private void HandleBack()
+    {
+        Wizard.OnBack?.Invoke();
+    }
+
+    private async Task HandleNext()
+    {
+        if (Wizard.OnNext != null)
+        {
+            await Wizard.OnNext.Invoke();
+        }
+    }
 }

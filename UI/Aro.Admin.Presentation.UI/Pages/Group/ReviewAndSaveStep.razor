@@ -1,4 +1,5 @@
 ﻿@using Aro.UI.Application.DTOs.Group
+@using Aro.Admin.Presentation.UI.Shared
 @inject ISnackbar Snackbar
 @inject IValidator<GroupModel> groupValidator
 @inject IValidator<PrimaryContactModel> primaryContactValidator
@@ -53,6 +54,12 @@
         <SummaryRow Label="Contact Email" Value="@primaryContact.Email" />
         <SummaryRow Label="Phone Number" Value="@($"+{primaryContact.CountryCode} {primaryContact.PhoneNumber}")" />
     </div>
+
+    <WizardFooter OnBack="HandleBack"
+                  OnSave="HandleSave"
+                  BackDisabled="false"
+                  SaveDisabled="@Wizard.IsSaving"
+                  ShowSave="true" />
 }
 
 @code {
@@ -142,7 +149,7 @@
         Wizard.EntityCreationComplete = true;
 
         Snackbar.Add("Group created successfully!", MudBlazor.Severity.Success);
-        await InvokeAsync(StateHasChanged);
+        NavigationManager.NavigateTo("/");
     }
 
     private async Task HandlePatch()
@@ -195,5 +202,15 @@
         );
 
         return patch.AllGroupPropertiesNull() ? null : patch;
+    }
+
+    private void HandleBack()
+    {
+        Wizard.OnBack?.Invoke();
+    }
+
+    private async Task HandleSave()
+    {
+        await SaveAsync();
     }
 }

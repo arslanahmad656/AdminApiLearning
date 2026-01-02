@@ -19,13 +19,8 @@
 
         <!-- Child content -->
         <div class="col-xl-10 h-100 overflow-y-auto">
-            <div class="p-5" style="min-height: 70vh;">
+            <div class="wizard-content p-5">
                 @ChildContent
-            </div>
-
-            <!-- Wizard Navigation -->
-            <div style="min-height: 25vh;">
-                <WizardNavigation TEntity="TEntity" />
             </div>
         </div>
 
@@ -48,6 +43,12 @@
     .card-bg-dark {
         background-color: #434343;
         color: white;
+    }
+
+    .wizard-content {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        flex-direction: column;
     }
 </style>
 
