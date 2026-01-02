@@ -1,7 +1,31 @@
-﻿<div class="vstack gap-2">
-    <h3 class="fs-6 fw-normal">Step @StepNumber</h3>
-    <h2 class="fs-4">@Title</h2>
+<div class="step-title-container">
+    <p class="step-label">Step @StepNumber</p>
+    <h2 class="step-title">@Title</h2>
 </div>
+
+<style>
+    .step-title-container {
+        margin-bottom: 24px;
+    }
+
+    .step-label {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 16px;
+        line-height: 19px;
+        color: #000000;
+        margin: 0 0 8px 0;
+    }
+
+    .step-title {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-size: 24px;
+        line-height: 29px;
+        color: #000000;
+        margin: 0;
+    }
+</style>
 
 @code {
     [Parameter] public int StepNumber { get; set; }

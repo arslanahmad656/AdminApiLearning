@@ -1,4 +1,5 @@
 ﻿@using Aro.UI.Application.DTOs.Room
+@using Aro.Admin.Presentation.UI.Shared
 
 @inject IValidator<RoomModel> roomValidator
 @inject IValidator<Amenity> amenityValidator
@@ -35,6 +36,11 @@
     </div>
 </MudForm>
 
+<WizardFooter OnBack="HandleBack"
+              OnNext="HandleNext"
+              BackDisabled="false"
+              NextDisabled="false" />
+
 @code {
     [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
 
@@ -43,7 +49,7 @@
     private string AmenitiesToAdd { get; set; } = string.Empty;
 
     private string AmenityError { get; set; } = string.Empty;
-    
+
     private bool _error => !string.IsNullOrEmpty(AmenityError);
 
     private async Task<bool> AddAmenitiesFromTextboxAsync()
@@ -103,4 +109,16 @@
         }
     }
 
+    private void HandleBack()
+    {
+        Wizard.OnBack?.Invoke();
+    }
+
+    private async Task HandleNext()
+    {
+        if (Wizard.OnNext != null)
+        {
+            await Wizard.OnNext.Invoke();
+        }
+    }
 }

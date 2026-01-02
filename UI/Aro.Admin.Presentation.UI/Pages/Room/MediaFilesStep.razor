@@ -1,4 +1,5 @@
 ﻿@using Aro.UI.Application.DTOs.Room
+@using Aro.Admin.Presentation.UI.Shared
 
 @inject IValidator<RoomModel> roomValidator
 
@@ -23,6 +24,10 @@
     Images="@Wizard.Entity?.Images"
     SelectedImageChanged="OnSelectedImageChanged" />
 
+<WizardFooter OnBack="HandleBack"
+              OnNext="HandleNext"
+              BackDisabled="false"
+              NextDisabled="false" />
 
 @code {
     [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
@@ -64,5 +69,18 @@
         }
 
         return Task.CompletedTask;
+    }
+
+    private void HandleBack()
+    {
+        Wizard.OnBack?.Invoke();
+    }
+
+    private async Task HandleNext()
+    {
+        if (Wizard.OnNext != null)
+        {
+            await Wizard.OnNext.Invoke();
+        }
     }
 }
