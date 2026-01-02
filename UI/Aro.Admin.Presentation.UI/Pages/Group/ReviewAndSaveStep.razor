@@ -110,6 +110,8 @@
         {
             Wizard.IsSaving = false;
             await InvokeAsync(StateHasChanged);
+
+            NavigationManager?.NavigateTo("/");
         }
     }
 

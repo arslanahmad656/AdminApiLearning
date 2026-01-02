@@ -23,11 +23,11 @@ public class RoomModel
     public int RoomSizeSQFT { get; set; } = 0;
 
 
-    public BedConfiguration BedConfig { get; set; } = BedConfiguration.Single;
+    public BedConfiguration BedConfig { get; set; } = BedConfiguration.Double;
 
-    public List<Amenity>? Amenities { get; set; } = [];
+    public List<Amenity> Amenities { get; set; } = [];
 
-    public List<ImageModel>? Images { get; set; } = [];
+    public List<ImageModel> Images { get; set; } = [];
 
     public bool IsActive { get; set; } = true;
 

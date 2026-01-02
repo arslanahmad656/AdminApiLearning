@@ -14,18 +14,15 @@ public class GroupModelFluentValidator : AbstractValidator<GroupModel>
 
         RuleFor(x => x.GroupName)
             .NotEmpty()
-            .Length(5, 100)
-            .WithMessage("Group name must be longer than 5 characters.");
+            .Length(5, 100);
 
         RuleFor(x => x.AddressLine1)
             .NotEmpty()
-            .Length(5, 200)
-            .WithMessage("Address must be longer than 5 characters.");
+            .Length(5, 200);
 
         RuleFor(x => x.City)
             .NotEmpty()
-            .Length(3, 100)
-            .WithMessage("City must be longer than 3 characters.");
+            .Length(3, 100);
 
         RuleFor(x => x.Country)
             .NotEmpty()

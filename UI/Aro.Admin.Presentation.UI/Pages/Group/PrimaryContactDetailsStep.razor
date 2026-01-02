@@ -166,6 +166,8 @@
                 FlagUrl = $"/flags/{c.ISO2.ToLowerInvariant()}.svg"
             }));
 
+        _countryOptions.Sort((x, y) => string.Compare(x.PhoneCode, y.PhoneCode));
+
         SelectedCountry = _countryOptions.FirstOrDefault(c =>
             c.PhoneCode == Wizard.Entity?.PrimaryContact?.CountryCode);
     }

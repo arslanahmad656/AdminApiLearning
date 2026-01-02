@@ -14,6 +14,7 @@ public class RoomModelFluentValidator : AbstractValidator<RoomModel>
         RuleFor(m => m.RoomCode)
             .NotEmpty()
             .Matches("^[A-Z0-9-]+$")
+            .WithMessage("Room code can only contain uppercase letters, numbers, and hyphens.")
             .Length(2, 20);
 
         RuleFor(m => m.Description)
@@ -24,10 +25,20 @@ public class RoomModelFluentValidator : AbstractValidator<RoomModel>
             .LessThanOrEqualTo(20);
 
         RuleFor(m => m.MaxAdults)
-            .GreaterThanOrEqualTo(0);
+            .GreaterThanOrEqualTo(0)
+            .Must((model, maxAdults) =>
+            {
+                return maxAdults + model.MaxChildren == model.MaxOccupancy;
+            })
+            .WithMessage("The sum of adults and children must equal max occupancy."); ;
 
         RuleFor(m => m.MaxChildren)
-            .GreaterThanOrEqualTo(0);
+            .GreaterThanOrEqualTo(0)
+            .Must((model, maxChildren) =>
+            {
+                return maxChildren + model.MaxAdults == model.MaxOccupancy;
+            })
+            .WithMessage("The sum of adults and children must equal max occupancy.");
 
         RuleFor(m => m.RoomSizeSQM)
             .GreaterThan(0);
@@ -38,16 +49,12 @@ public class RoomModelFluentValidator : AbstractValidator<RoomModel>
         RuleFor(m => m.BedConfig)
             .NotEmpty();
 
-        // List
         RuleFor(m => m.Amenities)
             .Must(amenities => amenities == null || amenities.Select(a => a.Name).Distinct().Count() == amenities.Count())
             .WithMessage("There are duplicate amenity names in the list.")
             .When(m => m.Amenities != null);
 
         RuleForEach(m => m.Amenities).SetValidator(new AmenityModelFluentValidator());
-
-        // Single entity
-        //RuleFor(m => m.Amenity).SetValidator(new AmenityModelFluentValidator());
     }
 }
 

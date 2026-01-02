@@ -1,6 +1,7 @@
 ﻿@using Aro.UI.Application.DTOs.Room
 
 @inject IValidator<RoomModel> roomValidator
+@inject IJSRuntime JSRuntime
 
 <div class="vstack gap-2 mb-5">
     <h3 class="fs-6 fw-normal">Step 4</h3>
@@ -8,38 +9,205 @@
     <span>These images will be shown in the slider to the end user when clicking on the room. Images can be reordered by dragging. Max 2MB per image.</span>
 </div>
 
-<UploadMediaFilesInput 
-    Images="@Wizard.Entity?.Images"
-    ImagesChanged="OnImagesChanged"
-    SelectedImageChanged="OnSelectedImageChanged" />
+@if (Wizard.Entity is not null)
+{
+    var model = Wizard.Entity;
 
+    <div id="mediaContainer" class="row gap-3 media-container w-100 rounded border border-1 p-3">
 
-<div class="vstack gap-2 mt-5 mb-2">
-    <h2 class="fs-4">Select Thumbnail</h2>
-    <span>Please click on an uploaded image to set it as the thumbnail. This will be shown on both the website and the booking engine.</span>
-</div>
+        @foreach (var image in model.Images)
+        {
+            <div class="col-sm-2 h-100 rounded d-flex align-items-center justify-content-center p-1 position-relative border uploaded-image"
+                    draggable="true"
+                    data-id="@image.Id"
+                    style="cursor:grab"
+                    @onclick="() => OnSelectedImageChanged(image)">
 
-<SelectThumbnail
-    Images="@Wizard.Entity?.Images"
-    SelectedImageChanged="OnSelectedImageChanged" />
+                <MudIconButton Icon="@Icons.Material.Filled.Close"
+                                class="remove-btn"
+                                @onclick="@(e => RemoveImage(image))"
+                                Variant="Variant.Filled"
+                                Size="Size.Small" />
+
+                <img src="data:image/png;base64,@image.ContentBase64"
+                        alt="@image.Name"
+                        class="img-fluid rounded"
+                        style="max-height: 100%; object-fit: cover;" />
+            </div>
+        }
+
+        @if (model.Images!.Count < MaxImages)
+        {
+            <button class="col-sm-2 add-box h-100 rounded d-flex align-items-center justify-content-center p-0">
+                <MudFileUpload T="IReadOnlyList<IBrowserFile>"
+                               FilesChanged="UploadFiles"
+                               Accept="image/png,image/jpeg"
+                               MaxFiles="@RemainingSlots"
+                               Class="w-100">
+                    <ActivatorContent>
+                        <div class="vstack text-center w-100 h-100">
+                            <span>+</span>
+                            <span>Add</span>
+                            <span>@RemainingSlots Left</span>
+                        </div>
+                    </ActivatorContent>
+                </MudFileUpload>
+            </button>
+        }
+    </div>
+
+    @if (HasError)
+    {
+        @foreach (var msg in ErrorMessages)
+        {
+            <span class="small text-danger">@msg</span><br />
+        
+        }
+    }
+
+    <div class="vstack gap-2 mt-5 mb-2">
+        <h2 class="fs-4">Select Thumbnail</h2>
+        <span>Please click on an uploaded image to set it as the thumbnail. This will be shown on both the website and the booking engine.</span>
+    </div>
+
+    <div class="row gap-3 media-container w-100 rounded border border-1 p-3">
+
+        @foreach (var image in model.Images)
+        {
+            <div class="col-sm-2 h-100 rounded d-flex align-items-center justify-content-center p-1 border @((image.IsThumbnail ? "border-3 border-warning" : ""))"
+                 style="cursor:pointer"
+                 @onclick="() => OnSelectedImageChanged(image)">
+
+                <img src="data:image/png;base64,@image.ContentBase64"
+                     alt="@image.Name"
+                     class="img-fluid rounded"
+                     style="max-height: 100%; object-fit: cover;" />
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .add-box {
+        background-color: #EBEBEB;
+        border: dashed 1px #929292;
+    }
+
+    .media-container {
+        height: 200px;
+        border-color: #929292;
+    }
+
+    .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        z-index: 10;
+    }
+
+    [draggable="true"] {
+        transition: transform 0.3s ease, box-shadow 0.2s ease;
+    }
+
+    .drag-over {
+        border: 2px dashed #ff9800;
+    }
+
+    .dragging {
+        opacity: 0.6;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        transform: scale(1.05);
+    }
+</style>
 
 
 @code {
     [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
+
+    private const int MaxImages = 5;
+    const long MaxAllowedFileBytes = 2 * 1024 * 1024;
+    private int RemainingSlots = MaxImages;
+
+    private bool HasError = false;
+    private List<string> ErrorMessages = new List<string>();
+
+    private static readonly string[] AllowedContentTypes =
+    {
+        "image/jpeg",
+        "image/png",
+    };
 
     private async Task<bool> ValidateStepAsync()
     {
         return true;
     }
 
-    private Task OnImagesChanged(List<ImageModel> images)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("enableImageDragReorderAnimated", "mediaContainer");
+        }
+    }
+
+    protected override Task OnParametersSetAsync()
     {
         if (Wizard.Entity is not null)
         {
-            Wizard.Entity.Images = images;
+            RemainingSlots = MaxImages - Wizard.Entity.Images.Count;
         }
 
-        return Task.CompletedTask;
+        return base.OnParametersSetAsync();
+    }
+
+    private async Task UploadFiles(IReadOnlyList<IBrowserFile> files)
+    {
+        if (Wizard.Entity is null)
+            return;
+
+        var model = Wizard.Entity;
+
+        ErrorMessages = [];
+        HasError = false;
+
+        foreach (var file in files)
+        {
+            if (!AllowedContentTypes.Contains(file.ContentType))
+            {
+                ErrorMessages.Add($"{file.Name} is an invalid file type.");
+                HasError = true;
+                continue;
+            }
+
+            if (model.Images.Count >= MaxImages)
+                break;
+
+            if (file.Size > MaxAllowedFileBytes)
+            {
+                ErrorMessages.Add($"{file.Name} exceeds the maximum allowed size of 2MB.");
+                HasError = true;
+                continue;
+            }
+
+            using var ms = new MemoryStream();
+            await file.OpenReadStream(MaxAllowedFileBytes).CopyToAsync(ms);
+
+            var base64 = Convert.ToBase64String(ms.ToArray());
+
+            model.Images.Add(new ImageModel
+            {
+                Id = Guid.NewGuid(),
+                Name = Path.GetFileNameWithoutExtension(file.Name),
+                ContentBase64 = base64,
+                OrderIndex = model.Images.Count + 1,
+                IsThumbnail = model.Images.Count == 0
+            });
+        }
+
+        await JSRuntime.InvokeVoidAsync(
+            "enableImageDragReorderAnimated",
+            "mediaContainer"
+        );
     }
 
     private Task OnSelectedImageChanged(ImageModel? newImage)
@@ -64,5 +232,31 @@
         }
 
         return Task.CompletedTask;
+    }
+
+    private async Task RemoveImage(ImageModel image)
+    {
+        if (Wizard.Entity is null || Wizard.Entity.Images is null)
+            return;
+
+        Wizard.Entity.Images.Remove(image);
+    }
+
+    [JSInvokable]
+    public void UpdateImageOrder(List<Guid> orderedIds)
+    {
+        if (Wizard.Entity is null || Wizard.Entity.Images is null)
+            return;
+
+        var images = Wizard.Entity.Images;
+
+        var reordered = orderedIds
+            .Select(id => images.First(img => img.Id == id))
+            .ToList();
+
+        Wizard.Entity.Images.Clear();
+        Wizard.Entity.Images.AddRange(reordered);
+
+        StateHasChanged();
     }
 }

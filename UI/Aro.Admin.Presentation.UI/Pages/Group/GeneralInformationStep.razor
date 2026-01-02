@@ -233,12 +233,14 @@
         _countryOptions = countryMetadataService
             .GetAll()
             .Select(c => new CountryOption
-            {
-                Code = c.ISO2,
-                Name = c.Name,
-                FlagUrl = $"/flags/{c.ISO2.ToLowerInvariant()}.svg"
-            })
+                {
+                    Code = c.ISO2,
+                    Name = c.Name,
+                    FlagUrl = $"/flags/{c.ISO2.ToLowerInvariant()}.svg"
+                })
             .ToList();
+
+        _countryOptions.Sort((x, y) => string.Compare(x.Name, y.Name));
     }
 
     private sealed class CountryOption

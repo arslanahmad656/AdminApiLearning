@@ -235,6 +235,7 @@ public partial class GroupService(
         await authorizationService.EnsureCurrentUserPermissions([PermissionCodes.PatchGroup], cancellationToken);
 
         var existingGroup = await groupRepository.GetById(group.Id)
+            .Include(x => x.Address)
             .SingleOrDefaultAsync(cancellationToken)
             .ConfigureAwait(false);
 
@@ -269,6 +270,7 @@ public partial class GroupService(
         group.AddressLine2.PatchIfNotNull(v => existingGroup.Address.AddressLine2 = v, logger, nameof(group.AddressLine2));
         group.City.PatchIfNotNull(v => existingGroup.Address.City = v, logger, nameof(group.City));
         group.Country.PatchIfNotNull(v => existingGroup.Address.Country = v, logger, nameof(group.Country));
+        group.PostalCode.PatchIfNotNull(v => existingGroup.Address.PostalCode = v, logger, nameof(group.PostalCode));
         group.IsActive.PatchIfNotNull(v => existingGroup.IsActive = v, logger, nameof(group.IsActive));
 
         if (group.Logo != null)

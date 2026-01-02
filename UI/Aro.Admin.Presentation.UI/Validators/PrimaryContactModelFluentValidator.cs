@@ -16,8 +16,7 @@ public class PrimaryContactModelFluentValidator : AbstractValidator<PrimaryConta
 
         RuleFor(x => x.Name)
             .NotEmpty()
-            .Length(5, 100)
-            .WithMessage("Name must be longer than 5 characters.");
+            .Length(5, 100);
 
         RuleFor(x => x.Email)
             .NotEmpty()
@@ -62,7 +61,6 @@ public class PrimaryContactModelFluentValidator : AbstractValidator<PrimaryConta
                 return countryMetadataService.ValidateTelephone(model.CountryCode, phone);
             })
             .WithMessage("Invalid phone number for selected country");
-
     }
 }
 
