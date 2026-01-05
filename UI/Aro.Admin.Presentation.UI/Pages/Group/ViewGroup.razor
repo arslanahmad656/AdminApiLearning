@@ -115,7 +115,7 @@
                         </button>
                     </div>
                     <div class="property-status">
-                        <span class="status-badge active">Active</span>
+                        <span class="status-badge @(property.IsActive ? "active" : "inactive")">@(property.IsActive ? "Active" : "Inactive")</span>
                         <div class="property-menu" @onclick:stopPropagation="true">
                             <MudMenu Icon="@Icons.Material.Filled.Settings" Size="Size.Small" Dense="true" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
                                 <MudMenuItem OnClick="@(() => EditProperty(property))">
@@ -742,7 +742,7 @@
     .property-logo {
         width: 48px;
         height: 48px;
-        border-radius: 4px;
+        border-radius: 50%;
         overflow: hidden;
     }
 
