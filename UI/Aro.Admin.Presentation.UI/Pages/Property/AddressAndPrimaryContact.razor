@@ -18,19 +18,14 @@
 
 <div class="property-wizard-container">
     <!-- Header Bar -->
-    <div class="wizard-header">
-        <h1 class="header-title">@(wizardModel.IsEditMode ? "Edit Property" : "Create New Property")</h1>
-        <div class="close-icon" @onclick="HandleClose">
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-                <line x1="1" y1="1" x2="16" y2="16" stroke="white" stroke-width="2" />
-                <line x1="16" y1="1" x2="1" y2="16" stroke="white" stroke-width="2" />
-            </svg>
-        </div>
+    <div class="col-12 card-bg-dark">
+        <WizardHeader HeaderTitle="@Title"
+                      OnClose="HandleClose" />
     </div>
 
     <div class="wizard-body">
         <!-- Left Sidebar with Steps -->
-        <div class="wizard-sidebar">
+        <div class="d-none d-md-block col-xl-2  border-end bg-white">
             <WizardSteps StepTitles="@stepTitles"
                          ActiveStepIndex="1"
                          IsEditMode="@wizardModel.IsEditMode"
@@ -276,6 +271,7 @@
     private Guid? _currentGroupId = null;
     private Guid? _currentPropertyId = null;
     private string _originalStateHash = string.Empty;
+    private string Title => $"{(wizardModel.IsEditMode ? "Edit" : "Add New")} Property";
 
     private readonly List<string> stepTitles = new()
     {
@@ -814,6 +810,10 @@
         background: #FFFFFF;
     }
 
+    .card-bg-dark {
+        background-color: #434343;
+        color: white;
+    }
     /* Header Bar - Dark Gray */
     .wizard-header {
         background: #434343;
@@ -1266,18 +1266,18 @@
             color: #737373 !important;
         }
 
-        .country-mud-select .mud-select-input.mud-input-slot:not(:placeholder-shown),
-        .country-mud-select.mud-input-has-value .mud-select-input.mud-input-slot {
-            color: #000000 !important;
-        }
+            .country-mud-select .mud-select-input.mud-input-slot:not(:placeholder-shown),
+            .country-mud-select.mud-input-has-value .mud-select-input.mud-input-slot {
+                color: #000000 !important;
+            }
 
         .country-mud-select .mud-select {
             height: 100% !important;
         }
 
-        .country-mud-select .mud-select .mud-input-control {
-            height: 100% !important;
-        }
+            .country-mud-select .mud-select .mud-input-control {
+                height: 100% !important;
+            }
 
         .country-mud-select .mud-input-text {
             display: flex !important;
@@ -1368,27 +1368,27 @@
             outline: none;
         }
 
-    /* Phone number placeholder - light grey */
-    .phone-number-input::placeholder {
-        color: #737373 !important;
-        opacity: 1 !important;
-        font-weight: 400 !important;
-    }
+        /* Phone number placeholder - light grey */
+        .phone-number-input::placeholder {
+            color: #737373 !important;
+            opacity: 1 !important;
+            font-weight: 400 !important;
+        }
 
-    .phone-number-input::-webkit-input-placeholder {
-        color: #737373 !important;
-        opacity: 1 !important;
-    }
+        .phone-number-input::-webkit-input-placeholder {
+            color: #737373 !important;
+            opacity: 1 !important;
+        }
 
-    .phone-number-input::-moz-placeholder {
-        color: #737373 !important;
-        opacity: 1 !important;
-    }
+        .phone-number-input::-moz-placeholder {
+            color: #737373 !important;
+            opacity: 1 !important;
+        }
 
-    .phone-number-input:-ms-input-placeholder {
-        color: #737373 !important;
-        opacity: 1 !important;
-    }
+        .phone-number-input:-ms-input-placeholder {
+            color: #737373 !important;
+            opacity: 1 !important;
+        }
 
     /* Section Divider */
     .section-divider {
