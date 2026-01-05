@@ -1,5 +1,6 @@
 ﻿@typeparam TEntity
 @inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
 <CascadingValue Value="Wizard">
 <div class="full-screen-overlay">
@@ -8,7 +9,7 @@
         <div class="col-12 card-bg-dark">
             <WizardHeader 
                 HeaderTitle="@Title"
-                ReturnTo="@Wizard.NavigateTo" />
+                              OnClose="@HandleClose" />
         </div>
         <!-- Wizard Steps (Sidebar) -->
         <div class="d-none d-md-block col-xl-2  border-end bg-white">
@@ -58,4 +59,10 @@
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
     private string Title => $"{(Wizard.IsCreateMode ? "Add New" : "Edit")} {Wizard.Title}";
+    private async Task HandleClose()
+    {
+
+        NavigationManager.NavigateTo($"/");
+    }
+
 }

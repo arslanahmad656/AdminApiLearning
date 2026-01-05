@@ -15,19 +15,14 @@
 
 <div class="property-wizard-container">
     <!-- Header Bar -->
-    <div class="wizard-header">
-        <h1 class="header-title">@(wizardModel.IsEditMode ? "Edit Property" : "Create New Property")</h1>
-        <div class="close-icon" @onclick="HandleClose">
-            <svg width="17" height="17" viewBox="0 0 17 17" fill="none">
-                <line x1="1" y1="1" x2="16" y2="16" stroke="white" stroke-width="2"/>
-                <line x1="16" y1="1" x2="1" y2="16" stroke="white" stroke-width="2"/>
-            </svg>
-        </div>
+    <div class="col-12 card-bg-dark">
+        <WizardHeader HeaderTitle="@Title"
+                      OnClose="HandleClose" />
     </div>
 
     <div class="wizard-body">
         <!-- Left Sidebar with Steps -->
-        <div class="wizard-sidebar">
+        <div class="d-none d-md-block col-xl-2  border-end bg-white">
             <WizardSteps StepTitles="@stepTitles"
                          ActiveStepIndex="2"
                          IsEditMode="@wizardModel.IsEditMode"
@@ -124,6 +119,7 @@
     private Guid? _currentGroupId = null;
     private Guid? _currentPropertyId = null;
     private string _originalStateHash = string.Empty;
+    private string Title => $"{(wizardModel.IsEditMode ? "Edit" : "Add New")} Property";
 
     private readonly List<string> stepTitles = new()
     {
@@ -463,6 +459,11 @@
         margin: 0;
     }
 
+    .card-bg-dark {
+        background-color: #434343;
+        color: white;
+    }
+
     .close-icon {
         cursor: pointer;
         padding: 8px;
@@ -495,9 +496,9 @@
         position: relative;
     }
 
-    .wizard-step:last-child {
-        margin-bottom: 0;
-    }
+        .wizard-step:last-child {
+            margin-bottom: 0;
+        }
 
     .step-indicator {
         display: flex;
@@ -548,15 +549,15 @@
         z-index: 1;
     }
 
-  .step-line.completed {
-        background: #737373;
-        border: 1px solid #737373;
-    } 
+        .step-line.completed {
+            background: #737373;
+            border: 1px solid #737373;
+        }
 
-  /*   .wizard-step.active .step-line {
-        background: #D9D9D9;
-    }  */
-    
+    /*   .wizard-step.active .step-line {
+            background: #D9D9D9;
+        }  */
+
     .wizard-step:last-child .step-line {
         background: #FFFF;
     }
@@ -670,10 +671,10 @@
         background: transparent;
     }
 
-    .search-input::placeholder {
-        color: #999999;
-        font-style: italic;
-    }
+        .search-input::placeholder {
+            color: #999999;
+            font-style: italic;
+        }
 
     /* Facilities Grid - 3 columns */
     .facilities-grid {
@@ -688,15 +689,15 @@
         gap: 12px;
     }
 
-    .facility-item input[type="checkbox"] {
-        width: 24px;
-        height: 24px;
-        cursor: pointer;
-        accent-color: #1C1B1F;
-        margin: 0;
-        border: 2px solid #000000;
-        flex-shrink: 0;
-    }
+        .facility-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #1C1B1F;
+            margin: 0;
+            border: 2px solid #000000;
+            flex-shrink: 0;
+        }
 
     .facility-label {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -726,9 +727,9 @@
         user-select: none;
     }
 
-    .collapsible-header:hover {
-        opacity: 0.8;
-    }
+        .collapsible-header:hover {
+            opacity: 0.8;
+        }
 
     .expand-icon {
         width: 32px;
@@ -762,10 +763,10 @@
         transition: border-color 0.2s ease;
     }
 
-    .selling-point-row.max-reached {
-        border: 1px solid #FF4D4F;
-        box-shadow: 0 0 0 1px #FF4D4F;
-    }
+        .selling-point-row.max-reached {
+            border: 1px solid #FF4D4F;
+            box-shadow: 0 0 0 1px #FF4D4F;
+        }
 
     .selection-row {
         display: flex;
@@ -774,9 +775,9 @@
         cursor: grab;
     }
 
-    .selection-row:active {
-        cursor: grabbing;
-    }
+        .selection-row:active {
+            cursor: grabbing;
+        }
 
     .selling-point-input {
         flex-grow: 1;
@@ -804,9 +805,9 @@
         margin-bottom: 10px;
     }
 
-    .drag-handle:active {
-        cursor: grabbing;
-    }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
 
     .add-point-btn {
         margin-top: 10px;
@@ -818,9 +819,9 @@
         cursor: pointer;
     }
 
-    .add-point-btn:hover {
-        background: #f2f2f2;
-    }
+        .add-point-btn:hover {
+            background: #f2f2f2;
+        }
 
     .char-count {
         font-size: 12px;
@@ -833,8 +834,8 @@
         font-family: 'Inter', sans-serif;
     }
 
-    .char-count.zero {
-        color: #FF4D4F;
-        font-weight: bold;
-    }
+        .char-count.zero {
+            color: #FF4D4F;
+            font-weight: bold;
+        }
 </style>
