@@ -89,7 +89,6 @@ public class PropertyService(
             address.Country = group.Address.Country;
             address.PostalCode = group.Address.PostalCode;
             address.PhoneNumber = group.Address.PhoneNumber;
-            address.Website = group.Address.Website;
         }
         else
         {
@@ -99,9 +98,9 @@ public class PropertyService(
             address.Country = propertyDto.Country;
             address.PostalCode = propertyDto.PostalCode;
             address.PhoneNumber = propertyDto.PhoneNumber;
-            address.Website = propertyDto.Website;
         }
 
+        address.Website = propertyDto.Website;
         property.Address = address;
 
         if (propertyDto.SetContactSameAsGroupContact)

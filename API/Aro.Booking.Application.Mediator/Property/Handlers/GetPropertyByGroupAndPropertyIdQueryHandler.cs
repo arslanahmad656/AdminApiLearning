@@ -34,6 +34,7 @@ public class GetPropertyByGroupAndPropertyIdQueryHandler(IPropertyService proper
             serviceResponse.KeySellingPoints,
             serviceResponse.MarketingTitle,
             serviceResponse.MarketingDescription,
+            serviceResponse.IsActive,
             serviceResponse.FileIds);
     }
 }
