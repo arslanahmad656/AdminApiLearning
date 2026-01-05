@@ -440,7 +440,8 @@ public class PropertyService(
             property.KeySellingPoints?.Split(Constants.DatabaseStringSplitter).ToList() ?? new List<string>(),
             property.MarketingTitle,
             property.MarketingDescription,
-            images.Where(i => i.File != null).ToDictionary(i => i.File.Metadata ?? string.Empty, i => i.File.Id)
+            images.Where(i => i.File != null).ToDictionary(i => i.File.Metadata ?? string.Empty, i => i.File.Id),
+            property.IsActive
         );
     }
 
@@ -492,7 +493,8 @@ public class PropertyService(
             property.KeySellingPoints?.Split(Constants.DatabaseStringSplitter).ToList() ?? new List<string>(),
             property.MarketingTitle,
             property.MarketingDescription,
-            images.Where(i => i.File != null).ToDictionary(i => i.File.Metadata ?? string.Empty, i => i.File.Id)
+            images.Where(i => i.File != null).ToDictionary(i => i.File.Metadata ?? string.Empty, i => i.File.Id),
+            property.IsActive
         );
     }
 
@@ -543,7 +545,8 @@ public class PropertyService(
                 property.KeySellingPoints?.Split(Constants.DatabaseStringSplitter).ToList() ?? new List<string>(),
                 property.MarketingTitle,
                 property.MarketingDescription,
-                images.ToDictionary(i => i.File?.Metadata ?? string.Empty, i => i.File?.Id ?? Guid.Empty)
+                images.ToDictionary(i => i.File?.Metadata ?? string.Empty, i => i.File?.Id ?? Guid.Empty),
+                property.IsActive
             );
 
             response.Add(propertyResponse);
