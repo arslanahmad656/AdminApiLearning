@@ -35,6 +35,7 @@ public class GetPropertiesByGroupIdQueryHandler(IPropertyService propertyService
             property.KeySellingPoints,
             property.MarketingTitle,
             property.MarketingDescription,
+            property.IsActive,
             property.FileIds
             )).ToList();
     }

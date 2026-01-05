@@ -22,4 +22,5 @@ public record GetPropertyResponse(
     List<string> KeySellingPoints,
     string MarketingTitle,
     string MarketingDescription,
+    bool IsActive,
     Dictionary<string, Guid> FileIds);

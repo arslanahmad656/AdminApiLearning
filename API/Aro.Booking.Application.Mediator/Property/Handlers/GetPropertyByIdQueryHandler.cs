@@ -34,6 +34,7 @@ public class GetPropertyByIdQueryHandler(IPropertyService propertyService, ILogM
             serviceResponse.KeySellingPoints,
             serviceResponse.MarketingTitle,
             serviceResponse.MarketingDescription,
+            serviceResponse.IsActive,
             serviceResponse.FileIds);
     }
 }
