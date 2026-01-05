@@ -58,20 +58,7 @@
         Wizard.NavigateTo = $"/group/{GroupId}/property/{PropertyId}/rooms";
         Wizard.IsCreateMode = !isEditMode; // Duplicate is still create mode (new room)
         Wizard.IsDuplicateMode = isDuplicateMode;
-
-        // Update title based on mode
-        if (isDuplicateMode)
-        {
-            Wizard.Title = "Duplicate Room";
-        }
-        else if (isEditMode)
-        {
-            Wizard.Title = "Edit Room";
-        }
-        else
-        {
-            Wizard.Title = "Add New Room";
-        }
+        Wizard.Title = "Room";
 
         Wizard.OnNext = async () =>
             {

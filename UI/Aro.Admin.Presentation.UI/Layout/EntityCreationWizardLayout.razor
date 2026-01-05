@@ -58,11 +58,17 @@
 
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
-    private string Title => $"{(Wizard.IsCreateMode ? "Add New" : "Edit")} {Wizard.Title}";
+    private string Title => $"{(Wizard.IsCreateMode && !Wizard.IsDuplicateMode ? "Add New" : (Wizard.IsDuplicateMode ? "Duplicate" : "Edit"))} {Wizard.Title}";
     private async Task HandleClose()
     {
-
-        NavigationManager.NavigateTo($"/");
+        if (Wizard.Title.Contains("Group"))
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            NavigationManager.NavigateTo(Wizard.NavigateTo);
+        }
     }
 
 }
