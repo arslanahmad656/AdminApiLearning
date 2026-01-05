@@ -84,7 +84,7 @@
 
                     <div class="@($"country-dropdown hstack border-custom {(IsCountryInvalid ? "border-error" : "border-grey")}  rounded-1")">
                         <div class="py-1 px-3">
-                            <img src="@(SelectedCountry?.FlagUrl ?? "/flags/default.svg")"
+                            <img src="@(SelectedCountry?.FlagUrl ?? GetPlaceholderFlagSvg())"
                                  alt="Country Flag"
                                  class="flag-icon" />
                         </div>
@@ -218,15 +218,15 @@
 
     private CountryOption? SelectedCountry
     {
-        get => _countryOptions.FirstOrDefault(c => c.Code == Wizard.Entity!.Country);
+        get => _countryOptions.FirstOrDefault(c => c.Name == Wizard.Entity!.Country);
         set
         {
-            var newCode = value?.Code ?? string.Empty;
+            var newName = value?.Name ?? string.Empty;
 
-            if (Wizard.Entity!.Country == newCode)
+            if (Wizard.Entity!.Country == newName)
                 return;
 
-            Wizard.Entity.Country = newCode;
+            Wizard.Entity.Country = newName;
             IsCountryInvalid = false;
         }
     }
@@ -241,9 +241,14 @@
             {
                 Code = c.ISO2,
                 Name = c.Name,
-                FlagUrl = $"/flags/{c.ISO2.ToLowerInvariant()}.svg"
+                FlagUrl = $"https://flagcdn.com/w40/{c.ISO2.ToLowerInvariant()}.png"
             })
             .ToList();
+    }
+
+    private string GetPlaceholderFlagSvg()
+    {
+        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='20' viewBox='0 0 30 20'%3E%3Crect width='30' height='20' fill='%23E0E0E0' rx='2'/%3E%3Ccircle cx='15' cy='10' r='7' fill='none' stroke='%23999' stroke-width='1'/%3E%3Cpath d='M8 10h14M15 3v14M9 5c3 2 6 2 9 0M9 15c3-2 6-2 9 0' fill='none' stroke='%23999' stroke-width='0.8'/%3E%3C/svg%3E";
     }
 
     private sealed class CountryOption

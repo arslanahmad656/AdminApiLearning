@@ -63,9 +63,9 @@ public class CountryMetadataService(HttpClient http) : ICountryMetadataService
     }
 
 
-    public bool ValidatePostalCode(string countryCode, string postalCode)
+    public bool ValidatePostalCode(string countryNameOrCode, string postalCode)
     {
-        var country = GetByISO2(countryCode);
+        var country = GetByName(countryNameOrCode) ?? GetByISO2(countryNameOrCode);
         if (country == null || string.IsNullOrWhiteSpace(country.PostalCodeRegex)) return false;
 
         return Regex.IsMatch(postalCode, country.PostalCodeRegex);
