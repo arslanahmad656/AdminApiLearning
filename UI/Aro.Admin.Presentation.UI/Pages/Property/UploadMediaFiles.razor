@@ -11,6 +11,7 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <div class="property-wizard-container">
     <!-- Header Bar -->
@@ -355,37 +356,76 @@
         await JSRuntime.InvokeVoidAsync("eval", "document.getElementById('fileInput').click()");
     }
 
+    private static readonly string[] AllowedImageTypes = { "image/jpeg", "image/png", "image/svg+xml" };
+
     private async Task HandleFileSelected(InputFileChangeEventArgs e)
     {
         var files = e.GetMultipleFiles(maxBannerImages - uploadedImages.Count);
 
         foreach (var file in files)
         {
-            if (!file.ContentType.StartsWith("image/") || file.Size > MaxFileSize)
-                continue;
-
-            var buffer = new byte[file.Size];
-            await file.OpenReadStream(MaxFileSize).ReadAsync(buffer);
-            var imageDataUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
-
-            var newImage = new ImageModel
+            // Validate file type
+            if (!AllowedImageTypes.Contains(file.ContentType))
             {
-                Id = Guid.NewGuid().ToString(),
-                Name = Path.GetFileNameWithoutExtension(file.Name),
-                Url = imageDataUrl
-            };
+                Snackbar.Add($"Invalid file type: {file.Name}. Only JPG, PNG, and SVG files are allowed.", MudBlazor.Severity.Error);
+                continue;
+            }
 
-            uploadedImages.Add(newImage);
+            // Validate file size
+            if (file.Size > MaxFileSize)
+            {
+                Snackbar.Add($"File too large: {file.Name}. Maximum size is 5MB.", MudBlazor.Severity.Error);
+                continue;
+            }
+
+            try
+            {
+                var buffer = new byte[file.Size];
+                await file.OpenReadStream(MaxFileSize).ReadAsync(buffer);
+                var imageDataUrl = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+
+                var newImage = new ImageModel
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Name = Path.GetFileNameWithoutExtension(file.Name),
+                    Url = imageDataUrl
+                };
+
+                uploadedImages.Add(newImage);
+                Snackbar.Add($"Image '{file.Name}' uploaded successfully.", MudBlazor.Severity.Success);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add($"Failed to upload {file.Name}: {ex.Message}", MudBlazor.Severity.Error);
+            }
         }
 
         await SaveToLocalStorage();
         StateHasChanged();
     }
 
+    private static readonly string[] AllowedFaviconTypes = { "image/png", "image/x-icon", "image/vnd.microsoft.icon" };
+
     private async Task HandleFaviconSelected(InputFileChangeEventArgs e)
     {
         var file = e.File;
-        if (file is not null && file.ContentType == "image/png")
+        if (file is null) return;
+
+        // Validate file type (PNG or ICO)
+        if (!AllowedFaviconTypes.Contains(file.ContentType))
+        {
+            Snackbar.Add($"Invalid favicon type: {file.Name}. Only PNG files are recommended for favicons.", MudBlazor.Severity.Error);
+            return;
+        }
+
+        // Validate file size
+        if (file.Size > MaxFaviconSize)
+        {
+            Snackbar.Add($"Favicon too large: {file.Name}. Maximum size is 50KB.", MudBlazor.Severity.Error);
+            return;
+        }
+
+        try
         {
             var buffer = new byte[file.Size];
             await file.OpenReadStream(MaxFaviconSize).ReadAsync(buffer);
@@ -398,8 +438,13 @@
                 Base64Data = imageDataUrl
             };
             faviconFileName = file.Name;
+            Snackbar.Add($"Favicon '{file.Name}' uploaded successfully.", MudBlazor.Severity.Success);
             await SaveToLocalStorage();
             StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Failed to upload favicon: {ex.Message}", MudBlazor.Severity.Error);
         }
     }
 
@@ -420,10 +465,20 @@
         StateHasChanged();
     }
 
-    // Validation - requires at least one banner image and a favicon
+    // Validation - requires at least one banner image
     private bool IsFormValid()
     {
         return uploadedImages.Count > 0;
+    }
+
+    private bool ValidateAndShowErrors()
+    {
+        if (uploadedImages.Count == 0)
+        {
+            Snackbar.Add("Please upload at least one banner image to proceed.", MudBlazor.Severity.Warning);
+            return false;
+        }
+        return true;
     }
     private async Task HandleClose()
     {
@@ -454,6 +509,9 @@
 
     private async Task HandleNext()
     {
+        if (!ValidateAndShowErrors())
+            return;
+
         await SaveToLocalStorage(true);
         NavigationManager.NavigateTo("/property/marketing-seo");
     }

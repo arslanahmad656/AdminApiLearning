@@ -1,4 +1,5 @@
 ﻿@using Aro.UI.Application.DTOs.Room
+@using Aro.UI.Application.Exceptions
 @using Aro.Admin.Presentation.UI.Shared
 
 @inject ISnackbar Snackbar
@@ -170,9 +171,13 @@
                 await HandleCreate();
             }
         }
+        catch (ApiException apiEx)
+        {
+            Snackbar.Add(apiEx.Message, MudBlazor.Severity.Error);
+        }
         catch (HttpRequestException httpEx)
         {
-            Snackbar.Add($"Network/API error: {httpEx.Message}", MudBlazor.Severity.Error);
+            Snackbar.Add($"Network error: {httpEx.Message}", MudBlazor.Severity.Error);
         }
         catch (Exception ex)
         {

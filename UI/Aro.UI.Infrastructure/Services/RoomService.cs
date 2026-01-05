@@ -1,4 +1,6 @@
+using Aro.UI.Application.DTOs;
 using Aro.UI.Application.DTOs.Room;
+using Aro.UI.Application.Exceptions;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -19,8 +21,39 @@ public class RoomService(HttpClient httpClient) : IRoomService
     public async Task<CreateRoomResponse?> CreateRoom(CreateRoomRequest request)
     {
         var response = await _httpClient.PostAsJsonAsync("api/room/create", request, _jsonOptions);
-        response.EnsureSuccessStatusCode();
+
+        if (!response.IsSuccessStatusCode)
+        {
+            await ThrowApiExceptionFromResponse(response);
+        }
+
         return await response.Content.ReadFromJsonAsync<CreateRoomResponse>(_jsonOptions);
+    }
+
+    private static async Task ThrowApiExceptionFromResponse(HttpResponseMessage response)
+    {
+        var content = await response.Content.ReadAsStringAsync();
+
+        try
+        {
+            var errorResponse = JsonSerializer.Deserialize<ApiErrorResponse>(content, _jsonOptions);
+            if (errorResponse != null)
+            {
+                throw new ApiException(
+                    errorResponse.ErrorCode,
+                    errorResponse.ErrorMessage,
+                    (int)response.StatusCode);
+            }
+        }
+        catch (JsonException)
+        {
+            // If we can't parse the error response, throw a generic exception
+        }
+
+        throw new ApiException(
+            "UNKNOWN_ERROR",
+            $"API request failed with status code {response.StatusCode}: {content}",
+            (int)response.StatusCode);
     }
 
     public async Task<GetRoomResponse?> GetRoom(GetRoomRequest request)
