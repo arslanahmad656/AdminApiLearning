@@ -1,5 +1,4 @@
 ﻿@using Aro.UI.Application.DTOs.Room
-@using Aro.Admin.Presentation.UI.Shared
 
 @inject IValidator<RoomModel> roomValidator
 @inject IValidator<Amenity> amenityValidator
@@ -18,7 +17,7 @@
                         Describe what in-room amenities the guests can expect to find in this room type. Each new line will create a new amenity
                     </small>
                 </div>
-                <MudTextField @bind-Value="AmenitiesToAdd"
+                <MudTextField @bind-Value="AmenitiesDisplayValue"
                               For="@(() => AmenitiesToAdd)"
                               Placeholder="e.g., Free WiFi"
                               Variant="Variant.Outlined"
@@ -36,11 +35,6 @@
     </div>
 </MudForm>
 
-<WizardFooter OnBack="HandleBack"
-              OnNext="HandleNext"
-              BackDisabled="false"
-              NextDisabled="false" />
-
 @code {
     [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
 
@@ -52,11 +46,55 @@
 
     private bool _error => !string.IsNullOrEmpty(AmenityError);
 
+    private string AmenitiesDisplayValue
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(AmenitiesToAdd))
+                return string.Empty;
+
+            return string.Join(
+                Environment.NewLine,
+                AmenitiesToAdd
+                    .Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)
+                    .Select(l => $"• {l}")
+            );
+        }
+        set
+        {
+            AmenitiesToAdd = string.Join(
+                Environment.NewLine,
+                value
+                    .Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None)
+                    .Select(l => l.TrimStart('•', ' '))
+            );
+        }
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender && Wizard?.Entity is not null)
+        {
+            Wizard.CurrentStepValidation = ValidateStepAsync;
+        }
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Wizard?.Entity?.Amenities is null)
+            return;
+
+        AmenitiesToAdd = string.Join(
+            Environment.NewLine,
+            Wizard.Entity.Amenities.Select(a => a.Name)
+        );
+    }
+
     private async Task<bool> AddAmenitiesFromTextboxAsync()
     {
         AmenityError = string.Empty;
 
-        if (Wizard.Entity is null) return false;
+        if (Wizard.Entity is null || Wizard.Entity.Amenities is null) return false;
 
         if (string.IsNullOrWhiteSpace(AmenitiesToAdd))
             return true;
@@ -86,39 +124,25 @@
             Wizard.Entity.Amenities.Add(amenity);
         }
 
-        AmenitiesToAdd = string.Empty;
         return true;
     }
 
     private async Task<bool> ValidateStepAsync()
     {
+        if (Wizard.Entity is null || Wizard.Entity.Amenities is null) return false;
+
+        Wizard.Entity?.Amenities.Clear();
+
         var amenitiesValid = await AddAmenitiesFromTextboxAsync();
-        if (!amenitiesValid) return false;
+        if (!amenitiesValid)
+        {
+            await InvokeAsync(StateHasChanged);
+            return false;
+        }
 
         if (roomForm is null) return false;
 
         await roomForm.Validate();
         return roomForm.IsValid;
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender && Wizard is not null)
-        {
-            Wizard.CurrentStepValidation = ValidateStepAsync;
-        }
-    }
-
-    private void HandleBack()
-    {
-        Wizard.OnBack?.Invoke();
-    }
-
-    private async Task HandleNext()
-    {
-        if (Wizard.OnNext != null)
-        {
-            await Wizard.OnNext.Invoke();
-        }
     }
 }

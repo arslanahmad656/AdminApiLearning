@@ -61,11 +61,17 @@
                     id="description"
                     Placeholder="Description"
                     For="@(() => Wizard.Entity.Description)"
+                    Immediate="true"
                     Variant="Variant.Outlined"
                     Margin="Margin.Dense"
                     Lines="10"
                     aria-describedby="descriptionHelp"
-                    MaxLength="800"/>
+                    MaxLength="800"
+                    @onfocus="() => isDescriptionFocused = true"/>
+                @if (isDescriptionFocused)
+                {
+                    <p class="form-text mt-1 @(GetDescriptionRemainingChars() == 0 ? "text-danger" : "text-muted")">@GetDescriptionRemainingChars() characters left</p>
+                }
             </div>
         </div>
 
@@ -83,6 +89,18 @@
     [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
 
     private MudForm? roomForm;
+
+    private const int MaxDescriptionLength = 800;
+    private bool isDescriptionFocused = false;
+
+    private int GetDescriptionRemainingChars()
+    {
+        if (Wizard?.Entity?.Description == null)
+        {
+            return MaxDescriptionLength;
+        }
+        return MaxDescriptionLength - Wizard.Entity.Description.Length;
+    }
 
     protected override void OnAfterRender(bool firstRender)
     {
