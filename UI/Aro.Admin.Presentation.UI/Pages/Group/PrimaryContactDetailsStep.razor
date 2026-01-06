@@ -169,7 +169,7 @@
                 Code = c.ISO2,
                 PhoneCode = c.PhoneCountryCode,
                 PhoneRegex = c.PhoneNumberRegex,
-                FlagUrl = $"https://flagcdn.com/w40/{c.ISO2.ToLowerInvariant()}.png"
+                FlagUrl = $"/flags/{c.ISO2.ToLowerInvariant()}.svg"
             }));
 
         SelectedCountry = _countryOptions.FirstOrDefault(c =>
