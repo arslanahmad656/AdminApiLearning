@@ -87,6 +87,11 @@
     </div>
 }
 
+<WizardFooter OnBack="HandleBack"
+              OnNext="HandleNext"
+              BackDisabled="false"
+              NextDisabled="false" />
+
 <style>
     .add-box {
         background-color: #EBEBEB;
@@ -258,5 +263,18 @@
         Wizard.Entity.Images.AddRange(reordered);
 
         StateHasChanged();
+    }
+
+    private void HandleBack()
+    {
+        Wizard.OnBack?.Invoke();
+    }
+
+    private async Task HandleNext()
+    {
+        if (Wizard.OnNext != null)
+        {
+            await Wizard.OnNext.Invoke();
+        }
     }
 }

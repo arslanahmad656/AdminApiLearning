@@ -68,12 +68,12 @@
                                    Underline="false"
                                    Class="py-1 px-3"
                                    AriaLabel="Country calling code"
-                                   Placeholder="+ --"
+                                   Placeholder="--"
                                    Error="@false">
                             @foreach (var c in _countryOptions)
                             {
                                 <MudSelectItem Value="@c">
-                                    @($"+ {c.PhoneCode}")
+                                    @($"+{c.PhoneCode}")
                                 </MudSelectItem>
                             }
                         </MudSelect>
@@ -167,6 +167,7 @@
             CountryMetadataService.GetAll().Select(c => new CountryOption
             {
                 Code = c.ISO2,
+                Country = c.Name,
                 PhoneCode = c.PhoneCountryCode,
                 PhoneRegex = c.PhoneNumberRegex,
                 FlagUrl = $"/flags/{c.ISO2.ToLowerInvariant()}.svg"
@@ -174,13 +175,25 @@
 
         _countryOptions.Sort((x, y) => string.Compare(x.PhoneCode, y.PhoneCode));
 
-        SelectedCountry = _countryOptions.FirstOrDefault(c =>
-            c.PhoneCode == Wizard.Entity?.PrimaryContact?.CountryCode);
+        _countryOptions.Distinct();
+
+        if (!string.IsNullOrWhiteSpace(Wizard.Entity?.PrimaryContact?.CountryCode))
+        {
+            SelectedCountry = _countryOptions.FirstOrDefault(c =>
+                c.PhoneCode == Wizard.Entity.PrimaryContact.CountryCode);
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(Wizard.Entity?.Country))
+        {
+            SelectedCountry = _countryOptions.FirstOrDefault(c =>
+                c.Country == Wizard.Entity?.Country);
+        }
     }
 
     private string GetPlaceholderFlagSvg()
     {
-        return "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='20' viewBox='0 0 30 20'%3E%3Crect width='30' height='20' fill='%23E0E0E0' rx='2'/%3E%3Ccircle cx='15' cy='10' r='7' fill='none' stroke='%23999' stroke-width='1'/%3E%3Cpath d='M8 10h14M15 3v14M9 5c3 2 6 2 9 0M9 15c3-2 6-2 9 0' fill='none' stroke='%23999' stroke-width='0.8'/%3E%3C/svg%3E";
+        return "/flags/default.svg";
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -216,6 +229,7 @@
     private sealed class CountryOption
     {
         public string Code { get; init; } = string.Empty;
+        public string Country { get; init; } = string.Empty;
         public string PhoneCode { get; init; } = string.Empty;
         public string PhoneRegex { get; init; } = string.Empty;
         public string FlagUrl { get; init; } = string.Empty;

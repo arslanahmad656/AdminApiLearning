@@ -35,6 +35,11 @@
     </div>
 </MudForm>
 
+<WizardFooter OnBack="HandleBack"
+              OnNext="HandleNext"
+              BackDisabled="false"
+              NextDisabled="false" />
+
 @code {
     [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
 
@@ -144,5 +149,18 @@
 
         await roomForm.Validate();
         return roomForm.IsValid;
+    }
+
+    private void HandleBack()
+    {
+        Wizard.OnBack?.Invoke();
+    }
+
+    private async Task HandleNext()
+    {
+        if (Wizard.OnNext != null)
+        {
+            await Wizard.OnNext.Invoke();
+        }
     }
 }

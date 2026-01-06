@@ -180,7 +180,7 @@
         else
         {
             await groupService.PatchGroup(patch);
-            Snackbar.Add($"Successfully updated group {group.Id}", MudBlazor.Severity.Success);
+            Snackbar.Add($"Successfully updated group: {group.GroupName}.", MudBlazor.Severity.Success);
         }
 
         await InvokeAsync(StateHasChanged);
