@@ -771,7 +771,7 @@
         if (country != null && !string.IsNullOrWhiteSpace(country.ISO2))
         {
             // Use flagcdn.com for country flags based on ISO2 code
-            return $"https://flagcdn.com/w40/{country.ISO2.ToLowerInvariant()}.png";
+            return $"/flags/{country.ISO2.ToLowerInvariant()}.svg";
         }
 
         // Fallback placeholder
@@ -787,7 +787,7 @@
             var country = countries.FirstOrDefault(c => c.PhoneCountryCode == phoneCountryCode);
             if (country != null && !string.IsNullOrWhiteSpace(country.ISO2))
             {
-                return $"https://flagcdn.com/w40/{country.ISO2.ToLowerInvariant()}.png";
+                return $"/flags/{country.ISO2.ToLowerInvariant()}.svg";
             }
         }
 
