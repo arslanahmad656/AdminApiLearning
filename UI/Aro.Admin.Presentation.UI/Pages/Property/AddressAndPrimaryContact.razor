@@ -103,22 +103,21 @@
                             <div class="country-flag">
                                 <img src="@GetCountryFlagUrl(wizardModel.Country)" alt="Country Flag" class="flag-icon" />
                             </div>
-                            <MudSelect T="string"
-                                       Value="wizardModel.Country"
-                                       ValueChanged="OnCountryChanged"
-                                       Placeholder="Select country"
-                                       Variant="Variant.Text"
-                                       Class="country-mud-select"
-                                       DisableUnderLine="true"
-                                       Dense="true">
-                                @if (countryNames != null)
-                                {
-                                    @foreach (var country in countryNames)
-                                    {
-                                        <MudSelectItem Value="@country">@country</MudSelectItem>
-                                    }
-                                }
-                            </MudSelect>
+                            <MudAutocomplete T="string"
+                                             Value="wizardModel.Country"
+                                             ValueChanged="OnCountryChanged"
+                                             SearchFunc="@SearchCountries"
+                                             Placeholder="Search or select country"
+                                             Variant="Variant.Text"
+                                             Class="country-mud-select"
+                                             DisableUnderLine="true"
+                                             Dense="true"
+                                             ShowProgressIndicator="true"
+                                             MaxItems="null"
+                                             MinCharacters="0"
+                                             CoerceText="false"
+                                             CoerceValue="false"
+                                             ResetValueOnEmptyText="true" />
                         </div>
                         @if (IsCountryInvalid)
                         {
@@ -580,6 +579,21 @@
         }
 
         StateHasChanged();
+    }
+
+    private Task<IEnumerable<string>> SearchCountries(string searchText, CancellationToken cancellationToken)
+    {
+        if (countryNames == null)
+            return Task.FromResult(Enumerable.Empty<string>());
+
+        if (string.IsNullOrWhiteSpace(searchText))
+            return Task.FromResult(countryNames);
+
+        var filtered = countryNames
+            .Where(c => c.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        return Task.FromResult<IEnumerable<string>>(filtered);
     }
 
     private async Task OnSameAsPrimaryChanged()
