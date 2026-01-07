@@ -478,6 +478,59 @@
     }
     private async Task HandleClose()
     {
+        // If not edit mode, behave as before
+        if (!wizardModel.IsEditMode)
+        {
+            await CloseAndNavigate();
+            return;
+        }
+
+        // If no unsaved changes, close directly
+        if (!HasUnsavedChanges())
+        {
+            await CloseAndNavigate();
+            return;
+        }
+
+        // Show Unsaved Changes modal
+        var parameters = new DialogParameters
+{
+    { "ShowSaveAndContinue", false } // hide Save & Continue here
+};
+
+        var options = new DialogOptions
+        {
+            CloseButton = false,
+            MaxWidth = MaxWidth.Small,
+        };
+
+        var dialog = await DialogService.ShowAsync<UnsavedChangesModal>(
+            "Unsaved Changes",
+            parameters,
+            options
+        );
+
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        var action = (UnsavedChangesModal.UnsavedChangesResult)result.Data!;
+
+        switch (action)
+        {
+            case UnsavedChangesModal.UnsavedChangesResult.Discard:
+                await CloseAndNavigate();
+                break;
+
+            case UnsavedChangesModal.UnsavedChangesResult.Cancel:
+                // Do nothing
+                break;
+        }
+    }
+
+    private async Task CloseAndNavigate()
+    {
         var groupIdString = await JSRuntime.InvokeAsync<string>(
             "localStorage.getItem",
             "SelectedGroupId"
@@ -489,14 +542,12 @@
             return;
         }
 
-        // Clear localStorage when closing/canceling the wizard
         var storageKey = GetStorageKey();
         await JSRuntime.InvokeVoidAsync("localStorage.removeItem", storageKey);
         await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "CurrentPropertyId");
 
         NavigationManager.NavigateTo($"/group/view/{groupId}");
     }
-
     private async Task HandleBack()
     {
         await SaveToLocalStorage(true);
@@ -706,8 +757,9 @@
     .wizard-content {
         flex: 1;
         background: #F6F6F6;
-        padding: 60px 80px;
+        padding: 48px !important;
         overflow-y: auto;
+        overflow-x:hidden;
         display: flex;
         flex-direction: column;
     }

@@ -54,13 +54,18 @@ public class CountryMetadataService(HttpClient http) : ICountryMetadataService
 
     public IEnumerable<string> GetAllCountryNames()
     {
-        return _countries.Select(c => c.Name);
+        return _countries
+            .Select(c => c.Name)
+            .OrderBy(name => name);
     }
 
     public IEnumerable<string> GetAllCountryCodes()
     {
-        return _countries.Select(c => c.PhoneCountryCode);
+        return _countries
+            .OrderBy(c => c.PhoneCountryCode, StringComparer.OrdinalIgnoreCase)
+            .Select(c => c.PhoneCountryCode);
     }
+
 
 
     public bool ValidatePostalCode(string countryNameOrCode, string postalCode)
