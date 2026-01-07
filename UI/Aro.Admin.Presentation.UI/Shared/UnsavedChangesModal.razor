@@ -20,15 +20,20 @@
             <MudButton OnClick="Discard" Variant="Variant.Outlined" Color="Color.Error" Class="discard-btn">
                 Discard Changes
             </MudButton>
-            <MudButton OnClick="SaveAndContinue" Variant="Variant.Filled" Class="save-btn">
-                Save & Continue
-            </MudButton>
+            @if (ShowSaveAndContinue)
+            {
+                <MudButton OnClick="SaveAndContinue" Variant="Variant.Filled" Class="save-btn">
+                    Save & Continue
+                </MudButton>
+            }
         </div>
     </DialogActions>
+
 </MudDialog>
 
 @code {
     [CascadingParameter] private IMudDialogInstance? MudDialog { get; set; }
+    [Parameter] public bool ShowSaveAndContinue { get; set; } = true;
 
     public enum UnsavedChangesResult
     {

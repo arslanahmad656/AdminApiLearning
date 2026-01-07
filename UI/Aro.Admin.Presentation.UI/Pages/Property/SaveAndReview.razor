@@ -1,4 +1,4 @@
-@page "/property/review-save"
+﻿@page "/property/review-save"
 @using System.Text.Json
 @using Microsoft.JSInterop
 @using Aro.UI.Application.DTOs
@@ -8,6 +8,8 @@
 @inject IJSRuntime JSRuntime
 @inject IPropertyService PropertyService
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
 @inject IErrorHandlingService ErrorHandler
 
 <div class="wizard-layout">
@@ -20,7 +22,7 @@
         <!-- Sidebar Steps -->
         <div class="d-none d-md-block col-xl-2  border-end bg-white">
             <WizardSteps StepTitles="@stepTitles"
-                         ActiveStepIndex="6" />
+                         ActiveStepIndex="5" />
         </div>
 
         <!-- Review Content -->
@@ -336,6 +338,52 @@
 
     private async Task HandleClose()
     {
+        // If not edit mode, behave as before
+        if (!wizardModel.IsEditMode)
+        {
+            await CloseAndNavigate();
+            return;
+        }
+
+        // Show Unsaved Changes modal
+        var parameters = new DialogParameters
+{
+    { "ShowSaveAndContinue", false } // hide Save & Continue here
+};
+
+        var options = new DialogOptions
+        {
+            CloseButton = false,
+            MaxWidth = MaxWidth.Small,
+        };
+
+        var dialog = await DialogService.ShowAsync<UnsavedChangesModal>(
+            "Unsaved Changes",
+            parameters,
+            options
+        );
+
+        var result = await dialog.Result;
+
+        if (result == null || result.Canceled)
+            return;
+
+        var action = (UnsavedChangesModal.UnsavedChangesResult)result.Data!;
+
+        switch (action)
+        {
+            case UnsavedChangesModal.UnsavedChangesResult.Discard:
+                await CloseAndNavigate();
+                break;
+
+            case UnsavedChangesModal.UnsavedChangesResult.Cancel:
+                // Do nothing
+                break;
+        }
+    }
+
+    private async Task CloseAndNavigate()
+    {
         var groupIdString = await JSRuntime.InvokeAsync<string>(
             "localStorage.getItem",
             "SelectedGroupId"
@@ -347,14 +395,12 @@
             return;
         }
 
-        // Clear localStorage when closing/canceling the wizard
         var storageKey = GetStorageKey();
         await JSRuntime.InvokeVoidAsync("localStorage.removeItem", storageKey);
         await JSRuntime.InvokeVoidAsync("localStorage.removeItem", "CurrentPropertyId");
 
         NavigationManager.NavigateTo($"/group/view/{groupId}");
     }
-
 }
 <style>
     /* Main Container */
@@ -507,7 +553,8 @@
         display: flex;
         flex-direction: column;
         background: #F6F6F6;
-        padding: 60px 80px;
+        padding: 48px !important;
+        overflow-x: hidden;
         overflow-y: auto;
     }
 
@@ -606,9 +653,8 @@
 
     .review-section-title {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        font-weight: 400;
+        font-weight: 500;
         font-size: 16px;
-        margin-top: 32px;
         color: #000000;
         margin-bottom: 20px;
         text-transform: uppercase;
@@ -728,9 +774,10 @@
         } */
 
     .scrollable-content {
-        max-height: calc(130vh - 380px); /* Adjust based on your header/footer */
+        max-height: calc(130vh - 350px); /* Adjust based on your header/footer */
         overflow-y: auto;
-        padding-right: 40px;
+        overflow-x: hidden; /* ✅ removes bottom bar */
+        padding-right: 24px;
         scrollbar-width: thin;
         scrollbar-color: #aaa transparent;
     }

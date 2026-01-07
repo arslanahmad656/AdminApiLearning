@@ -164,7 +164,10 @@
         await CountryMetadataService.InitializeAsync();
 
         _countryOptions.AddRange(
-            CountryMetadataService.GetAll().Select(c => new CountryOption
+            CountryMetadataService
+            .GetAll()
+            .OrderBy(c => int.Parse(c.PhoneCountryCode.TrimStart('+')))
+            .Select(c => new CountryOption
             {
                 Code = c.ISO2,
                 Country = c.Name,
