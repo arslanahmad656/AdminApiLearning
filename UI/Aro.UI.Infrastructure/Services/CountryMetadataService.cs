@@ -54,12 +54,12 @@ public class CountryMetadataService(HttpClient http) : ICountryMetadataService
 
     public IEnumerable<string> GetAllCountryNames()
     {
-        return _countries.Select(c => c.Name);
+        return _countries.Select(c => c.Name).OrderBy(name => name);
     }
 
     public IEnumerable<string> GetAllCountryCodes()
     {
-        return _countries.Select(c => c.PhoneCountryCode);
+        return _countries.Select(c => c.PhoneCountryCode).OrderBy(code => code);
     }
 
 
