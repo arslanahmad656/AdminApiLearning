@@ -109,17 +109,10 @@
                         <label class="form-label">Currency *</label>
                         <select class="form-select-custom" @bind="wizardModel.Currency" required>
                             <option value="">Select currency</option>
-                            <option value="AED">AED - UAE Dirham</option>
-                            <option value="AUD">AUD - Australian Dollar</option>
-                            <option value="CAD">CAD - Canadian Dollar</option>
-                            <option value="CHF">CHF - Swiss Franc</option>
-                            <option value="DKK">DKK - Danish Krone</option>
-                            <option value="EUR">EUR - Euro</option>
-                            <option value="GBP">GBP - British Pound</option>
-                            <option value="JPY">JPY - Japanese Yen</option>
-                            <option value="NOK">NOK - Norwegian Krone</option>
-                            <option value="SEK">SEK - Swedish Krona</option>
-                            <option value="USD">USD - US Dollar</option>
+                            @foreach (var currency in CurrencyData.AllCurrencies)
+                            {
+                                <option value="@currency.Code">@currency.DisplayName</option>
+                            }
                         </select>
                     </div>
                 </div>
