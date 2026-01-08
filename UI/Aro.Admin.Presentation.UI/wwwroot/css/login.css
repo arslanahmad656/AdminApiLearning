@@ -231,6 +231,22 @@
     color: #166719 !important;
 }
 
+/* Mobile Logo Panel - Hidden by default, shown only on mobile */
+.mobile-logo-panel {
+    display: none;
+    background: #434343;
+    padding: 40px 20px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.mobile-logo {
+    width: 100%;
+    max-width: 200px;
+    height: auto;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .login-left-panel {
@@ -260,12 +276,23 @@
 }
 
 @media (max-width: 480px) {
+    .login-container {
+        flex-direction: column;
+    }
+
     .login-right-panel {
-        padding: 20px;
+        flex-direction: column;
+        padding: 0;
+    }
+
+    .mobile-logo-panel {
+        display: flex;
     }
 
     .login-card {
         padding: 30px 20px;
+        border-radius: 0;
+        box-shadow: none;
     }
 
     .welcome-text {
