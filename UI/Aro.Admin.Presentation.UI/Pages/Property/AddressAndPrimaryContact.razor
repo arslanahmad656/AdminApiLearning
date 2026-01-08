@@ -605,7 +605,7 @@
         }
 
         var filtered = countryNames
-            .Where(c => c.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            .Where(c => c.StartsWith(searchText, StringComparison.OrdinalIgnoreCase))
             .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
