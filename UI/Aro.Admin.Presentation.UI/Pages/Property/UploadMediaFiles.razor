@@ -165,6 +165,13 @@
 
     private bool HasUnsavedChanges() => _originalStateHash != ComputeCurrentStateHash();
 
+    private bool HasWizardProgress()
+    {
+        return !string.IsNullOrWhiteSpace(wizardModel.PropertyName) ||
+               !string.IsNullOrWhiteSpace(wizardModel.AddressLine1) ||
+               uploadedImages?.Any() == true;
+    }
+
     private async Task LoadFromLocalStorage()
     {
         try
@@ -478,15 +485,9 @@
     }
     private async Task HandleClose()
     {
-        // If not edit mode, behave as before
-        if (!wizardModel.IsEditMode)
-        {
-            await CloseAndNavigate();
-            return;
-        }
+        bool hasChangesOrProgress = HasUnsavedChanges() || HasWizardProgress();
 
-        // If no unsaved changes, close directly
-        if (!HasUnsavedChanges())
+        if (!hasChangesOrProgress)
         {
             await CloseAndNavigate();
             return;
@@ -494,9 +495,9 @@
 
         // Show Unsaved Changes modal
         var parameters = new DialogParameters
-{
-    { "ShowSaveAndContinue", false } // hide Save & Continue here
-};
+        {
+            { "ShowSaveAndContinue", false }
+        };
 
         var options = new DialogOptions
         {
