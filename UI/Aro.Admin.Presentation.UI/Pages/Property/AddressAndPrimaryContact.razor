@@ -587,10 +587,16 @@
             return Task.FromResult(Enumerable.Empty<string>());
 
         if (string.IsNullOrWhiteSpace(searchText))
-            return Task.FromResult(countryNames);
+        {
+            var sortedAll = countryNames
+                .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            return Task.FromResult<IEnumerable<string>>(sortedAll);
+        }
 
         var filtered = countryNames
             .Where(c => c.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         return Task.FromResult<IEnumerable<string>>(filtered);
