@@ -363,6 +363,18 @@
 
     private bool HasUnsavedChanges() => _originalStateHash != ComputeCurrentStateHash();
 
+    private bool HasWizardProgress()
+    {
+        // Check if the wizard has any meaningful data that would be lost
+        // This includes data from previous steps (Step 1) that's saved in the wizard model
+        return !string.IsNullOrWhiteSpace(wizardModel.PropertyName) ||
+               !string.IsNullOrWhiteSpace(wizardModel.AddressLine1) ||
+               !string.IsNullOrWhiteSpace(wizardModel.City) ||
+               !string.IsNullOrWhiteSpace(wizardModel.Country) ||
+               !string.IsNullOrWhiteSpace(wizardModel.ContactName) ||
+               !string.IsNullOrWhiteSpace(wizardModel.ContactEmail);
+    }
+
     private async Task LoadFromLocalStorage()
     {
         try
@@ -693,25 +705,20 @@
 
     private async Task HandleClose()
     {
-        // If not edit mode, behave as before
-        if (!wizardModel.IsEditMode)
+        // Check if there are unsaved changes on current step OR wizard has progress that would be lost
+        bool hasChangesOrProgress = HasUnsavedChanges() || HasWizardProgress();
+
+        // If no unsaved changes and no wizard progress, close directly
+        if (!hasChangesOrProgress)
         {
             await CloseAndNavigate();
             return;
         }
-
-        // If no unsaved changes, close directly
-        if (!HasUnsavedChanges())
-        {
-            await CloseAndNavigate();
-            return;
-        }
-
         // Show Unsaved Changes modal
         var parameters = new DialogParameters
-{
-    { "ShowSaveAndContinue", false } // hide Save & Continue here
-};
+        {
+            { "ShowSaveAndContinue", false }
+        };
 
         var options = new DialogOptions
         {

@@ -336,10 +336,18 @@
         }
     }
 
+    private bool HasWizardProgress()
+    {
+        // Check if the wizard has any meaningful data that would be lost
+        return !string.IsNullOrWhiteSpace(wizardModel.PropertyName) ||
+               !string.IsNullOrWhiteSpace(wizardModel.AddressLine1);
+    }
+
     private async Task HandleClose()
     {
-        // If not edit mode, behave as before
-        if (!wizardModel.IsEditMode)
+        // Check if wizard has progress that would be lost
+        // On the final review step, we always have progress if we got here
+        if (!HasWizardProgress())
         {
             await CloseAndNavigate();
             return;
@@ -347,9 +355,9 @@
 
         // Show Unsaved Changes modal
         var parameters = new DialogParameters
-{
-    { "ShowSaveAndContinue", false } // hide Save & Continue here
-};
+        {
+            { "ShowSaveAndContinue", false }
+        };
 
         var options = new DialogOptions
         {
