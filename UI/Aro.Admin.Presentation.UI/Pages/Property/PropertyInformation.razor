@@ -225,7 +225,6 @@
 
     private bool HasWizardProgress()
     {
-        // Check if the wizard has any meaningful data that would be lost
         return !string.IsNullOrWhiteSpace(wizardModel.PropertyName) ||
                wizardModel.PropertyTypes.HasAnySelected() ||
                wizardModel.StarRating > 0 ||
@@ -341,10 +340,8 @@
 
     private async Task HandleClose()
     {
-        // Check if there are unsaved changes on current step OR wizard has progress that would be lost
         bool hasChangesOrProgress = HasUnsavedChanges() || HasWizardProgress();
 
-        // If no unsaved changes and no wizard progress, close directly
         if (!hasChangesOrProgress)
         {
             await CloseAndNavigate();

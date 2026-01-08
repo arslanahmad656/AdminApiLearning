@@ -365,8 +365,6 @@
 
     private bool HasWizardProgress()
     {
-        // Check if the wizard has any meaningful data that would be lost
-        // This includes data from previous steps (Step 1) that's saved in the wizard model
         return !string.IsNullOrWhiteSpace(wizardModel.PropertyName) ||
                !string.IsNullOrWhiteSpace(wizardModel.AddressLine1) ||
                !string.IsNullOrWhiteSpace(wizardModel.City) ||
@@ -705,10 +703,8 @@
 
     private async Task HandleClose()
     {
-        // Check if there are unsaved changes on current step OR wizard has progress that would be lost
         bool hasChangesOrProgress = HasUnsavedChanges() || HasWizardProgress();
 
-        // If no unsaved changes and no wizard progress, close directly
         if (!hasChangesOrProgress)
         {
             await CloseAndNavigate();
