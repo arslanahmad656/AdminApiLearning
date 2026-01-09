@@ -88,7 +88,6 @@ public class PropertyService(
             address.City = group.Address.City;
             address.Country = group.Address.Country;
             address.PostalCode = group.Address.PostalCode;
-            address.PhoneNumber = group.Address.PhoneNumber;
         }
         else
         {
@@ -97,11 +96,28 @@ public class PropertyService(
             address.City = propertyDto.City;
             address.Country = propertyDto.Country;
             address.PostalCode = propertyDto.PostalCode;
-            address.PhoneNumber = propertyDto.PhoneNumber;
         }
 
         address.Website = propertyDto.Website;
         property.Address = address;
+
+        if (propertyDto.SetContactSameAsGroupContact)
+        {
+            group ??= await repositoryManager.GroupRepository
+                .GetById(propertyDto.GroupId)
+                .Include(g => g.Address)
+                .Include(g => g.PrimaryContact)
+                    .ThenInclude(pc => pc!.ContactInfo)
+                .FirstOrDefaultAsync(cancellationToken)
+                .ConfigureAwait(false)
+                ?? throw new AroGroupNotFoundException(propertyDto.GroupId.ToString());
+
+            property.Address.PhoneNumber = group.PrimaryContact?.ContactInfo?.PhoneNumber ?? propertyDto.PhoneNumber;
+        }
+        else
+        {
+            property.Address.PhoneNumber = propertyDto.PhoneNumber;
+        }
 
         if (propertyDto.SetContactSameAsGroupContact)
         {
@@ -236,8 +252,6 @@ public class PropertyService(
             property.Address.City = group.Address.City;
             property.Address.Country = group.Address.Country;
             property.Address.PostalCode = group.Address.PostalCode;
-            property.Address.PhoneNumber = group.Address.PhoneNumber;
-            property.Address.Website = group.Address.Website;
         }
         else
         {
@@ -246,8 +260,28 @@ public class PropertyService(
             property.Address.City = propertyDto.City;
             property.Address.Country = propertyDto.Country;
             property.Address.PostalCode = propertyDto.PostalCode;
+        }
+
+        property.Address.Website = propertyDto.Website;
+
+        if (propertyDto.SetContactSameAsGroupContact)
+        {
+            if (group.PrimaryContact?.ContactInfo == null)
+            {
+                group = await repositoryManager.GroupRepository
+                    .GetById(propertyDto.GroupId)
+                    .Include(g => g.Address)
+                    .Include(g => g.PrimaryContact)
+                        .ThenInclude(pc => pc!.ContactInfo)
+                    .FirstOrDefaultAsync(cancellationToken)
+                    .ConfigureAwait(false)
+                    ?? throw new AroGroupNotFoundException(propertyDto.GroupId.ToString());
+            }
+            property.Address.PhoneNumber = group.PrimaryContact?.ContactInfo?.PhoneNumber ?? propertyDto.PhoneNumber;
+        }
+        else
+        {
             property.Address.PhoneNumber = propertyDto.PhoneNumber;
-            property.Address.Website = propertyDto.Website;
         }
 
         var isContactSharedWithGroup = property.ContactId == group.PrimaryContactId;
