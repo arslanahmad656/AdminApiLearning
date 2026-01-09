@@ -62,8 +62,9 @@ public class CountryMetadataService(HttpClient http) : ICountryMetadataService
     public IEnumerable<string> GetAllCountryCodes()
     {
         return _countries
-            .OrderBy(c => c.PhoneCountryCode, StringComparer.OrdinalIgnoreCase)
-            .Select(c => c.PhoneCountryCode);
+            .Select(c => c.PhoneCountryCode)
+            .Distinct()
+            .OrderBy(code => int.TryParse(code, out var num) ? num : int.MaxValue);
     }
 
 
