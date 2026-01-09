@@ -129,9 +129,13 @@
         }
         catch (HttpRequestException httpEx)
         {
-            Snackbar.Add($"Network/API error: {httpEx.Message}", MudBlazor.Severity.Error);
+            Snackbar.Add($"Network/API error: {httpEx.Message} ", MudBlazor.Severity.Error);
 
-            Console.Error.WriteLine($"HTTP Request Exception: {httpEx}");
+            Console.WriteLine($"{httpEx.Source}");
+
+            Console.WriteLine($"{httpEx.StackTrace}");
+
+            Console.WriteLine($"{httpEx.InnerException?.Message}");
         }
         catch (Exception ex)
         {
