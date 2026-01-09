@@ -1,0 +1,35 @@
+﻿@if (LogoIsEmpty)
+{
+    <div class="rounded-circle d-flex justify-content-center align-items-center logo logo-placeholder">
+        <span>@(Name.Substring(0, 1).ToUpper())</span>
+    </div>
+} 
+else
+{
+    <div class="rounded-circle overflow-hidden logo">
+        <img src="@LogoUrl" class="w-100 h-100 object-fit-cover" />
+    </div>
+}
+
+<style>
+    .logo-placeholder {
+        background-color: #434343;
+        color: #FFFFFF;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .logo {
+        width: 48px;
+        height: 48px;
+    }
+</style>
+
+@code {
+    [Parameter] public string LogoUrl { get; set; } = string.Empty;
+
+    [Parameter] public string Name { get; set; } = string.Empty;
+
+    public bool LogoIsEmpty => string.IsNullOrEmpty(LogoUrl);
+}

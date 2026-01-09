@@ -33,10 +33,10 @@
         {
             <span class="small text-danger">@ErrorMessage</span>
         }
-        else if (ShowError && IsEmpty)
+        @* else if (ShowError && IsEmpty)
         {
             <span class="small text-danger">Logo is required</span>
-        }
+        } *@
     </div>
 
     @if (ShowImage)
@@ -217,8 +217,8 @@
 
     private string GetBorderClass()
     {
-        if (ShowError && IsEmpty)
-            return "border-custom border-error";
+        // if (ShowError && IsEmpty)
+        //     return "border-custom border-error";
 
         return "border-custom border-grey";
     }

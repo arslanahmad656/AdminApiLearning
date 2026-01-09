@@ -8,7 +8,8 @@ public class AmenityModelFluentValidator : AbstractValidator<Amenity>
     public AmenityModelFluentValidator()
     {
         RuleFor(x => x.Name)
-            .Length(5, 100);
+            .NotEmpty();
+        //.Length(5, 100);
     }
 }
 

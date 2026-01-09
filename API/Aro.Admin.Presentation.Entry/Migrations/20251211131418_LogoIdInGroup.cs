@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -19,7 +18,7 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                 name: "IconId",
                 table: "Groups",
                 type: "uniqueidentifier",
-                nullable: false,
+                nullable: true,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.CreateTable(

@@ -7,7 +7,7 @@ public record CreateGroupRequest(
     string City,
     string Country,
     string PostalCode,
-    GroupLogoDto Logo,
+    GroupLogoDto? Logo,
     PrimaryContactDto PrimaryContact,
     bool IsActive
 );

@@ -119,17 +119,20 @@ public partial class GroupService(
             IsActive = group.IsActive
         };
 
-        logger.LogDebug("Uploading group logo.");
-        var fileNameToUse = idGenerator.Generate().ToString("N");
-        var fileServiceResponse = await fileResourceService.CreateFile(new(fileNameToUse, group.Logo.Content, "Group Logo", groupEntity.Id.ToString(), null), cancellationToken).ConfigureAwait(false);
-        await bookingRepository.GroupFilesRepository.Create(new()
+        if (group.Logo is not null)
         {
-            FileId = fileServiceResponse.Id,
-            GroupId = _groupId,
-        }, cancellationToken).ConfigureAwait(false);
+            logger.LogDebug("Uploading group logo.");
+            var fileNameToUse = idGenerator.Generate().ToString("N");
+            var fileServiceResponse = await fileResourceService.CreateFile(new(fileNameToUse, group.Logo.Content, "Group Logo", groupEntity.Id.ToString(), null), cancellationToken).ConfigureAwait(false);
+            await bookingRepository.GroupFilesRepository.Create(new()
+            {
+                FileId = fileServiceResponse.Id,
+                GroupId = _groupId,
+            }, cancellationToken).ConfigureAwait(false);
 
-        logger.LogDebug("Setting group icon ID to: {IconId}", fileServiceResponse.Id);
-        groupEntity.IconId = fileServiceResponse.Id;
+            logger.LogDebug("Setting group icon ID to: {IconId}", fileServiceResponse.Id);
+            groupEntity.IconId = fileServiceResponse.Id;
+        }
 
         await groupRepository.Create(groupEntity, cancellationToken).ConfigureAwait(false);
         await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);

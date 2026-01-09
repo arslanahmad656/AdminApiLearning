@@ -59,7 +59,7 @@
             <div class="form-group">
                 <label for="roomSize" class="form-label">Room Size *</label>
 
-                <MudTextField T="int"
+                <MudTextField T="int?"
                               Value="Wizard.Entity.RoomSizeSQM"
                               ValueChanged="OnSqmChanged"
                               ValueExpression="@(() => Wizard.Entity.RoomSizeSQM)"
@@ -77,7 +77,7 @@
             <div class="form-group">
                 <label class="form-label" style="color: transparent;">Room Size SQFT</label>
 
-                <MudTextField T="int"
+                <MudTextField T="int?"
                               Value="Wizard.Entity.RoomSizeSQFT"
                               ValueChanged="OnSqftChanged"
                               ValueExpression="@(() => Wizard.Entity.RoomSizeSQFT)"
@@ -127,6 +127,8 @@
 
     private MudForm? roomForm;
 
+    private const decimal SqmToSqft = 10.7639m;
+
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
@@ -157,35 +159,54 @@
     private bool IsFormValid()
     {
         if (Wizard.Entity == null) return false;
-        return Wizard.Entity.MaxOccupancy > 0 &&
-               Wizard.Entity.MaxAdults > 0 &&
-               Wizard.Entity.RoomSizeSQM > 0;
+        return (Wizard.Entity.MaxOccupancy.HasValue && Wizard.Entity.MaxOccupancy > 0) &&
+                (Wizard.Entity.MaxAdults.HasValue && Wizard.Entity.MaxAdults > 0) &&
+                (Wizard.Entity.RoomSizeSQM.HasValue && Wizard.Entity.RoomSizeSQM.Value > 0);
     }
 
-    private bool _updatingRoomSize = false;
+    private bool _updatingRoomSize;
 
-    private void OnSqmChanged(int value)
+    private void OnSqmChanged(int? value)
     {
-        if (_updatingRoomSize) return;
+        if (_updatingRoomSize)
+            return;
 
         _updatingRoomSize = true;
 
         Wizard.Entity.RoomSizeSQM = value;
 
-        Wizard.Entity.RoomSizeSQFT = (int)Math.Round(value * 10.7639);
+        if (value.HasValue && value.Value > 0)
+        {
+            Wizard.Entity.RoomSizeSQFT =
+                (int?)Math.Round(value.Value * SqmToSqft);
+        }
+        else
+        {
+            Wizard.Entity.RoomSizeSQFT = null;
+        }
 
         _updatingRoomSize = false;
     }
 
-    private void OnSqftChanged(int value)
+
+    private void OnSqftChanged(int? value)
     {
-        if (_updatingRoomSize) return;
+        if (_updatingRoomSize)
+            return;
 
         _updatingRoomSize = true;
 
         Wizard.Entity.RoomSizeSQFT = value;
 
-        Wizard.Entity.RoomSizeSQM = (int)Math.Round(value / 10.7639);
+        if (value.HasValue && value.Value > 0)
+        {
+            Wizard.Entity.RoomSizeSQM =
+                (int?)Math.Round(value.Value / SqmToSqft);
+        }
+        else
+        {
+            Wizard.Entity.RoomSizeSQM = null;
+        }
 
         _updatingRoomSize = false;
     }

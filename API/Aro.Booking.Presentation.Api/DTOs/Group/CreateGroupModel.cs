@@ -7,7 +7,7 @@ public record CreateGroupModel(
     string City,
     string Country,
     string PostalCode,
-    GroupLogo Logo,
+    GroupLogo? Logo,
     PrimaryContactModel PrimaryContact,
     bool IsActive
 );

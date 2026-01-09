@@ -11,7 +11,12 @@ public class CreateGroupCommandHandler(IGroupService groupService, IMediator med
     {
         var r = request.CreateGroupRequest;
 
-        var logo = new GroupLogo(r.Logo.Name, r.Logo.Content);
+        GroupLogo? logo = null;
+
+        if (r.Logo is not null)
+        {
+            logo = new GroupLogo(r.Logo.Name, r.Logo.Content);
+        }
 
         var primaryContact = new PrimaryContact(
             r.PrimaryContact.Email,

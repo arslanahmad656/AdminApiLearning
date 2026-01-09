@@ -86,7 +86,9 @@
                 <RowTemplate>
                     <MudTd DataLabel="Client Name">
                         <div class="hstack align-items-center gap-3">
-                            <img src="@context.LogoUrl" class="rounded-circle" style="width: 50px; height: 50px;" />
+                            
+                            <Logo LogoUrl="@context.LogoUrl" Name="@context.GroupName" />
+
                             <MudButton Variant="Variant.Text"
                                        OnClick="@(e => GoToGroupView(context.Id))"
                                        Class="pagination-button">
@@ -198,7 +200,6 @@
                 <span>Nothing to show</span>
             </div>
         }
-
 
     </div>
 </div>

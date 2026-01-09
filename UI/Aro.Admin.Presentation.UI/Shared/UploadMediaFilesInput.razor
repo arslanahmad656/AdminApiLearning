@@ -4,22 +4,30 @@
 <div id="mediaContainer" class="row gap-3 media-container w-100 rounded border border-1 p-3">
     @foreach (var image in Images)
     {
-        <div class="col-sm-2 h-100 rounded d-flex align-items-center justify-content-center p-1 position-relative border uploaded-image"
+        <div class="col-sm-2 h-100 rounded d-flex align-items-center justify-content-center p-1 position-relative border uploaded-image
+                                @(draggedImageId == image.Id ? "dragging" : "") @(draggedAboveImageId == image.Id ? "dragged-above" : "")"
+             @key="image.Id"
              draggable="true"
-             data-id="@image.Id"
-             style="cursor:grab"
+             @ondragstart="() => HandleDragStart(image)"
+             @ondragend="HandleDragEnd"
+             @ondragover="() => HandleDragAbove(image)"
+             @ondragover:preventDefault
+             @ondrop="() => HandleDrop(image)"
+             @ondrop:preventDefault
              @onclick="() => SelectImage(image)">
 
             <MudIconButton Icon="@Icons.Material.Filled.Close"
                            class="remove-btn"
-                           @onclick="@(e => RemoveImage(image))"
                            Variant="Variant.Filled"
-                           Size="Size.Small" />
+                           Size="Size.Small"
+                           @onclick="@(e => RemoveImage(image))" />
 
             <img src="data:image/png;base64,@image.ContentBase64"
                  alt="@image.Name"
                  class="img-fluid rounded"
                  style="max-height: 100%; object-fit: cover;" />
+
+            @* <span class="index">@image.OrderIndex</span> *@
         </div>
     }
 
@@ -43,6 +51,15 @@
     }
 </div>
 
+@if (HasError)
+{
+    @foreach (var msg in ErrorMessages)
+    {
+        <span class="small text-danger">@msg</span>
+        <br />
+    }
+}
+
 <style>
     .add-box {
         background-color: #EBEBEB;
@@ -61,97 +78,139 @@
         z-index: 10;
     }
 
-    [draggable="true"] {
-        transition: transform 0.3s ease, box-shadow 0.2s ease;
+    .index {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+        z-index: 10;
     }
 
-    .drag-over {
-        border: 2px dashed #ff9800;
+    .uploaded-image:hover {
+        box-shadow: 0px 8px 24px 4px rgba(0, 0, 0, 0.12);
     }
 
-    .dragging {
-        opacity: 0.6;
-        box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-        transform: scale(1.05);
+    .uploaded-image:active {
+        cursor: grabbing;
+    }
+
+    .uploaded-image.dragging {
+        opacity: 0.5;
+        transform: scale(0.98);
+    }
+
+    .uploaded-image.dragged-above {
+        border: 2px dashed #F69126 !important;
+        background: #FFF5EB;
     }
 </style>
 
 @code {
     [Parameter] public List<ImageModel> Images { get; set; } = new();
-
     [Parameter] public EventCallback<List<ImageModel>> ImagesChanged { get; set; }
     [Parameter] public EventCallback<ImageModel?> SelectedImageChanged { get; set; }
 
     private const int MaxImages = 5;
-    const long MaxAllowedFileBytes = 5 * 1024 * 1024; // 5MB
+    private const long MaxAllowedFileBytes = 2 * 1024 * 1024;
+
     private int RemainingSlots => MaxImages - Images.Count;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JSRuntime.InvokeVoidAsync("enableImageDragReorderAnimated", "mediaContainer");
-        }
-    }
+    private bool HasError;
+    private List<string> ErrorMessages = new();
 
-    private static readonly string[] AllowedContentTypes =
-    {
-        "image/jpeg",
-        "image/png",
-    };
+    private static readonly string[] AllowedContentTypes = { "image/jpeg", "image/png" };
 
+    private Guid? draggedImageId;
+    private Guid? draggedAboveImageId;
+    private ImageModel? draggedImage;
 
     private async Task UploadFiles(IReadOnlyList<IBrowserFile> files)
     {
+        ErrorMessages.Clear();
+        HasError = false;
+
         foreach (var file in files)
         {
             if (!AllowedContentTypes.Contains(file.ContentType))
+            {
+                ErrorMessages.Add($"{file.Name} has an invalid file type.");
+                HasError = true;
                 continue;
-
-            if (Images.Count >= MaxImages)
-                break;
+            }
 
             if (file.Size > MaxAllowedFileBytes)
+            {
+                ErrorMessages.Add($"{file.Name} exceeds 2MB.");
+                HasError = true;
                 continue;
+            }
 
             using var ms = new MemoryStream();
             await file.OpenReadStream(MaxAllowedFileBytes).CopyToAsync(ms);
-
-            var base64 = Convert.ToBase64String(ms.ToArray());
 
             Images.Add(new ImageModel
             {
                 Id = Guid.NewGuid(),
                 Name = Path.GetFileNameWithoutExtension(file.Name),
-                ContentBase64 = base64,
+                ContentBase64 = Convert.ToBase64String(ms.ToArray()),
                 OrderIndex = Images.Count + 1,
-                IsThumbnail = Images.Count == 0 // first image default
+                IsThumbnail = Images.Count == 0
             });
         }
 
         await ImagesChanged.InvokeAsync(Images);
     }
 
+    private async Task RemoveImage(ImageModel image)
+    {
+        Images.Remove(image);
+        await ImagesChanged.InvokeAsync(Images);
+        await SelectedImageChanged.InvokeAsync(null);
+    }
 
     private async Task SelectImage(ImageModel image)
     {
         await SelectedImageChanged.InvokeAsync(image);
     }
 
-    private async Task RemoveImage(ImageModel image)
+    private void HandleDragStart(ImageModel image)
     {
-        Images.Remove(image);
-
-        await ImagesChanged.InvokeAsync(Images);
-        await SelectedImageChanged.InvokeAsync(image);
+        draggedImage = image;
+        draggedImageId = image.Id;
     }
 
-    [JSInvokable]
-    public async Task UpdateImageOrder(List<Guid> orderedIds)
+    private void HandleDragEnd()
     {
-        var reordered = orderedIds.Select(id => Images.First(img => img.Id == id)).ToList();
-        Images = reordered;
+        draggedImage = null;
+        draggedImageId = null;
+        draggedAboveImageId = null;
+    }
+
+    private void HandleDragAbove(ImageModel image)
+    {
+        if (draggedImageId != null && draggedImageId != image.Id)
+        {
+            draggedAboveImageId = image.Id;
+        }
+    }
+
+    private async Task HandleDrop(ImageModel target)
+    {
+        if (draggedImage == null || draggedImage.Id == target.Id)
+        {
+            HandleDragEnd();
+            return;
+        }
+
+        var from = Images.IndexOf(draggedImage);
+        var to = Images.IndexOf(target);
+
+        Images.RemoveAt(from);
+        Images.Insert(to, draggedImage);
+
+        Images[from].OrderIndex = from + 1;
+        Images[to].OrderIndex = to + 1;
+
+        HandleDragEnd();
         await ImagesChanged.InvokeAsync(Images);
-        StateHasChanged();
     }
 }

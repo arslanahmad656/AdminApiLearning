@@ -139,15 +139,20 @@
         {
             Wizard.IsSaving = false;
             await InvokeAsync(StateHasChanged);
-
-            NavigationManager?.NavigateTo("/");
         }
     }
 
     private async Task HandleCreate()
     {
         var group = Wizard.Entity;
-        if (group == null || group.Logo == null || group.Id != Guid.Empty) return;
+        if (group == null || group.Id != Guid.Empty) return;
+
+        GroupLogo? groupLogo = null;
+
+        if (group.Logo is not null)
+        {
+            groupLogo = new GroupLogo(group.Logo.Name, group.Logo.ContentBase64);
+        }
 
         var user = group.PrimaryContact;
         var request = new CreateGroupRequest(
@@ -157,7 +162,7 @@
             group.City!,
             group.Country!,
             group.PostalCode!,
-            new GroupLogo(group.Logo.Name, group.Logo.ContentBase64),
+            groupLogo,
             new PrimaryContactDto(user.Email, user.Name, user.CountryCode, user.PhoneNumber),
             true
         );

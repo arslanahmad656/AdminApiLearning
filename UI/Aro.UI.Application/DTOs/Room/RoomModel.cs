@@ -12,16 +12,15 @@ public class RoomModel
 
     public string Description { get; set; } = string.Empty;
 
-    public int MaxOccupancy { get; set; } = 0;
+    public int? MaxOccupancy { get; set; }
 
-    public int MaxAdults { get; set; } = 0;
+    public int? MaxAdults { get; set; }
 
-    public int MaxChildren { get; set; } = 0;
+    public int? MaxChildren { get; set; }
 
-    public int RoomSizeSQM { get; set; } = 0;
+    public int? RoomSizeSQM { get; set; }
 
-    public int RoomSizeSQFT { get; set; } = 0;
-
+    public int? RoomSizeSQFT { get; set; }
 
     public BedConfiguration BedConfig { get; set; } = BedConfiguration.Double;
 
