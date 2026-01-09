@@ -54,6 +54,9 @@ public class PropertyWizardModel
     public Guid? ExistingBanner1Id { get; set; }
     public Guid? ExistingBanner2Id { get; set; }
 
+    // Deleted file IDs (for edit mode - files that were removed and need to be deleted on save)
+    public List<Guid> DeletedFileIds { get; set; } = new();
+
     // Step 1: Property Information
     public string PropertyName { get; set; } = string.Empty;
     public PropertyTypesModel PropertyTypes { get; set; } = new();

@@ -25,7 +25,8 @@ public record UpdatePropertyModel(
     List<string>? KeySellingPoints,
     string? MarketingTitle,
     string? MarketingDescription,
-    UpdatePropertyFilesModel? Files
+    UpdatePropertyFilesModel? Files,
+    List<Guid>? DeletedFileIds
 );
 
 public record UpdatePropertyFilesModel

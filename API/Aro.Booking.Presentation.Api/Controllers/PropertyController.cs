@@ -147,7 +147,8 @@ public class PropertyController(
                 model.MarketingDescription,
                 fileData.Count > 0 ? fileData : null,
                 model.SetContactSameAsGroupContact,
-                model.SetAddressSameAsGroupAddress
+                model.SetAddressSameAsGroupAddress,
+                model.DeletedFileIds
             )
         ), cancellationToken).ConfigureAwait(false);
 
