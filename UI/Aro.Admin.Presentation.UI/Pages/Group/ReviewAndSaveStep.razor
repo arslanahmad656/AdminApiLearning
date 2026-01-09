@@ -130,6 +130,8 @@
         catch (HttpRequestException httpEx)
         {
             Snackbar.Add($"Network/API error: {httpEx.Message}", MudBlazor.Severity.Error);
+
+            Console.Error.WriteLine($"HTTP Request Exception: {httpEx}");
         }
         catch (Exception ex)
         {
@@ -210,6 +212,7 @@
             Snackbar.Add($"Successfully updated group: {group.GroupName}.", MudBlazor.Severity.Success);
         }
 
+        NavigationManager.NavigateTo("/");
         await InvokeAsync(StateHasChanged);
     }
 
