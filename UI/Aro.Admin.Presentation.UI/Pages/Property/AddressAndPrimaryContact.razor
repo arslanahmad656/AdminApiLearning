@@ -62,6 +62,7 @@
                                       ErrorText="Address Line 1 is required"
                                       Placeholder="Enter address line 1"
                                       DisableUnderLine="true"
+                                      Disabled="@wizardModel.SetAddressSameAsGroupAddress"
                                       @onfocus="OnAddressLine1Focus"
                                       @onblur="OnAddressLine1Blur" />
                     </div>
@@ -76,7 +77,8 @@
                                       HelperTextOnFocus="false"
                                       Immediate="true"
                                       Placeholder="Enter address line 2"
-                                      DisableUnderLine="true" />
+                                      DisableUnderLine="true"
+                                      Disabled="@wizardModel.SetAddressSameAsGroupAddress" />
                     </div>
                 </div>
 
@@ -94,6 +96,7 @@
                                       ErrorText="City is required"
                                       Placeholder="Enter city"
                                       DisableUnderLine="true"
+                                      Disabled="@wizardModel.SetAddressSameAsGroupAddress"
                                       @onfocus="OnCityFocus"
                                       @onblur="OnCityBlur" />
                     </div>
@@ -117,7 +120,8 @@
                                              MinCharacters="0"
                                              CoerceText="false"
                                              CoerceValue="false"
-                                             ResetValueOnEmptyText="true" />
+                                             ResetValueOnEmptyText="true"
+                                             Disabled="@wizardModel.SetAddressSameAsGroupAddress" />
                         </div>
                         @if (IsCountryInvalid)
                         {
@@ -136,6 +140,7 @@
                                       ErrorText="Postal Code is required"
                                       Placeholder="Enter postal code"
                                       DisableUnderLine="true"
+                                      Disabled="@wizardModel.SetAddressSameAsGroupAddress"
                                       @onfocus="OnPostalCodeFocus"
                                       @onblur="OnPostalCodeBlur" />
                     </div>
@@ -149,7 +154,7 @@
                             <div class="phone-country-flag">
                                 <img src="@GetFlagUrlByCountryCode(wizardModel.PhoneCountryCode, wizardModel.Country)" alt="Country Flag" class="flag-icon-small" />
                             </div>
-                            <select class="phone-country-code-select" @bind="wizardModel.PhoneCountryCode">
+                            <select class="phone-country-code-select" @bind="wizardModel.PhoneCountryCode" disabled="@wizardModel.SetContactSameAsPrimaryContact">
                                 <option value="">--</option>
                                 @if (countryCodes != null)
                                 {
@@ -169,7 +174,8 @@
                                    placeholder="Enter phone number"
                                    pattern="[0-9]*"
                                    inputmode="numeric"
-                                   maxlength="15" />
+                                   maxlength="15"
+                                   readonly="@wizardModel.SetContactSameAsPrimaryContact" />
                         </div>
                         @if (IsPhoneNumberInvalid)
                         {
@@ -218,6 +224,7 @@
                                       ErrorText="Name is required"
                                       Placeholder="Enter contact name"
                                       DisableUnderLine="true"
+                                      Disabled="@wizardModel.SetContactSameAsPrimaryContact"
                                       @onfocus="OnContactNameFocus"
                                       @onblur="OnContactNameBlur" />
                     </div>
@@ -233,6 +240,7 @@
                                       ErrorText="@GetEmailErrorMessage()"
                                       Placeholder="example@domain.com"
                                       DisableUnderLine="true"
+                                      Disabled="@wizardModel.SetContactSameAsPrimaryContact"
                                       @onfocus="OnContactEmailFocus"
                                       @onblur="OnContactEmailBlur" />
                     </div>
@@ -615,6 +623,7 @@
     private async Task OnSameAsPrimaryChanged()
     {
         // Reset validation states FIRST before any async operations
+        // Only reset address-related fields, NOT phone/website (they are independent)
         addressLine1Touched = false;
         cityTouched = false;
         countryTouched = false;
@@ -625,15 +634,16 @@
         {
             try
             {
-                // Include Address, PrimaryContact, and PrimaryContact.ContactInfo to get all data
                 var groupResponse = await GroupService.GetGroup(new GetGroupRequest(wizardModel.GroupId.Value, "Address,PrimaryContact,PrimaryContact.ContactInfo"));
                 if (groupResponse?.Group != null)
                 {
+                    // Only copy ADDRESS fields from group, NOT phone/website
                     wizardModel.AddressLine1 = groupResponse.Group.AddressLine1 ?? string.Empty;
                     wizardModel.AddressLine2 = groupResponse.Group.AddressLine2 ?? string.Empty;
                     wizardModel.City = groupResponse.Group.City ?? string.Empty;
                     wizardModel.Country = groupResponse.Group.Country ?? string.Empty;
                     wizardModel.PostalCode = groupResponse.Group.PostalCode ?? string.Empty;
+                    // Phone and Website are always user-editable, do NOT copy from group
                 }
             }
             catch
@@ -643,7 +653,7 @@
         }
         else
         {
-            // Checkbox unchecked - clear the fields
+            // Only clear address fields, NOT phone/website
             wizardModel.AddressLine1 = string.Empty;
             wizardModel.AddressLine2 = string.Empty;
             wizardModel.City = string.Empty;
@@ -659,25 +669,22 @@
 
     private async Task OnSameAsClientChanged()
     {
-        // Reset validation states FIRST before any async operations
         contactNameTouched = false;
         contactEmailTouched = false;
         phoneNumberTouched = false;
-        websiteTouched = false;
         showValidation = false;
 
         if (wizardModel.SetContactSameAsPrimaryContact && wizardModel.GroupId.HasValue)
         {
             try
             {
-                // Include Address, PrimaryContact, and PrimaryContact.ContactInfo to get phone data
                 var groupResponse = await GroupService.GetGroup(new GetGroupRequest(wizardModel.GroupId.Value, "Address,PrimaryContact,PrimaryContact.ContactInfo"));
                 if (groupResponse?.Group != null)
                 {
                     wizardModel.ContactName = groupResponse.Group.PrimaryContactName ?? string.Empty;
                     wizardModel.ContactEmail = groupResponse.Group.PrimaryContactEmail ?? string.Empty;
+                    // Also load phone number from the group's primary contact
                     wizardModel.PhoneCountryCode = groupResponse.Group.PrimaryContactCountryCode ?? string.Empty;
-                    // Sanitize phone number to ensure it's numeric-only and within length limits
                     wizardModel.PhoneNumber = SanitizePhoneNumber(groupResponse.Group.PrimaryContactPhoneNumber);
                 }
             }
@@ -688,14 +695,12 @@
         }
         else
         {
-            // Checkbox unchecked - clear the fields
             wizardModel.ContactName = string.Empty;
             wizardModel.ContactEmail = string.Empty;
             wizardModel.PhoneCountryCode = string.Empty;
             wizardModel.PhoneNumber = string.Empty;
         }
 
-        // Force complete UI re-render
         await InvokeAsync(StateHasChanged);
 
         // Don't save on every checkbox change - save only on navigation
