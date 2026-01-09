@@ -97,9 +97,35 @@
         }
     }
 
+    private bool HasWizardProgress()
+    {
+        if (Wizard.Entity == null)
+            return false;
+
+        try
+        {
+            var currentJson = JsonSerializer.Serialize(Wizard.Entity);
+            var emptyEntityJson = "{}";
+
+            if (currentJson == emptyEntityJson || currentJson == "null")
+                return false;
+
+            var defaultEntity = Activator.CreateInstance<TEntity>();
+            var defaultJson = JsonSerializer.Serialize(defaultEntity);
+
+            return currentJson != defaultJson;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
     private async Task HandleClose()
     {
-        if (!Wizard.IsCreateMode && HasUnsavedChanges())
+        bool hasChangesOrProgress = HasUnsavedChanges() || HasWizardProgress();
+
+        if (hasChangesOrProgress)
         {
             var parameters = new DialogParameters
             {
