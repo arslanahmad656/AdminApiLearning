@@ -25,7 +25,8 @@ public record UpdatePropertyRequest(
     string? MarketingDescription,
     List<FileData>? Files,
     bool SetContactSameAsGroupContact,
-    bool SetAddressSameAsGroupAddress
+    bool SetAddressSameAsGroupAddress,
+    List<Guid>? DeletedFileIds
 )
 {
     public record FileData(string FileName, Stream Content);

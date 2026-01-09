@@ -34,7 +34,8 @@ public class UpdatePropertyCommandHandler(IPropertyService propertyService)
                 request.Request.MarketingDescription,
                 request.Request.Files?.Select(f => new UpdatePropertyDto.FileData(f.FileName, f.Content)).ToList(),
                 request.Request.SetContactSameAsGroupContact,
-                request.Request.SetAddressSameAsGroupAddress
+                request.Request.SetAddressSameAsGroupAddress,
+                request.Request.DeletedFileIds
             ),
             cancellationToken
         ).ConfigureAwait(false);

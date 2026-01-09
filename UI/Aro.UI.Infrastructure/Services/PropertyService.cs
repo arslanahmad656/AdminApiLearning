@@ -204,6 +204,14 @@ public class PropertyService : IPropertyService
                 formData.Add(fileContent, "Files.Banner2", wizardData.Banner2.FileName);
             }
 
+            if (wizardData.DeletedFileIds != null && wizardData.DeletedFileIds.Any())
+            {
+                foreach (var deletedFileId in wizardData.DeletedFileIds)
+                {
+                    formData.Add(new StringContent(deletedFileId.ToString()), "DeletedFileIds");
+                }
+            }
+
             var response = await _httpClient.PutAsync("api/property/update", formData);
 
             if (response.IsSuccessStatusCode)

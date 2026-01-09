@@ -25,7 +25,8 @@ public record UpdatePropertyDto(
     string? MarketingDescription,
     List<FileData>? Files,
     bool SetContactSameAsGroupContact,
-    bool SetAddressSameAsGroupAddress
+    bool SetAddressSameAsGroupAddress,
+    List<Guid>? DeletedFileIds
 )
 {
     public record FileData(

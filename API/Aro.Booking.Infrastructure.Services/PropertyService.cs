@@ -339,6 +339,41 @@ public class PropertyService(
 
         logger.LogInfo("Property updated successfully with Id: {PropertyId}", property.Id);
 
+        // Handle file deletions if DeletedFileIds provided
+        if (propertyDto.DeletedFileIds != null && propertyDto.DeletedFileIds.Any())
+        {
+            logger.LogDebug("Processing file deletions for property {PropertyId}. Files to delete: {FileCount}",
+                property.Id, propertyDto.DeletedFileIds.Count);
+
+            var existingFiles = await repositoryManager.PropertyFilesRepository
+                .GetByPropertyId(property.Id)
+                .ToListAsync(cancellationToken: cancellationToken)
+                .ConfigureAwait(false);
+
+            foreach (var fileId in propertyDto.DeletedFileIds)
+            {
+                try
+                {
+                    var fileToDelete = existingFiles.FirstOrDefault(f => f.Entity.FileId == fileId);
+                    if (fileToDelete != null)
+                    {
+                        logger.LogDebug("Deleting file {FileId} for property {PropertyId}", fileId, property.Id);
+                        repositoryManager.PropertyFilesRepository.Delete(fileToDelete.Entity);
+                        await unitOfWork.SaveChanges(cancellationToken).ConfigureAwait(false);
+                        logger.LogDebug("Deleted file {FileId}", fileId);
+                    }
+                    else
+                    {
+                        logger.LogWarn("File {FileId} not found for property {PropertyId}", fileId, property.Id);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Error occurred while deleting file {FileId}", fileId);
+                }
+            }
+        }
+
         // Handle file updates if new files provided
         if (propertyDto.Files != null && propertyDto.Files.Any())
         {

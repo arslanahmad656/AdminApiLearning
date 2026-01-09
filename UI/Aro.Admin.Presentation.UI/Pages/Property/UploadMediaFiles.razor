@@ -274,15 +274,18 @@
                 _currentGroupId = wizardModel.GroupId;
             }
 
-            if (uploadedImages.Count > 0)
+            var banner1Image = uploadedImages.FirstOrDefault(i => i.Id == "banner1");
+            var banner2Image = uploadedImages.FirstOrDefault(i => i.Id == "banner2");
+            var newImages = uploadedImages.Where(i => i.Id != "banner1" && i.Id != "banner2").ToList();
+
+            if (banner1Image != null)
             {
-                var img = uploadedImages[0];
-                if (img.IsExisting)
+                if (banner1Image.IsExisting)
                 {
                     wizardModel.Banner1 = new PropertyFileModel
                     {
-                        FileName = img.Name,
-                        Url = img.Url,
+                        FileName = banner1Image.Name,
+                        Url = banner1Image.Url,
                         FileId = wizardModel.ExistingBanner1Id
                     };
                 }
@@ -290,26 +293,36 @@
                 {
                     wizardModel.Banner1 = new PropertyFileModel
                     {
-                        FileName = img.Name,
-                        ContentType = GetContentTypeFromDataUrl(img.Url),
-                        Base64Data = img.Url
+                        FileName = banner1Image.Name,
+                        ContentType = GetContentTypeFromDataUrl(banner1Image.Url),
+                        Base64Data = banner1Image.Url
                     };
                 }
+            }
+            else if (newImages.Count > 0)
+            {
+                var img = newImages[0];
+                wizardModel.Banner1 = new PropertyFileModel
+                {
+                    FileName = img.Name,
+                    ContentType = GetContentTypeFromDataUrl(img.Url),
+                    Base64Data = img.Url
+                };
+                newImages.RemoveAt(0);
             }
             else
             {
                 wizardModel.Banner1 = null;
             }
 
-            if (uploadedImages.Count > 1)
+            if (banner2Image != null)
             {
-                var img = uploadedImages[1];
-                if (img.IsExisting)
+                if (banner2Image.IsExisting)
                 {
                     wizardModel.Banner2 = new PropertyFileModel
                     {
-                        FileName = img.Name,
-                        Url = img.Url,
+                        FileName = banner2Image.Name,
+                        Url = banner2Image.Url,
                         FileId = wizardModel.ExistingBanner2Id
                     };
                 }
@@ -317,11 +330,21 @@
                 {
                     wizardModel.Banner2 = new PropertyFileModel
                     {
-                        FileName = img.Name,
-                        ContentType = GetContentTypeFromDataUrl(img.Url),
-                        Base64Data = img.Url
+                        FileName = banner2Image.Name,
+                        ContentType = GetContentTypeFromDataUrl(banner2Image.Url),
+                        Base64Data = banner2Image.Url
                     };
                 }
+            }
+            else if (newImages.Count > 0)
+            {
+                var img = newImages[0];
+                wizardModel.Banner2 = new PropertyFileModel
+                {
+                    FileName = img.Name,
+                    ContentType = GetContentTypeFromDataUrl(img.Url),
+                    Base64Data = img.Url
+                };
             }
             else
             {
@@ -453,6 +476,19 @@
 
     private async Task RemoveImage(ImageModel image)
     {
+        if (image.IsExisting)
+        {
+            if (image.Id == "banner1" && wizardModel.ExistingBanner1Id.HasValue)
+            {
+                wizardModel.DeletedFileIds.Add(wizardModel.ExistingBanner1Id.Value);
+                wizardModel.ExistingBanner1Id = null;
+            }
+            else if (image.Id == "banner2" && wizardModel.ExistingBanner2Id.HasValue)
+            {
+                wizardModel.DeletedFileIds.Add(wizardModel.ExistingBanner2Id.Value);
+                wizardModel.ExistingBanner2Id = null;
+            }
+        }
         uploadedImages.Remove(image);
         await SaveToLocalStorage();
         StateHasChanged();
@@ -460,6 +496,11 @@
 
     private async Task RemoveFavicon()
     {
+        if (isFaviconExisting && wizardModel.ExistingFaviconId.HasValue)
+        {
+            wizardModel.DeletedFileIds.Add(wizardModel.ExistingFaviconId.Value);
+            wizardModel.ExistingFaviconId = null;
+        }
         wizardModel.Favicon = null;
         faviconFileName = string.Empty;
         faviconUrl = null;
