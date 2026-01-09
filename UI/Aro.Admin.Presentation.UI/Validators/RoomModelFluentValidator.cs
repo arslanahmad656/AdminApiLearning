@@ -25,36 +25,54 @@ public class RoomModelFluentValidator : AbstractValidator<RoomModel>
             .LessThanOrEqualTo(20);
 
         RuleFor(m => m.MaxAdults)
-            .GreaterThanOrEqualTo(0)
+            .GreaterThanOrEqualTo(1)
+            .WithMessage("There must be at least one adult.")
             .Must((model, maxAdults) =>
             {
-                return maxAdults + model.MaxChildren == model.MaxOccupancy;
+                if (model.MaxChildren.HasValue)
+                {
+                    return maxAdults + model.MaxChildren.Value == model.MaxOccupancy;
+                }
+                else
+                {
+                    return maxAdults == model.MaxOccupancy;
+                }
             })
             .WithMessage("The sum of adults and children must equal max occupancy."); ;
 
         RuleFor(m => m.MaxChildren)
             .GreaterThanOrEqualTo(0)
+            .WithMessage("Number of children must be greater than or equal to 0.")
             .Must((model, maxChildren) =>
             {
-                return maxChildren + model.MaxAdults == model.MaxOccupancy;
+                if (model.MaxAdults.HasValue)
+                {
+                    return maxChildren + model.MaxAdults.Value == model.MaxOccupancy;
+                }
+                else
+                {
+                    return maxChildren == model.MaxOccupancy;
+                }
             })
             .WithMessage("The sum of adults and children must equal max occupancy.");
 
         RuleFor(m => m.RoomSizeSQM)
-            .GreaterThan(0);
+            .GreaterThanOrEqualTo(12)
+            .LessThanOrEqualTo(500);
 
         RuleFor(m => m.RoomSizeSQFT)
-            .GreaterThan(0);
+            .GreaterThanOrEqualTo(130)
+            .LessThanOrEqualTo(5382);
 
         RuleFor(m => m.BedConfig)
-            .NotEmpty();
+            .IsInEnum();
 
         RuleFor(m => m.Amenities)
-            .Must(amenities => amenities == null || amenities.Select(a => a.Name).Distinct().Count() == amenities.Count())
+            .Must(amenities => amenities == null || amenities.Select(a => a.Name).Distinct().Count() == amenities.Count)
             .WithMessage("There are duplicate amenity names in the list.")
             .When(m => m.Amenities != null);
 
-        RuleForEach(m => m.Amenities).SetValidator(new AmenityModelFluentValidator());
+        //RuleForEach(m => m.Amenities).SetValidator(new AmenityModelFluentValidator());
     }
 }
 

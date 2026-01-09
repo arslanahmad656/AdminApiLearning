@@ -177,6 +177,8 @@
         _countryOptions.AddRange(
             CountryMetadataService
             .GetAll()
+            .GroupBy(c => c.PhoneCountryCode)
+            .Select(g => g.First())
             .OrderBy(c => int.Parse(c.PhoneCountryCode.TrimStart('+')))
             .Select(c => new CountryOption
             {
@@ -188,8 +190,6 @@
             }));
 
         _countryOptions.Sort((x, y) => string.Compare(x.PhoneCode, y.PhoneCode));
-
-        _countryOptions.Distinct();
 
         if (!string.IsNullOrWhiteSpace(Wizard.Entity?.PrimaryContact?.CountryCode))
         {

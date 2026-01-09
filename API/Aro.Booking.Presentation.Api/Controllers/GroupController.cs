@@ -29,13 +29,18 @@ public class GroupController(
         logger.LogDebug("Starting CreateGroup operation for group: {0}",
             model.GroupName);
 
-        var bytes = Convert.FromBase64String(model.Logo.ContentBase64);
-        var stream = new MemoryStream(bytes);
+        GroupLogoDto? logo = null;
 
-        var logo = new GroupLogoDto(
-            model.Logo.Name,
-            stream
-        );
+        if (model.Logo is not null)
+        {
+            var bytes = Convert.FromBase64String(model.Logo.ContentBase64);
+            var stream = new MemoryStream(bytes);
+
+            logo = new GroupLogoDto(
+                model.Logo.Name,
+                stream
+            );
+        }
 
         var primaryContact = new PrimaryContactDto(
             model.PrimaryContact.Email,
@@ -58,7 +63,7 @@ public class GroupController(
             )
         ), cancellationToken).ConfigureAwait(false);
 
-        //logger.LogDebug("Completed CreateGroup operation successfully");
+        logger.LogDebug("Completed CreateGroup operation successfully");
 
         return Ok(response);
     }

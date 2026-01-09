@@ -221,7 +221,9 @@
 
         await InvokeAsync(StateHasChanged);
 
-        return groupForm.IsValid && !IsCountryInvalid && !IsLogoEmpty;
+        return groupForm.IsValid && !IsCountryInvalid;
+        
+        // && !IsLogoEmpty;
     }
 
 
@@ -285,7 +287,7 @@
 
     private static bool HasValidLogo(ImageModel? logo)
     {
-        if (logo == null) return false;
+        if (logo == null) return true;
         return !string.IsNullOrWhiteSpace(logo.ContentBase64) ||
                (logo.Id != Guid.Empty && !string.IsNullOrWhiteSpace(logo.Url));
     }
