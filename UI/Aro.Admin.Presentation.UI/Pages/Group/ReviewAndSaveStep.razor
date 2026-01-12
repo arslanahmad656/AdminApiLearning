@@ -15,73 +15,122 @@
     var model = Wizard.Entity;
     var primaryContact = Wizard.Entity.PrimaryContact;
 
-    <div class="row gy-2">
+    <div class="review-container">
 
         <!-- GENERAL INFO SUMMARY -->
-        <div class="col-12">
-            <h6>1. GENERAL INFORMATION</h6>
-        </div>
+        <div class="section-header">1. GENERAL INFORMATION</div>
 
         <SummaryRow Label="Group Name" Value="@model.GroupName" />
         <SummaryRow Label="Address Line 1" Value="@model.AddressLine1" />
-        <SummaryRow Label="Address Line 2" Value="@model.AddressLine2" />
+        <SummaryRow Label="Address Line 2" Value="@(string.IsNullOrWhiteSpace(model.AddressLine2) ? "No secondary address" : model.AddressLine2)" />
         <SummaryRow Label="City" Value="@model.City" />
         <SummaryRow Label="Country" Value="@model.Country" />
         <SummaryRow Label="Postal Code" Value="@model.PostalCode" />
 
-        <div class="col-sm-4 col-lg-4"><span class="text-body-secondary">Logo</span></div>
-        <div class="col-sm-8 col-lg-4">
-            @if (!string.IsNullOrWhiteSpace(existingImageURL))
-            {
-                <img src="@existingImageURL" alt="Group logo" class="img-fluid rounded logo-img" />
-            }
-            else if (!string.IsNullOrWhiteSpace(model.Logo?.ContentBase64))
-            {
-                <img src="data:image/png;base64,@model.Logo.ContentBase64" alt="@model.Logo?.Name" class="img-fluid rounded logo-img" />
-            }
-            else
-            {
-                <span>No image has been uploaded</span>
-            }
+        <!-- Image/Logo Row -->
+        <div class="summary-row">
+            <div class="summary-label">Image</div>
+            <div class="summary-value">
+                @if (!string.IsNullOrWhiteSpace(existingImageURL))
+                {
+                    <img src="@existingImageURL" alt="Group logo" class="logo-preview" />
+                }
+                else if (!string.IsNullOrWhiteSpace(model.Logo?.ContentBase64))
+                {
+                    <img src="data:image/png;base64,@model.Logo.ContentBase64" alt="@model.Logo?.Name" class="logo-preview" />
+                }
+                else
+                {
+                    <span class="no-image-text">No image has been uploaded</span>
+                }
+            </div>
         </div>
 
         <!-- CONTACT SUMMARY -->
-        <div class="col-12 mt-5">
-            <h6>2. PRIMARY CONTACT DETAILS</h6>
-        </div>
+        <div class="section-header section-header-spacing">2. PRIMARY CONTACT DETAILS</div>
 
         <SummaryRow Label="Name" Value="@primaryContact.Name" />
         <SummaryRow Label="Contact Email" Value="@primaryContact.Email" />
-        <SummaryRow Label="Phone Number" Value="@($"+{primaryContact.CountryCode} {primaryContact.PhoneNumber}")" />
+        <SummaryRow Label="Phone Number" Value="@GetPhoneDisplay(primaryContact)" />
+        <SummaryRow Label="Access Level" Value="Client Admin" />
     </div>
 
     <WizardFooter OnBack="HandleBack"
                   OnSave="HandleSave"
                   BackDisabled="false"
                   SaveDisabled="@Wizard.IsSaving"
-                  ShowSave="true" />
+                  ShowSave="true"
+                  HideNext="true" />
 }
 <style>
-    h6 {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        font-weight: 500;
-        font-size: 16px;
-        color: #000000;
-        margin-bottom: 20px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .review-container {
+        display: flex;
+        flex-direction: column;
     }
 
-    col-sm-4 col-lg-4{
-        padding:0 !important;
-        margin:0 !important;
-    }
-    .text-body-secondary {
+    .section-header {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         font-weight: 400;
+        font-style: normal;
         font-size: 16px;
+        line-height: 100%;
+        letter-spacing: 0;
+        color: #000000;
+        margin-bottom: 16px;
+        text-transform: uppercase;
+    }
+
+    .section-header-spacing {
+        margin-top: 40px;
+    }
+
+    .summary-row {
+        display: flex;
+        align-items: center;
+        padding: 8px 0;
+        gap: 24px;
+    }
+
+    .summary-label {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 16px;
+        line-height: 100%;
+        letter-spacing: 0;
         color: #707070;
-        line-height: 24px;
+        min-width: 180px;
+        flex-shrink: 0;
+    }
+
+    .summary-value {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 16px;
+        line-height: 100%;
+        letter-spacing: 0;
+        color: #000000;
+        flex: 1;
+        word-break: break-word;
+    }
+
+    .logo-preview {
+        width: 64px;
+        height: 64px;
+        object-fit: contain;
+        border-radius: 4px;
+        background-color: #000000;
+    }
+
+    .no-image-text {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 16px;
+        line-height: 100%;
+        letter-spacing: 0;
+        color: #707070;
     }
 </style>
 @code {
@@ -244,5 +293,16 @@
     private async Task HandleSave()
     {
         await SaveAsync();
+    }
+
+    private string GetPhoneDisplay(PrimaryContactModel contact)
+    {
+        if (string.IsNullOrWhiteSpace(contact.CountryCode) && string.IsNullOrWhiteSpace(contact.PhoneNumber))
+            return "—";
+
+        var countryCode = string.IsNullOrWhiteSpace(contact.CountryCode) ? "" : $"+{contact.CountryCode}";
+        var phoneNumber = contact.PhoneNumber ?? "";
+
+        return $"{countryCode} {phoneNumber}".Trim();
     }
 }
