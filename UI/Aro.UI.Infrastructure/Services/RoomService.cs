@@ -131,4 +131,34 @@ public class RoomService(HttpClient httpClient) : IRoomService
             return null;
         }
     }
+
+    public async Task<bool> CheckRoomCodeExists(Guid propertyId, string roomCode, Guid? excludeRoomId = null)
+    {
+        if (string.IsNullOrWhiteSpace(roomCode))
+            return false;
+
+        try
+        {
+            var roomsResponse = await GetRooms(new GetRoomsRequest(
+                PropertyId: propertyId,
+                Filter: null,
+                Include: null,
+                Page: 1,
+                PageSize: 100,
+                SortBy: "RoomCode",
+                Ascending: true
+            ));
+
+            if (roomsResponse?.Rooms == null || !roomsResponse.Rooms.Any())
+                return false;
+
+            return roomsResponse.Rooms.Any(r =>
+                r.RoomCode.Equals(roomCode, StringComparison.OrdinalIgnoreCase) &&
+                (!excludeRoomId.HasValue || r.Id != excludeRoomId.Value));
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }
