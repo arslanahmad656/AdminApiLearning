@@ -932,7 +932,9 @@
     .wizard-body {
         display: flex;
         flex: 1;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* Left Sidebar - Light Gray */
@@ -1554,6 +1556,94 @@
     /* Override MudBlazor error text color */
     .mud-input-error .mud-input-helper-text {
         color: #d32f2f !important;
+    }
+
+    /* Mobile Responsive Styles */
+    @@media (max-width: 768px) {
+        .wizard-content {
+            padding: 24px !important;
+            padding-bottom: 140px !important;
+        }
+
+        .address-row-container {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .form-row-three-col {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .form-row-two-col-custom {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        .country-select-wrapper {
+            width: 100%;
+        }
+
+        .phone-input-wrapper {
+            width: 100%;
+        }
+
+        .website-input {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .wizard-content {
+            padding: 16px !important;
+            padding-bottom: 150px !important;
+        }
+
+        .address-row-container {
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .form-row-three-col {
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .form-row-two-col-custom {
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .content-title {
+            font-size: 18px;
+        }
+
+        .step-label {
+            font-size: 12px;
+        }
+
+        .checkbox-label-simple {
+            font-size: 14px;
+        }
+
+        .phone-input-wrapper {
+            height: 44px;
+        }
+
+        .phone-country-code-select {
+            font-size: 13px;
+            min-width: 60px;
+        }
+
+        .phone-number-input {
+            font-size: 14px;
+        }
     }
 
 </style>
