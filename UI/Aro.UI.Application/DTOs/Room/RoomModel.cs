@@ -4,6 +4,8 @@ public class RoomModel
 {
     public Guid Id { get; set; } = Guid.Empty;
 
+    public Guid GroupId { get; set; } = Guid.Empty;
+
     public Guid PropertyId { get; set; } = Guid.Empty;
 
     public string RoomName { get; set; } = string.Empty;

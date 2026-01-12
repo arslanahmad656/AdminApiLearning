@@ -101,7 +101,10 @@
         else
         {
             if (Wizard.Entity is not null)
+            {
+                Wizard.Entity.GroupId = GroupId;
                 Wizard.Entity.PropertyId = PropertyId;
+            }
             isLoading = false;
         }
     }
@@ -121,6 +124,7 @@
                 Wizard.Entity = new RoomModel
                 {
                     Id = isDuplicateMode ? Guid.Empty : room.Id, // New ID for duplicate
+                    GroupId = GroupId,
                     PropertyId = PropertyId,
                     RoomName = isDuplicateMode ? $"{room.RoomName} (Copy)" : room.RoomName,
                     RoomCode = isDuplicateMode ? "" : room.RoomCode, // Blank for duplicate per AC3
