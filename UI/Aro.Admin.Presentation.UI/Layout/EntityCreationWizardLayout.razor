@@ -22,8 +22,8 @@
         </div>
 
         <!-- Child content -->
-        <div class="col-xl-10 h-100 overflow-y-auto">
-            <div class="wizard-content p-5">
+        <div class="col-12 col-md-10 col-xl-10 h-100 overflow-y-auto wizard-main-content">
+            <div class="wizard-content">
                 @ChildContent
             </div>
         </div>
@@ -41,7 +41,8 @@
         width: 100vw;
         height: 100vh;
         background: #F6F6F6;
-        overflow: hidden
+        overflow-x: hidden;
+        overflow-y: auto;
     }
 
     .card-bg-dark {
@@ -49,10 +50,16 @@
         color: white;
     }
 
+    .wizard-main-content {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .wizard-content {
         min-height: calc(100vh - 80px);
         display: flex;
         flex-direction: column;
+        padding: 40px;
         padding-bottom: 120px;
     }
 
@@ -69,6 +76,37 @@
 
     .form-group {
         margin-bottom: 24px;
+    }
+
+    /* Mobile responsive styles */
+    @@media (max-width: 768px) {
+        .wizard-content {
+            padding: 16px;
+            padding-bottom: 140px;
+        }
+
+        .step-title-container {
+            margin-bottom: 24px !important;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .wizard-content {
+            padding: 12px;
+            padding-bottom: 150px;
+        }
+
+        .step-title-container {
+            margin-bottom: 16px !important;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
     }
 
 </style>

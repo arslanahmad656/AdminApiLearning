@@ -411,7 +411,9 @@
     .wizard-body {
         display: flex;
         flex: 1;
-        overflow: hidden;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* Left Sidebar - Light Gray */
@@ -673,10 +675,24 @@
         margin-top: 8px;
     }
 
-    /* Responsive Fix */
+    /* Mobile Responsive Styles */
     @@media (max-width: 768px) {
         .wizard-content {
-            padding: 40px 20px;
+            padding: 24px !important;
+            padding-bottom: 140px !important;
+        }
+
+        .content-title {
+            font-size: 20px;
+            line-height: 24px;
+        }
+
+        .step-label {
+            font-size: 14px;
+        }
+
+        .form-group {
+            width: 100%;
         }
 
         .form-control {
@@ -685,6 +701,122 @@
 
         .form-group label {
             font-size: 14px;
+        }
+
+        .char-count-helper {
+            font-size: 13px;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .wizard-content {
+            padding: 16px !important;
+            padding-bottom: 140px !important;
+        }
+
+        .content-title {
+            font-size: 18px;
+            line-height: 22px;
+            margin-bottom: 16px;
+        }
+
+        .step-label {
+            font-size: 13px;
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            font-size: 13px;
+            padding: 10px 14px;
+        }
+
+        .form-control-with-icon {
+            padding-right: 40px;
+            height: 44px;
+        }
+
+        .form-control-textarea {
+            padding-right: 40px;
+            min-height: 180px;
+            line-height: 22px;
+        }
+
+        .input-info-icon {
+            right: 12px;
+        }
+
+        .input-info-icon svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .char-count-helper {
+            font-size: 12px;
+            margin-top: 6px;
+        }
+    }
+
+    @@media (max-width: 390px) {
+        .wizard-content {
+            padding: 12px !important;
+            padding-bottom: 140px !important;
+        }
+
+        .content-header {
+            margin-bottom: 12px;
+        }
+
+        .content-title {
+            font-size: 16px;
+            line-height: 20px;
+            margin-bottom: 12px;
+        }
+
+        .step-label {
+            font-size: 12px;
+        }
+
+        .form-group label {
+            font-size: 12px;
+        }
+
+        .form-control {
+            font-size: 12px;
+            padding: 8px 12px;
+            border-radius: 6px;
+        }
+
+        .form-control-with-icon {
+            padding-right: 36px;
+            height: 40px;
+        }
+
+        .form-control-textarea {
+            padding-right: 36px;
+            min-height: 150px;
+            line-height: 20px;
+        }
+
+        .input-info-icon {
+            right: 10px;
+        }
+
+        .input-info-icon svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .char-count-helper {
+            font-size: 11px;
         }
     }
 </style>
