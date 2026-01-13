@@ -7,6 +7,7 @@
 @using MudBlazor.Components
 @using Aro.UI.Application.DTOs
 @using Aro.Admin.Presentation.UI.Shared
+@implements IAsyncDisposable
 @layout WizardLayout
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
@@ -41,6 +42,7 @@
                 Write the most compelling reasons a guest should book with you. These highlights will be featured under Book Direct Benefit section in the Booking Engine.  You can reorder by drag & drop. Max 4 items, 30 characters each.
             </p>
             <!-- Selling Points with Drag -->
+            <div id="selling-points-container">
             @for (int i = 0; i < keySellingPoints.Count; i++)
             {
                 var index = i;
@@ -67,8 +69,8 @@
                         </button>
                     </div>
 
-                    <!-- Desktop drag handle -->
-                    <div class="drag-handle"
+                    <!-- Drag handle (desktop: mouse drag, mobile: touch drag) -->
+                    <div class="drag-handle touch-drag-handle"
                          draggable="true"
                          @ondragstart="() => HandleDragStart(index)"
                          @ondragend="HandleDragEnd"
@@ -76,21 +78,6 @@
                          @ondragover="() => HandleDragOver(index)"
                          @ondrop="() => HandleDrop(index)">
                         <img src="icons/draggable.png" />
-                    </div>
-
-                    <!-- 🔹 MOBILE ONLY reorder buttons -->
-                    <div class="mobile-reorder">
-                        <button type="button"
-                                @onclick="() => MoveUp(index)"
-                                disabled="@(index == 0)">
-                            ↑
-                        </button>
-
-                        <button type="button"
-                                @onclick="() => MoveDown(index)"
-                                disabled="@(index == keySellingPoints.Count - 1)">
-                            ↓
-                        </button>
                     </div>
 
                 </div>
@@ -102,6 +89,7 @@
                     </div>
                 }
             }
+            </div>
 
             @if (keySellingPoints.Count < 4)
             {
@@ -124,6 +112,8 @@
 
 @code {
     private PropertyWizardModel wizardModel = new();
+    private DotNetObjectReference<KeySellingPoints>? _dotNetRef;
+    private bool _touchDragInitialized = false;
 
     private List<SellingPointItem> keySellingPoints = new()
     {
@@ -181,19 +171,41 @@
             await LoadFromLocalStorage();
             StateHasChanged();
         }
-    }
-    private void MoveUp(int index)
-    {
-        if (index <= 0) return;
-        (keySellingPoints[index - 1], keySellingPoints[index]) =
-        (keySellingPoints[index], keySellingPoints[index - 1]);
+
+        // Initialize touch drag handler for mobile after each render
+        // (needed after adding/removing items)
+        await InitializeTouchDrag();
     }
 
-    private void MoveDown(int index)
+    private async Task InitializeTouchDrag()
     {
-        if (index >= keySellingPoints.Count - 1) return;
-        (keySellingPoints[index + 1], keySellingPoints[index]) =
-        (keySellingPoints[index], keySellingPoints[index + 1]);
+        try
+        {
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("touchDragReorder.init", "selling-points-container", _dotNetRef);
+            _touchDragInitialized = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Touch drag init error: {ex.Message}");
+        }
+    }
+
+    [JSInvokable]
+    public void OnTouchReorder(int fromIndex, int toIndex)
+    {
+        if (fromIndex < 0 || fromIndex >= keySellingPoints.Count ||
+            toIndex < 0 || toIndex >= keySellingPoints.Count ||
+            fromIndex == toIndex)
+        {
+            return;
+        }
+
+        var item = keySellingPoints[fromIndex];
+        keySellingPoints.RemoveAt(fromIndex);
+        keySellingPoints.Insert(toIndex, item);
+
+        StateHasChanged();
     }
 
     private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId, _currentPropertyId);
@@ -516,6 +528,23 @@
     public class SellingPointItem
     {
         public string Text { get; set; } = string.Empty;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_touchDragInitialized)
+            {
+                await JSRuntime.InvokeVoidAsync("touchDragReorder.dispose");
+            }
+        }
+        catch
+        {
+            // Ignore JS interop errors during disposal
+        }
+
+        _dotNetRef?.Dispose();
     }
 }
 
@@ -930,8 +959,19 @@
             font-weight: bold;
         }
 
-    .mobile-reorder {
-        display: none;
+    /* Touch dragging styles */
+    .touch-dragging {
+        opacity: 0.8;
+        background: #E8F4FF !important;
+        border: 2px dashed #F69126 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .touch-drag-handle {
+        touch-action: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
     }
 
     /* Mobile Responsive Styles */
@@ -980,16 +1020,19 @@
 
         .drag-handle {
             height: auto;
-        }
-
-        .mobile-reorder {
+            /* Show drag handle on mobile for touch drag */
             display: flex;
-            gap: 6px;
+            padding: 8px;
+            min-width: 40px;
+            min-height: 40px;
+            align-items: center;
+            justify-content: center;
         }
 
-        .drag-handle {
-            display: none;
-        }
+            .drag-handle img {
+                width: 24px;
+                height: 24px;
+            }
     }
 
     @@media (max-width: 480px) {
@@ -1068,7 +1111,14 @@
             height: 16px;
         }
 
-        .drag-handle img {
+        /* Keep drag handle visible and touchable on small screens */
+        .drag-handle {
+            padding: 6px;
+            min-width: 36px;
+            min-height: 36px;
+        }
+
+            .drag-handle img {
             width: 20px;
             height: 20px;
         }
