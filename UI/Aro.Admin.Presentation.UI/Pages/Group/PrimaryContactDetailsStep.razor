@@ -293,8 +293,8 @@
         _countryOptions.AddRange(
             CountryMetadataService
             .GetAll()
-            .GroupBy(c => c.PhoneCountryCode)
-            .Select(g => g.First())
+            // .GroupBy(c => c.PhoneCountryCode)
+            // .Select(g => g.First())
             .OrderBy(c => int.Parse(c.PhoneCountryCode.TrimStart('+')))
             .Select(c => new CountryOption
             {
@@ -306,18 +306,20 @@
             }));
 
         _countryOptions.Sort((x, y) => string.Compare(x.PhoneCode, y.PhoneCode));
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (_countryOptions.Count == 0)
+            return;
+
+        SelectedCountry = null;
 
         if (!string.IsNullOrWhiteSpace(Wizard.Entity?.PrimaryContact?.CountryCode))
         {
             SelectedCountry = _countryOptions.FirstOrDefault(c =>
                 c.PhoneCode == Wizard.Entity.PrimaryContact.CountryCode);
             return;
-        }
-
-        if (!string.IsNullOrWhiteSpace(Wizard.Entity?.Country))
-        {
-            SelectedCountry = _countryOptions.FirstOrDefault(c =>
-                c.Country == Wizard.Entity?.Country);
         }
     }
 

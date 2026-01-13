@@ -10,6 +10,8 @@ public interface IRoomService
 
     Task<GetRoomsResponse?> GetRooms(GetRoomsRequest request);
 
+    Task<bool> RoomCodeExists(GetRoomByRoomCodeRequest request);
+
     Task<PatchRoomResponse?> PatchRoom(PatchRoomRequest request);
 
     Task<DeleteRoomResponse?> DeleteRoom(Guid Id);

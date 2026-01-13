@@ -131,4 +131,11 @@ public class RoomService(HttpClient httpClient) : IRoomService
             return null;
         }
     }
+
+    public async Task<bool> RoomCodeExists(GetRoomByRoomCodeRequest request)
+    {
+        var response = await _httpClient.GetAsync($"api/room/room-code-exists/{request.RoomCode}?PropertyId={request.PropertyId}");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<bool>();
+    }
 }

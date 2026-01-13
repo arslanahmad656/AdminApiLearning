@@ -18,7 +18,7 @@ namespace Aro.Admin.Presentation.Entry.Migrations
                 name: "IconId",
                 table: "Groups",
                 type: "uniqueidentifier",
-                nullable: true,
+                nullable: false,
                 defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
 
             migrationBuilder.CreateTable(

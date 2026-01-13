@@ -1,12 +1,17 @@
 ﻿using Aro.UI.Application.DTOs.Room;
+using Aro.UI.Infrastructure.Services;
 using FluentValidation;
 
 namespace Aro.Admin.Presentation.UI.Validators;
 
 public class RoomModelFluentValidator : AbstractValidator<RoomModel>
 {
-    public RoomModelFluentValidator()
+    private readonly IRoomService _roomService;
+
+    public RoomModelFluentValidator(IRoomService roomService)
     {
+        _roomService = roomService;
+
         RuleFor(x => x.RoomName)
             .NotEmpty()
             .Length(2, 100);
@@ -15,7 +20,16 @@ public class RoomModelFluentValidator : AbstractValidator<RoomModel>
             .NotEmpty()
             .Matches("^[A-Z0-9-]+$")
             .WithMessage("Room code can only contain uppercase letters, numbers, and hyphens.")
-            .Length(2, 20);
+            .Length(2, 20)
+            .MustAsync(async (model, roomCode, cancellation) =>
+            {
+                if (string.IsNullOrEmpty(roomCode)) return false;
+
+                var room = await _roomService.RoomCodeExists(new(model.PropertyId, roomCode));
+
+                return !room;
+            })
+            .WithMessage("A room with this room code already exists.");
 
         RuleFor(m => m.Description)
             .MaximumLength(800);
