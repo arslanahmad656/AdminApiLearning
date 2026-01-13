@@ -34,7 +34,7 @@ public class CreateRoomModelValidator : AbstractValidator<CreateRoomModel>
             .GreaterThan(0);
 
         RuleFor(m => m.BedConfig)
-            .NotEmpty();
+            .IsInEnum();
 
         RuleFor(m => m.Amenities)
             .Must(a => a?.Distinct().Count() == a?.Count)
