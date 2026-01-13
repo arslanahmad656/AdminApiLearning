@@ -12,7 +12,7 @@
 
 @inject IErrorHandlingService ErrorHandler
 
-<div class="wizard-layout">
+<div class="property-wizard-container">
     <!-- Header Bar -->
     <div class="col-12 card-bg-dark">
         <WizardHeader HeaderTitle="@Title"
@@ -27,8 +27,10 @@
 
         <!-- Review Content -->
         <div class="wizard-content scrollable-content">
-            <p class="step-label">Step 6</p>
-            <h2 class="content-title">Review & Save</h2>
+            <div class="content-header">
+                <p class="step-label">Step 6</p>
+                <h2 class="content-title">Review & Save</h2>
+            </div>
 
             <!-- 1. Property Information -->
             <h3 class="review-section-title">1. PROPERTY INFORMATION</h3>
