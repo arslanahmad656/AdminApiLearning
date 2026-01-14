@@ -6,7 +6,6 @@ using Aro.Common.Application.Services.LogManager;
 using Aro.Common.Domain.Shared;
 using Aro.Common.Presentation.Shared.Filters;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Aro.Booking.Presentation.Api.Controllers;
@@ -102,6 +101,22 @@ public class RoomController(
             )
         ), cancellationToken).ConfigureAwait(false);
 
+        return Ok(response);
+    }
+
+    [HttpGet("room-code-exists/{roomCode}")]
+    [Permissions(PermissionCodes.GetRoom)]
+    public async Task<IActionResult> RoomCodeExists(
+        string roomCode,
+        [FromQuery] GetRoomByRoomCodeQueryParameters model,
+        CancellationToken cancellationToken
+    )
+    {
+        logger.LogDebug("Starting RoomCodeExists operation.");
+
+        var response = await mediator.Send(new RoomCodeExistsQuery(new(model.PropertyId, roomCode)), cancellationToken).ConfigureAwait(false);
+
+        logger.LogDebug("Completed RoomCodeExists operation successfully.");
         return Ok(response);
     }
 

@@ -10,6 +10,8 @@ public interface IRoomService : IService
 
     Task<GetRoomResponse> GetRoomById(GetRoomDto query, CancellationToken cancellationToken = default);
 
+    Task<bool> RoomCodeExists(RoomCodeExistsDto query, CancellationToken cancellationToken = default);
+
     Task<PatchRoomResponse> PatchRoom(PatchRoomDto room, CancellationToken cancellationToken = default);
 
     Task<DeleteRoomResponse> DeleteRoom(DeleteRoomDto room, CancellationToken cancellationToken = default);

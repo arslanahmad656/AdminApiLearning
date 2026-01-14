@@ -9,7 +9,7 @@
 <div class="full-screen-overlay">
     <div class="row g-0 h-100">
         <!-- Wizard Header -->
-        <div class="col-12 card-bg-dark">
+        <div class="col-12 card-bg-dark sticky-top">
             <WizardHeader 
                 HeaderTitle="@Title"
                               OnClose="@HandleClose" />
@@ -22,10 +22,8 @@
         </div>
 
         <!-- Child content -->
-        <div class="col-12 col-md-10 col-xl-10 h-100 overflow-y-auto wizard-main-content">
-            <div class="wizard-content">
-                @ChildContent
-            </div>
+        <div class="col-12 col-md-10 col-xl-10 overflow-y-auto wizard-content">
+            @ChildContent
         </div>
 
     </div>
@@ -48,11 +46,6 @@
     .card-bg-dark {
         background-color: #434343;
         color: white;
-    }
-
-    .wizard-main-content {
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
     }
 
     .wizard-content {

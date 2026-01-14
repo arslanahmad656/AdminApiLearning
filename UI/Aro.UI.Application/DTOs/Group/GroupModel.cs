@@ -35,7 +35,14 @@ public class GroupModel
             Country = Country,
             PostalCode = PostalCode,
             Logo = Logo,
-            PrimaryContact = PrimaryContact
+            PrimaryContact = new PrimaryContactModel
+            {
+                Email = PrimaryContact.Email,
+                Name = PrimaryContact.Name,
+                CountryCode = PrimaryContact.CountryCode,
+                PhoneNumber = PrimaryContact.PhoneNumber
+            }
+
         };
     }
 

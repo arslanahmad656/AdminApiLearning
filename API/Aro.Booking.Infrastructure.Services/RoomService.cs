@@ -283,6 +283,28 @@ public partial class RoomService(
         return new GetRoomResponse(roomDto);
     }
 
+    public async Task<bool> RoomCodeExists(RoomCodeExistsDto query, CancellationToken cancellationToken = default)
+    {
+        logger.LogDebug("Starting {MethodName}", nameof(RoomCodeExists));
+
+        string[] requiredPermissions = [PermissionCodes.GetRoom];
+        await authorizationService.EnsureCurrentUserPermissions(requiredPermissions, cancellationToken);
+        logger.LogDebug("Authorization verified for {MethodName}", nameof(RoomCodeExists));
+
+        var roomCodeExists = await repositoryManager.RoomRepository
+            .GetAll()
+            .Where(r => r.PropertyId == query.PropertyId)
+            .Where(r => r.RoomCode == query.RoomCode)
+            .AnyAsync(cancellationToken)
+            .ConfigureAwait(false);
+
+        logger.LogDebug("Room with room code: {RoomCode} exists: {Exists}.", query.RoomCode, roomCodeExists);
+
+        logger.LogDebug("Completed {MethodName}", nameof(RoomCodeExists));
+
+        return roomCodeExists;
+    }
+
     public async Task<PatchRoomResponse> PatchRoom(
         PatchRoomDto room,
         CancellationToken cancellationToken = default

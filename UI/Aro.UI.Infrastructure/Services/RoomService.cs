@@ -132,33 +132,10 @@ public class RoomService(HttpClient httpClient) : IRoomService
         }
     }
 
-    public async Task<bool> CheckRoomCodeExists(Guid propertyId, string roomCode, Guid? excludeRoomId = null)
+    public async Task<bool> RoomCodeExists(GetRoomByRoomCodeRequest request)
     {
-        if (string.IsNullOrWhiteSpace(roomCode))
-            return false;
-
-        try
-        {
-            var roomsResponse = await GetRooms(new GetRoomsRequest(
-                PropertyId: propertyId,
-                Filter: null,
-                Include: null,
-                Page: 1,
-                PageSize: 100,
-                SortBy: "RoomCode",
-                Ascending: true
-            ));
-
-            if (roomsResponse?.Rooms == null || !roomsResponse.Rooms.Any())
-                return false;
-
-            return roomsResponse.Rooms.Any(r =>
-                r.RoomCode.Equals(roomCode, StringComparison.OrdinalIgnoreCase) &&
-                (!excludeRoomId.HasValue || r.Id != excludeRoomId.Value));
-        }
-        catch
-        {
-            return false;
-        }
+        var response = await _httpClient.GetAsync($"api/room/room-code-exists/{request.RoomCode}?PropertyId={request.PropertyId}");
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<bool>();
     }
 }

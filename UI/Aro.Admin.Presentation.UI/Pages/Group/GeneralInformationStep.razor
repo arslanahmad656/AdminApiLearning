@@ -254,11 +254,14 @@
         set
         {
             var newName = value?.Name ?? string.Empty;
+            var newCode = value?.PhoneCountryCode ?? string.Empty;
 
             if (Wizard.Entity!.Country == newName)
                 return;
 
             Wizard.Entity.Country = newName;
+            Wizard.Entity.PrimaryContact.CountryCode = newCode;
+
             IsCountryInvalid = false;
         }
     }
@@ -272,8 +275,9 @@
             .OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase)
             .Select(c => new CountryOption
             {
-                Code = c.ISO2,
+                ISO2 = c.ISO2,
                 Name = c.Name,
+                PhoneCountryCode = c.PhoneCountryCode,
                 FlagUrl = $"/flags/{c.ISO2.ToLowerInvariant()}.svg"
             })
             .ToList();
@@ -288,8 +292,9 @@
 
     private sealed class CountryOption
     {
-        public string Code { get; init; } = string.Empty;
+        public string ISO2 { get; init; } = string.Empty;
         public string Name { get; init; } = string.Empty;
+        public string PhoneCountryCode { get; init; } = string.Empty;
         public string FlagUrl { get; init; } = string.Empty;
     }
 
