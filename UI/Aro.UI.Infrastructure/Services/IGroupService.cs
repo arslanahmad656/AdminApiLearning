@@ -10,7 +10,7 @@ public interface IGroupService
 
     Task<GetGroupsResponse?> GetGroups(GetGroupsRequest request);
 
-    Task<PatchGroupResponse> PatchGroup(PatchGroupRequest request);
+    Task<PatchGroupResponse?> PatchGroup(PatchGroupRequest request);
 
     Task<DeleteGroupResponse?> DeleteGroup(Guid Id);
 }
