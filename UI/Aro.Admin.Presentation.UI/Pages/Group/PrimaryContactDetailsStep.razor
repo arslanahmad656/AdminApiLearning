@@ -282,7 +282,11 @@
                 return;
 
             _selectedCountry = value;
-            Wizard.Entity!.PrimaryContact!.CountryCode = value?.PhoneCode;
+
+            if (value != null)
+            {
+                Wizard.Entity!.PrimaryContact!.CountryCode = value.PhoneCode;
+            }
         }
     }
 
@@ -313,11 +317,11 @@
         if (_countryOptions.Count == 0)
             return;
 
-        SelectedCountry = null;
+        _selectedCountry = null;
 
         if (!string.IsNullOrWhiteSpace(Wizard.Entity?.PrimaryContact?.CountryCode))
         {
-            SelectedCountry = _countryOptions.FirstOrDefault(c =>
+            _selectedCountry = _countryOptions.FirstOrDefault(c =>
                 c.PhoneCode == Wizard.Entity.PrimaryContact.CountryCode);
             return;
         }

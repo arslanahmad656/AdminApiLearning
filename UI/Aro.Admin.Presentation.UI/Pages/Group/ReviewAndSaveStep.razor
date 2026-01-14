@@ -247,7 +247,7 @@
                 return;
             }
 
-            group.PrimaryContact.Id = existingUser.Id;
+            group.PrimaryContact.Id = existingUser.User.Id;
         }
 
         var patch = ToPatchGroupRequest(group, prev);
