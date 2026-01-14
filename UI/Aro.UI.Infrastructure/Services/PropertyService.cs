@@ -37,7 +37,11 @@ public class PropertyService : IPropertyService
             formData.Add(new StringContent(wizardData.City ?? ""), "City");
             formData.Add(new StringContent(wizardData.Country ?? ""), "Country");
             formData.Add(new StringContent(wizardData.PostalCode ?? ""), "PostalCode");
-            formData.Add(new StringContent(wizardData.PhoneNumber ?? ""), "PhoneNumber");
+            // Combine country code with phone number (e.g., "+92 30254545")
+            var fullPhoneNumber = !string.IsNullOrEmpty(wizardData.PhoneCountryCode) && !string.IsNullOrEmpty(wizardData.PhoneNumber)
+                ? $"+{wizardData.PhoneCountryCode} {wizardData.PhoneNumber}"
+                : wizardData.PhoneNumber ?? "";
+            formData.Add(new StringContent(fullPhoneNumber), "PhoneNumber");
             formData.Add(new StringContent(wizardData.Website ?? ""), "Website");
 
             formData.Add(new StringContent(wizardData.SetContactSameAsPrimaryContact.ToString().ToLower()), "SetContactSameAsPrimaryContact");
@@ -168,7 +172,11 @@ public class PropertyService : IPropertyService
             formData.Add(new StringContent(wizardData.City ?? ""), "City");
             formData.Add(new StringContent(wizardData.Country ?? ""), "Country");
             formData.Add(new StringContent(wizardData.PostalCode ?? ""), "PostalCode");
-            formData.Add(new StringContent(wizardData.PhoneNumber ?? ""), "PhoneNumber");
+            // Combine country code with phone number (e.g., "+92 30254545")
+            var fullPhoneNumber = !string.IsNullOrEmpty(wizardData.PhoneCountryCode) && !string.IsNullOrEmpty(wizardData.PhoneNumber)
+                ? $"+{wizardData.PhoneCountryCode} {wizardData.PhoneNumber}"
+                : wizardData.PhoneNumber ?? "";
+            formData.Add(new StringContent(fullPhoneNumber), "PhoneNumber");
             formData.Add(new StringContent(wizardData.Website ?? ""), "Website");
 
             formData.Add(new StringContent(wizardData.SetContactSameAsPrimaryContact.ToString().ToLower()), "SetContactSameAsPrimaryContact");

@@ -72,7 +72,7 @@
                         </div>
                         <MudTextField @bind-Value="wizardModel.AddressLine2"
                                       Variant="Variant.Text"
-                                      Class="form-input secondary-input"
+                                      Class="form-input"
                                       HelperText=""
                                       HelperTextOnFocus="false"
                                       Immediate="true"
@@ -121,6 +121,7 @@
                                              CoerceText="false"
                                              CoerceValue="false"
                                              ResetValueOnEmptyText="true"
+                                             SelectOnClick="true"
                                              Disabled="@wizardModel.SetAddressSameAsGroupAddress" />
                         </div>
                         @if (IsCountryInvalid)
@@ -331,14 +332,26 @@
     private void OnContactEmailFocus() { contactEmailFocused = true; StateHasChanged(); }
 
     // Blur handlers - mark as touched and show error when leaving field empty
-    private void OnAddressLine1Blur() { addressLine1Focused = false; addressLine1Touched = true; StateHasChanged(); }
-    private void OnCityBlur() { cityFocused = false; cityTouched = true; StateHasChanged(); }
-    private void OnCountryBlur() { countryFocused = false; countryTouched = true; StateHasChanged(); }
-    private void OnPostalCodeBlur() { postalCodeFocused = false; postalCodeTouched = true; StateHasChanged(); }
-    private void OnPhoneNumberBlur() { phoneNumberFocused = false; phoneNumberTouched = true; StateHasChanged(); }
-    private void OnWebsiteBlur() { websiteFocused = false; websiteTouched = true; StateHasChanged(); }
-    private void OnContactNameBlur() { contactNameFocused = false; contactNameTouched = true; StateHasChanged(); }
-    private void OnContactEmailBlur() { contactEmailFocused = false; contactEmailTouched = true; StateHasChanged(); }
+    // Using async with Task.Yield() to ensure value binding completes before validation
+    private async Task OnAddressLine1Blur() { await Task.Yield(); addressLine1Focused = false; addressLine1Touched = true; StateHasChanged(); }
+    private async Task OnCityBlur() { await Task.Yield(); cityFocused = false; cityTouched = true; StateHasChanged(); }
+    private async Task OnCountryBlur() { await Task.Yield(); countryFocused = false; countryTouched = true; StateHasChanged(); }
+    private async Task OnPostalCodeBlur() { await Task.Yield(); postalCodeFocused = false; postalCodeTouched = true; StateHasChanged(); }
+    private async Task OnPhoneNumberBlur() { await Task.Yield(); phoneNumberFocused = false; phoneNumberTouched = true; StateHasChanged(); }
+    private async Task OnWebsiteBlur() { await Task.Yield(); websiteFocused = false; websiteTouched = true; StateHasChanged(); }
+    private async Task OnContactNameBlur() { await Task.Yield(); contactNameFocused = false; contactNameTouched = true; StateHasChanged(); }
+    private async Task OnContactEmailBlur()
+    {
+        await Task.Yield();
+        contactEmailFocused = false;
+        contactEmailTouched = true;
+        // Trim email on blur to remove leading/trailing spaces
+        if (!string.IsNullOrEmpty(wizardModel.ContactEmail))
+        {
+            wizardModel.ContactEmail = wizardModel.ContactEmail.Trim();
+        }
+        StateHasChanged();
+    }
 
     // Value change handlers
     private void OnAddressLine1Changed(string? newValue) { wizardModel.AddressLine1 = newValue; }
@@ -431,10 +444,28 @@
                 wizardModel.GroupId = _currentGroupId;
             }
 
+            // Parse phone number to extract country code if in format "+XX XXXXXXX"
+            // This handles data loaded from API where phone number includes country code
+            if (!string.IsNullOrEmpty(wizardModel.PhoneNumber) && string.IsNullOrEmpty(wizardModel.PhoneCountryCode))
+            {
+                var (countryCode, phoneNumber) = ParsePhoneNumber(wizardModel.PhoneNumber);
+                if (!string.IsNullOrEmpty(countryCode))
+                {
+                    wizardModel.PhoneCountryCode = countryCode;
+                    wizardModel.PhoneNumber = phoneNumber;
+                }
+            }
+
             // Sanitize phone number in case invalid data was stored
             if (!string.IsNullOrEmpty(wizardModel.PhoneNumber))
             {
                 wizardModel.PhoneNumber = SanitizePhoneNumber(wizardModel.PhoneNumber);
+            }
+
+            // In edit mode, compare property data with group data to determine checkbox states
+            if (wizardModel.IsEditMode && _currentGroupId.HasValue)
+            {
+                await CompareWithGroupDataAsync();
             }
 
             _originalStateHash = ComputeCurrentStateHash();
@@ -505,7 +536,7 @@
         // Phone number must be between 7-15 digits
         return phone.Length >= 7 && phone.Length <= 15;
     }
-    private bool IsValidEmail(string? email) => !string.IsNullOrWhiteSpace(email) && EmailRegex.IsMatch(email);
+    private bool IsValidEmail(string? email) => !string.IsNullOrWhiteSpace(email) && EmailRegex.IsMatch(email.Trim());
     private bool IsValidUrl(string? url) => !string.IsNullOrWhiteSpace(url) && UrlRegex.IsMatch(url);
 
     // Validation helper methods - show error when:
@@ -554,6 +585,82 @@
     }
 
     // Sanitize phone number - strips non-numeric characters and enforces max length
+    /// <summary>
+    /// Parses a phone number string like "+92 30254545" into country code and phone number parts.
+    /// </summary>
+    private (string countryCode, string phoneNumber) ParsePhoneNumber(string? fullPhoneNumber)
+    {
+        if (string.IsNullOrWhiteSpace(fullPhoneNumber))
+            return ("", "");
+
+        var phone = fullPhoneNumber.Trim();
+
+        // Check if it starts with "+"
+        if (phone.StartsWith("+"))
+        {
+            phone = phone.Substring(1); // Remove the "+"
+
+            // Split by space to separate country code and phone number
+            var parts = phone.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 2)
+            {
+                return (parts[0], parts[1]);
+            }
+            else if (parts.Length == 1)
+            {
+                // No space found, try to extract country code (assume 1-3 digits at start)
+                // This is a fallback for formats like "+9230254545"
+                for (int i = 3; i >= 1; i--)
+                {
+                    if (phone.Length > i)
+                    {
+                        return (phone.Substring(0, i), phone.Substring(i));
+                    }
+                }
+            }
+        }
+
+        // If no country code format detected, return as-is for phone number
+        return ("", fullPhoneNumber);
+    }
+
+    /// <summary>
+    /// Compares property data with group data to determine if checkboxes should be checked in edit mode.
+    /// </summary>
+    private async Task CompareWithGroupDataAsync()
+    {
+        try
+        {
+            if (!_currentGroupId.HasValue) return;
+
+            var groupResponse = await GroupService.GetGroup(new GetGroupRequest(_currentGroupId.Value, "Address,PrimaryContact,PrimaryContact.ContactInfo"));
+            if (groupResponse?.Group == null) return;
+
+            var group = groupResponse.Group;
+
+            // Compare address fields - if all match, check the address checkbox
+            var addressMatches =
+                string.Equals(wizardModel.AddressLine1?.Trim(), group.AddressLine1?.Trim(), StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(wizardModel.AddressLine2?.Trim(), group.AddressLine2?.Trim(), StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(wizardModel.City?.Trim(), group.City?.Trim(), StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(wizardModel.Country?.Trim(), group.Country?.Trim(), StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(wizardModel.PostalCode?.Trim(), group.PostalCode?.Trim(), StringComparison.OrdinalIgnoreCase);
+
+            wizardModel.SetAddressSameAsGroupAddress = addressMatches;
+
+            // Compare contact fields - if all match, check the contact checkbox
+            var contactMatches =
+                string.Equals(wizardModel.ContactName?.Trim(), group.PrimaryContactName?.Trim(), StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(wizardModel.ContactEmail?.Trim(), group.PrimaryContactEmail?.Trim(), StringComparison.OrdinalIgnoreCase);
+
+            wizardModel.SetContactSameAsPrimaryContact = contactMatches;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error comparing with group data: {ex.Message}");
+        }
+    }
+
     private string SanitizePhoneNumber(string? phone)
     {
         if (string.IsNullOrEmpty(phone))
@@ -604,7 +711,9 @@
         if (countryNames == null)
             return Task.FromResult(Enumerable.Empty<string>());
 
-        if (string.IsNullOrWhiteSpace(searchText))
+        // If search text is empty OR matches the currently selected country, show all countries
+        if (string.IsNullOrWhiteSpace(searchText) ||
+            string.Equals(searchText, wizardModel.Country, StringComparison.OrdinalIgnoreCase))
         {
             var sortedAll = countryNames
                 .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
@@ -1042,6 +1151,7 @@
         flex: 1;
         background: #F6F6F6;
         padding: 48px !important;
+        padding-bottom: 140px !important;
         overflow-y: auto;
         overflow-x: hidden;
         display: flex;
@@ -1180,10 +1290,6 @@
         color: #000000 !important;
     }
 
-    .address-form .form-input.secondary-input input.mud-input-slot {
-        color: #737373 !important;
-    }
-
     /* Placeholder styles for MudBlazor inputs */
     .address-form .form-input input.mud-input-slot::placeholder,
     .address-form .form-input textarea.mud-input-slot::placeholder,
@@ -1228,7 +1334,7 @@
     /* Three Column Row */
     .form-row-three-col {
         display: grid;
-        grid-template-columns: 260px 340px 260px;
+        grid-template-columns: 260px 290px 260px;
         gap: 32px;
         margin-bottom: 32px;
     }
@@ -1240,7 +1346,8 @@
         align-items: center;
         background: #F6F6F6;
         border: 1px solid #C3C3C3;
-        border-radius: 6px;
+        border-radius: 8px;
+        width: 290px;
         height: 50px;
         overflow: hidden;
     }
@@ -1251,12 +1358,21 @@
         align-items: center;
         border-right: 1px solid #C3C3C3;
         height: 100%;
+        flex-shrink: 0;
     }
 
     .flag-icon {
         width: 30px;
         height: 20px;
         object-fit: contain;
+    }
+
+    /* MudAutocomplete outer wrapper */
+    .country-select-wrapper > .mud-autocomplete {
+        flex: 1;
+        min-width: 0;
+        height: 100%;
+        overflow: hidden;
     }
 
     .form-select-country {
@@ -1282,67 +1398,41 @@
 
     /* MudSelect styling for country dropdown */
     .country-mud-select {
-        flex: 1;
-        height: 100%;
+        height: 100% !important;
         margin: 0 !important;
-        min-width: 0;
-        overflow: hidden;
+        width: 100% !important;
     }
 
-        .country-mud-select .mud-input-control {
+        .country-mud-select .mud-input-control-input-container {
             margin: 0 !important;
+            padding: 0 !important;
             height: 100% !important;
-            overflow: hidden !important;
-            min-width: 0 !important;
+            width: 100% !important;
         }
 
         .country-mud-select .mud-input {
             margin: 0 !important;
             padding: 0 !important;
             height: 100% !important;
-            display: flex !important;
-            align-items: center !important;
-            overflow: hidden !important;
-            min-width: 0 !important;
+            width: 100% !important;
         }
 
-        .country-mud-select .mud-input-slot {
+        .country-mud-select .mud-input-slot,
+        .country-mud-select input.mud-input-slot {
             background: transparent !important;
             border: none !important;
             padding: 0 12px !important;
+            padding-right: 32px !important;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !important;
             font-size: 16px !important;
             font-weight: 400 !important;
             color: #000000 !important;
             height: 48px !important;
-            min-height: 48px !important;
-            display: flex !important;
-            align-items: center !important;
-            overflow: hidden !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
             text-overflow: ellipsis !important;
-            white-space: nowrap !important;
-        }
-
-        .country-mud-select .mud-select-input {
-            padding: 0 12px !important;
-            min-height: 48px !important;
-            height: 48px !important;
-            display: flex !important;
-            align-items: center !important;
             overflow: hidden !important;
-            text-overflow: ellipsis !important;
             white-space: nowrap !important;
-            max-width: 100% !important;
-        }
-
-        .country-mud-select .mud-input-control-input-container {
-            margin: 0 !important;
-            padding: 0 !important;
-            height: 100% !important;
-            display: flex !important;
-            align-items: center !important;
-            overflow: hidden !important;
-            min-width: 0 !important;
         }
 
         .country-mud-select .mud-input-underline::before,
@@ -1352,36 +1442,14 @@
 
         .country-mud-select .mud-input-adornment {
             color: #000000 !important;
+            position: absolute !important;
+            right: 8px !important;
         }
 
-        /* MudSelect placeholder text styling */
-        .country-mud-select .mud-select-input.mud-input-slot {
+        /* Placeholder text styling */
+        .country-mud-select input.mud-input-slot::placeholder {
             color: #737373 !important;
-        }
-
-            .country-mud-select .mud-select-input.mud-input-slot:not(:placeholder-shown),
-            .country-mud-select.mud-input-has-value .mud-select-input.mud-input-slot {
-                color: #000000 !important;
-            }
-
-        .country-mud-select .mud-select {
-            height: 100% !important;
-        }
-
-            .country-mud-select .mud-select .mud-input-control {
-                height: 100% !important;
-            }
-
-        .country-mud-select .mud-input-text {
-            display: flex !important;
-            align-items: center !important;
-            height: 100% !important;
-            margin-top: 0 !important;
-            padding-top: 0 !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            white-space: nowrap !important;
-            min-width: 0 !important;
+            opacity: 1 !important;
         }
 
     /* Custom Two Column Row for Phone and Website */
