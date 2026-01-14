@@ -49,7 +49,10 @@
                 var remainingChars = 30 - (keySellingPoints[index].Text?.Length ?? 0);
                 var placeholder = GetPlaceholderText(index);
 
-                <div class="selection-row">
+                <div class="selection-row @(dragOverIndex == index ? "drag-over" : "") @(dragIndex == index ? "dragging" : "")"
+                     @ondragover:preventDefault
+                     @ondragover="() => HandleDragOver(index)"
+                     @ondrop="() => HandleDrop(index)">
 
                     <!-- Input + Delete -->
                     <div class="selling-point-row @(activeInputIndex == index && remainingChars == 0 ? "max-reached" : "")">
@@ -73,10 +76,7 @@
                     <div class="drag-handle touch-drag-handle"
                          draggable="true"
                          @ondragstart="() => HandleDragStart(index)"
-                         @ondragend="HandleDragEnd"
-                         @ondragover:preventDefault
-                         @ondragover="() => HandleDragOver(index)"
-                         @ondrop="() => HandleDrop(index)">
+                         @ondragend="HandleDragEnd">
                         <img src="icons/draggable.png" />
                     </div>
 
@@ -899,6 +899,18 @@
             cursor: grabbing;
         }
 
+    /* Touch/Mouse dragging styles */
+    .selection-row.touch-dragging {
+        opacity: 0.9;
+        background: #E8F4FF;
+        border-radius: 8px;
+    }
+
+        .selection-row.touch-dragging .selling-point-row {
+            border: 2px dashed #F69126;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
     .selling-point-input {
         flex-grow: 1;
         border: none;
@@ -958,14 +970,6 @@
             color: #FF4D4F;
             font-weight: bold;
         }
-
-    /* Touch dragging styles */
-    .touch-dragging {
-        opacity: 0.8;
-        background: #E8F4FF !important;
-        border: 2px dashed #F69126 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
-    }
 
     .touch-drag-handle {
         touch-action: none;

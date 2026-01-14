@@ -81,7 +81,14 @@
 
                 <div class="favicon-upload-container">
                     <div class="favicon-filename-display">
-                        <img src="/icons/favicon-icon.png" alt="Favicon icon" class="favicon-icon" />
+                        @if (!string.IsNullOrEmpty(faviconUrl))
+                        {
+                            <img src="@faviconUrl" alt="Favicon preview" class="favicon-icon favicon-preview" />
+                        }
+                        else
+                        {
+                            <img src="/icons/favicon-icon.png" alt="Favicon icon" class="favicon-icon" />
+                        }
                         <span>@(string.IsNullOrEmpty(faviconFileName) ? "No file chosen" : faviconFileName)</span>
                     </div>
                     <label class="favicon-browse-button">
@@ -464,6 +471,7 @@
                 Base64Data = imageDataUrl
             };
             faviconFileName = file.Name;
+            faviconUrl = imageDataUrl;
             Snackbar.Add($"Favicon '{file.Name}' uploaded successfully.", MudBlazor.Severity.Success);
             await SaveToLocalStorage();
             StateHasChanged();
@@ -1154,8 +1162,9 @@
     .favicon-filename-display {
         flex: 1;
         padding: 10px 20px;
-        align-content: center;
+        display: flex;
         align-items: center;
+        gap: 10px;
         background-color: #F5F5F5;
         border: 1px solid #C3C3C3;
         border-radius: 10px 0 0 10px;
@@ -1170,6 +1179,14 @@
     .favicon-icon {
         width: 32px;
         height: 32px;
+        flex-shrink: 0;
+    }
+
+    .favicon-preview {
+        border: 2px solid #F69126;
+        border-radius: 4px;
+        object-fit: contain;
+        background: #FFFFFF;
     }
 
     .favicon-browse-button {

@@ -22,7 +22,9 @@
         <!-- Sidebar Steps -->
         <div class="d-none d-md-block col-xl-2  border-end bg-white">
             <WizardSteps StepTitles="@stepTitles"
-                         ActiveStepIndex="5" />
+                         ActiveStepIndex="5"
+                         IsEditMode="@wizardModel.IsEditMode"
+                         OnStepClick="HandleStepClick" />
         </div>
 
         <!-- Review Content -->
@@ -70,7 +72,7 @@
                 <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.PostalCode) ? "Not provided" : wizardModel.PostalCode)</div>
 
                 <div class="review-label">Phone Number</div>
-                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) ? "Not provided" : wizardModel.PhoneNumber)</div>
+                <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) ? "Not provided" : GetFormattedPhoneNumber())</div>
 
                 <div class="review-label">Website URL</div>
                 <div class="review-value">@(string.IsNullOrWhiteSpace(wizardModel.Website) ? "Not provided" : wizardModel.Website)</div>
@@ -173,6 +175,17 @@
         "Marketing & SEO",
         "Review & Save"
     };
+
+    private readonly string[] stepRoutes = new[]
+    {
+        "/property/information",
+        "/property/address-contact",
+        "/property/key-selling-points",
+        "/property/media-files",
+        "/property/marketing-seo",
+        "/property/review-save"
+    };
+
     private PropertyWizardModel wizardModel = new();
     private bool isSaving = false;
     private Guid? _currentGroupId = null;
@@ -189,6 +202,24 @@
     }
 
     private string GetStorageKey() => PropertyWizardModel.GetLocalStorageKey(_currentGroupId, _currentPropertyId);
+
+    private string GetFormattedPhoneNumber()
+    {
+        if (!string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode) && !string.IsNullOrWhiteSpace(wizardModel.PhoneNumber))
+        {
+            return $"+{wizardModel.PhoneCountryCode} {wizardModel.PhoneNumber}";
+        }
+        return wizardModel.PhoneNumber ?? "";
+    }
+
+    private void HandleStepClick(int stepIndex)
+    {
+        // In edit mode, allow navigation to any step
+        if (wizardModel.IsEditMode)
+        {
+            NavigationManager.NavigateTo(stepRoutes[stepIndex]);
+        }
+    }
 
     private async Task LoadFromLocalStorage()
     {
@@ -564,6 +595,7 @@
         flex-direction: column;
         background: #F6F6F6;
         padding: 48px !important;
+        padding-bottom: 140px !important;
         overflow-x: hidden;
         overflow-y: auto;
     }
@@ -769,9 +801,8 @@
         } */
 
     .scrollable-content {
-        max-height: calc(130vh - 350px); /* Adjust based on your header/footer */
         overflow-y: auto;
-        overflow-x: hidden; /* ✅ removes bottom bar */
+        overflow-x: hidden;
         padding-right: 24px;
         scrollbar-width: thin;
         scrollbar-color: #aaa transparent;
