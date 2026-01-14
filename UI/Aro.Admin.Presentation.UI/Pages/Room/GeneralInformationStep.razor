@@ -46,19 +46,8 @@
                         Variant="Variant.Outlined"
                         Margin="Margin.Dense"
                         aria-describedby="roomCodeHelp"
-                        Immediate="true"
-                        Error="@_isDuplicateRoomCode"
-                        ErrorText="@_duplicateRoomCodeError"
-                        @onblur="ValidateRoomCode" />
+                        Immediate="true" />
                 </div>
-                @if (_isValidatingRoomCode)
-                {
-                    <small class="text-muted mt-1">Checking room code...</small>
-                }
-                else if (_isDuplicateRoomCode)
-                {
-                    <small class="text-danger mt-1">@_duplicateRoomCodeError</small>
-                }
             </div>
         </div>
 
@@ -107,11 +96,6 @@
     private const int MaxDescriptionLength = 800;
     private bool isDescriptionFocused = false;
 
-    private bool _isDuplicateRoomCode = false;
-    private bool _isValidatingRoomCode = false;
-    private string _duplicateRoomCodeError = "";
-    private string _lastValidatedRoomCode = "";
-
     private int GetDescriptionRemainingChars()
     {
         if (Wizard?.Entity?.Description == null)
@@ -129,95 +113,20 @@
         }
     }
 
-    private async Task ValidateRoomCode()
-    {
-        var roomCode = Wizard.Entity?.RoomCode;
-
-        if (string.IsNullOrWhiteSpace(roomCode))
-        {
-            _isDuplicateRoomCode = false;
-            _duplicateRoomCodeError = "";
-            return;
-        }
-
-        if (roomCode == _lastValidatedRoomCode)
-            return;
-
-        _lastValidatedRoomCode = roomCode;
-        _isValidatingRoomCode = true;
-        StateHasChanged();
-
-        try
-        {
-            var groupId = Wizard.Entity?.GroupId ?? Guid.Empty;
-            var excludeRoomId = Wizard.Entity?.IsEditMode == true ? Wizard.Entity?.Id : null;
-
-            // Check room code uniqueness across all properties in the group
-            var exists = await CheckRoomCodeExistsInGroup(groupId, roomCode, excludeRoomId);
-
-            _isDuplicateRoomCode = exists;
-            _duplicateRoomCodeError = exists ? "A room with this code already exists. Please use a unique room code." : "";
-        }
-        catch
-        {
-            _isDuplicateRoomCode = false;
-            _duplicateRoomCodeError = "";
-        }
-        finally
-        {
-            _isValidatingRoomCode = false;
-            StateHasChanged();
-        }
-    }
-
-    private async Task<bool> CheckRoomCodeExistsInGroup(Guid groupId, string roomCode, Guid? excludeRoomId = null)
-    {
-        if (groupId == Guid.Empty || string.IsNullOrWhiteSpace(roomCode))
-            return false;
-
-        try
-        {
-            // Get all properties in the group
-            var properties = await PropertyService.GetPropertiesByGroupIdAsync(groupId);
-            if (properties == null || !properties.Any())
-                return false;
-
-            // Check room codes across all properties in the group
-            foreach (var property in properties)
-            {
-                var exists = await RoomService.CheckRoomCodeExists(property.PropertyId, roomCode, excludeRoomId);
-                if (exists)
-                    return true;
-            }
-
-            return false;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
     private async Task<bool> ValidateStepAsync()
     {
         if (roomForm is null) return false;
 
         await roomForm.Validate();
 
-        if (!string.IsNullOrWhiteSpace(Wizard.Entity?.RoomCode) && _lastValidatedRoomCode != Wizard.Entity.RoomCode)
-        {
-            await ValidateRoomCode();
-        }
-
-        return roomForm.IsValid && !_isDuplicateRoomCode;
+        return roomForm.IsValid;
     }
 
     private bool IsFormValid()
     {
         if (Wizard.Entity == null) return false;
         return !string.IsNullOrWhiteSpace(Wizard.Entity.RoomName) &&
-               !string.IsNullOrWhiteSpace(Wizard.Entity.RoomCode) &&
-               !_isDuplicateRoomCode;
+               !string.IsNullOrWhiteSpace(Wizard.Entity.RoomCode);
     }
 
     private void HandleBack()
@@ -227,14 +136,6 @@
 
     private async Task HandleNext()
     {
-        if (!string.IsNullOrWhiteSpace(Wizard.Entity?.RoomCode) && _lastValidatedRoomCode != Wizard.Entity.RoomCode)
-        {
-            await ValidateRoomCode();
-        }
-
-        if (_isDuplicateRoomCode)
-            return;
-
         if (Wizard.OnNext != null)
         {
             await Wizard.OnNext.Invoke();

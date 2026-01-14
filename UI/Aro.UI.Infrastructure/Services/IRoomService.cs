@@ -23,6 +23,4 @@ public interface IRoomService
     Task<bool> ReorderRooms(ReorderRoomsRequest request);
 
     Task<byte[]?> GetRoomImage(Guid roomId, Guid imageId);
-
-    Task<bool> CheckRoomCodeExists(Guid propertyId, string roomCode, Guid? excludeRoomId = null);
 }
