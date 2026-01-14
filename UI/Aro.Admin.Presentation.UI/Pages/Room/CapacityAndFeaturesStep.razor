@@ -6,8 +6,8 @@
 <StepTitle StepNumber="2" Title="Capacity & Features" />
 
 <MudForm @ref="roomForm"
-    Model="Wizard.Entity"
-    Validation="@(roomValidator.GetValidateValue())">
+         Model="Wizard.Entity"
+         Validation="@(roomValidator.GetValidateValue())">
 
     <div class="row gy-2 mt-5">
 
@@ -60,6 +60,7 @@
                 <label for="roomSize" class="form-label">Room Size *</label>
 
                 <MudTextField T="int?"
+                              @ref="sqmField"
                               Value="Wizard.Entity.RoomSizeSQM"
                               ValueChanged="OnSqmChanged"
                               ValueExpression="@(() => Wizard.Entity.RoomSizeSQM)"
@@ -78,6 +79,7 @@
                 <label class="form-label" style="color: transparent;">Room Size SQFT</label>
 
                 <MudTextField T="int?"
+                              @ref="sqftField"
                               Value="Wizard.Entity.RoomSizeSQFT"
                               ValueChanged="OnSqftChanged"
                               ValueExpression="@(() => Wizard.Entity.RoomSizeSQFT)"
@@ -124,6 +126,8 @@
 
 @code {
     [CascadingParameter] public EntityWizardContext<RoomModel> Wizard { get; set; } = default!;
+    private MudTextField<int?>? sqmField;
+    private MudTextField<int?>? sqftField;
 
     private MudForm? roomForm;
 
@@ -166,50 +170,48 @@
 
     private bool _updatingRoomSize;
 
-    private void OnSqmChanged(int? value)
+    private async Task OnSqmChanged(int? value)
     {
-        if (_updatingRoomSize)
-            return;
-
+        if (_updatingRoomSize) return;
         _updatingRoomSize = true;
 
         Wizard.Entity.RoomSizeSQM = value;
 
         if (value.HasValue && value.Value > 0)
-        {
-            Wizard.Entity.RoomSizeSQFT =
-                (int?)Math.Round(value.Value * SqmToSqft);
-        }
+            Wizard.Entity.RoomSizeSQFT = (int?)Math.Round(value.Value * SqmToSqft);
         else
-        {
             Wizard.Entity.RoomSizeSQFT = null;
-        }
 
         _updatingRoomSize = false;
+
+        // Revalidate only SQM and SQFT fields
+        if (sqmField != null) await sqmField.Validate();
+        if (sqftField != null) await sqftField.Validate();
+
+        StateHasChanged();
     }
 
-
-    private void OnSqftChanged(int? value)
+    private async Task OnSqftChanged(int? value)
     {
-        if (_updatingRoomSize)
-            return;
-
+        if (_updatingRoomSize) return;
         _updatingRoomSize = true;
 
         Wizard.Entity.RoomSizeSQFT = value;
 
         if (value.HasValue && value.Value > 0)
-        {
-            Wizard.Entity.RoomSizeSQM =
-                (int?)Math.Round(value.Value / SqmToSqft);
-        }
+            Wizard.Entity.RoomSizeSQM = (int?)Math.Round(value.Value / SqmToSqft);
         else
-        {
             Wizard.Entity.RoomSizeSQM = null;
-        }
 
         _updatingRoomSize = false;
+
+        // Revalidate only SQM and SQFT fields
+        if (sqmField != null) await sqmField.Validate();
+        if (sqftField != null) await sqftField.Validate();
+
+        StateHasChanged();
     }
+
 
     private void HandleBack()
     {
