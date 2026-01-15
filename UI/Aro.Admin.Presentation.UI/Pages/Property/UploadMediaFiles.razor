@@ -6,12 +6,14 @@
 @using Microsoft.JSInterop
 @using MudBlazor
 @using Aro.UI.Application.DTOs
+@using Aro.Admin.Presentation.UI.Services
 @using Aro.Admin.Presentation.UI.Shared
 @layout WizardLayout
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @inject IDialogService DialogService
 @inject ISnackbar Snackbar
+@inject IWizardNavigationService WizardNavigationService
 
 <div class="property-wizard-container">
     <!-- Header Bar -->
@@ -600,8 +602,11 @@
     }
     private async Task HandleBack()
     {
-        await SaveToLocalStorage(true);
-        NavigationManager.NavigateTo("/property/key-selling-points");
+        await WizardNavigationService.NavigateWithUnsavedChangesCheckAsync(
+            wizardModel.IsEditMode,
+            HasUnsavedChanges(),
+            () => SaveToLocalStorage(true),
+            "/property/key-selling-points");
     }
 
     private async Task HandleNext()
@@ -609,8 +614,11 @@
         if (!ValidateAndShowErrors())
             return;
 
-        await SaveToLocalStorage(true);
-        NavigationManager.NavigateTo("/property/marketing-seo");
+        await WizardNavigationService.NavigateWithUnsavedChangesCheckAsync(
+            wizardModel.IsEditMode,
+            HasUnsavedChanges(),
+            () => SaveToLocalStorage(true),
+            "/property/marketing-seo");
     }
 
     private async Task HandleSave()
@@ -623,32 +631,11 @@
     {
         if (!wizardModel.IsEditMode) return;
 
-        if (!HasUnsavedChanges())
-        {
-            NavigationManager.NavigateTo(stepRoutes[stepIndex]);
-            return;
-        }
-
-        var parameters = new DialogParameters();
-        var options = new DialogOptions { CloseButton = false, MaxWidth = MaxWidth.Small };
-        var dialog = await DialogService.ShowAsync<UnsavedChangesModal>("Unsaved Changes", parameters, options);
-        var result = await dialog.Result;
-
-        if (result == null || result.Canceled) return;
-
-        var action = (UnsavedChangesModal.UnsavedChangesResult)result.Data!;
-        switch (action)
-        {
-            case UnsavedChangesModal.UnsavedChangesResult.SaveAndContinue:
-                await SaveToLocalStorage(true);
-                NavigationManager.NavigateTo(stepRoutes[stepIndex]);
-                break;
-            case UnsavedChangesModal.UnsavedChangesResult.Discard:
-                NavigationManager.NavigateTo(stepRoutes[stepIndex]);
-                break;
-            case UnsavedChangesModal.UnsavedChangesResult.Cancel:
-                break;
-        }
+        await WizardNavigationService.NavigateWithUnsavedChangesCheckAsync(
+            wizardModel.IsEditMode,
+            HasUnsavedChanges(),
+            () => SaveToLocalStorage(true),
+            stepRoutes[stepIndex]);
     }
 
     public class ImageModel
