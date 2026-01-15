@@ -5,6 +5,7 @@
 @using Microsoft.JSInterop
 @using MudBlazor
 @using Aro.UI.Application.DTOs
+@using Aro.Admin.Presentation.UI.Services
 @using Aro.Admin.Presentation.UI.Shared
 @layout WizardLayout
 @inject NavigationManager NavigationManager
@@ -12,6 +13,7 @@
 @inject IPropertyService PropertyService
 @inject ISnackbar Snackbar
 @inject IDialogService DialogService
+@inject IWizardNavigationService WizardNavigationService
 
 <div class="property-wizard-container">
     <!-- Header Bar -->
@@ -416,8 +418,11 @@
         if (isSubmitting) return;
         if (!IsFormValid()) return;
 
-        await SaveToLocalStorage();
-        NavigationManager.NavigateTo("/property/address-contact");
+        await WizardNavigationService.NavigateWithUnsavedChangesCheckAsync(
+            wizardModel.IsEditMode,
+            HasUnsavedChanges(),
+            SaveToLocalStorage,
+            "/property/address-contact");
     }
 
     private async Task HandleSave()
@@ -426,7 +431,6 @@
         if (!IsFormValid()) return;
 
         await SaveToLocalStorage();
-        // In edit mode, "Save" navigates to Review & Save step
         NavigationManager.NavigateTo("/property/review-save");
     }
 
@@ -434,32 +438,11 @@
     {
         if (!wizardModel.IsEditMode) return;
 
-        if (!HasUnsavedChanges())
-        {
-            NavigationManager.NavigateTo(stepRoutes[stepIndex]);
-            return;
-        }
-
-        var parameters = new DialogParameters();
-        var options = new DialogOptions { CloseButton = false, MaxWidth = MaxWidth.Small };
-        var dialog = await DialogService.ShowAsync<UnsavedChangesModal>("Unsaved Changes", parameters, options);
-        var result = await dialog.Result;
-
-        if (result == null || result.Canceled) return;
-
-        var action = (UnsavedChangesModal.UnsavedChangesResult)result.Data!;
-        switch (action)
-        {
-            case UnsavedChangesModal.UnsavedChangesResult.SaveAndContinue:
-                await SaveToLocalStorage();
-                NavigationManager.NavigateTo(stepRoutes[stepIndex]);
-                break;
-            case UnsavedChangesModal.UnsavedChangesResult.Discard:
-                NavigationManager.NavigateTo(stepRoutes[stepIndex]);
-                break;
-            case UnsavedChangesModal.UnsavedChangesResult.Cancel:
-                break;
-        }
+        await WizardNavigationService.NavigateWithUnsavedChangesCheckAsync(
+            wizardModel.IsEditMode,
+            HasUnsavedChanges(),
+            SaveToLocalStorage,
+            stepRoutes[stepIndex]);
     }
 
     // Shorthand property for binding in the form

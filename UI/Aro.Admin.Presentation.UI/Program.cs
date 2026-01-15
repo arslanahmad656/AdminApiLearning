@@ -1,4 +1,5 @@
 using Aro.Admin.Presentation.UI;
+using Aro.Admin.Presentation.UI.Services;
 using Aro.Admin.Presentation.UI.Validators;
 using Aro.UI.Application.DTOs.Group;
 using Aro.UI.Application.DTOs.Room;
@@ -74,6 +75,7 @@ builder.Services.AddScoped<IAmenityService, AmenityService>();
 builder.Services.AddScoped<IPolicyService, PolicyService>();
 
 builder.Services.AddScoped<ICountryMetadataService, CountryMetadataService>();
+builder.Services.AddScoped<IWizardNavigationService, WizardNavigationService>();
 
 builder.Services.AddTransient<IValidator<GroupModel>, GroupModelFluentValidator>();
 builder.Services.AddTransient<IValidator<PrimaryContactModel>, PrimaryContactModelFluentValidator>();
