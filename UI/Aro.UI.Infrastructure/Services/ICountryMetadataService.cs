@@ -6,6 +6,7 @@ public interface ICountryMetadataService
     Task InitializeAsync();
     CountryMetadata? GetByName(string name);
     CountryMetadata? GetByISO2(string iso2);
+    CountryMetadata? GetByCountryCode(string countryCode);
     IEnumerable<CountryMetadata> GetAll();
     IEnumerable<string> GetAllCountryNames();
     IEnumerable<string> GetAllCountryCodes();

@@ -153,7 +153,7 @@
                         <label class="form-label">Phone Number *</label>
                         <div class="@($"phone-input-wrapper {(IsPhoneNumberInvalid ? "input-error-border" : "")}")" @onfocusin="OnPhoneNumberFocus" @onfocusout="OnPhoneNumberBlur">
                             <div class="phone-country-flag">
-                                <img src="@GetFlagUrlByCountryCode(wizardModel.PhoneCountryCode, wizardModel.Country)" alt="Country Flag" class="flag-icon-small" />
+                                <img src="@GetFlagUrlByCountryCode(wizardModel.PhoneCountryCode, _phoneCountryName)" alt="Country Flag" class="flag-icon-small" />
                             </div>
                             <select class="phone-country-code-select" @bind="wizardModel.PhoneCountryCode" disabled="@wizardModel.SetContactSameAsPrimaryContact">
                                 <option value="">--</option>
@@ -280,6 +280,8 @@
     private Guid? _currentPropertyId = null;
     private string _originalStateHash = string.Empty;
     private string Title => $"{(wizardModel.IsEditMode ? "Edit" : "Add New")} Property";
+    // Track the country name for phone flag (separate from address country)
+    private string? _phoneCountryName;
 
     private readonly List<string> stepTitles = new()
     {
@@ -460,6 +462,19 @@
             if (!string.IsNullOrEmpty(wizardModel.PhoneNumber))
             {
                 wizardModel.PhoneNumber = SanitizePhoneNumber(wizardModel.PhoneNumber);
+            }
+
+            // Initialize phone country name for flag display
+            if (wizardModel.SetContactSameAsPrimaryContact && !string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
+            {
+                // When "same as group" is checked, look up country from phone code
+                var country = CountryMetadataService.GetByCountryCode(wizardModel.PhoneCountryCode);
+                _phoneCountryName = country?.Name;
+            }
+            else
+            {
+                // Otherwise use the address country
+                _phoneCountryName = wizardModel.Country;
             }
 
             // In edit mode, compare property data with group data to determine checkbox states
@@ -693,23 +708,25 @@
     {
         wizardModel.Country = newCountry;
 
-        // Auto-update phone country code based on selected country
-        if (!string.IsNullOrWhiteSpace(newCountry))
+        // Auto-update phone country code and phone country name based on selected country
+        // Only if "Set the same as group primary contact" is NOT checked
+        if (!wizardModel.SetContactSameAsPrimaryContact && !string.IsNullOrWhiteSpace(newCountry))
         {
             var country = CountryMetadataService.GetByName(newCountry);
             if (country != null && !string.IsNullOrWhiteSpace(country.PhoneCountryCode))
             {
                 wizardModel.PhoneCountryCode = country.PhoneCountryCode;
+                _phoneCountryName = newCountry;
             }
         }
 
         StateHasChanged();
     }
 
-    private Task<IEnumerable<string>> SearchCountries(string searchText, CancellationToken cancellationToken)
+    private async Task<IEnumerable<string>> SearchCountries(string searchText, CancellationToken cancellationToken)
     {
         if (countryNames == null)
-            return Task.FromResult(Enumerable.Empty<string>());
+            return Enumerable.Empty<string>();
 
         // If search text is empty OR matches the currently selected country, show all countries
         if (string.IsNullOrWhiteSpace(searchText) ||
@@ -718,7 +735,14 @@
             var sortedAll = countryNames
                 .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
                 .ToList();
-            return Task.FromResult<IEnumerable<string>>(sortedAll);
+
+            // Scroll to the selected country after dropdown renders
+            if (!string.IsNullOrWhiteSpace(wizardModel.Country))
+            {
+                _ = ScrollToSelectedCountryAsync(wizardModel.Country);
+            }
+
+            return sortedAll;
         }
 
         var filtered = countryNames
@@ -726,7 +750,14 @@
             .OrderBy(c => c, StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        return Task.FromResult<IEnumerable<string>>(filtered);
+        return filtered;
+    }
+
+    private async Task ScrollToSelectedCountryAsync(string selectedCountry)
+    {
+        // Small delay to allow dropdown to render
+        await Task.Delay(50);
+        await JSRuntime.InvokeVoidAsync("scrollToSelectedCountry", selectedCountry);
     }
 
     private async Task OnSameAsPrimaryChanged()
@@ -795,6 +826,17 @@
                     // Also load phone number from the group's primary contact
                     wizardModel.PhoneCountryCode = groupResponse.Group.PrimaryContactCountryCode ?? string.Empty;
                     wizardModel.PhoneNumber = SanitizePhoneNumber(groupResponse.Group.PrimaryContactPhoneNumber);
+
+                    // Look up country name from phone country code for flag display
+                    if (!string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
+                    {
+                        var country = CountryMetadataService.GetByCountryCode(wizardModel.PhoneCountryCode);
+                        _phoneCountryName = country?.Name;
+                    }
+                    else
+                    {
+                        _phoneCountryName = null;
+                    }
                 }
             }
             catch
@@ -808,6 +850,8 @@
             wizardModel.ContactEmail = string.Empty;
             wizardModel.PhoneCountryCode = string.Empty;
             wizardModel.PhoneNumber = string.Empty;
+            // Reset phone country name to address country when unchecked
+            _phoneCountryName = wizardModel.Country;
         }
 
         await InvokeAsync(StateHasChanged);
@@ -970,28 +1014,30 @@
 
     private string GetFlagUrlByCountryCode(string? phoneCountryCode, string? fallbackCountryName)
     {
-        // First try to get flag by phone country code
-        if (!string.IsNullOrWhiteSpace(phoneCountryCode) && !string.IsNullOrWhiteSpace(fallbackCountryName))
+        // When both phone country code and country name are provided, use the country name
+        // to get the correct flag (handles cases like USA/Canada sharing +1 code)
+        if (!string.IsNullOrWhiteSpace(fallbackCountryName))
         {
-            var countries = CountryMetadataService.GetAll();
-            var country = countries.FirstOrDefault(c => (c.PhoneCountryCode == phoneCountryCode && c.Name == c.Name));
-            if (country != null && !string.IsNullOrWhiteSpace(country.ISO2))
-            {
-                return $"/flags/{country.ISO2.ToLowerInvariant()}.svg";
-            }
-        }
-        else if (!string.IsNullOrWhiteSpace(phoneCountryCode))
-        {
-            var countries = CountryMetadataService.GetAll();
-            var country = countries.FirstOrDefault(c => (c.PhoneCountryCode == phoneCountryCode));
+            var country = CountryMetadataService.GetByName(fallbackCountryName);
             if (country != null && !string.IsNullOrWhiteSpace(country.ISO2))
             {
                 return $"/flags/{country.ISO2.ToLowerInvariant()}.svg";
             }
         }
 
-        // Fallback to country name
-        return GetCountryFlagUrl(fallbackCountryName);
+        // Fallback: try to find by phone country code alone
+        if (!string.IsNullOrWhiteSpace(phoneCountryCode))
+        {
+            var countries = CountryMetadataService.GetAll();
+            var country = countries.FirstOrDefault(c => c.PhoneCountryCode == phoneCountryCode);
+            if (country != null && !string.IsNullOrWhiteSpace(country.ISO2))
+            {
+                return $"/flags/{country.ISO2.ToLowerInvariant()}.svg";
+            }
+        }
+
+        // Final fallback to placeholder
+        return GetPlaceholderFlagSvg();
     }
 
     private string GetPlaceholderFlagSvg()
