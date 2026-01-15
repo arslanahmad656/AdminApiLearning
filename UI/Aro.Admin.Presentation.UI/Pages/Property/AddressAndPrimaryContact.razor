@@ -155,7 +155,7 @@
                             <div class="phone-country-flag">
                                 <img src="@GetFlagUrlByCountryCode(wizardModel.PhoneCountryCode, _phoneCountryName)" alt="Country Flag" class="flag-icon-small" />
                             </div>
-                            <select class="phone-country-code-select" @bind="wizardModel.PhoneCountryCode" disabled="@wizardModel.SetContactSameAsPrimaryContact">
+                            <select class="phone-country-code-select" value="@wizardModel.PhoneCountryCode" @onchange="OnPhoneCountryCodeChanged" disabled="@wizardModel.SetContactSameAsPrimaryContact">
                                 <option value="">--</option>
                                 @if (countryCodes != null)
                                 {
@@ -718,6 +718,25 @@
                 wizardModel.PhoneCountryCode = country.PhoneCountryCode;
                 _phoneCountryName = newCountry;
             }
+        }
+
+        StateHasChanged();
+    }
+
+    private void OnPhoneCountryCodeChanged(ChangeEventArgs e)
+    {
+        var newCode = e.Value?.ToString() ?? string.Empty;
+        wizardModel.PhoneCountryCode = newCode;
+
+        // Update phone country name based on the new country code for flag display
+        if (!string.IsNullOrWhiteSpace(newCode))
+        {
+            var country = CountryMetadataService.GetByCountryCode(newCode);
+            _phoneCountryName = country?.Name;
+        }
+        else
+        {
+            _phoneCountryName = null;
         }
 
         StateHasChanged();

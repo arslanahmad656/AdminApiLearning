@@ -313,12 +313,12 @@
         return url;
     }
 
-    private void OpenWebsite(string? website)
+    private async Task OpenWebsite(string? website)
     {
         if (!string.IsNullOrEmpty(website))
         {
             var url = website.StartsWith("http") ? website : $"https://{website}";
-            NavigationManager?.NavigateTo(url, true);
+            await JSRuntime.InvokeVoidAsync("window.open", url, "_blank");
         }
     }
 
