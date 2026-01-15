@@ -84,4 +84,21 @@ public class CountryMetadataService(HttpClient http) : ICountryMetadataService
 
         return Regex.IsMatch(telephoneNumber, country.PhoneNumberRegex);
     }
+
+    public (int MinLength, int MaxLength) GetPhoneLengthRequirements(string countryCode)
+    {
+        var country = GetByCountryCode(countryCode);
+        if (country == null || string.IsNullOrWhiteSpace(country.PhoneNumberRegex))
+            return (7, 15);
+
+        var match = Regex.Match(country.PhoneNumberRegex, @"\{(\d+)(?:,(\d+))?\}");
+        if (match.Success)
+        {
+            var min = int.Parse(match.Groups[1].Value);
+            var max = match.Groups[2].Success ? int.Parse(match.Groups[2].Value) : min;
+            return (min, max);
+        }
+
+        return (7, 15);
+    }
 }

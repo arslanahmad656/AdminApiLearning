@@ -15,6 +15,7 @@
 @inject IGroupService GroupService
 @inject ICountryMetadataService CountryMetadataService
 @inject IDialogService DialogService
+@inject IUserService UserService
 
 <div class="property-wizard-container">
     <!-- Header Bar -->
@@ -175,7 +176,7 @@
                                    placeholder="Enter phone number"
                                    pattern="[0-9]*"
                                    inputmode="numeric"
-                                   maxlength="15"
+                                   maxlength="@GetPhoneNumberMaxLength()"
                                    readonly="@wizardModel.SetContactSameAsPrimaryContact" />
                         </div>
                         @if (IsPhoneNumberInvalid)
@@ -280,8 +281,8 @@
     private Guid? _currentPropertyId = null;
     private string _originalStateHash = string.Empty;
     private string Title => $"{(wizardModel.IsEditMode ? "Edit" : "Add New")} Property";
-    // Track the country name for phone flag (separate from address country)
     private string? _phoneCountryName;
+    private string? _originalContactEmail;
 
     private readonly List<string> stepTitles = new()
     {
@@ -322,6 +323,7 @@
     private bool websiteFocused = false;
     private bool contactNameFocused = false;
     private bool contactEmailFocused = false;
+    private bool contactEmailAlreadyExists = false;
 
     // Focus handlers - hide error while editing
     private void OnAddressLine1Focus() { addressLine1Focused = true; StateHasChanged(); }
@@ -347,10 +349,29 @@
         await Task.Yield();
         contactEmailFocused = false;
         contactEmailTouched = true;
-        // Trim email on blur to remove leading/trailing spaces
         if (!string.IsNullOrEmpty(wizardModel.ContactEmail))
         {
             wizardModel.ContactEmail = wizardModel.ContactEmail.Trim();
+        }
+
+        contactEmailAlreadyExists = false;
+        if (!string.IsNullOrWhiteSpace(wizardModel.ContactEmail) && IsValidEmail(wizardModel.ContactEmail))
+        {
+            if (wizardModel.IsEditMode && !string.IsNullOrWhiteSpace(_originalContactEmail) &&
+                string.Equals(wizardModel.ContactEmail, _originalContactEmail, StringComparison.OrdinalIgnoreCase))
+            {
+                contactEmailAlreadyExists = false;
+            }
+            else
+            {
+                try
+                {
+                    contactEmailAlreadyExists = await UserService.UserEmailExists(new GetUserByEmailRequest(wizardModel.ContactEmail));
+                }
+                catch
+                {
+                }
+            }
         }
         StateHasChanged();
     }
@@ -361,7 +382,7 @@
     private void OnPostalCodeChanged(string? newValue) { wizardModel.PostalCode = newValue; }
     private void OnWebsiteChanged(string? newValue) { wizardModel.Website = newValue; }
     private void OnContactNameChanged(string? newValue) { wizardModel.ContactName = newValue; }
-    private void OnContactEmailChanged(string? newValue) { wizardModel.ContactEmail = newValue; }
+    private void OnContactEmailChanged(string? newValue) { wizardModel.ContactEmail = newValue; contactEmailAlreadyExists = false; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -464,16 +485,13 @@
                 wizardModel.PhoneNumber = SanitizePhoneNumber(wizardModel.PhoneNumber);
             }
 
-            // Initialize phone country name for flag display
             if (wizardModel.SetContactSameAsPrimaryContact && !string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
             {
-                // When "same as group" is checked, look up country from phone code
                 var country = CountryMetadataService.GetByCountryCode(wizardModel.PhoneCountryCode);
                 _phoneCountryName = country?.Name;
             }
             else
             {
-                // Otherwise use the address country
                 _phoneCountryName = wizardModel.Country;
             }
 
@@ -481,6 +499,7 @@
             if (wizardModel.IsEditMode && _currentGroupId.HasValue)
             {
                 await CompareWithGroupDataAsync();
+                _originalContactEmail = wizardModel.ContactEmail;
             }
 
             _originalStateHash = ComputeCurrentStateHash();
@@ -524,7 +543,7 @@
     // Regex patterns for validation
     private static readonly Regex PhoneNumberRegex = new Regex(@"^\d+$", RegexOptions.Compiled);
     private static readonly Regex EmailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex UrlRegex = new Regex(@"^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-._~:/?#\[\]@!$&'()*+,;=]*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex UrlRegex = new Regex(@"^(https?:\/\/)?(www\.)?[a-zA-Z0-9][a-zA-Z0-9\-]*\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?(\/[\w\-._~:/?#\[\]@!$&'()*+,;=]*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private bool IsFormValid()
     {
@@ -538,7 +557,8 @@
                IsValidUrl(wizardModel.Website) &&
                !string.IsNullOrWhiteSpace(wizardModel.ContactName) &&
                !string.IsNullOrWhiteSpace(wizardModel.ContactEmail) &&
-               IsValidEmail(wizardModel.ContactEmail);
+               IsValidEmail(wizardModel.ContactEmail) &&
+               !contactEmailAlreadyExists;
     }
 
     // Format validation methods
@@ -548,7 +568,12 @@
             return false;
         if (!PhoneNumberRegex.IsMatch(phone))
             return false;
-        // Phone number must be between 7-15 digits
+
+        if (!string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
+        {
+            return CountryMetadataService.ValidateTelephone(wizardModel.PhoneCountryCode, phone);
+        }
+
         return phone.Length >= 7 && phone.Length <= 15;
     }
     private bool IsValidEmail(string? email) => !string.IsNullOrWhiteSpace(email) && EmailRegex.IsMatch(email.Trim());
@@ -565,7 +590,7 @@
     private bool IsPhoneNumberInvalid => !phoneNumberFocused && (string.IsNullOrWhiteSpace(wizardModel.PhoneNumber) || !IsValidPhoneNumber(wizardModel.PhoneNumber)) && (showValidation || phoneNumberTouched);
     private bool IsWebsiteInvalid => !websiteFocused && (string.IsNullOrWhiteSpace(wizardModel.Website) || !IsValidUrl(wizardModel.Website)) && (showValidation || websiteTouched);
     private bool IsContactNameInvalid => !contactNameFocused && string.IsNullOrWhiteSpace(wizardModel.ContactName) && (showValidation || contactNameTouched);
-    private bool IsContactEmailInvalid => !contactEmailFocused && (string.IsNullOrWhiteSpace(wizardModel.ContactEmail) || !IsValidEmail(wizardModel.ContactEmail)) && (showValidation || contactEmailTouched);
+    private bool IsContactEmailInvalid => !contactEmailFocused && (string.IsNullOrWhiteSpace(wizardModel.ContactEmail) || !IsValidEmail(wizardModel.ContactEmail) || contactEmailAlreadyExists) && (showValidation || contactEmailTouched);
 
     // Error message methods
     private string GetPhoneNumberErrorMessage()
@@ -574,10 +599,27 @@
             return "Phone Number is required";
         if (!PhoneNumberRegex.IsMatch(wizardModel.PhoneNumber))
             return "Phone Number must contain only numeric values";
-        if (wizardModel.PhoneNumber.Length < 7)
-            return "Phone Number must be at least 7 digits";
-        if (wizardModel.PhoneNumber.Length > 15)
-            return "Phone Number must not exceed 15 digits";
+
+        if (wizardModel.PhoneNumber.StartsWith("0"))
+            return "Use international format without leading 0";
+
+        var (minLength, maxLength) = !string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode)
+            ? CountryMetadataService.GetPhoneLengthRequirements(wizardModel.PhoneCountryCode)
+            : (7, 15);
+
+        if (minLength == maxLength)
+        {
+            if (wizardModel.PhoneNumber.Length != minLength)
+                return $"Phone Number must be exactly {minLength} digits";
+        }
+        else
+        {
+            if (wizardModel.PhoneNumber.Length < minLength)
+                return $"Phone Number must be at least {minLength} digits";
+            if (wizardModel.PhoneNumber.Length > maxLength)
+                return $"Phone Number must not exceed {maxLength} digits";
+        }
+
         return string.Empty;
     }
 
@@ -586,7 +628,7 @@
         if (string.IsNullOrWhiteSpace(wizardModel.Website))
             return "Website URL is required";
         if (!IsValidUrl(wizardModel.Website))
-            return "Please enter a valid URL (e.g., https://example.com)";
+            return "Enter a valid URL with domain (e.g., example.com or https://example.com)";
         return string.Empty;
     }
 
@@ -596,7 +638,19 @@
             return "Email is required";
         if (!IsValidEmail(wizardModel.ContactEmail))
             return "Please enter a valid email address";
+        if (contactEmailAlreadyExists)
+            return "Email already exists";
         return string.Empty;
+    }
+
+    private int GetPhoneNumberMaxLength()
+    {
+        if (!string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
+        {
+            var (_, maxLength) = CountryMetadataService.GetPhoneLengthRequirements(wizardModel.PhoneCountryCode);
+            return maxLength;
+        }
+        return 15; // Default max length
     }
 
     // Sanitize phone number - strips non-numeric characters and enforces max length
@@ -708,8 +762,6 @@
     {
         wizardModel.Country = newCountry;
 
-        // Auto-update phone country code and phone country name based on selected country
-        // Only if "Set the same as group primary contact" is NOT checked
         if (!wizardModel.SetContactSameAsPrimaryContact && !string.IsNullOrWhiteSpace(newCountry))
         {
             var country = CountryMetadataService.GetByName(newCountry);
@@ -728,7 +780,6 @@
         var newCode = e.Value?.ToString() ?? string.Empty;
         wizardModel.PhoneCountryCode = newCode;
 
-        // Update phone country name based on the new country code for flag display
         if (!string.IsNullOrWhiteSpace(newCode))
         {
             var country = CountryMetadataService.GetByCountryCode(newCode);
@@ -831,6 +882,7 @@
         contactNameTouched = false;
         contactEmailTouched = false;
         phoneNumberTouched = false;
+        contactEmailAlreadyExists = false;
         showValidation = false;
 
         if (wizardModel.SetContactSameAsPrimaryContact && wizardModel.GroupId.HasValue)
@@ -846,7 +898,6 @@
                     wizardModel.PhoneCountryCode = groupResponse.Group.PrimaryContactCountryCode ?? string.Empty;
                     wizardModel.PhoneNumber = SanitizePhoneNumber(groupResponse.Group.PrimaryContactPhoneNumber);
 
-                    // Look up country name from phone country code for flag display
                     if (!string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
                     {
                         var country = CountryMetadataService.GetByCountryCode(wizardModel.PhoneCountryCode);
@@ -869,7 +920,6 @@
             wizardModel.ContactEmail = string.Empty;
             wizardModel.PhoneCountryCode = string.Empty;
             wizardModel.PhoneNumber = string.Empty;
-            // Reset phone country name to address country when unchecked
             _phoneCountryName = wizardModel.Country;
         }
 
@@ -1027,14 +1077,11 @@
             return $"/flags/{country.ISO2.ToLowerInvariant()}.svg";
         }
 
-        // Fallback placeholder
         return GetPlaceholderFlagSvg();
     }
 
     private string GetFlagUrlByCountryCode(string? phoneCountryCode, string? fallbackCountryName)
     {
-        // When both phone country code and country name are provided, use the country name
-        // to get the correct flag (handles cases like USA/Canada sharing +1 code)
         if (!string.IsNullOrWhiteSpace(fallbackCountryName))
         {
             var country = CountryMetadataService.GetByName(fallbackCountryName);
@@ -1044,7 +1091,6 @@
             }
         }
 
-        // Fallback: try to find by phone country code alone
         if (!string.IsNullOrWhiteSpace(phoneCountryCode))
         {
             var countries = CountryMetadataService.GetAll();
@@ -1055,7 +1101,6 @@
             }
         }
 
-        // Final fallback to placeholder
         return GetPlaceholderFlagSvg();
     }
 

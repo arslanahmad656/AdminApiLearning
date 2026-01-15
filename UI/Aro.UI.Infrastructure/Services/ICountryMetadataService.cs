@@ -12,4 +12,5 @@ public interface ICountryMetadataService
     IEnumerable<string> GetAllCountryCodes();
     bool ValidatePostalCode(string countryName, string postalCode);
     bool ValidateTelephone(string countryCode, string telephoneNumber);
+    (int MinLength, int MaxLength) GetPhoneLengthRequirements(string countryCode);
 }
