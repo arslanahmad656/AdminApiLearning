@@ -75,7 +75,7 @@ public class RoomModelFluentValidator : AbstractValidator<RoomModel>
             .LessThanOrEqualTo(500);
 
         RuleFor(m => m.RoomSizeSQFT)
-            .GreaterThanOrEqualTo(130)
+            .GreaterThanOrEqualTo(129)
             .LessThanOrEqualTo(5382);
 
         RuleFor(m => m.BedConfig)
