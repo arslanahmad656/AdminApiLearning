@@ -12,6 +12,9 @@ public class GroupConfiguration : IEntityTypeConfiguration<Group>
 
         builder.HasKey(u => u.Id);
 
+        builder.Property(g => g.IconId)
+            .IsRequired(false);
+
         builder.Property(u => u.GroupName)
             .IsRequired()
             .HasMaxLength(100);
