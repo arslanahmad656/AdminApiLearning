@@ -584,18 +584,8 @@
         if (phone.StartsWith("0"))
             return false;
 
-        var (minLength, maxLength) = !string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode)
-            ? CountryMetadataService.GetPhoneLengthRequirements(wizardModel.PhoneCountryCode)
-            : (7, 15);
-
-        if (minLength == maxLength)
-        {
-            return phone.Length == minLength;
-        }
-        else
-        {
-            return phone.Length >= minLength && phone.Length <= maxLength;
-        }
+        // Only require more than 7 digits
+        return phone.Length > 7;
     }
     private bool IsValidEmail(string? email) => !string.IsNullOrWhiteSpace(email) && EmailRegex.IsMatch(email.Trim());
     private bool IsValidUrl(string? url) => !string.IsNullOrWhiteSpace(url) && UrlRegex.IsMatch(url);
@@ -624,22 +614,8 @@
         if (wizardModel.PhoneNumber.StartsWith("0"))
             return "Use international format without leading 0";
 
-        var (minLength, maxLength) = !string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode)
-            ? CountryMetadataService.GetPhoneLengthRequirements(wizardModel.PhoneCountryCode)
-            : (7, 15);
-
-        if (minLength == maxLength)
-        {
-            if (wizardModel.PhoneNumber.Length != minLength)
-                return $"Phone Number must be exactly {minLength} digits";
-        }
-        else
-        {
-            if (wizardModel.PhoneNumber.Length < minLength)
-                return $"Phone Number must be at least {minLength} digits";
-            if (wizardModel.PhoneNumber.Length > maxLength)
-                return $"Phone Number must not exceed {maxLength} digits";
-        }
+        if (wizardModel.PhoneNumber.Length <= 7)
+            return "Enter a valid phone number";
 
         return string.Empty;
     }
