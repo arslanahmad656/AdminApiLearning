@@ -150,42 +150,8 @@
                     </div>
                 </div>
 
-                <!-- Phone Number and Website URL Row -->
+                <!--   Website URL Row -->
                 <div class="form-row-two-col-custom">
-                    <div class="form-group">
-                        <label class="form-label">Phone Number *</label>
-                        <div class="@($"phone-input-wrapper {(IsPhoneNumberInvalid ? "input-error-border" : "")}")" @onfocusin="OnPhoneNumberFocus" @onfocusout="OnPhoneNumberBlur">
-                            <div class="phone-country-flag">
-                                <img src="@GetFlagUrlByCountryCode(wizardModel.PhoneCountryCode, _phoneCountryName)" alt="Country Flag" class="flag-icon-small" />
-                            </div>
-                            <select class="phone-country-code-select" value="@wizardModel.PhoneCountryCode" @onchange="OnPhoneCountryCodeChanged" disabled="@wizardModel.SetContactSameAsPrimaryContact">
-                                <option value="">--</option>
-                                @if (countryCodes != null)
-                                {
-                                    @foreach (var countryCode in countryCodes)
-                                    {
-                                        <option value="@countryCode">+@countryCode</option>
-                                    }
-                                }
-                            </select>
-                            <div class="phone-divider"></div>
-                            <input type="tel"
-                                   class="phone-number-input"
-                                   @bind="wizardModel.PhoneNumber"
-                                   @bind:event="oninput"
-                                   @bind:after="OnPhoneNumberChanged"
-                                   onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 0"
-                                   placeholder="Enter phone number"
-                                   pattern="[0-9]*"
-                                   inputmode="numeric"
-                                   maxlength="@GetPhoneNumberMaxLength()"
-                                   readonly="@wizardModel.SetContactSameAsPrimaryContact" />
-                        </div>
-                        @if (IsPhoneNumberInvalid)
-                        {
-                            <div class="validation-error-text">@GetPhoneNumberErrorMessage()</div>
-                        }
-                    </div>
                     <div class="form-group">
                         <label class="form-label">Website URL *</label>
                         <MudTextField T="string"
@@ -249,6 +215,44 @@
                                       @onblur="OnContactEmailBlur" />
                     </div>
                     <div class="form-group">
+                        <label class="form-label">Phone Number *</label>
+                        <div class="@($"phone-input-wrapper {(IsPhoneNumberInvalid ? "input-error-border" : "")}")" @onfocusin="OnPhoneNumberFocus" @onfocusout="OnPhoneNumberBlur">
+                            <div class="phone-country-flag">
+                                <img src="@GetFlagUrlByCountryCode(wizardModel.PhoneCountryCode, _phoneCountryName)" alt="Country Flag" class="flag-icon-small" />
+                            </div>
+                            <select class="phone-country-code-select" value="@wizardModel.PhoneCountryCode" @onchange="OnPhoneCountryCodeChanged" disabled="@wizardModel.SetContactSameAsPrimaryContact">
+                                <option value="">--</option>
+                                @if (countryCodes != null)
+                                {
+                                    @foreach (var countryCode in countryCodes)
+                                    {
+                                        <option value="@countryCode">+@countryCode</option>
+                                    }
+                                }
+                            </select>
+                            <div class="phone-divider"></div>
+                            <input type="tel"
+                                   class="phone-number-input"
+                                   @bind="wizardModel.PhoneNumber"
+                                   @bind:event="oninput"
+                                   @bind:after="OnPhoneNumberChanged"
+                                   onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 0"
+                                   placeholder="Enter phone number"
+                                   pattern="[0-9]*"
+                                   inputmode="numeric"
+                                   maxlength="@GetPhoneNumberMaxLength()"
+                                   readonly="@wizardModel.SetContactSameAsPrimaryContact" />
+                        </div>
+                        @if (IsPhoneNumberInvalid)
+                        {
+                            <div class="validation-error-text">@GetPhoneNumberErrorMessage()</div>
+                        }
+                    </div>
+
+                </div>
+                <!--Phone Number Row-->
+                <div class="form-row-one-col-custom">
+                    <div class="form-group">
                         <label class="form-label">Role</label>
                         <div class="role-display-wrapper">
                             <div class="role-display">
@@ -261,6 +265,8 @@
                         </div>
                     </div>
                 </div>
+
+
             </MudForm>
             <!-- Footer with Buttons -->
             <WizardFooter OnBack="HandleBack"
@@ -1389,15 +1395,15 @@
         color: #000000 !important;
     }
 
-    /* Placeholder styles for MudBlazor inputs */
-    .address-form .form-input input.mud-input-slot::placeholder,
-    .address-form .form-input textarea.mud-input-slot::placeholder,
-    .address-form .form-input input::placeholder,
-    .address-form .form-input .mud-input-slot::placeholder {
-        color: #737373 !important;
-        opacity: 1 !important;
-        font-weight: 400 !important;
-    }
+        /* Placeholder styles for MudBlazor inputs */
+        .address-form .form-input input.mud-input-slot::placeholder,
+        .address-form .form-input textarea.mud-input-slot::placeholder,
+        .address-form .form-input input::placeholder,
+        .address-form .form-input .mud-input-slot::placeholder {
+            color: #737373 !important;
+            opacity: 1 !important;
+            font-weight: 400 !important;
+        }
 
     /* WebKit browsers (Chrome, Safari, Edge) */
     .address-form .form-input input::-webkit-input-placeholder,
@@ -1447,7 +1453,7 @@
         border: 1px solid #C3C3C3;
         border-radius: 8px;
         width: 290px;
-        height: 50px;
+        height: 52px;
         overflow: hidden;
     }
 
@@ -1559,6 +1565,11 @@
         margin-bottom: 40px;
     }
 
+    .form-row-one-col-custom {
+        display: grid;
+        grid-template-columns: 310px 1fr;
+    }
+
     /* Phone Input with Flag */
     .phone-input-wrapper {
         display: flex;
@@ -1566,14 +1577,16 @@
         background: #F6F6F6;
         border: 1px solid #C3C3C3;
         border-radius: 6px;
-        height: 50px;
+        height: 52px;
         overflow: hidden;
     }
 
+    /* Flag */
     .phone-country-flag {
-        padding: 0 12px;
+        padding: 0 8px;
         display: flex;
         align-items: center;
+        flex-shrink: 0;
     }
 
     .flag-icon-small {
@@ -1584,25 +1597,27 @@
 
     .phone-divider {
         width: 1px;
-        height: 48px;
+        height: 100%;
         background: #C3C3C3;
+        flex-shrink: 0;
     }
-
     .phone-country-code-select {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 400;
         color: #000000;
-        padding: 0 4px 0 8px;
-        white-space: nowrap;
         border: none;
         background: transparent;
         cursor: pointer;
         appearance: none;
-        -webkit-appearance: none;
-        -moz-appearance: none;
-        min-width: 65px;
         height: 100%;
+        /* 👇 KEY FIX */
+        width: 60px;
+        min-width: 60px;
+        max-width: 60px;
+        text-align: center;
+        padding: 0;
+        flex-shrink: 0;
     }
 
         .phone-country-code-select:focus {
@@ -1615,15 +1630,10 @@
         height: 100%;
         border: none;
         background: transparent;
-        padding: 0 18px;
+        padding: 0 14px;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         font-size: 16px;
-        font-weight: 400;
-        color: #000000;
-        overflow: hidden;
-        text-overflow: ellipsis;
     }
-
         .phone-number-input:focus {
             outline: none;
         }
@@ -1786,7 +1796,15 @@
             font-size: 14px;
             margin-bottom: 8px;
         }
-
+        /* Phone takes full width */
+        .phone-input-wrapper {
+            width: 100%;
+        }
+        /* Role full width */
+        .form-row-one-col-custom {
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
         .content-title {
             font-size: 18px;
         }
