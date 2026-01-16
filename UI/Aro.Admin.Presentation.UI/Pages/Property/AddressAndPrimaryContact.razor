@@ -916,9 +916,10 @@
                 {
                     wizardModel.ContactName = groupResponse.Group.PrimaryContactName ?? string.Empty;
                     wizardModel.ContactEmail = groupResponse.Group.PrimaryContactEmail ?? string.Empty;
-                    // Also load phone number from the group's primary contact
                     wizardModel.PhoneCountryCode = groupResponse.Group.PrimaryContactCountryCode ?? string.Empty;
-                    wizardModel.PhoneNumber = SanitizePhoneNumber(groupResponse.Group.PrimaryContactPhoneNumber);
+
+                    var sanitizedPhone = SanitizePhoneNumber(groupResponse.Group.PrimaryContactPhoneNumber);
+                    wizardModel.PhoneNumber = sanitizedPhone.TrimStart('0');
 
                     if (!string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
                     {
