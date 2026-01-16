@@ -144,6 +144,7 @@
                           OnSave="HandleSave"
                           BackDisabled="true"
                           NextDisabled="@(!IsFormValid())"
+                          SaveDisabled="@(!IsFormValid())"
                           ShowSave="@wizardModel.IsEditMode" />
         </div>
     </div>
