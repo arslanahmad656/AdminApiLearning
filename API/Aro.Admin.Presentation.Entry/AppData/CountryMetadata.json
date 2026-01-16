@@ -499,9 +499,9 @@
     "Name": "Denmark",
     "OfficialName": "Kingdom of Denmark",
     "ISO2": "DK",
-    "PostalCodeRegex": ".*",
+    "PostalCodeRegex": "^[0-9]{4}$",
     "PhoneCountryCode": "45",
-    "PhoneNumberRegex": "^[1-9][0-9]{6,14}$"
+    "PhoneNumberRegex": "^[1-9][0-9]{7}$"
   },
   {
     "Name": "Dominican Republic",
@@ -635,7 +635,7 @@
     "Name": "United Kingdom",
     "OfficialName": "United Kingdom of Great Britain and Northern Ireland",
     "ISO2": "GB",
-    "PostalCodeRegex": ".*",
+    "PostalCodeRegex": "^[A-Z]{1,2}[0-9][0-9A-Z]?\\s?[0-9][A-Z]{2}$",
     "PhoneCountryCode": "44",
     "PhoneNumberRegex": "^[1-9][0-9]{9,10}$"
   },
@@ -667,9 +667,9 @@
     "Name": "Gibraltar",
     "OfficialName": "Gibraltar",
     "ISO2": "GI",
-    "PostalCodeRegex": ".*",
+    "PostalCodeRegex": "^GX11\\s?1[A-Z]{2}$",
     "PhoneCountryCode": "350",
-    "PhoneNumberRegex": "^[1-9][0-9]{6,14}$"
+    "PhoneNumberRegex": "^[2-9][0-9]{7}$"
   },
   {
     "Name": "Guinea",
@@ -827,15 +827,15 @@
     "Name": "Isle of Man",
     "OfficialName": "Isle of Man",
     "ISO2": "IM",
-    "PostalCodeRegex": ".*",
-    "PhoneCountryCode": "000",
-    "PhoneNumberRegex": "^[1-9][0-9]{6,14}$"
+    "PostalCodeRegex": "^IM[0-9]{1,2}\\s?[0-9][A-Z]{2}$",
+    "PhoneCountryCode": "44",
+    "PhoneNumberRegex": "^1624[0-9]{6}$"
   },
   {
     "Name": "India",
     "OfficialName": "Republic of India",
     "ISO2": "IN",
-    "PostalCodeRegex": ".*",
+    "PostalCodeRegex": "^[1-9][0-9]{5}$",
     "PhoneCountryCode": "91",
     "PhoneNumberRegex": "^[6-9][0-9]{9}$"
   },
@@ -851,9 +851,9 @@
     "Name": "Ireland",
     "OfficialName": "Ireland",
     "ISO2": "IE",
-    "PostalCodeRegex": ".*",
+    "PostalCodeRegex": "^[AC-FHKNPRTV-Y][0-9]{2}\\s?[0-9AC-FHKNPRTV-Y]{4}$",
     "PhoneCountryCode": "353",
-    "PhoneNumberRegex": "^[1-9][0-9]{6,14}$"
+    "PhoneNumberRegex": "^[1-9][0-9]{8}$"
   },
   {
     "Name": "Iran, Islamic Republic of",
@@ -901,7 +901,7 @@
     "ISO2": "JM",
     "PostalCodeRegex": ".*",
     "PhoneCountryCode": "1876",
-    "PhoneNumberRegex": "^[1-9][0-9]{6,14}$"
+    "PhoneNumberRegex": "^[2-9][0-9]{6}$"
   },
   {
     "Name": "Jersey",
@@ -1837,7 +1837,7 @@
     "ISO2": "TZ",
     "PostalCodeRegex": ".*",
     "PhoneCountryCode": "255",
-    "PhoneNumberRegex": "^[1-9][0-9]{6,14}$"
+    "PhoneNumberRegex": "^[67][0-9]{8}$"
   },
   {
     "Name": "Uganda",
@@ -1875,7 +1875,7 @@
     "Name": "United States",
     "OfficialName": "United States of America",
     "ISO2": "US",
-    "PostalCodeRegex": ".*",
+    "PostalCodeRegex": "^[0-9]{5}(-[0-9]{4})?$",
     "PhoneCountryCode": "1",
     "PhoneNumberRegex": "^[2-9][0-9]{9}$"
   },
