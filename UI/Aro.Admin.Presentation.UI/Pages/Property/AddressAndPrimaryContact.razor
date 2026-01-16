@@ -550,8 +550,8 @@
 
     // Regex patterns for validation
     private static readonly Regex PhoneNumberRegex = new Regex(@"^\d+$", RegexOptions.Compiled);
-    private static readonly Regex EmailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-    private static readonly Regex UrlRegex = new Regex(@"^(https?:\/\/)?(www\.)?[a-zA-Z0-9][a-zA-Z0-9\-]*\.[a-zA-Z]{2,}(\.[a-zA-Z]{2,})?(\/[\w\-._~:/?#\[\]@!$&'()*+,;=]*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex EmailRegex = new Regex(@"^(?!.*\.\.)(?!.*\.@)[a-zA-Z0-9](?:[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]*[a-zA-Z0-9])?@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex UrlRegex = new Regex(@"^https?:\/\/([a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}(\/[\w\-._~:/?#\[\]@!$&'()*+,;=]*)?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private bool IsFormValid()
     {
@@ -577,12 +577,22 @@
         if (!PhoneNumberRegex.IsMatch(phone))
             return false;
 
-        if (!string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
-        {
-            return CountryMetadataService.ValidateTelephone(wizardModel.PhoneCountryCode, phone);
-        }
+        // Phone number should not start with 0 (international format)
+        if (phone.StartsWith("0"))
+            return false;
 
-        return phone.Length >= 7 && phone.Length <= 15;
+        var (minLength, maxLength) = !string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode)
+            ? CountryMetadataService.GetPhoneLengthRequirements(wizardModel.PhoneCountryCode)
+            : (7, 15);
+
+        if (minLength == maxLength)
+        {
+            return phone.Length == minLength;
+        }
+        else
+        {
+            return phone.Length >= minLength && phone.Length <= maxLength;
+        }
     }
     private bool IsValidEmail(string? email) => !string.IsNullOrWhiteSpace(email) && EmailRegex.IsMatch(email.Trim());
     private bool IsValidUrl(string? url) => !string.IsNullOrWhiteSpace(url) && UrlRegex.IsMatch(url);
@@ -636,7 +646,7 @@
         if (string.IsNullOrWhiteSpace(wizardModel.Website))
             return "Website URL is required";
         if (!IsValidUrl(wizardModel.Website))
-            return "Enter a valid URL with domain (e.g., example.com or https://example.com)";
+            return "URL must start with http:// or https:// (e.g., https://example.com)";
         return string.Empty;
     }
 
@@ -764,6 +774,7 @@
                 wizardModel.PhoneNumber = sanitized;
             }
         }
+        StateHasChanged();
     }
 
     private void OnCountryChanged(string newCountry)
