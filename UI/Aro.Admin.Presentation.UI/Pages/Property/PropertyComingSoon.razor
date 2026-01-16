@@ -1,0 +1,471 @@
+@page "/property/{GroupId:guid}/{PropertyId:guid}/rate-plans"
+@page "/property/{GroupId:guid}/{PropertyId:guid}/gift-vouchers"
+@page "/property/{GroupId:guid}/{PropertyId:guid}/users"
+@page "/property/{GroupId:guid}/{PropertyId:guid}/facilities"
+@attribute [Authorize]
+@layout PropertyLayout
+@using Aro.UI.Application.DTOs.Group
+@using Microsoft.AspNetCore.Components.Authorization
+@using Aro.UI.Infrastructure.Services
+@using Microsoft.Extensions.Configuration
+@using Aro.Admin.Presentation.UI.Shared
+@inject NavigationManager NavigationManager
+@inject IGroupService GroupService
+@inject IConfiguration Configuration
+
+<PageTitle>ARO Admin - @PageTitle</PageTitle>
+
+<div class="coming-soon-page-container">
+    <!-- Left Sidebar - Property Specific Menu -->
+    <div class="property-sidebar">
+        <div class="sidebar-logo">
+            <img src="aro-logo.svg" alt="ARO" class="logo-img" />
+        </div>
+
+        <div class="property-header">
+            <div class="property-avatar">
+                @if (!string.IsNullOrEmpty(GroupImageUrl))
+                {
+                    <img src="@GroupImageUrl" alt="@GroupName" />
+                }
+                else
+                {
+                    <div class="group-logo-placeholder">
+                        @(GroupName?.Length > 0 ? GroupName.Substring(0, 1).ToUpper() : "G")
+                    </div>
+                }
+            </div>
+            <span class="property-title">@GroupName</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/group/@GroupId/property/@PropertyId/rooms" class="nav-item @(CurrentPage == "rooms" ? "active" : "")">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7 14C8.66 14 10 12.66 10 11C10 9.34 8.66 8 7 8C5.34 8 4 9.34 4 11C4 12.66 5.34 14 7 14ZM7 10C7.55 10 8 10.45 8 11C8 11.55 7.55 12 7 12C6.45 12 6 11.55 6 11C6 10.45 6.45 10 7 10ZM19 7H11V15H3V5H1V20H3V17H21V20H23V11C23 8.79 21.21 7 19 7ZM21 15H13V9H19C20.1 9 21 9.9 21 11V15Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Rooms</span>
+            </a>
+            <a href="/property/@GroupId/@PropertyId/rate-plans" class="nav-item @(CurrentPage == "rate-plans" ? "active" : "")">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21.41 11.58L12.41 2.58C12.05 2.22 11.55 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.55 2.22 12.05 2.59 12.42L11.59 21.42C11.95 21.78 12.45 22 13 22C13.55 22 14.05 21.78 14.41 21.41L21.41 14.41C21.78 14.05 22 13.55 22 13C22 12.45 21.77 11.94 21.41 11.58ZM5.5 7C4.67 7 4 6.33 4 5.5C4 4.67 4.67 4 5.5 4C6.33 4 7 4.67 7 5.5C7 6.33 6.33 7 5.5 7Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Rate plans</span>
+            </a>
+            <a href="/property/@GroupId/@PropertyId/gift-vouchers" class="nav-item @(CurrentPage == "gift-vouchers" ? "active" : "")">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 6H17.82C17.93 5.69 18 5.35 18 5C18 3.34 16.66 2 15 2C13.95 2 13.04 2.54 12.5 3.35L12 4.02L11.5 3.34C10.96 2.54 10.05 2 9 2C7.34 2 6 3.34 6 5C6 5.35 6.07 5.69 6.18 6H4C2.89 6 2.01 6.89 2.01 8L2 19C2 20.11 2.89 21 4 21H20C21.11 21 22 20.11 22 19V8C22 6.89 21.11 6 20 6ZM15 4C15.55 4 16 4.45 16 5C16 5.55 15.55 6 15 6C14.45 6 14 5.55 14 5C14 4.45 14.45 4 15 4ZM9 4C9.55 4 10 4.45 10 5C10 5.55 9.55 6 9 6C8.45 6 8 5.55 8 5C8 4.45 8.45 4 9 4ZM20 19H4V17H20V19ZM20 14H4V8H9.08L7 10.83L8.62 12L11 8.76L12 7.4L13 8.76L15.38 12L17 10.83L14.92 8H20V14Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Gift vouchers</span>
+            </a>
+            <a href="/property/@GroupId/@PropertyId/users" class="nav-item @(CurrentPage == "users" ? "active" : "")">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12.65 10C11.83 7.67 9.61 6 7 6C3.69 6 1 8.69 1 12C1 15.31 3.69 18 7 18C9.61 18 11.83 16.33 12.65 14H17V18H21V14H23V10H12.65ZM7 14C5.9 14 5 13.1 5 12C5 10.9 5.9 10 7 10C8.1 10 9 10.9 9 12C9 13.1 8.1 14 7 14Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Users & Permissions</span>
+            </a>
+            <a href="/property/@GroupId/@PropertyId/facilities" class="nav-item @(CurrentPage == "facilities" ? "active" : "")">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="white"/>
+                        <path d="M7 12H9V17H7V12ZM11 7H13V17H11V7ZM15 10H17V17H15V10Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">Facilities & Services</span>
+            </a>
+            <a href="/property/@GroupId/@PropertyId/rules" class="nav-item @(CurrentPage == "rules" ? "active" : "")">
+                <span class="nav-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM14 17H7V15H14V17ZM17 13H7V11H17V13ZM17 9H7V7H17V9Z" fill="white"/>
+                    </svg>
+                </span>
+                <span class="nav-text">House Rules</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="/group/view/@GroupId" class="back-link">← Back to All Properties</a>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Top Header -->
+        <div class="content-header">
+            <div class="header-right">
+                <TopHeaderBar GroupName="@GroupName" ProfileImageUrl="@GroupImageUrl" />
+            </div>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-row">
+            <div class="breadcrumb">
+                <span>Client List / @GroupName / @PageTitle</span>
+            </div>
+        </div>
+
+        <!-- Coming Soon Content -->
+        <div class="coming-soon-content">
+            <div class="coming-soon-icon">
+                <svg width="120" height="120" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H5V5H19V19Z" fill="#9E9E9E"/>
+                    <path d="M12 6L12 18M6 12L18 12" stroke="#9E9E9E" stroke-width="2"/>
+                </svg>
+            </div>
+            <h1 class="coming-soon-title">Coming Soon</h1>
+            <p class="coming-soon-description">
+                The @PageTitle page is currently under development.<br/>
+                Please check back later.
+            </p>
+            <button class="back-btn" @onclick="GoBack">
+                ← Go Back
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Guid GroupId { get; set; }
+    [Parameter] public Guid PropertyId { get; set; }
+
+    private string GroupName { get; set; } = "";
+    private string? GroupImageUrl { get; set; }
+    private string CurrentPage { get; set; } = "";
+    private string PageTitle { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        DetermineCurrentPage();
+        await LoadGroupDetails();
+    }
+
+    private void DetermineCurrentPage()
+    {
+        var uri = NavigationManager.Uri;
+        if (uri.Contains("/rate-plans"))
+        {
+            CurrentPage = "rate-plans";
+            PageTitle = "Rate Plans";
+        }
+        else if (uri.Contains("/gift-vouchers"))
+        {
+            CurrentPage = "gift-vouchers";
+            PageTitle = "Gift Vouchers";
+        }
+        else if (uri.Contains("/users"))
+        {
+            CurrentPage = "users";
+            PageTitle = "Users & Permissions";
+        }
+        else if (uri.Contains("/facilities"))
+        {
+            CurrentPage = "facilities";
+            PageTitle = "Facilities & Services";
+        }
+        else
+        {
+            CurrentPage = "";
+            PageTitle = "Page Not Found";
+        }
+    }
+
+    private async Task LoadGroupDetails()
+    {
+        try
+        {
+            var groupResponse = await GroupService.GetGroup(new GetGroupRequest(GroupId, "PrimaryContact"));
+            if (groupResponse?.Group != null)
+            {
+                GroupName = groupResponse.Group.GroupName ?? "";
+
+                if (groupResponse.Group.LogoId.HasValue && groupResponse.Group.LogoId.Value != Guid.Empty)
+                {
+                    var apiBaseAddress = Configuration["ApiBaseAddress"]?.TrimEnd('/') ?? "https://localhost:7225";
+                    GroupImageUrl = $"{apiBaseAddress}/api/group/image/{GroupId}/{groupResponse.Group.LogoId.Value}";
+                }
+            }
+        }
+        catch (Exception)
+        {
+            GroupName = "";
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo($"/group/{GroupId}/property/{PropertyId}/rooms");
+    }
+}
+
+<style>
+    /* Main Container */
+    .coming-soon-page-container {
+        display: flex;
+        min-height: 100vh;
+        background: #FFFFFF;
+    }
+
+    /* Left Sidebar */
+    .property-sidebar {
+        width: 381px;
+        background: #434343;
+        border-right: 1px solid #474747;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+        padding: 36px 36px 20px;
+    }
+
+    .logo-img {
+        height: 36px;
+        width: auto;
+    }
+
+    .property-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 20px 36px;
+    }
+
+    .property-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 18px;
+        border: 1px solid white;
+        overflow: hidden;
+    }
+
+    .property-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .group-logo-placeholder {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background-color: #5B5B5B;
+        color: #FFFFFF;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .property-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+        color: #FFFFFF;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar-nav {
+        flex: 1;
+        padding: 20px 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #FFFFFF;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 16px;
+        transition: background-color 0.2s ease;
+    }
+
+    .nav-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-item.active {
+        background: #5B5B5B;
+    }
+
+    .nav-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+    }
+
+    .nav-text {
+        flex: 1;
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+        padding: 20px 36px;
+        border-top: 1px solid #5B5B5B;
+    }
+
+    .back-link {
+        color: #FFFFFF;
+        text-decoration: none;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        font-size: 14px;
+        opacity: 0.8;
+        transition: opacity 0.2s ease;
+    }
+
+    .back-link:hover {
+        opacity: 1;
+    }
+
+    /* Main Content */
+    .main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background: #FFFFFF;
+        min-height: 100vh;
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        padding: 16px 40px;
+        background: #FFFFFF;
+        border-bottom: 1px solid #E0E0E0;
+    }
+
+    .header-right {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb-row {
+        padding: 20px 40px;
+        background: #FFFFFF;
+    }
+
+    .breadcrumb {
+        font-family: 'Inter', sans-serif;
+        font-size: 14px;
+        color: #9E9E9E;
+    }
+
+    /* Coming Soon Content */
+    .coming-soon-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 40px;
+        text-align: center;
+    }
+
+    .coming-soon-icon {
+        margin-bottom: 32px;
+        opacity: 0.6;
+    }
+
+    .coming-soon-title {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 48px;
+        color: #1C1B1F;
+        margin: 0 0 16px 0;
+    }
+
+    .coming-soon-description {
+        font-family: 'Inter', sans-serif;
+        font-size: 18px;
+        color: #9E9E9E;
+        line-height: 1.6;
+        margin: 0 0 32px 0;
+        max-width: 500px;
+    }
+
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: #F69126;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 6px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .back-btn:hover {
+        background: #E58115;
+    }
+
+    /* Responsive */
+    @@media (max-width: 1024px) {
+        .property-sidebar {
+            width: 280px;
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .coming-soon-page-container {
+            flex-direction: column;
+        }
+
+        .property-sidebar {
+            width: 100%;
+            min-height: auto;
+        }
+
+        .sidebar-nav {
+            flex-direction: row;
+            flex-wrap: wrap;
+            padding: 16px;
+        }
+
+        .nav-item {
+            padding: 10px 16px;
+        }
+
+        .content-header {
+            padding: 16px 20px;
+        }
+
+        .breadcrumb-row {
+            padding: 16px 20px;
+        }
+
+        .coming-soon-content {
+            padding: 40px 20px;
+        }
+
+        .coming-soon-title {
+            font-size: 32px;
+        }
+    }
+</style>
