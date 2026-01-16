@@ -236,6 +236,7 @@
                                    @bind="wizardModel.PhoneNumber"
                                    @bind:event="oninput"
                                    @bind:after="OnPhoneNumberChanged"
+                                   @onblur="OnPhoneInputBlur"
                                    onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode === 0"
                                    placeholder="Enter phone number"
                                    pattern="[0-9]*"
@@ -349,7 +350,8 @@
     private async Task OnCityBlur() { await Task.Yield(); cityFocused = false; cityTouched = true; StateHasChanged(); }
     private async Task OnCountryBlur() { await Task.Yield(); countryFocused = false; countryTouched = true; StateHasChanged(); }
     private async Task OnPostalCodeBlur() { await Task.Yield(); postalCodeFocused = false; postalCodeTouched = true; StateHasChanged(); }
-    private async Task OnPhoneNumberBlur() { await Task.Yield(); phoneNumberFocused = false; phoneNumberTouched = true; StateHasChanged(); }
+    private async Task OnPhoneNumberBlur() { await Task.Yield(); phoneNumberFocused = false; StateHasChanged(); }
+    private async Task OnPhoneInputBlur() { await Task.Yield(); phoneNumberTouched = true; StateHasChanged(); }
     private async Task OnWebsiteBlur() { await Task.Yield(); websiteFocused = false; websiteTouched = true; StateHasChanged(); }
     private async Task OnContactNameBlur() { await Task.Yield(); contactNameFocused = false; contactNameTouched = true; StateHasChanged(); }
     private async Task OnContactEmailBlur()
