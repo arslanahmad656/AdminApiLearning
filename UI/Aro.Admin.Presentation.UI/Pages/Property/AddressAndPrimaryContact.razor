@@ -642,12 +642,7 @@
 
     private int GetPhoneNumberMaxLength()
     {
-        if (!string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
-        {
-            var (_, maxLength) = CountryMetadataService.GetPhoneLengthRequirements(wizardModel.PhoneCountryCode);
-            return maxLength;
-        }
-        return 15; // Default max length
+        return 15; // International phone number max length - allows user to enter any valid phone number
     }
 
     // Sanitize phone number - strips non-numeric characters and enforces max length
