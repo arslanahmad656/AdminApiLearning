@@ -487,14 +487,14 @@
                 wizardModel.PhoneNumber = SanitizePhoneNumber(wizardModel.PhoneNumber);
             }
 
-            if (wizardModel.SetContactSameAsPrimaryContact && !string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
+            if (!string.IsNullOrWhiteSpace(wizardModel.PhoneCountryCode))
             {
                 var country = CountryMetadataService.GetByCountryCode(wizardModel.PhoneCountryCode);
                 _phoneCountryName = country?.Name;
             }
             else
             {
-                _phoneCountryName = wizardModel.Country;
+                _phoneCountryName = null;
             }
 
             // In edit mode, compare property data with group data to determine checkbox states
@@ -922,7 +922,7 @@
             wizardModel.ContactEmail = string.Empty;
             wizardModel.PhoneCountryCode = string.Empty;
             wizardModel.PhoneNumber = string.Empty;
-            _phoneCountryName = wizardModel.Country;
+            _phoneCountryName = null;
         }
 
         await InvokeAsync(StateHasChanged);
@@ -1069,6 +1069,11 @@
 
     private string GetFlagUrlByCountryCode(string? phoneCountryCode, string? fallbackCountryName)
     {
+        if (string.IsNullOrWhiteSpace(phoneCountryCode))
+        {
+            return GetPlaceholderFlagSvg();
+        }
+
         if (!string.IsNullOrWhiteSpace(fallbackCountryName))
         {
             var country = CountryMetadataService.GetByName(fallbackCountryName);
@@ -1078,14 +1083,11 @@
             }
         }
 
-        if (!string.IsNullOrWhiteSpace(phoneCountryCode))
+        var countries = CountryMetadataService.GetAll();
+        var countryByCode = countries.FirstOrDefault(c => c.PhoneCountryCode == phoneCountryCode);
+        if (countryByCode != null && !string.IsNullOrWhiteSpace(countryByCode.ISO2))
         {
-            var countries = CountryMetadataService.GetAll();
-            var country = countries.FirstOrDefault(c => c.PhoneCountryCode == phoneCountryCode);
-            if (country != null && !string.IsNullOrWhiteSpace(country.ISO2))
-            {
-                return $"/flags/{country.ISO2.ToLowerInvariant()}.svg";
-            }
+            return $"/flags/{countryByCode.ISO2.ToLowerInvariant()}.svg";
         }
 
         return GetPlaceholderFlagSvg();
