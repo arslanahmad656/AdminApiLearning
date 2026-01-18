@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace Aro.Common.Infrastructure.Services;
 
-public class RequestInterpretorService(IHttpContextAccessor httpContextAccessor, ILogManager<RequestInterpretorService> logger, ErrorCodes errorCodes) : IRequestInterpretorService
+public partial class RequestInterpretorService(IHttpContextAccessor httpContextAccessor, ILogManager<RequestInterpretorService> logger, ErrorCodes errorCodes) : IRequestInterpretorService
 {
     private readonly HttpContext? httpContext = httpContextAccessor.HttpContext;
 
@@ -23,9 +23,11 @@ public class RequestInterpretorService(IHttpContextAccessor httpContextAccessor,
         return username;
     }
 
-    public string? RetrieveIpAddress()
+    public string? RetrieveIpAddress(bool stripPort = false)
     {
-        logger.LogDebug("Starting {MethodName}", nameof(RetrieveIpAddress));
+        logger.LogDebug("Starting {MethodName} with stripPort: {StripPort}", nameof(RetrieveIpAddress), stripPort);
+
+        string? ipAddress = null;
 
         // Check for forwarded headers first (useful when behind proxy/load balancer)
         var forwardedHeader = httpContext?.Request?.Headers?["X-Forwarded-For"].FirstOrDefault();
@@ -34,19 +36,30 @@ public class RequestInterpretorService(IHttpContextAccessor httpContextAccessor,
         if (!string.IsNullOrEmpty(forwardedHeader))
         {
             // May contain multiple IPs, take the first one
-            var ipAddress = forwardedHeader.Split(',')[0];
+            ipAddress = forwardedHeader.Split(',')[0].Trim();
             logger.LogDebug("IP address extracted from forwarded header: {IpAddress}", ipAddress);
-
-            logger.LogDebug("Completed {MethodName}", nameof(RetrieveIpAddress));
-            return ipAddress;
+        }
+        else
+        {
+            // Fallback to remote IP address
+            ipAddress = httpContext?.Connection?.RemoteIpAddress?.ToString();
+            logger.LogDebug("IP address retrieved from connection: {IpAddress}", ipAddress ?? string.Empty);
         }
 
-        // Fallback to remote IP address
-        var remoteIpAddress = httpContext?.Connection?.RemoteIpAddress?.ToString();
-        logger.LogDebug("IP address retrieved from connection: {IpAddress}", remoteIpAddress ?? string.Empty);
+        // Strip port if requested and IP address is not null
+        if (stripPort && !string.IsNullOrEmpty(ipAddress))
+        {
+            var originalIpAddress = ipAddress;
+            ipAddress = StripPortFromIpAddress(ipAddress);
+            
+            if (originalIpAddress != ipAddress)
+            {
+                logger.LogDebug("Port stripped from IP address. Original: {OriginalIp}, Stripped: {StrippedIp}", originalIpAddress, ipAddress);
+            }
+        }
 
-        logger.LogDebug("Completed {MethodName}", nameof(RetrieveIpAddress));
-        return remoteIpAddress;
+        logger.LogDebug("Completed {MethodName}, returning: {IpAddress}", nameof(RetrieveIpAddress), ipAddress ?? string.Empty);
+        return ipAddress;
     }
 
     public string? GetUserAgent()

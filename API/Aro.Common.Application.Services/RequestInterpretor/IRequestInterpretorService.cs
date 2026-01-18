@@ -10,7 +10,7 @@ public interface IRequestInterpretorService : IService
 
     TokenInfo GetTokenInfo();
 
-    string? RetrieveIpAddress();
+    string? RetrieveIpAddress(bool stripPort = false);
 
     string? ExtractUsername();
 

@@ -41,8 +41,8 @@ public partial class MailKitEmailService(IOptionsSnapshot<EmailSettings> emailSe
             ccCount,
             bccCount);
 
-        logger.LogDebug("Building MIME message. CustomHeadersCount={CustomHeadersCount}", emailSettings.CustomHeaders.Length);
-        var message = BuildMimeMessage(parameters, emailSettings.CustomHeaders.Select(h => (h.Key, h.Value)));
+        logger.LogDebug("Building MIME message. CustomHeadersCount={CustomHeadersCount}", emailSettings.CustomHeaders?.Length ?? 0);
+        var message = BuildMimeMessage(parameters, emailSettings.CustomHeaders?.Select(h => (h.Key, h.Value)) ?? []);
         logger.LogDebug("MIME message built successfully");
 
         try

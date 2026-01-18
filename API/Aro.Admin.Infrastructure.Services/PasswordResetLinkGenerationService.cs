@@ -22,7 +22,7 @@ public class PasswordResetLinkGenerationService(IUserService userService, IReque
             var res = await userService.GetUserByEmail(parameters.Email, false, false, ct).ConfigureAwait(false);
             var user = res.User;
 
-            var ipAddress = requestInterpretorService.RetrieveIpAddress()
+            var ipAddress = requestInterpretorService.RetrieveIpAddress(true)
                 ?? throw new InvalidOperationException($"Could not retrieve IP address for password reset link generation for user with email {parameters.Email}.");
             var userAgent = requestInterpretorService.GetUserAgent()
                 ?? throw new InvalidOperationException($"Could not retrieve User Agent for password reset link generation for user with email {parameters.Email}.");

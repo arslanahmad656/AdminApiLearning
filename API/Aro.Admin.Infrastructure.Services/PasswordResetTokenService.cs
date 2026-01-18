@@ -138,7 +138,7 @@ public partial class PasswordResetTokenService(
             if (passwordResetSettings.UseStrictSecurityChecks)
             {
                 logger.LogDebug("Validating the strict security measurements.");
-                var currentIpAddress = requestInterpretorService.RetrieveIpAddress();
+                var currentIpAddress = requestInterpretorService.RetrieveIpAddress(true);
                 var currentUserAgent = requestInterpretorService.GetUserAgent();
 
                 if (!string.Equals(currentIpAddress, ipAddress) || !string.Equals(currentUserAgent, userAgent))
